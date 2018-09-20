@@ -1,0 +1,19 @@
+//********************************************************************
+//PageViewer 
+//Author: Jeffrey Csank, 8/14/2017
+//			NASA Glenn Research Center
+//********************************************************************
+
+OutFileStream rowSheetStream { filename = "output/PTE.rowOut"; } 
+
+DataViewer CaseRowViewer rowSheet { 
+
+  titleBody = "";
+  titleVars = {}
+  variableList = { "Gen2.Eff"} 
+  
+  outStreamHandle = "rowSheetStream"; 
+} 
+
+
+postsolverSequence.append("rowSheet"); 

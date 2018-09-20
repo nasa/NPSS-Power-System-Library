@@ -1,0 +1,186 @@
+//-------------------------------------------------------------------------------------------------
+//
+//   File Name:     baseline.mdl
+//   Date(s):       March 19, 2018
+//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
+//					NASA Glenn Research Center
+//
+//   Description:   Model file describes baseline model (Generator, Cable, Motor) for a basic AC system.
+//
+//-------------------------------------------------------------------------------------------------
+
+#include "ElectricPort.prt"
+
+cout<<"======================================="<<endl;
+cout<<"         Baseline Model  "<<endl;
+cout<<"======================================="<<endl;
+
+setThermoPackage("GasTbl");
+
+/*******************************************
+ Branch 1 
+ Gen1 -> Cable1 -> EM1
+*******************************************/
+
+Element eBasicGenerator Gen1 {
+	Vbus_LL=1200; // define line to line voltage
+	Eff=0.96;
+	SpecificPower=13.;
+	void preexecute(){	 	
+		Current=MotorTorque/2;
+	};
+}
+
+Element eGenericCable Cable1 {
+	LineResistance=4.3245e-6;	
+	SpecificAmperage=170.;
+	CableLength=28.3464; 
+}
+
+// Motor
+ Element eBasicMotor EM1 {
+	 Eff=0.96;
+	 SpecificPower=13.0; 	 
+	 Torque=55144.0; 
+}
+
+/*******************************************
+ Branch 2
+ Gen2 -> Cable2 -> EM2
+*******************************************/
+Element eBasicGenerator Gen2 {
+	Vbus_LL=1200;
+	Eff=0.96;
+	SpecificPower=13.;
+	void preexecute(){
+		Current=MotorTorque/2;
+	};
+}
+
+Element eGenericCable Cable2 {
+	LineResistance=4.3245e-6;
+	SpecificAmperage=170.;
+	CableLength=28.3464; 
+}
+
+// Motor
+ Element eBasicMotor EM2 {
+	 Eff=0.96;
+	 SpecificPower=13.0; 
+	 Torque=55144.0;   // in*lb ?????	 
+}
+
+/**************************
+ Electric Motor Connections
+**************************/
+Element FlowStart Atm{
+	Pt=14.696;
+	Tt=518.67;
+	W=4394.74/10;
+}
+
+Element Compressor Prop{
+	#include "fanE3.map";
+	PRdes=1.4;
+	effDes=0.93;
+}
+
+Element FlowEnd dump{
+};
+
+Element Shaft Propulsor_Shaft {
+	Nmech=4000;   // rpm
+	ShaftInputPort Sh1_I, Sh2_I, Sh_Prop;
+}
+
+/**************************
+ Turbine Engine / Generator  Connections
+**************************/
+Element FlowStart TurbineAtm{
+	Pt=500;
+	Tt=2200;
+	W=500;
+	FAR=0.02;   
+}
+
+Element Turbine Turb{
+	#include "lptE3.map";	
+	PRbase=2;
+	effDes=0.9;
+}
+
+// added Nozzle
+Nozzle Noz{
+  PsExh = 14.;
+}
+
+Element FlowEnd Turbinedump{
+};
+
+/*
+Independent ind_w{
+	varName="Atm.W";
+	//autoSetup=TRUE;
+	autoSetup=FALSE;
+};
+*/
+
+real MotorTorque=EM1.Torque+EM2.Torque;
+
+Independent ind_torque{
+	varName="MotorTorque";
+	autoSetup=TRUE;
+	//autoSetup=FALSE;
+};
+
+Independent turbPR{
+	varName="Turb.PRdes";
+	//autoSetup=TRUE;
+	//autoSetup=FALSE;
+};
+
+Element Shaft Turbine_Shaft {
+	Nmech=4000;   // rpm	
+	ShaftInputPort Sh1_I, Sh2_I, Sh_Turbine;	
+}
+
+// temporary issue with electric port
+EM1.EP_I.setOption("ElectricPowerType","AC3");
+EM2.EP_I.setOption("ElectricPowerType","AC3");
+Cable1.EP_O.setOption("ElectricPowerType","AC3");
+Cable2.EP_O.setOption("ElectricPowerType","AC3");
+Cable1.EP_I.setOption("ElectricPowerType","AC3");
+Cable2.EP_I.setOption("ElectricPowerType","AC3");
+Gen1.EP_O.setOption("ElectricPowerType","AC3");
+Gen2.EP_O.setOption("ElectricPowerType","AC3");
+
+void linkPortE( string E1, string E2 ){
+  E1->refport = E2;
+  E2->refport = E1;
+}
+
+//-------------------------------------------------------------------------------------------------
+// Component Linkages
+//-------------------------------------------------------------------------------------------------
+linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
+linkPortE( "Gen1.EP_O", "Cable1.EP_I" );
+linkPortE( "Cable1.EP_O", "EM1.EP_I" );
+linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
+linkPortE( "Gen2.EP_O", "Cable2.EP_I" );
+linkPortE( "Cable2.EP_O", "EM2.EP_I" );
+linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
+
+// if not using nozzle
+//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1-End");
+
+// using nozzle
+linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
+linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
+
+// continue
+linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
+linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
+linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
+linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
+linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
+linkPorts( "Turbine_Shaft.Sh2_I"    , "Gen2.Sh_O", "Gen2-to-Shaft");

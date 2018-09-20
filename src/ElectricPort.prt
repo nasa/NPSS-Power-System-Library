@@ -1,0 +1,207 @@
+
+
+class ElectricPort extends Element {
+
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	title = "";
+	description = isA() + " Electric Port";
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	background = "";   
+  
+	string refport;
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	real Voltage{
+		value=0; IOstatus="input"; //units=volts;
+		description = "Bus Voltage, line to neutral";
+	}
+	
+	real Voltage_LL{
+		value=0; IOstatus="input"; //units=volts;
+		description = "Bus Voltage, line to line";
+	}
+	
+	real Current{
+		value=0; IOstatus="input"; //units=amps;
+		description = "Current";
+	}
+	
+	real RealPower{
+		value=0; IOstatus="input"; //units=kW;
+		description = "Power";
+	}
+	
+	real frequency{
+		value=0; IOstatus="input"; //units=kW;
+		description = "Frequency";
+	}
+	
+	real ReactivePower{
+		value=0; IOstatus="input"; //units=kW;
+		description = "reactive power";
+	}
+	
+	real ApparentPower{
+		value=0; IOstatus="input"; //units=kW;
+		description = "Apparent Power";
+	}
+	
+	real VoltageAngle{
+		value=0; IOstatus="input"; //units=deg;
+		description = "Voltage angle (dg) line to neutral";
+	}
+	
+	real VoltageAngle_LL{
+		value=0; IOstatus="input"; //units=deg;
+		description = "Voltage angle (dg) line to line";
+	}
+	
+	real CurrentAngle{
+		value=0; IOstatus="input"; //units=kW;
+		description = "Current angle (deg)";
+	}
+	
+	
+	// define set command, set current and voltage and compute power
+	void setIV(real I, real V){
+			Current = I;
+			Voltage = V;
+			
+			if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
+			{
+				RealPower = V * I / 1000.;
+			}
+			
+			if (ElectricPowerType == "AC3"){
+				RealPower = V * I * 3 / 1000.;
+				Voltage_LL = Voltage * sqrt(3);
+			}
+	}
+	
+	// set current and power and compute voltage
+	void setIP(real I, real P){
+			Current = I;
+			RealPower = P;
+			
+			if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
+			{
+				Voltage = P * 1000. / I;
+			}
+			
+			if (ElectricPowerType == "AC3"){
+				Voltage = P * 1000. / I / 3.;
+				Voltage_LL = Voltage * sqrt(3);
+			}
+	}
+
+	
+
+	void setIVcomplex(real Imag, real Iangle, real Vmag, real Vangle){
+		Current=Imag;
+		CurrentAngle=Iangle;
+
+		// Voltage is defined as line to neutral		
+		Voltage=Vmag;
+		VoltageAngle=Vangle;
+		Voltage_LL = Voltage * sqrt(3);
+		VoltageAngle_LL = VoltageAngle + 30;
+	
+		ApparentPower = 3. * Voltage * Current / 1000.;
+	
+
+		RealPower = ApparentPower * cos((VoltageAngle - CurrentAngle)*PI/180);
+		ReactivePower = ApparentPower * sin((VoltageAngle - CurrentAngle)*PI/180);	
+	}
+	
+	
+
+	void setIPcomplex(real Imag, real Iangle, real Pmag, real pf){
+		Current=Imag;
+		CurrentAngle=Iangle;
+		
+		RealPower = Pmag;
+		// add logic to check power factor in the future
+		
+		ApparentPower = RealPower / pf;
+		ReactivePower = sqrt(ApparentPower **2 - RealPower**2);
+		
+		Voltage = ApparentPower / 3 / Current / 1000.;
+		Voltage_LL = Voltage * sqrt(3);
+		VoltageAngle = acos(pf)*180/PI + CurrentAngle;
+		VoltageAngle_LL = VoltageAngle + 30;
+	}
+
+
+	void setIScomplex(real Imag, real Iangle, real Smag, real pf){
+		Current=Imag;
+		CurrentAngle=Iangle;
+		
+		ApparentPower = Smag;
+		powerfactor= pf;
+		
+		// add logic to check power factor in the future
+		
+		RealPower = ApparentPower * powerfactor;
+		ReactivePower = sqrt(ApparentPower **2 - RealPower**2);
+		
+		Voltage = ApparentPower / 3 / Current / 1000.;
+		Voltage_LL = Voltage * sqrt(3);
+		VoltageAngle = acos(powerfactor)*180/PI + CurrentAngle;
+		VoltageAngle_LL = VoltageAngle + 30;
+	}
+
+	
+	void setfrequency(real freq){
+		frequency = freq;
+	}
+	
+	real Vreal(){
+	return(Voltage * cos(VoltageAngle*PI/180));}
+	
+	real Vimag(){
+	return(Voltage * sin(VoltageAngle*PI/180));}
+	
+
+
+	real Ireal(){
+	return(Current * cos(CurrentAngle*PI/180));}
+	
+	real Iimag(){
+	return(Current * sin(CurrentAngle*PI/180));}
+	
+	
+	// define power options
+	Option ElectricPowerType {
+		allowedValues = { "DC", "AC1", "AC3" };
+		description = "Electric Power Type (DC, AC1, AC3)";
+		//IOstatus = 'INPUT';
+		trigger = 0;
+		rewritableValues = FALSE;
+	}
+
+	
+	void copyport() {
+		Voltage=refport->Voltage;
+		VoltageAngle=refport->VoltageAngle;
+		Voltage_LL=refport->Voltage_LL;
+		
+		Current=refport->Current;
+		CurrentAngle=refport->CurrentAngle;
+		
+		RealPower=refport->RealPower;
+		ApparentPower=refport->ApparentPower;
+		ReactivePower=refport->ReactivePower;
+		
+		frequency=refport->frequency;
+		
+		
+		
+	
+		if (refport==""){
+			cerr<<"Hey Beavis, I need a refport!!!"<<endl;
+		}		
+	}
+}

@@ -1,0 +1,140 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * Jeffrey Csank, David Sadey, Tom Lavelle
+// * March 30, 2018
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class eBasicGenerator extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " Determines power for a Generator";
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	real Eff{
+		value=0.96; IOstatus="input"; //units=None;
+		description = "Projected Efficiency of the Cable";
+	}
+	
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=;
+		description = "Power to Weight ratio for the Generator";
+	}
+	
+	real LoadPower {
+		value = 0; IOstatus="input"; units= "W";
+		description = "Power on the load side";
+	} 
+	
+	real SupplyPower {
+		value = 0; IOstatus="output"; units= "W";
+		description = "Power on Supply Side";
+	}
+	
+	real Current {
+		value = 0; IOstatus="input"; units= "W";
+		description = "Power on Supply Side";
+	}
+	
+	real Voltage {
+		value = 0; IOstatus="input"; units= "W";
+		description = "Power on Supply Side";
+	}
+	
+	real genResistance {
+		value = 1; IOstatus="input"; units= "W";
+		description = "Resistance of Generator (based on efficiency)";
+	}
+	
+	real Mass {
+		value=0; IOstatus="output"; units="kg";
+		description = "Mass output of the Generator";
+	}
+	
+	real Loss {
+		value = 0; IOstatus="output"; units="W";
+		description = "Generator Loss";
+	}
+	
+	real Vbus_LL {
+		value = 0; IOstatus="input"; units="V";
+		description = "Bus voltage, line to line";
+	} 
+	
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ShaftOutputPort Sh_O {
+		description = "Mechanical connection to the turbine";
+	}
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger= FALSE;
+	}
+	
+	void calculate() {
+		
+		// convert line to line bus voltage to line to neutral
+		real Vbus = Vbus_LL / sqrt(3);
+		
+		if (switchDes == "DESIGN" ){
+			/****************************
+			On-design
+			****************************/
+			
+			// determine the design point power at the output of the generator
+			EP_O.setIV( Current, Vbus);
+			
+			// Determine power from the turbine based on efficiency
+			SupplyPower = EP_O.RealPower / Eff;		
+			
+			// determoine loss in the generator based on efficiency
+			Loss = SupplyPower - EP_O.RealPower;
+			
+			// determine resistance 
+			genResistance =  Loss / 3. / EP_O.Current**2;
+			
+			// Compute mass based on assumed specific power.  Both Mass
+			// and loses are based on output power (Power Sent)
+			Mass= SupplyPower / SpecificPower;
+		}
+		else{
+			// assume we get load power from solve
+			EP_O.setIV( Current, Vbus );
+
+			// determoine loss in the generator
+			Loss = 3. * EP_O.Current**2 * genResistance;
+			
+			// Supply power is load power + losses
+			SupplyPower = EP_O.RealPower + Loss;
+		}
+		
+		// Generator / Turbine Engine shaft connection
+		real trq =  C_HP_PER_RPMtoFT_LBF * (SupplyPower / 0.745699872) / Sh_O.Nmech;
+		Sh_O.trq = -trq;			
+	}
+}
+
+

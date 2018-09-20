@@ -1,0 +1,133 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * Jeffrey Csank, David Sadey, Tom Lavelle
+// * March 30, 2018
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class eBasicMotor extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	description = isA() + " Determines motor power";
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	real Speed{
+		value=0; IOstatus="input"; //units=rpm;
+		description = "Propulsor Speed";
+	}
+	
+	real Torque{
+		value=0; IOstatus="input"; //units=rpm;
+		description = "Propulsor Torque";
+	}
+	
+	real LoadPower{
+		value= 0; IOstatus="input"; //units=None;
+		description = "Power connected to the load size of the component";
+	}
+	
+	real Mass {
+		value=0; IOstatus="output"; units="kg";
+		description = "Mass output of the motor";
+	}	
+	
+	real Eff{
+		value=0.96; IOstatus="input"; //units=None;
+		description = "Projected Motor Efficiency";
+	}
+	
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=;
+		description = "Power to Weight ratio for the motor";
+	}
+	
+	real motorResistance {
+		value = 0; IOstatus="output";; units= "W";
+		description = "Resistance of the motor based on losses";
+	} 
+	
+	real Loss {
+		value = 0; //IOstatus=OUTPUT; units="W";
+		description = "Motor Loss";
+	}
+
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	ShaftOutputPort Sh_O {
+		description = "Mechanical connection to the shaft";
+	}
+	
+	ElectricPort EP_I {
+		description = "Electric Port";
+	}
+	
+	DataOutputPort D_O {
+		description = "Port";
+	}
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger =FALSE;
+	}
+	
+	
+	void calculate() {
+		
+		Speed=Sh_O.Nmech;
+		
+		// Supply side electrical power
+		EP_I.copyport();
+	
+		if ( switchDes == "DESIGN" ){
+			/*****************************
+			 On-Design
+			*****************************/
+		
+			// Determine power applied to the shaft based on efficiency
+			LoadPower = EP_I.RealPower * Eff;  
+		
+			// calculate loss based on efficiency
+			Loss = EP_I.RealPower - LoadPower;
+			
+			// Compute mass based on assumed specific power.  Both Mass
+			// and loses are based on output power
+			Mass = LoadPower / SpecificPower;
+			//Loss=LoadPower *(1.0/Eff - 1.0);
+		
+			// determine resistance 
+			motorResistance =  Loss / 3. / EP_I.Current**2;
+		}
+	
+		else{	
+			/*****************************
+			 Off-Design
+			*****************************/
+				
+			// Power to the load (supply - loss)
+			LoadPower = EP_I.RealPower - EP_I.Current**2 * motorResistance;
+		
+			// Calculate loss
+			Loss = EP_I.Current**2 * motorResistance;
+		}
+	
+	Torque = LoadPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );
+	Sh_O.trq=Torque;
+	}
+}
+

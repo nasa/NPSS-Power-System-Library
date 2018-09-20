@@ -1,0 +1,133 @@
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//         General Output DataViewer For Runtime
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+OutFileStream pageStream_runtime { filename = "output/engine_runtime.viewOut"; } 
+
+DataViewer PageViewer page_runtime { 
+
+GroupBlock TnBGroup {
+
+   SimpleBlock title { 
+body =   "\f*************************************************\n" +
+         "Date:????????    Time:????????    Model:????????????????????????????????????????????????????????????????";
+vars = { "date", "timeOfDay", "MODELNAME"}
+   } 
+
+   anchor = "title"; 
+   addGutter = TRUE;
+} // end TnBGroup
+
+
+
+GroupBlock Turbomachinery { 
+   DColTBlock comps { 
+      titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
+      compType = "Compressor"; 
+      compTypeFormat = "????????"; 
+      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
+                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
+   } 
+   DColTBlock turbs { 
+      compType = "Turbine"; 
+      compTypeFormat = "????????"; 
+      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
+                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
+      showColHeader=FALSE; 
+   } 
+   anchor = "comps"; 
+   comps.bottom = "turbs"; 
+   addGutter = FALSE; 
+}  //end of Turbomachinery block
+
+
+
+GroupBlock Electrical { 
+
+   DColTBlock motor { 
+		//titleBody = "Motors"; 
+		titleBody = "\n"; 
+		compType = "eBasicMotor"; 
+		compTypeFormat = "????????"; 
+		compAttr = {"EP_I.RealPower","EP_I.Voltage_LL","EP_I.Voltage","EP_I.Current","Mass","Loss","LoadPower"};
+   } 
+   
+   DColTBlock complexmotor { 
+		//titleBody = "Motors"; 
+		titleBody = "\n"; 
+		compType = "eMotorPQ"; 
+		compTypeFormat = "????????"; 
+		compAttr = {"EP_I.ApparentPower","EP_I.RealPower","EP_I.ReactivePower","EP_I.Voltage_LL","EP_I.Voltage","EP_I.Current","Mass","Loss_r","Loss_j"};
+   }
+      
+   DColTBlock gencable { 
+   	    //titleBody = "\nACCables"; 
+		titleBody = "\n"; 
+		compType = "eGenericCable"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.RealPower","Mass","Loss","EP_O.RealPower","EP_O.Current","EP_O.Voltage","EP_O.Voltage_LL"}; 
+		//showColHeader=FALSE; 
+   } 
+   
+   DColTBlock complexcable { 
+   	    //titleBody = "\nACCables"; 
+		titleBody = "\n"; 
+		compType = "eCablePQ"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.ApparentPower","EP_I.RealPower","EP_I.ReactivePower","Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.RealPower","EP_O.ReactivePower",
+		"EP_O.Current","EP_O.CurrentAngle","EP_O.Voltage","EP_O.VoltageAngle"}; 
+		//showColHeader=FALSE; 
+   } 
+   
+   DColTBlock genbus { 
+   	    //titleBody = "\nACCables"; 
+		titleBody = "\n"; 
+		compType = "eGenericBus"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"SupplyPower","LoadPower","Mass","Loss" ,"EP_O.RealPower","EP_O.Current","EP_O.Voltage"}; 
+		//showColHeader=FALSE; 
+   }
+   
+    DColTBlock generator { 
+    	//titleBody = "\nGenerators"; 
+		titleBody = "\n"; 
+		compType = "eBasicGenerator"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"SupplyPower","Mass","Loss","EP_O.RealPower","EP_O.Current","EP_O.Voltage","EP_O.Voltage_LL"}; 
+		//showColHeader=FALSE; 
+   } 
+   
+   DColTBlock generatorcomplex { 
+    	//titleBody = "\nGenerators"; 
+		titleBody = "\n"; 
+		compType = "eGeneratorPQ"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.RealPower","EP_O.ReactivePower",
+		"EP_O.Current","EP_O.CurrentAngle","EP_O.Voltage","EP_O.VoltageAngle"}; 
+		//showColHeader=FALSE; 
+   }
+      
+   anchor = "motor"; 
+   motor.bottom = "complexmotor"; 
+   complexmotor.bottom = "gencable"; 
+   gencable.bottom = "complexcable";
+   complexcable.bottom = "generator";
+   generator.bottom = "generatorcomplex";
+   generatorcomplex.bottom = "genbus";
+   
+   
+   addGutter = FALSE; 
+}  
+
+//anchor = "TnBGroup"; 
+///TnBGroup.bottom = "Electrical"; 
+
+anchor = "TnBGroup"; 
+TnBGroup.bottom = "Turbomachinery"; 
+Turbomachinery.bottom = "Electrical"; 
+
+pageWidth = 0; 
+pageHeight = 0; 
+outStreamHandle = "cout";
+//outStreamHandle = "pageStream_runtime"; 
+}
