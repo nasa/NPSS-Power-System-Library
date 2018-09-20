@@ -1,0 +1,148 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * Jeffrey Csank, David Sadey, Tom Lavelle
+// * April 26, 2018
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class eGeneratorPQ extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " Determines power for a Generator";
+	
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	real Eff{
+		value=0.96; IOstatus="input"; //units=None;
+		description = "Projected Efficiency of the Cable";
+	}
+	
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=;
+		description = "Power to Weight ratio for the Generator";
+	}
+	
+	real genResistance {
+		value = 1; IOstatus="input"; units= "W";
+		description = "Resistance of Generator (based on efficiency)";
+	}
+	
+	real Mass {
+		value=0; IOstatus="output"; units="kg";
+		description = "Mass output of the Generator";
+	}
+	
+	real Loss_r {
+		value = 0; IOstatus="output"; units="W";
+		description = "Generator Loss";
+	}
+	
+	real Loss_j {
+		value = 0; IOstatus="output"; units="W";
+		description = "Generator Loss";
+	}
+	
+	real Vbus_LL {
+		value = 0; IOstatus="input"; units="V";
+		description = "Bus voltage (off-design)";
+	} 
+	
+	real Current {
+		value = 0; IOstatus="input"; //units="Amps";
+		description = "Current";
+	} 
+	
+	real CurrentAngle {
+		value = 0; IOstatus="input"; units="deg";
+		description = "Current Angle";
+	}
+	
+	real frequency {
+		value = 0; IOstatus="input"; units="deg";
+		description = "Generator Frequency";
+	}
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ShaftOutputPort Sh_O {
+		description = "Mechanical connection to the turbine";
+	}
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger= FALSE;
+	}
+	
+	void calculate() {
+
+		real RealPower=0;
+		real powerfactor=1.0;
+		real Vbus=0;
+		EP_O.frequency=frequency;
+		
+		if (switchDes == "DESIGN" ){
+			/****************************
+			On-design
+			****************************/
+			
+			// determine the power received from upstream component
+			Vbus = Vbus_LL / sqrt(3.);
+			
+			EP_O.setIVcomplex( Current, CurrentAngle, Vbus, 0);
+
+			RealPower = EP_O.RealPower / Eff;	
+			
+			// determoine loss in the generator
+			Loss_r = RealPower - EP_O.RealPower;
+			Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
+			
+			// determine resistance 
+			genResistance =  Loss_r / 3 / EP_O.Current**2;
+			
+			// Compute mass based on assumed specific power.  Both Mass
+			// and loses are based on output power (Power Sent)
+			Mass = EP_O.RealPower / SpecificPower;
+		}
+		else{
+			// assume we get load power from solve
+			Vbus = Vbus_LL / sqrt(3.);
+			
+			EP_O.setIVcomplex( Current, CurrentAngle, Vbus, 0);
+						
+			// Supply power is load power + losses
+			RealPower = EP_O.RealPower + Loss_r;
+
+			// determoine loss in the generator
+			Loss_r = 3 * Current**2 * genResistance;
+			Loss_j=sqrt((RealPower / powerfactor)**2 - RealPower**2);
+		}
+
+		// Generator / Turbine Engine shaft connection
+		real trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
+		Sh_O.trq = -trq;	
+	}
+}
+
+
