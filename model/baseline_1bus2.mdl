@@ -11,6 +11,7 @@
 //-------------------------------------------------------------------------------------------------
 
 #include "ElectricPort.prt"
+#include "InterpretedPort.int"
 
 cout<<"======================================="<<endl;
 cout<<" Model with Bus with 1 Input / 2 Outputs "<<endl;
@@ -130,35 +131,18 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_I, Sh_Turbine;	
 }
 
-// temporary issue with electric port
-Gen1.EP_O.setOption("ElectricPowerType","AC3");
-CableGen.EP_O.setOption("ElectricPowerType","AC3");
-CableGen.EP_I.setOption("ElectricPowerType","AC3");
-Cable1.EP_O.setOption("ElectricPowerType","AC3");
-Cable1.EP_I.setOption("ElectricPowerType","AC3");
-Cable2.EP_O.setOption("ElectricPowerType","AC3");
-Cable2.EP_I.setOption("ElectricPowerType","AC3");
-EM1.EP_I.setOption("ElectricPowerType","AC3");
-EM2.EP_I.setOption("ElectricPowerType","AC3");
-Bus.EP_I.setOption("ElectricPowerType","AC3");
-Bus.EP_Oa.setOption("ElectricPowerType","AC3");
-Bus.EP_Ob.setOption("ElectricPowerType","AC3");
-
-void linkPortE( string E1, string E2 ){
-  E1->refport = E2;
-  E2->refport = E1;
-}
+setOption("ElectricPowerType","AC3");
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortE( "Gen1.EP_O","CableGen.EP_I");
-linkPortE( "CableGen.EP_O","Bus.EP_I");
-linkPortE( "Bus.EP_Oa","Cable1.EP_I");
-linkPortE( "Cable1.EP_O","EM1.EP_I");
+linkPortI( "Gen1.EP_O","CableGen.EP_I");
+linkPortI( "CableGen.EP_O","Bus.EP_I");
+linkPortI( "Bus.EP_Oa","Cable1.EP_I");
+linkPortI( "Cable1.EP_O","EM1.EP_I");
 linkPorts( "Propulsor_Shaft.Sh1_I","EM1.Sh_O","Shaft_Motor1" );
-linkPortE( "Bus.EP_Ob","Cable2.EP_I");
-linkPortE( "Cable2.EP_O","EM2.EP_I");
+linkPortI( "Bus.EP_Ob","Cable2.EP_I");
+linkPortI( "Cable2.EP_O","EM2.EP_I");
 linkPorts( "Propulsor_Shaft.Sh2_I","EM2.Sh_O", "Shaft_Motor2");
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 // if not using nozzle

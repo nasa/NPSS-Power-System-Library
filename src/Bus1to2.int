@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class Bus1to2 extends Element {
+class Bus1to2 extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -86,17 +86,16 @@ class Bus1to2 extends Element {
 		trigger=FALSE;
 	}
 	
-	void calculate() {
-		EP_I.copyport();
+	void calculateI() {
 		
 		// Power from Load Side
-		LoadPower=EP_I.RealPower;
+		LoadPower=EP_I.S.r;
 		
 		// Supply power is the same as load power
 		SupplyPower = LoadPower;
 		
 		// Get the current
-		Current=EP_I.Current;
+		Current=EP_I.I.mag;
 		
 		/******************************
 		Electrical Port Connection
@@ -104,8 +103,8 @@ class Bus1to2 extends Element {
 		//EP_Oa.setIP(EP_I.Current*Pfrac, EP_I.RealPower*Pfrac);
 		//EP_Ob.setIP(EP_I.Current*(1-Pfrac), EP_I.RealPower*(1-Pfrac));
 		
-		EP_Oa.setIV(EP_I.Current*Pfrac, EP_I.Voltage);		
-		EP_Ob.setIV(EP_I.Current*(1-Pfrac), EP_I.Voltage);
+		EP_Oa.setIV(EP_I.I.mag*Pfrac,0,EP_I.V.mag,0);		
+		EP_Ob.setIV(EP_I.I.mag*(1-Pfrac),0, EP_I.V.mag,0);
 	}
 	
 	//-----------------------------------------------------------------
