@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eCablePQ extends Element {
+class eCablePQ extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -119,25 +119,24 @@ class eCablePQ extends Element {
 		trigger=FALSE;
 	}
 	
-	void calculate() {
+	void calculateI() {
 
-		EP_I.copyport();
 		
 		// Determine cable impedance
 		Impedance = sqrt(LineResistance**2 + (LineReactance*(EP_I.frequency/60))**2);
 		ImpedanceAngle = atan2((LineReactance*(EP_I.frequency/60)),LineResistance)*180/PI;
 		
 		// determine voltage drop over the line		
-		Vdrop_r = EP_I.Current * Impedance * cos((EP_I.CurrentAngle + ImpedanceAngle)*PI/180); 
-		Vdrop_j = EP_I.Current * Impedance * sin((EP_I.CurrentAngle + ImpedanceAngle)*PI/180); 
+		Vdrop_r = EP_I.I.mag * Impedance * cos((EP_I.I.phaseDeg + ImpedanceAngle)*PI/180); 
+		Vdrop_j = EP_I.I.mag * Impedance * sin((EP_I.I.phaseDeg + ImpedanceAngle)*PI/180); 
 		
 		// calculate losses (real and imaginary)
-		Loss_r = 3 * EP_I.Current**2 * LineResistance / 1000.;
-		Loss_j = 3 * EP_I.Current**2 * LineReactance*EP_I.frequency/60 / 1000.;
+		Loss_r = 3 * EP_I.I.mag**2 * LineResistance / 1000.;
+		Loss_j = 3 * EP_I.I.mag**2 * LineReactance*EP_I.frequency/60 / 1000.;
 		
 		// Compute load voltage
-		Vload_r=EP_I.Vreal() - Vdrop_r;
-		Vload_j=EP_I.Vimag() - Vdrop_j; 
+		Vload_r=EP_I.V.r - Vdrop_r;
+		Vload_j=EP_I.V.j - Vdrop_j; 
 		
 		//cout << "Vimag " << EP_I.Vimag() << " Vdrop_j " << Vdrop_j << endl;
 		
@@ -152,10 +151,10 @@ class eCablePQ extends Element {
 			On-Design
 			***************************/
 			// in on design, calculate the mass of the cable
-			Mass=EP_I.Current / SpecificAmperage * CableLength * 3;
+			Mass=EP_I.I.mag / SpecificAmperage * CableLength * 3;
 		}
 		
-		EP_O.setIVcomplex(EP_I.Current,EP_I.CurrentAngle,Voltage,VoltageAngle);
+		EP_O.setIVphaseDeg(EP_I.I.mag,EP_I.I.phaseDeg,Voltage,VoltageAngle);
 		EP_O.frequency=EP_I.frequency;
 	}
 }

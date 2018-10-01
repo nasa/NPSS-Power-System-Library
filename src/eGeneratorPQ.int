@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eGeneratorPQ extends Element {
+class eGeneratorPQ extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -95,7 +95,7 @@ class eGeneratorPQ extends Element {
 		trigger= FALSE;
 	}
 	
-	void calculate() {
+	void calculateI() {
 
 		real RealPower=0;
 		real powerfactor=1.0;
@@ -110,29 +110,29 @@ class eGeneratorPQ extends Element {
 			// determine the power received from upstream component
 			Vbus = Vbus_LL / sqrt(3.);
 			
-			EP_O.setIVcomplex( Current, CurrentAngle, Vbus, 0);
+			EP_O.setIVphaseDeg( Current, CurrentAngle, Vbus, 0);
 
-			RealPower = EP_O.RealPower / Eff;	
+			RealPower = EP_O.S.r / Eff;	
 			
 			// determoine loss in the generator
-			Loss_r = RealPower - EP_O.RealPower;
+			Loss_r = RealPower - EP_O.S.r;
 			Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
 			
 			// determine resistance 
-			genResistance =  Loss_r / 3 / EP_O.Current**2;
+			genResistance =  Loss_r / 3 / EP_O.I.mag**2;
 			
 			// Compute mass based on assumed specific power.  Both Mass
 			// and loses are based on output power (Power Sent)
-			Mass = EP_O.RealPower / SpecificPower;
+			Mass = EP_O.S.r / SpecificPower;
 		}
 		else{
 			// assume we get load power from solve
 			Vbus = Vbus_LL / sqrt(3.);
 			
-			EP_O.setIVcomplex( Current, CurrentAngle, Vbus, 0);
+			EP_O.setIVphaseDeg( Current, CurrentAngle, Vbus, 0);
 						
 			// Supply power is load power + losses
-			RealPower = EP_O.RealPower + Loss_r;
+			RealPower = EP_O.S.r + Loss_r;
 
 			// determoine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;

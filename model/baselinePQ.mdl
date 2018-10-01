@@ -10,7 +10,9 @@
 //
 //-------------------------------------------------------------------------------------------------
 
+#include "InterpretedPort.int"
 #include "ElectricPort.prt"
+
 
 cout<<"======================================="<<endl;
 cout<<" Example Model with Real and Reactive Power "<<endl;
@@ -40,7 +42,7 @@ Element eCablePQ Cable1 {
 	SpecificAmperage=170.;
 }
 
- Element eMotorPQ EM1 {
+Element eMotorPQ EM1 {
 	 Eff=0.96;
 	 //powerfactor=1.0;
 	 powerfactor=0.9;
@@ -138,7 +140,7 @@ Independent GenAngle{
 }
 
 Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.CurrentAngle";
+	eq_rhs="EM1.EP_I.I.phaseDeg";
 	eq_lhs="EM1.CurrentAngle_Demand";
 	autoSetup=TRUE;
 }
@@ -148,31 +150,18 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_I, Sh2_I, Sh_Turbine;	
 }
 
+setOption("ElectricPowerType","AC3");
 
-// temporary issue with electric port
-EM1.EP_I.setOption("ElectricPowerType","AC3");
-EM2.EP_I.setOption("ElectricPowerType","AC3");
-Cable1.EP_O.setOption("ElectricPowerType","AC3");
-Cable2.EP_O.setOption("ElectricPowerType","AC3");
-Cable1.EP_I.setOption("ElectricPowerType","AC3");
-Cable2.EP_I.setOption("ElectricPowerType","AC3");
-Gen1.EP_O.setOption("ElectricPowerType","AC3");
-Gen2.EP_O.setOption("ElectricPowerType","AC3");
-
-void linkPortE( string E1, string E2 ){
-  E1->refport = E2;
-  E2->refport = E1;
-}
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortE( "Gen1.EP_O", "Cable1.EP_I" );
-linkPortE( "Cable1.EP_O", "EM1.EP_I" );
+linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
+linkPortI( "Cable1.EP_O", "EM1.EP_I" );
 linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
-linkPortE( "Gen2.EP_O", "Cable2.EP_I" );
-linkPortE( "Cable2.EP_O", "EM2.EP_I" );
+linkPortI( "Gen2.EP_O", "Cable2.EP_I" );
+linkPortI( "Cable2.EP_O", "EM2.EP_I" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 
 // if not using nozzle
