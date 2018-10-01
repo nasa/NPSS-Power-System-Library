@@ -10,7 +10,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eMotorPQ extends Element {
+class eMotorPQ extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -101,10 +101,10 @@ class eMotorPQ extends Element {
 	}
 	
 	
-	void calculate() {
+	void calculateI() {
 		
 		Speed=Sh_O.Nmech;	
-		EP_I.copyport();
+		//EP_I.copyport();
 	
 	
 		real RealPower=0;
@@ -114,17 +114,17 @@ class eMotorPQ extends Element {
 			 On-Design
 			*****************************/
 			// compute power to the load
-			RealPower = EP_I.RealPower * Eff;
+			RealPower = EP_I.S.r * Eff;
 
 			// Compute mass based on assumed specific power.
 			Mass=RealPower / SpecificPower;
 			
 			// computer losses
-			Loss_r=EP_I.RealPower * (1.0 / Eff - 1.0);
-			Loss_j=sqrt((EP_I.RealPower / powerfactor)**2 - EP_I.RealPower**2);
+			Loss_r=EP_I.S.r * (1.0 / Eff - 1.0);
+			Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
 			
 			// determine resistance 
-			motorResistance =  Loss_r / 3 / EP_I.Current**2;
+			motorResistance =  Loss_r / 3 / EP_I.I.mag**2;
 		}
 	
 		else{	
@@ -132,14 +132,14 @@ class eMotorPQ extends Element {
 			 Off-Design
 			*****************************/
 			// Power to the load (supply - loss)
-			RealPower = EP_I.RealPower - EP_I.Current**2 * motorResistance;
+			RealPower = EP_I.S.r - EP_I.I.mag**2 * motorResistance;
 			
 			// Calculate loss
-			Loss_r = 3 * EP_I.Current**2 * motorResistance;
-			Loss_j=sqrt((EP_I.RealPower / powerfactor)**2 - EP_I.RealPower**2);
+			Loss_r = 3 * EP_I.I.mag**2 * motorResistance;
+			Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
 		}
 	
-	CurrentAngle_Demand = EP_I.VoltageAngle - acos(powerfactor) * 180/PI;
+	CurrentAngle_Demand = EP_I.V.phaseDeg - acos(powerfactor) * 180/PI;
 
 	Torque = RealPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );
 	Sh_O.trq=Torque;

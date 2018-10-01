@@ -1,0 +1,62 @@
+
+//---------------------------------------------------------
+// base element class that enables interpretted ports to
+// be automatically copied
+//---------------------------------------------------------
+class ElementI extends Element{
+	
+	void calculate(){
+		
+		//---------------------------------------------------------
+		// loop through the electrical ports 
+		// eventually make this generic
+		//---------------------------------------------------------
+		string ports[] = list( "ElectricPort" );
+		int i;
+		for ( i=0; i<ports.entries(); i++ ){
+			ports[i]->copyport();  
+		}
+		
+		//------------------------------------------------------------
+		// call the calcualte function
+		//------------------------------------------------------------
+		calculateI();
+		
+	}
+	
+	void variableChanged(string name, string oldVal) {
+
+		cerr << "SDSADAS\n";quit();
+		//---------------------------------------------------------
+		// loop through the electrical ports 
+		// eventually make this generic
+		//---------------------------------------------------------
+		string ports[] = list( "ElectricPort" );
+		int i;
+		for ( i=0; i<ports.entries(); i++ ){
+			if ( ports[i]->contains( name ) ){
+			ports[i]->copyport();
+			}
+		}
+		
+	}
+	/*
+	// define power options
+	Option ElectricPowerType {
+		allowedValues = { "DC", "AC1", "AC3" };
+		description = "Electric Power Type (DC, AC1, AC3)";
+		//IOstatus = 'INPUT';
+		trigger = 1;
+		rewritableValues = FALSE;
+	}*/
+	
+}
+
+//-----------------------------------------------------------------
+// interpreted link port
+// let the two ports know about each other
+//-----------------------------------------------------------------
+void linkPortI( string E1, string E2 ){
+	E1->refport = E2;
+	E2->refport = E1;
+}

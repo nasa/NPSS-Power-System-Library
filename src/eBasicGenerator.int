@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eBasicGenerator extends Element {
+class eBasicGenerator extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -105,16 +105,16 @@ class eBasicGenerator extends Element {
 			****************************/
 			
 			// determine the design point power at the output of the generator
-			EP_O.setIV( Current, Vbus);
+			EP_O.setIV( Current,0,Vbus,0);
 			
 			// Determine power from the turbine based on efficiency
-			SupplyPower = EP_O.RealPower / Eff;		
+			SupplyPower = EP_O.S.r / Eff;		
 			
 			// determoine loss in the generator based on efficiency
-			Loss = SupplyPower - EP_O.RealPower;
+			Loss = SupplyPower - EP_O.S.r;
 			
 			// determine resistance 
-			genResistance =  Loss / 3. / EP_O.Current**2;
+			genResistance =  Loss / 3. / EP_O.I.mag**2;
 			
 			// Compute mass based on assumed specific power.  Both Mass
 			// and loses are based on output power (Power Sent)
@@ -122,13 +122,13 @@ class eBasicGenerator extends Element {
 		}
 		else{
 			// assume we get load power from solve
-			EP_O.setIV( Current, Vbus );
+			EP_O.setIV(Current,0,Vbus,0);
 
 			// determoine loss in the generator
-			Loss = 3. * EP_O.Current**2 * genResistance;
+			Loss = 3. * EP_O.I.mag**2 * genResistance;
 			
 			// Supply power is load power + losses
-			SupplyPower = EP_O.RealPower + Loss;
+			SupplyPower = EP_O.S.r + Loss;
 		}
 		
 		// Generator / Turbine Engine shaft connection

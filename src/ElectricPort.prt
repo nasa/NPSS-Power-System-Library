@@ -1,7 +1,8 @@
 
+#include "ComplexNumber.int"
 
-class ElectricPort extends Element {
-
+class ElectricPort extends Subelement {
+	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
 	//------------------------------------------------------------
@@ -9,199 +10,213 @@ class ElectricPort extends Element {
 	description = isA() + " Electric Port";
 	usageNotes = isA() + "- NOTE TO USERS: This file....";
 	background = "";   
-  
-	string refport;
-	//------------------------------------------------------------
-	//     ******* SETUP VARIABLES ********
-	//------------------------------------------------------------
-	real Voltage{
-		value=0; IOstatus="input"; //units=volts;
-		description = "Bus Voltage, line to neutral";
+	
+	//-------------------------------------------------
+	// Electric port parameters
+	//-------------------------------------------------
+	ComplexNumber V{
+		lock = 1;	
+	}
+	ComplexNumber I{
+		lock = 1;	
+	}
+	ComplexNumber S{
+		lock = 1;
+    }
+	ComplexNumber Vll{
+		lock = 1;	
+		hide( 1 );
 	}
 	
-	real Voltage_LL{
-		value=0; IOstatus="input"; //units=volts;
-		description = "Bus Voltage, line to line";
-	}
+    FunctVariable Vdc {
+        getFunction = "getVdc";
+        hide( 1 );
+    }
+    
+    real getVdc() {
+    	return V.r;	
+    }
+    
+    FunctVariable Idc {
+        getFunction = "getIdc";
+        hide( 1 );
+    }   
+    real getIdc() {
+    	return I.r;	
+    }
+    
+    FunctVariable Pdc {
+        getFunction = "getPdc";
+        hide( 1 );
+    }   
+    real getPdc() {
+    	return S.r;	
+    }
+    Pdc.hide( 0 );
+    Idc.hide( 0 );
+    Vdc.hide( 0 );
+    Vll.hide( 1 );
+    V.hide( 1 );
+    S.hide( 1 );
+    I.hide( 1 );
+    
+	socketRequired = 0;
 	
-	real Current{
-		value=0; IOstatus="input"; //units=amps;
-		description = "Current";
-	}
-	
-	real RealPower{
-		value=0; IOstatus="input"; //units=kW;
-		description = "Power";
+	Option ElectricPowerType {
+		allowedValues = { "AC1", "DC", "AC3" };
+		description = "Electric Power Type (DC, AC1, AC3)";
+		//IOstatus = 'INPUT';
+		trigger = 1;
+		rewritableValues = FALSE;
 	}
 	
 	real frequency{
-		value=0; IOstatus="input"; //units=kW;
+		value=0; 
+		IOstatus="input"; //units=kW;
 		description = "Frequency";
 	}
 	
-	real ReactivePower{
-		value=0; IOstatus="input"; //units=kW;
-		description = "reactive power";
+	real PF{
+		value=0;
+		description = "Ratio of real to apparent power";
 	}
 	
-	real ApparentPower{
-		value=0; IOstatus="input"; //units=kW;
-		description = "Apparent Power";
+	string refport{
+		description = "port used to copy from";	
 	}
 	
-	real VoltageAngle{
-		value=0; IOstatus="input"; //units=deg;
-		description = "Voltage angle (dg) line to neutral";
-	}
-	
-	real VoltageAngle_LL{
-		value=0; IOstatus="input"; //units=deg;
-		description = "Voltage angle (dg) line to line";
-	}
-	
-	real CurrentAngle{
-		value=0; IOstatus="input"; //units=kW;
-		description = "Current angle (deg)";
-	}
-	
-	
-	// define set command, set current and voltage and compute power
-	void setIV(real I, real V){
-			Current = I;
-			Voltage = V;
-			
-			if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
-			{
-				RealPower = V * I / 1000.;
-			}
-			
-			if (ElectricPowerType == "AC3"){
-				RealPower = V * I * 3 / 1000.;
-				Voltage_LL = Voltage * sqrt(3);
-			}
-	}
-	
-	// set current and power and compute voltage
-	void setIP(real I, real P){
-			Current = I;
-			RealPower = P;
-			
-			if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
-			{
-				Voltage = P * 1000. / I;
-			}
-			
-			if (ElectricPowerType == "AC3"){
-				Voltage = P * 1000. / I / 3.;
-				Voltage_LL = Voltage * sqrt(3);
-			}
-	}
-
-	
-
-	void setIVcomplex(real Imag, real Iangle, real Vmag, real Vangle){
-		Current=Imag;
-		CurrentAngle=Iangle;
-
-		// Voltage is defined as line to neutral		
-		Voltage=Vmag;
-		VoltageAngle=Vangle;
-		Voltage_LL = Voltage * sqrt(3);
-		VoltageAngle_LL = VoltageAngle + 30;
-	
-		ApparentPower = 3. * Voltage * Current / 1000.;
-	
-
-		RealPower = ApparentPower * cos((VoltageAngle - CurrentAngle)*PI/180);
-		ReactivePower = ApparentPower * sin((VoltageAngle - CurrentAngle)*PI/180);	
-	}
-	
-	
-
-	void setIPcomplex(real Imag, real Iangle, real Pmag, real pf){
-		Current=Imag;
-		CurrentAngle=Iangle;
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+	void variableChanged( string name, any oldVal ) {
 		
-		RealPower = Pmag;
-		// add logic to check power factor in the future
-		
-		ApparentPower = RealPower / pf;
-		ReactivePower = sqrt(ApparentPower **2 - RealPower**2);
-		
-		Voltage = ApparentPower / 3 / Current / 1000.;
-		Voltage_LL = Voltage * sqrt(3);
-		VoltageAngle = acos(pf)*180/PI + CurrentAngle;
-		VoltageAngle_LL = VoltageAngle + 30;
-	}
-
-
-	void setIScomplex(real Imag, real Iangle, real Smag, real pf){
-		Current=Imag;
-		CurrentAngle=Iangle;
-		
-		ApparentPower = Smag;
-		powerfactor= pf;
-		
-		// add logic to check power factor in the future
-		
-		RealPower = ApparentPower * powerfactor;
-		ReactivePower = sqrt(ApparentPower **2 - RealPower**2);
-		
-		Voltage = ApparentPower / 3 / Current / 1000.;
-		Voltage_LL = Voltage * sqrt(3);
-		VoltageAngle = acos(powerfactor)*180/PI + CurrentAngle;
-		VoltageAngle_LL = VoltageAngle + 30;
-	}
-
-	
-	void setfrequency(real freq){
-		frequency = freq;
-	}
-	
-	real Vreal(){
-	return(Voltage * cos(VoltageAngle*PI/180));}
-	
-	real Vimag(){
-	return(Voltage * sin(VoltageAngle*PI/180));}
-	
-
-
-	real Ireal(){
-	return(Current * cos(CurrentAngle*PI/180));}
-	
-	real Iimag(){
-	return(Current * sin(CurrentAngle*PI/180));}
+		if ( name =="ElectricPowerType" ) {
+			// change variable IO status depending switchDes status
+			if ( ElectricPowerType == "DC" ) {
+				Pdc.hide( 0 );
+				Idc.hide( 0 );
+				Vdc.hide( 0 );
+				Vll.hide( 1 );
+				V.hide( 1 );
+				S.hide( 1 );
+				I.hide( 1 );
+				frequency=0;
+			} 
+			else if ( ElectricPowerType == "AC1" ) {
+				Pdc.hide( 1 );
+				Idc.hide( 1 );
+				Vdc.hide( 1 );
+				Vll.hide( 1 );
+				V.hide( 0 );
+				S.hide( 0 );
+				I.hide( 0 );		
+			} 
+			else if ( ElectricPowerType == "AC3" ) {
+				Pdc.hide( 1 );
+				Idc.hide( 1 );
+				Vdc.hide( 1 );
+				Vll.hide( 0 );
+				V.hide( 0 );
+				S.hide( 0 );
+				I.hide( 0 );		
+			} 
+		} 
+	} 
 	
 	
-	// define power options
-	Option ElectricPowerType {
-		allowedValues = { "DC", "AC1", "AC3" };
-		description = "Electric Power Type (DC, AC1, AC3)";
-		//IOstatus = 'INPUT';
-		trigger = 0;
-		rewritableValues = FALSE;
-	}
-
-	
+	//------------------------------------------------------
+	// copy the port information
+	//------------------------------------------------------
 	void copyport() {
-		Voltage=refport->Voltage;
-		VoltageAngle=refport->VoltageAngle;
-		Voltage_LL=refport->Voltage_LL;
-		
-		Current=refport->Current;
-		CurrentAngle=refport->CurrentAngle;
-		
-		RealPower=refport->RealPower;
-		ApparentPower=refport->ApparentPower;
-		ReactivePower=refport->ReactivePower;
+		V.copy( refport+".V" );
+		I.copy( refport+".I" );
+		S.copy( refport+".S" );
+		Vll.copy( refport+".Vll" );
 		
 		frequency=refport->frequency;
 		
-		
-		
-	
 		if (refport==""){
-			cerr<<"Hey Beavis, I need a refport!!!"<<endl;
+			cerr<<"Hey I need a refport!!!"<<endl;
 		}		
 	}
+	
+	//-----------------------------------------------------------
+	// set the port conditions based on current, voltage, 
+	// and angles in degrees
+	//-----------------------------------------------------------
+	void setIVphaseDeg( real Imag, real Iangle, real Vmag, real Vangle ){
+		setIV( Imag*cos(Iangle*PI/180.),	Imag*sin(Iangle*PI/180.),
+			Vmag*cos(Vangle*PI/180.),	Imag*sin(Vangle*PI/180.) );
+	}
+	
+	//-----------------------------------------------------------
+	// set the port conditions based on current, voltage, and 
+	// angles in radians
+	//-----------------------------------------------------------
+	void setIVphaseRad( real Imag, real Iangle, real Vmag, real Vangle ){
+		setIV( Imag*cos(Iangle),	Imag*sin(Iangle),
+			Vmag*cos(Vangle),	Imag*sin(Vangle) );
+	}
+	
+	//-----------------------------------------------------------
+	// set the port conditions based on complex current and voltage
+	//-----------------------------------------------------------
+	void setIV( real Ir, real Ij, real Vr, real Vj ){
+		
+		//--------------------------------------------------------------------
+		// unlock the parameters so they can be set
+		//--------------------------------------------------------------------
+		V.lock = 0;
+		I.lock = 0;
+		S.lock = 0;
+		Vll.lock = 0;
+		
+		// set the current and voltage
+		V.setrj( Vr, Vj );
+		I.setrj( Ir, Ij );
+		
+		//--------------------------------------------------------------------
+		// check to see if we are in DC power mode and passing imaginary info
+		//--------------------------------------------------------------------
+		if (ElectricPowerType == "DC" ){	
+			if ( Vj!=0. || Ij!=0. ){
+				cerr << "you are running a DC circuit with imaginary comps\n";	
+			}
+		}
+		
+		//-------------------------------------------------------------------
+		// determine the power
+		//--------------------------------------------------------------------
+		if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
+		{
+			S.copy( "I" );
+			S.conjugate();
+			S.times( "V" );
+			S.scale( 1./1000. );
+		}
+		
+		if (ElectricPowerType == "AC3"){
+			S.copy( "I" );
+			S.conjugate();
+			S.times( "V" );
+			S.scale( 3./1000. );
+			Vll.copy( "V" );
+			Vll.scale( sqrt(3.) );
+			Vll.setMagPhase( Vll.mag, Vll.phase+30.*PI/180. );
+		}
+		
+		PF = S.r/S.mag;
+		
+		//------------------------------------------------------------------
+		// lock the numbers again
+		// only way to set the values should be through this function
+		//------------------------------------------------------------------
+		V.lock = 1;
+		I.lock = 1;
+		S.lock = 1;
+		Vll.lock = 1;		
+		
+	}
+	
+	
 }

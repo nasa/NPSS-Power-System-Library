@@ -10,6 +10,7 @@
 //-------------------------------------------------------------------------------------------------
 
 #include "ElectricPort.prt"
+#include "InterpretedPort.int";
 
 cout<<"======================================="<<endl;
 cout<<"         Baseline Model  "<<endl;
@@ -144,30 +145,19 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_I, Sh2_I, Sh_Turbine;	
 }
 
-// temporary issue with electric port
-EM1.EP_I.setOption("ElectricPowerType","AC3");
-EM2.EP_I.setOption("ElectricPowerType","AC3");
-Cable1.EP_O.setOption("ElectricPowerType","AC3");
-Cable2.EP_O.setOption("ElectricPowerType","AC3");
-Cable1.EP_I.setOption("ElectricPowerType","AC3");
-Cable2.EP_I.setOption("ElectricPowerType","AC3");
-Gen1.EP_O.setOption("ElectricPowerType","AC3");
-Gen2.EP_O.setOption("ElectricPowerType","AC3");
+setOption("ElectricPowerType","AC3");
 
-void linkPortE( string E1, string E2 ){
-  E1->refport = E2;
-  E2->refport = E1;
-}
+
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortE( "Gen1.EP_O", "Cable1.EP_I" );
-linkPortE( "Cable1.EP_O", "EM1.EP_I" );
+linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
+linkPortI( "Cable1.EP_O", "EM1.EP_I" );
 linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
-linkPortE( "Gen2.EP_O", "Cable2.EP_I" );
-linkPortE( "Cable2.EP_O", "EM2.EP_I" );
+linkPortI( "Gen2.EP_O", "Cable2.EP_I" );
+linkPortI( "Cable2.EP_O", "EM2.EP_I" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 
 // if not using nozzle

@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eGenericCable extends Element {
+class eGenericCable extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -76,30 +76,27 @@ class eGenericCable extends Element {
 		trigger=FALSE;
 	}
 	
-	void calculate() {
-
-		// Supply side of the component
-		EP_I.copyport();
+	void calculateI() {
 
 		// Determine the load voltage using the voltage drop
-		real Vdrop = EP_I.Current * LineResistance;		
-		real Vload = EP_I.Voltage - Vdrop;
+		real Vdrop = EP_I.I.mag * LineResistance;		
+		real Vload = EP_I.V.mag - Vdrop;
 		
 		//Determine power on load side using voltage drop across cable
-		EP_O.setIV(EP_I.Current , Vload);
-		Loss = 3 * EP_I.Current * (EP_I.Voltage - Vload) / 1000.;
+		EP_O.setIV(EP_I.I.mag,0,Vload,0);
+		Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
 		//Loss = EP_I.RealPower - EP_O.RealPower;
 		
 		//Detemine load power using I^2 losses
-		//Loss = 3 * EP_I.Current**2 * LineResistance / 1000.;
-		//EP_O.setIP(EP_I.Current, EP_O.RealPower);
+		//Loss = 3 * EP_I.I.mag**2 * LineResistance / 1000.;
+		//EP_O.setIP(EP_I.I.mag, EP_O.RealPower);
 
 		if (switchDes=="DESIGN"){
 			/***************************
 			On-Design
 			in on design, calculate the mass of the cable
 			***************************/
-			Mass=EP_I.Current/SpecificAmperage*CableLength*3;
+			Mass=EP_I.I.mag/SpecificAmperage*CableLength*3;
 		}
 	}
 }

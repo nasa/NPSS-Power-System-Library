@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eGenericBus extends Element {
+class eGenericBus extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -97,9 +97,7 @@ class eGenericBus extends Element {
 	}
 	
 	void calculate() {
-		
-		EP_I.copyport();
-		
+	
 		// Power from Load Side
 		LoadPower=EP_I.RealPower;
 		

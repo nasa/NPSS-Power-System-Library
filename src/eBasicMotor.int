@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eBasicMotor extends Element {
+class eBasicMotor extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -87,12 +87,11 @@ class eBasicMotor extends Element {
 	}
 	
 	
-	void calculate() {
+	void calculateI() {
 		
 		Speed=Sh_O.Nmech;
 		
-		// Supply side electrical power
-		EP_I.copyport();
+
 	
 		if ( switchDes == "DESIGN" ){
 			/*****************************
@@ -100,10 +99,10 @@ class eBasicMotor extends Element {
 			*****************************/
 		
 			// Determine power applied to the shaft based on efficiency
-			LoadPower = EP_I.RealPower * Eff;  
+			LoadPower = EP_I.S.r * Eff;  
 		
 			// calculate loss based on efficiency
-			Loss = EP_I.RealPower - LoadPower;
+			Loss = EP_I.S.r - LoadPower;
 			
 			// Compute mass based on assumed specific power.  Both Mass
 			// and loses are based on output power
@@ -111,7 +110,7 @@ class eBasicMotor extends Element {
 			//Loss=LoadPower *(1.0/Eff - 1.0);
 		
 			// determine resistance 
-			motorResistance =  Loss / 3. / EP_I.Current**2;
+			motorResistance =  Loss / 3. / EP_I.I.mag**2;
 		}
 	
 		else{	
@@ -120,10 +119,10 @@ class eBasicMotor extends Element {
 			*****************************/
 				
 			// Power to the load (supply - loss)
-			LoadPower = EP_I.RealPower - EP_I.Current**2 * motorResistance;
+			LoadPower = EP_I.S.r - EP_I.I.mag**2 * motorResistance;
 		
 			// Calculate loss
-			Loss = EP_I.Current**2 * motorResistance;
+			Loss = EP_I.I.mag**2 * motorResistance;
 		}
 	
 	Torque = LoadPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );

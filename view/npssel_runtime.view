@@ -49,7 +49,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eBasicMotor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.RealPower","EP_I.Voltage_LL","EP_I.Voltage","EP_I.Current","Mass","Loss","LoadPower"};
+		compAttr = {"EP_I.S.r","EP_I.Vll.mag","EP_I.V.mag","EP_I.I.mag","Mass","Loss","LoadPower"};
    } 
    
    DColTBlock complexmotor { 
@@ -57,7 +57,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eMotorPQ"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.ApparentPower","EP_I.RealPower","EP_I.ReactivePower","EP_I.Voltage_LL","EP_I.Voltage","EP_I.Current","Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_I.ApparentPower","EP_I.S.r","EP_I.ReactivePower","EP_I.Vll.mag","EP_I.V.mag","EP_I.I.mag","Mass","Loss_r","Loss_j"};
    }
       
    DColTBlock gencable { 
@@ -65,7 +65,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eGenericCable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.RealPower","Mass","Loss","EP_O.RealPower","EP_O.Current","EP_O.Voltage","EP_O.Voltage_LL"}; 
+		compAttr = {"EP_I.S.r","Mass","Loss","EP_O.S.r","EP_O.I.mag","EP_O.V.mag","EP_O.Vll.mag"}; 
 		//showColHeader=FALSE; 
    } 
    
@@ -74,8 +74,8 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eCablePQ"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.ApparentPower","EP_I.RealPower","EP_I.ReactivePower","Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.RealPower","EP_O.ReactivePower",
-		"EP_O.Current","EP_O.CurrentAngle","EP_O.Voltage","EP_O.VoltageAngle"}; 
+		compAttr = {"EP_I.ApparentPower","EP_I.S.r","EP_I.ReactivePower","Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.S.r","EP_O.ReactivePower",
+		"EP_O.I.mag","EP_O.CurrentAngle","EP_O.V.mag","EP_O.VoltageAngle"}; 
 		//showColHeader=FALSE; 
    } 
    
@@ -84,7 +84,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eGenericBus"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"SupplyPower","LoadPower","Mass","Loss" ,"EP_O.RealPower","EP_O.Current","EP_O.Voltage"}; 
+		compAttr = {"SupplyPower","LoadPower","Mass","Loss" ,"EP_O.S.r","EP_O.I.mag","EP_O.V.mag"}; 
 		//showColHeader=FALSE; 
    }
    
@@ -93,7 +93,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eBasicGenerator"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"SupplyPower","Mass","Loss","EP_O.RealPower","EP_O.Current","EP_O.Voltage","EP_O.Voltage_LL"}; 
+		compAttr = {"SupplyPower","Mass","Loss","EP_O.S.r","EP_O.I.mag","EP_O.V.mag","EP_O.Vll.mag"}; 
 		//showColHeader=FALSE; 
    } 
    
@@ -102,8 +102,8 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "eGeneratorPQ"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.RealPower","EP_O.ReactivePower",
-		"EP_O.Current","EP_O.CurrentAngle","EP_O.Voltage","EP_O.VoltageAngle"}; 
+		compAttr = {"Mass","Loss_r","Loss_j","EP_O.ApparentPower","EP_O.S.r","EP_O.ReactivePower",
+		"EP_O.I.mag","EP_O.CurrentAngle","EP_O.V.mag","EP_O.VoltageAngle"}; 
 		//showColHeader=FALSE; 
    }
       

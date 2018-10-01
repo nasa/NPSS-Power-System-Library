@@ -1,0 +1,194 @@
+
+class ComplexNumber extends VariableContainer {
+	
+	description = "Complex Number Object";
+	background = "Author: Jesus Garcia (jesus2.garcia@ge.com)";
+	
+	
+	string IOstatus {
+		value ="unset";  units = "none";
+		description = "Display variable to mimic variable's IOstatus";
+	}
+	
+	int lock {
+		value = 0;
+		description = "determmines if value can be set (used to control how port values are set)";	
+	}
+	
+	string get_units() {  
+		return _units;
+	}
+	
+	void set_units(string userValue)   { 
+		_units = userValue; 
+		r.units    = userValue;
+		j.units    = userValue;
+		abs.units  = userValue;
+		_abs.units = userValue;
+	}
+	
+	FunctVariable units {
+		units = "none"; 
+		IOstatus = "input"; 
+		description = "Units of the complex number";
+		getFunction = "get_units"; setFunction = "set_units";
+	}
+	
+	string _units    = "";
+	
+	FunctVariable r {
+	    IOstatus = "unset";  units = "none";
+		description = "Real part of the complex plane";
+		getFunction = "get_r";
+	}
+	real get_r(){
+		return _r;	
+	}
+	real _r;
+	
+	FunctVariable j {
+	    IOstatus = "unset";  
+	    units = "none";
+		description = "Imaginary part of the complex plane";
+		getFunction = "get_j";
+	}
+	real get_j(){
+		return _j;	
+	}
+	real _j;
+   	
+	FunctVariable mag {
+		units = "none"; 
+		IOstatus = "unset"; 
+		description = "Magnitude of the complex plane polar representation";
+		getFunction = "get_mag"; 
+		setFunction = "set_mag";
+	}
+	real get_mag() { 
+		_mag = sqrt(r*r+j*j); 
+		return _mag;
+	}
+	real _mag;
+	
+	FunctVariable rms {
+		units = "none"; 
+		IOstatus = "unset"; 
+		description = "rms value for electric purposes"; 
+		getFunction = "get_rms"; 
+	}
+	real get_rms() { return abs/sqrt(2.0);}
+	
+	FunctVariable phase {
+		units = "rad"; 
+		IOstatus = "unset"; 
+		description = "Phase Angle value of the complex plane polar representation";
+		getFunction = "get_phase"; 
+	}
+	real get_phase() { 
+		_phase = atan(j/r);
+		if ( r < 0 ) { _phase = _phase + PI; }
+		if ( _phase > PI )  { _phase = _phase - 2*PI; }
+		if ( _phase < -PI ) { _phase = _phase + 2*PI; }
+		if (j == 0 && r ==0 ) {_phase = 0 ;}
+		return _phase;
+	}
+	real _phase;
+	
+    FunctVariable phaseDeg {
+    	units = "deg"; 
+    	IOstatus = "unset"; 
+    	description = "Phase Angle (Deg) value of the polar representation of the complex plane";
+    	getFunction = "get_phaseDeg"; 
+    }
+    real get_phaseDeg() { 
+		return phaseDeg*180./PI;
+	}
+	
+	
+    real get_phaseDeg() { 
+    	return phase*360./(2.*PI);
+    }
+    
+    void scale( real scale ){
+    	_r = _r*scale;
+    	_j = _j*scale;
+    }
+    
+    void setrj( real r_in, real j_in ){
+    	if ( lock == 0 ){
+    		_r = r_in;
+    		_j = j_in;
+    	}else{
+    		cerr << "No, no, no\n";		
+    	}
+    }
+    
+	// change to mag
+    void setMagPhase( real mag, real phase  ){
+    	if ( lock == 0 ){
+    		_r = mag*cos( phase ); 
+    		_j = mag*sin( phase );
+    	} else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    
+    
+    void copy( string cNumName ) {
+    	_r = cNumName->_r;
+    	_j = cNumName->_j;
+    }
+    
+    
+    void plus( string cNumName ) {
+    	if ( lock == 0 ){
+    		_r = _r + cNumName->_r;
+    		_j = _j + cNumName->_j;
+    	}else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    void minus( string cNumName ) {
+    	if ( lock == 0 ){
+    		_r = _r - cNumName->_r;
+    		_j = _j - cNumName->_j;
+    	}else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    
+    void times( string cNumName ) {
+    	if ( lock == 0 ){
+    		real rLoc, jLoc, jExt, rExt;
+    		rLoc = r; 
+    		jLoc = j; 
+    		rExt = cNumName->r;
+    		jExt = cNumName->j;
+    		_r = rLoc*rExt - jLoc*jExt;
+    		_j = jLoc*rExt + rLoc*jExt;
+    		
+    	}else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    
+    void div( string cNumName ) {
+    	if ( lock == 0 ){
+    		real denom;
+    		real rLoc, jLoc, jExt, rExt;
+    		rLoc = _r; rExt = cNumName->r;
+    		jLoc = _j; jExt = cNumName->j;
+    		denom = rExt**2 + jExt**2;
+    		_r = (rLoc*rExt + jLoc*jExt)/denom;
+    		_j = (jLoc*rExt - rLoc*jExt)/denom;
+    	}
+    }
+    void conjugate() {
+    	if ( lock == 0 ){
+    		_j *= -1;
+    	}else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    
+}
