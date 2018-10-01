@@ -11,6 +11,7 @@
 //-------------------------------------------------------------------------------------------------
 
 #include "ElectricPort.prt"
+#include "InterpretedPort.int"
 
 cout<<"======================================="<<endl;
 cout<<" Model with Bus with 2 Inputs / 1 Output "<<endl;
@@ -154,8 +155,8 @@ Independent turbPR{
 };
 
 Dependent VbusIn{
-	eq_lhs = "Bus1.EP_Ia.Voltage";
-	eq_rhs = "Bus1.EP_Ib.Voltage";
+	eq_lhs = "Bus1.EP_Ia.V.mag";
+	eq_rhs = "Bus1.EP_Ib.V.mag";
 	autoSetup=TRUE;
 }
 
@@ -169,42 +170,21 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_Ia, Sh1_Ib, Sh2_I, Sh_Turbine;	
 }
 
-// temporary issue with electric port
-EM1.EP_I.setOption("ElectricPowerType","AC3");
-EM2.EP_I.setOption("ElectricPowerType","AC3");
-Cable1.EP_O.setOption("ElectricPowerType","AC3");
-Cable1.EP_I.setOption("ElectricPowerType","AC3");
-Cable1a.EP_O.setOption("ElectricPowerType","AC3");
-Cable1a.EP_I.setOption("ElectricPowerType","AC3");
-Cable1b.EP_O.setOption("ElectricPowerType","AC3");
-Cable1b.EP_I.setOption("ElectricPowerType","AC3");
-Cable2.EP_O.setOption("ElectricPowerType","AC3");
-Cable2.EP_I.setOption("ElectricPowerType","AC3");
-Gen1a.EP_O.setOption("ElectricPowerType","AC3");
-Gen1b.EP_O.setOption("ElectricPowerType","AC3");
-Gen2.EP_O.setOption("ElectricPowerType","AC3");
-Bus1.EP_O.setOption("ElectricPowerType","AC3");
-Bus1.EP_Ia.setOption("ElectricPowerType","AC3");
-Bus1.EP_Ib.setOption("ElectricPowerType","AC3");
-
-void linkPortE( string E1, string E2 ){
-  E1->refport = E2;
-  E2->refport = E1;
-}
+setOption("ElectricPowerType","AC3");
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortE( "Gen1a.EP_O", "Cable1a.EP_I" );
-linkPortE( "Gen1b.EP_O", "Cable1b.EP_I" );
-linkPortE( "Cable1a.EP_O","Bus1.EP_Ia" );
-linkPortE( "Cable1b.EP_O","Bus1.EP_Ib" );
-linkPortE( "Bus1.EP_O","Cable1.EP_I" );
-linkPortE( "Cable1.EP_O", "EM1.EP_I" );
+linkPortI( "Gen1a.EP_O", "Cable1a.EP_I" );
+linkPortI( "Gen1b.EP_O", "Cable1b.EP_I" );
+linkPortI( "Cable1a.EP_O","Bus1.EP_Ia" );
+linkPortI( "Cable1b.EP_O","Bus1.EP_Ib" );
+linkPortI( "Bus1.EP_O","Cable1.EP_I" );
+linkPortI( "Cable1.EP_O", "EM1.EP_I" );
 linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
-linkPortE( "Gen2.EP_O", "Cable2.EP_I" );
-linkPortE( "Cable2.EP_O", "EM2.EP_I" );
+linkPortI( "Gen2.EP_O", "Cable2.EP_I" );
+linkPortI( "Cable2.EP_O", "EM2.EP_I" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 
 // if not using nozzle

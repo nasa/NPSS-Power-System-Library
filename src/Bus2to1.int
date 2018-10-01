@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class Bus2to1 extends Element {
+class Bus2to1 extends ElementI {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -50,9 +50,8 @@ class Bus2to1 extends Element {
 		description = "Cable Loss";
 	}
 		
-	
 	real Voltage {
-		value = 0; IOstatus="output"; units="W";
+		value = 0; IOstatus="output"; units="V";
 		description = "Bus Voltage";
 	}
 	
@@ -83,27 +82,27 @@ class Bus2to1 extends Element {
 		trigger=FALSE;
 	}
 	
-	void calculate() {
-		
-		EP_Ia.copyport();
-		EP_Ib.copyport();
-		
+	void calculateI() {
+
 		// Power from Load Side
-		LoadPower=EP_Ia.RealPower + EP_Ib.RealPower;
+		LoadPower=EP_Ia.S.r + EP_Ib.S.r;
 		
 		// Supply power is the same as load power
 		SupplyPower = LoadPower;
 		
 		// Get the current
-		Current=EP_Ia.Current + EP_Ib.Current;
+		Current=EP_Ia.I.mag + EP_Ib.I.mag;
+		
+		Voltage = SupplyPower / Current;
 		
 		/******************************
 		Electrical Port Connection
 		******************************/
 		//EP_I.Voltage = EP_O.Voltage;
 		//EP_I.Current = Current;
-		//EP_I.RealPower = SupplyPower;
-		EP_O.setIP(Current, SupplyPower);
+		//EP_I.S.r = SupplyPower;
+		//EP_O.setIP(Current, SupplyPower);
+		EP_O.setIV(Current,0,Voltage,0);
 	}
 	
 	//-----------------------------------------------------------------
