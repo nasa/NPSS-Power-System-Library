@@ -51,76 +51,39 @@ GroupBlock Turbomachinery {
    addGutter = FALSE; 
 }  //end of Turbomachinery block
 
+
 GroupBlock Electrical { 
-DColTBlock motor { 
+
+   DColTBlock motor { 
 		//titleBody = "Motors"; 
 		titleBody = "\n"; 
-		compType = "eBasicMotor"; 
+		compType = "Motor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.S.r","EP_I.Vll.mag","EP_I.V.mag","EP_I.I.mag","Mass","Loss","LoadPower"};
-   } 
-   
-   DColTBlock complexmotor { 
-		//titleBody = "Motors"; 
-		titleBody = "\n"; 
-		compType = "eMotorPQ"; 
-		compTypeFormat = "????????"; 
-		compAttr = {"Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_I.S.r","EP_I.V.mag","EP_I.V.phase","EP_I.I.mag","EP_I.I.phase","Mass","Loss_r","Loss_j"};
    }
       
-   DColTBlock gencable { 
+   DColTBlock cable { 
    	    //titleBody = "\nACCables"; 
 		titleBody = "\n"; 
-		compType = "eGenericCable"; 
+		compType = "Cable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","Mass","Loss","EP_O.S.r","EP_O.I.mag","EP_O.V.mag","EP_O.Vll.mag"}; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 
    } 
-   
-   DColTBlock complexcable { 
-   	    //titleBody = "\nACCables"; 
-		titleBody = "\n"; 
-		compType = "eCablePQ"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"Mass","Loss_r","Loss_j","EP_O.ReactivePower","EP_O.S.r",
-		"EP_O.I.mag","EP_O.I.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg"}; 
-		//showColHeader=FALSE; 
-   } 
-   
-   DColTBlock genbus { 
-   	    //titleBody = "\nACCables"; 
-		titleBody = "\n"; 
-		compType = "eGenericBus"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"SupplyPower","LoadPower","Mass","Loss" ,"EP_O.S.r","EP_O.I.mag","EP_O.V.mag"}; 
-		//showColHeader=FALSE; 
-   }
-   
-    DColTBlock generator { 
+    
+   DColTBlock generator { 
     	//titleBody = "\nGenerators"; 
 		titleBody = "\n"; 
-		compType = "eBasicGenerator"; 
+		compType = "Generator"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"SupplyPower","Mass","Loss","EP_O.S.r","EP_O.I.mag","EP_O.V.mag","EP_O.Vll.mag"}; 
-		//showColHeader=FALSE; 
-   } 
-   
-   DColTBlock generatorcomplex { 
-    	//titleBody = "\nGenerators"; 
-		titleBody = "\n"; 
-		compType = "eGeneratorPQ"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"Mass","Loss_r","Loss_j","EP_O.ReactivePower","EP_O.S.r",
-		"EP_O.I.mag","EP_O.I.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg"}; 
+		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 
    }
       
    anchor = "motor"; 
-   motor.bottom = "gencable"; 
-   gencable.bottom = "complexcable";
-   complexcable.bottom = "generator";
-   generator.bottom = "generatorcomplex";
-   generatorcomplex.bottom = "genbus";
+   motor.bottom = "cable"; 
+   cable.bottom =  "generator";
+      
    addGutter = FALSE; 
 }  //end of Electrical Block
 

@@ -46,6 +46,8 @@ autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
+solver.maxIterations=300;
+
 
 run();
 
@@ -53,9 +55,8 @@ run();
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
-
-cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << " Propulsor Shaft " << Propulsor_Shaft.Nmech << endl;
-
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+quit();
 
 /************************
 Off design
@@ -76,4 +77,4 @@ run();
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
-cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << " Propulsor Shaft " << Propulsor_Shaft.Nmech << endl;
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;

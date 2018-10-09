@@ -46,16 +46,35 @@ class ComplexNumber extends VariableContainer {
 	}
 	real _r;
 	
+		
 	FunctVariable j {
-	    IOstatus = "unset";  
-	    units = "none";
-		description = "Imaginary part of the complex plane";
+	    IOstatus = "unset";  units = "none";
+		description = "Real part of the complex plane";
 		getFunction = "get_j";
 	}
 	real get_j(){
 		return _j;	
 	}
 	real _j;
+	
+	FunctVariable rRMS {
+	    IOstatus = "unset";  units = "none";
+		description = "Real part of the complex plane";
+		getFunction = "get_rRMS";
+	}
+	real get_rRMS(){
+		return _r/sqrt(2.);	
+	}
+	
+	FunctVariable jRMS {
+	    IOstatus = "unset";  
+	    units = "none";
+		description = "Imaginary part of the complex plane";
+		getFunction = "get_jRMS";
+	}
+	real get_jRMS(){
+		return _j/sqrt(2.);	
+	}
    	
 	FunctVariable mag {
 		units = "none"; 
@@ -70,13 +89,13 @@ class ComplexNumber extends VariableContainer {
 	}
 	real _mag;
 	
-	FunctVariable rms {
+	FunctVariable RMS {
 		units = "none"; 
 		IOstatus = "unset"; 
 		description = "rms value for electric purposes"; 
 		getFunction = "get_rms"; 
 	}
-	real get_rms() { return abs/sqrt(2.0);}
+	real get_rms() { return get_mag()/sqrt(2.0);}
 	
 	FunctVariable phase {
 		units = "rad"; 
@@ -167,6 +186,16 @@ class ComplexNumber extends VariableContainer {
     		_r = rLoc*rExt - jLoc*jExt;
     		_j = jLoc*rExt + rLoc*jExt;
     		
+    	}else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+    
+        
+    void timesRMS( string cNumName ) {
+    	if ( lock == 0 ){
+    		times( cNumName );
+    		scale( .5 );
     	}else{
     		cerr << "No, no, no\n";	   		
     	}

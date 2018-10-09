@@ -35,7 +35,7 @@ fine, imprisonment, or both.
 
 
 //model file
-#include "baseline_1bus2.mdl"
+#include "bus1to2.mdl"
 
 
 /************************
@@ -72,6 +72,9 @@ solver.addIndependent( "ind_AtmW" );
 
 solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
 Propulsor_Shaft.Nmech*=.9;
+
+cout << solver.list( "Independent" );
+
 
 run();
 

@@ -1,0 +1,181 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+#ifndef __ENODE__
+#define __ENODE__
+
+#include <InterpIncludes.ncp>
+
+class Enode extends Element{
+	
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	
+	// FLUID PORTS
+	
+	
+	// FUEL PORTS
+	
+	// BLEED PORTS
+	
+	// THERMAL PORTS
+	string Eports[];
+	Eports {
+		description = "Array of Electric ports";
+		ptrType = "ElectricPort";
+	}
+	
+	// FLOW STATIONS
+	
+	// SOCKETS
+	
+	//------------------------------------------------------------
+	// ******* INTERNAL SOLVER SETUP *******
+	//------------------------------------------------------------  
+	
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+	//------------------------------------------------------------
+	Independent ind_Vreal { 
+		varName = "Vreal"; 
+		autoSetup = TRUE;
+		indepRef = "1200";
+		
+		description = "Varies the volume total pressure";
+	}
+	
+	Independent ind_Vimag { 
+		varName = "Vimag"; 
+		autoSetup = TRUE;
+		indepRef = "1200";
+		description = "Varies the volume total specific enthalpy";
+	}
+	
+	Dependent dep_Ireal{
+		eq_lhs = "Inet.rRMS";  
+		eq_rhs = "0.0";
+		autoSetup = TRUE;
+	}
+	
+	Dependent dep_Iimag{
+		eq_lhs = "Inet.jRMS";  
+		eq_rhs = "0.";
+		autoSetup = TRUE;
+	}
+	
+	
+	ComplexNumber Inet;
+	
+	real frequency;
+	real Vmag;
+	real Vangle;
+	real Vreal;
+	real Vimag;
+	real IrealIn;
+	real IrealOut;
+	real IimagIn;
+	real IimagOut;
+	
+	string ElectricPorts[];
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+	
+	//------------------------------------------------------------
+	//   ******* OPTION VARIABLE SETUP *******
+	//------------------------------------------------------------
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	
+	
+	//---------------------------------------------------------------------
+	// calculate function
+	//---------------------------------------------------------------------
+	void calculate() {
+				
+		//---------------------------------------------------------
+		//  Sum up the current components at node
+		//  solver will drive to zero
+		//----------------------------------------------------------
+		Inet.setrj( 0., 0. );
+		int i;
+		for (i=0; i<ElectricPorts.entries(); i = i + 1) {
+			
+			
+			string Iname;
+			
+			if ( ElectricPorts[i]->hasInterface( "ElectricInputPort" )){
+				Iname =ElectricPorts[i]+".I"; 
+			    Inet.plus( Iname );			    
+			}
+			if ( ElectricPorts[i]->hasInterface( "ElectricOutputPort" )){
+				Iname =ElectricPorts[i]+".I";
+				Inet.minus( Iname );
+			}
+			
+		}
+	
+	}
+	
+	//---------------------------------------------------------------------
+	// variable changed function
+	//---------------------------------------------------------------------
+	void variableChanged( string name, any oldValue ){
+		
+	}
+    
+	//------------------------------------------------------------
+	// ******* PREPASS FUNCTION *******
+	//------------------------------------------------------------
+	void prePass() {
+		
+	    //---------------------------------------------------
+		// push the voltage from the solver out to the ports
+		//---------------------------------------------------
+        int i;		
+		for (i=0; i<ElectricPorts.entries(); i = i + 1) {
+			ElectricPorts[i]->frequency= frequency;	
+			ElectricPorts[i]->setIV(0., 0., Vreal, Vimag); 
+		}
+		
+	}
+	
+	// -------------------------------------------------------------
+	//   ************ POSTCREATE FUNCTION **********
+	// -------------------------------------------------------------
+	void postcreate( string name ) {
+		//------------------------------------------------------------    
+		// allow for the creation of ports at run time
+		//------------------------------------------------------------
+		if ( name->hasInterface( "ElectricPort" )) {
+			ElectricPorts.append(name);
+		}
+		
+	}
+	
+}
+
+
+#endif
+

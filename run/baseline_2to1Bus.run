@@ -35,7 +35,7 @@ fine, imprisonment, or both.
 
 
 //model file
-#include "baseline_2bus1.mdl"
+#include "bus2to1.mdl"
 
 
 /************************

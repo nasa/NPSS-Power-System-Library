@@ -1,0 +1,109 @@
+#include "ElectricPort.prt"
+// here is where sameple problem camealtern from
+//https://www.allaboutcircuits.com/textbook/alternating-current/chpt-5/series-parallel-r-l-and-c/
+
+
+#include "InterpretedPort.int"
+#include "Resistor.int"
+#include "Inductor.int"
+#include "Capacitor.int"
+
+class Bat extends Element{
+  ElectricOutputPort EP_O;
+  ElectricInputPort EP_I1, EP_I2;
+}
+
+real defaultFrequency = 60.;
+
+Bat Bat{
+  void postexecute(){
+    EP_O.frequency = 60.;
+    EP_O.setIV( 0,0, 120, 0 );
+    EP_I1.setIV( 0, 0, 0, 0 );
+    EP_I2.setIV( 0, 0, 0, 0 );
+  }
+}
+
+Capacitor C1{
+  C = .0000047;  
+}
+
+Inductor L1{
+  L = .65;
+}
+
+Capacitor C2{
+  C = .0000015;
+}
+
+Element Resistor R1{
+	R = 470.;
+}
+
+
+//--------------------------------------------------------
+// link it up
+//--------------------------------------------------------
+/*
+linkPortI( "Bat.EP_O", "C1.EP_I" );
+linkPortI( "C1.EP_O", "E1.EP_I" );
+linkPortI( "E1.EP_O1", "L1.EP_I" );
+linkPortI( "L1.EP_O", "E2.EP_I" );
+linkPortI( "E2.EP_O", "C2.EP_I" );
+linkPortI( "C2.EP_O", "Bat.EP_I1" );
+linkPortI( "E1.EP_O2", "R1.EP_I" );
+linkPortI( "R1.EP_O", "Bat.EP_I2" );
+*/
+
+
+linkEports( "Bat.EP_O", "C1.EP_I", "PORT" );
+linkEports("C1.EP_O", "n1" ,"NODE");
+linkEports( "L1.EP_I", "n1", "NODE" );
+linkEports( "L1.EP_O", "n2", "NODE" );
+linkEports( "C2.EP_I", "n2", "NODE" );
+linkEports( "C2.EP_O", "Bat.EP_I1", "PORT" );
+linkEports( "R1.EP_I", "n1", "NODE" );
+linkEports( "R1.EP_O", "Bat.EP_I2", "PORT" );
+
+
+n1{
+  Vreal = 120-70.5;  //guess value
+  Vimag = 43;  //guess value		
+}
+
+
+n2{
+  Vreal = 120-70.5+7.96;  //guess value
+  Vimag = 43+6.98;  //guess value
+}
+	
+	
+autoSolverSetup();
+
+
+//---------------------------------------------------------
+// just like a rocket engine, volumes last
+//---------------------------------------------------------
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2","E1","E2" }
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2" }
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "Solver.bad";
+
+
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+setOption( "ElectricPowerType", "AC1" );
+
+
+
+run();
+
+cerr << "Voltages\n";
+cerr << C1.EP_O.V.rRMS << " " << C1.EP_O.V.jRMS << endl;
+cerr << L1.EP_O.V.rRMS << " " << L1.EP_O.V.jRMS << endl;
+
+cerr << "Currents\n";
+cerr << C1.EP_O.I.rRMS << " " << C1.EP_O.I.jRMS << endl;
+cerr << L1.EP_O.I.rRMS << " " << L1.EP_O.I.jRMS << endl;
+cerr << C2.EP_O.I.rRMS << " " << C2.EP_O.I.jRMS << endl;
+cerr << R1.EP_O.I.rRMS << " " << R1.EP_O.I.jRMS << endl;

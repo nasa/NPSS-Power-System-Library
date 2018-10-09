@@ -7,7 +7,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class Bus2to1 extends ElementI {
+class Bus2to1 extends Element {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -82,7 +82,7 @@ class Bus2to1 extends ElementI {
 		trigger=FALSE;
 	}
 	
-	void calculateI() {
+	void calculate() {
 
 		// Power from Load Side
 		LoadPower=EP_Ia.S.r + EP_Ib.S.r;

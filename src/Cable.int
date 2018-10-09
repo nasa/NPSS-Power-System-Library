@@ -3,11 +3,11 @@
 // * 21000 Brookpark Rd
 // * Cleveland, OH 44135
 // * Jeffrey Csank, David Sadey, Tom Lavelle
-// * March 30, 2018
+// * April 26, 2018
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-class eGenericCable extends ElementI {
+class Cable extends Element {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -25,19 +25,19 @@ class eGenericCable extends ElementI {
 	//     ******* SETUP VARIABLES ********
 	//------------------------------------------------------------
 	
+	real R;
+    
+	real L;
+    
+    real length;
+	
+	ComplexNumber dV;
+	ComplexNumber Z;
+	ComplexNumber I;
+	
 	real SpecificAmperage {
-		value = 170.; IOstatus="input"; //units=;
-		description = "Amps to Weight/length ratio for the cable";
-	}
-	
-	real CableLength {
-		value = 28.3; IOstatus="input"; //units=;
-		description = "One way line length (m)";
-	}
-	
-	real LineResistance {
-		value = 0.0000014; IOstatus="input"; //units=Amps;
-		description = "Cable Resistance";
+	value = 170.; IOstatus="input"; //units=;
+	description = "Amps to Weight/length ratio for the cable";
 	}
 	
 	real Mass {
@@ -45,30 +45,30 @@ class eGenericCable extends ElementI {
 		description = "Mass output of the cable";
 	}
 	
-	real Loss {
+	
+	// Will add losses in future releases.
+	real Loss_r {
 		value = 0; IOstatus="output"; units="W";
 		description = "Cable Loss";
 	}
 	
-	real Vdrop {
+	real Loss_j {
 		value = 0; IOstatus="output"; units="W";
-		description = "Voltage Drop across the line";
+		description = "Cable Loss";
 	}
 	
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------	
-	ElectricPort EP_O {
+	ElectricOutputPort EP_O {
 		description = "Electric port";
 	}
+	string EPortRef;
 	
-	ElectricPort EP_I {
+	ElectricInputPort EP_I {
 		description = "Electric Port";
 	}
 	
-	//------------------------------------------------------------
-	//   ******* PERFORM ENGINEERING CALCULATIONS *******
-	//------------------------------------------------------------
 	Option switchDes {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
@@ -76,27 +76,32 @@ class eGenericCable extends ElementI {
 		trigger=FALSE;
 	}
 	
-	void calculateI() {
-
-		// Determine the load voltage using the voltage drop
-		real Vdrop = EP_I.I.mag * LineResistance;		
-		real Vload = EP_I.V.mag - Vdrop;
+	void calculate() {
 		
-		//Determine power on load side using voltage drop across cable
-		EP_O.setIV(EP_I.I.mag,0,Vload,0);
-		Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
-		//Loss = EP_I.RealPower - EP_O.RealPower;
+		//-------------------------------------------------------
+		// calcualte current from voltage drop
+		//-------------------------------------------------------
 		
-		//Detemine load power using I^2 losses
-		//Loss = 3 * EP_I.I.mag**2 * LineResistance / 1000.;
-		//EP_O.setIP(EP_I.I.mag, EP_O.RealPower);
-
+		dV.copy( "EP_I.V" );
+		dV.minus( "EP_O.V" );	
+		Z.setrj( R,  L*(EP_I.frequency/60.) );
+		I.copy( "dV" );
+	    I.div( "Z" );
+	    
+	    //----------------------------------------------------------
+	    // set the conditions in the port
+	    //-----------------------------------------------------------
+		EP_O.setIV( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
+		EP_I.setIV( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
+		EP_O.frequency=EP_I.frequency;
+		
+		//Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
 		if (switchDes=="DESIGN"){
 			/***************************
 			On-Design
 			in on design, calculate the mass of the cable
 			***************************/
-			Mass=EP_I.I.mag/SpecificAmperage*CableLength*3;
-		}
+			Mass=EP_I.I.mag/SpecificAmperage*length*3;
+		}		
 	}
 }

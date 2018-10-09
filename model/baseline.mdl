@@ -1,19 +1,21 @@
 //-------------------------------------------------------------------------------------------------
 //
 //   File Name:     baseline.mdl
-//   Date(s):       March 19, 2018
+//   Date(s):       April 27, 2018
 //   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
 //					NASA Glenn Research Center
 //
-//   Description:   Model file describes baseline model (Generator, Cable, Motor) for a basic AC system.
+//   Description:   Model file describes baseline model (Generator, Cable, Motor) using apparent, real, 
+//					and reactive power.
 //
 //-------------------------------------------------------------------------------------------------
 
+#include "InterpretedPort.int"
 #include "ElectricPort.prt"
-#include "InterpretedPort.int";
+
 
 cout<<"======================================="<<endl;
-cout<<"         Baseline Model  "<<endl;
+cout<<" Example Model with Real and Reactive Power "<<endl;
 cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
@@ -23,52 +25,55 @@ setThermoPackage("GasTbl");
  Gen1 -> Cable1 -> EM1
 *******************************************/
 
-Element eBasicGenerator Gen1 {
-	Vbus_LL=1200; // define line to line voltage
+Element Generator Gen1 {
+	Vbus_LL=1200;	
 	Eff=0.96;
 	SpecificPower=13.;
-	void preexecute(){	 	
-		Current=MotorTorque/2;
-	};
+	
+	 frequency=400; // Hz
 }
 
-Element eGenericCable Cable1 {
-	LineResistance=4.3245e-6;	
-	SpecificAmperage=170.;
-	CableLength=28.3464; 
+Element Cable Cable1 {
+	length=28.3464; 	
+	R=4.3245e-6;
+	L=9.84e-5*length;
 }
 
-// Motor
- Element eBasicMotor EM1 {
+Element Motor EM1 {
 	 Eff=0.96;
-	 SpecificPower=13.0; 	 
+	 //powerfactor=1.0;
+	 powerfactor=0.9;
+	 SpecificPower=13.0; 
 	 Torque=55144.0; 
+	 frequency = 400.;
 }
 
 /*******************************************
  Branch 2
  Gen2 -> Cable2 -> EM2
 *******************************************/
-Element eBasicGenerator Gen2 {
-	Vbus_LL=1200;
+
+Element Generator Gen2 {
+	Vbus_LL=1200;	
 	Eff=0.96;
 	SpecificPower=13.;
-	void preexecute(){
-		Current=MotorTorque/2;
-	};
+	
+	 frequency=400; // Hz
 }
 
-Element eGenericCable Cable2 {
-	LineResistance=4.3245e-6;
-	SpecificAmperage=170.;
-	CableLength=28.3464; 
+Element Cable Cable2 {
+	length=28.3464; 	
+	R=4.3245e-6;
+	L=9.84e-5*length;
 }
 
-// Motor
- Element eBasicMotor EM2 {
+Element Motor EM2 {
 	 Eff=0.96;
+	 //powerfactor=1.0;
+	 powerfactor=0.9;
 	 SpecificPower=13.0; 
-	 Torque=55144.0;   // in*lb ?????	 
+	 Torque=55144.0; 
+	 frequency = 400.;
 }
 
 /**************************
@@ -89,6 +94,7 @@ Element Compressor Prop{
 Element FlowEnd dump{
 };
 
+
 Element Shaft Propulsor_Shaft {
 	Nmech=4000;   // rpm
 	ShaftInputPort Sh1_I, Sh2_I, Sh_Prop;
@@ -101,7 +107,7 @@ Element FlowStart TurbineAtm{
 	Pt=500;
 	Tt=2200;
 	W=500;
-	FAR=0.02;   
+	FAR = .02;
 }
 
 Element Turbine Turb{
@@ -110,7 +116,6 @@ Element Turbine Turb{
 	effDes=0.9;
 }
 
-// added Nozzle
 Nozzle Noz{
   PsExh = 14.;
 }
@@ -118,35 +123,38 @@ Nozzle Noz{
 Element FlowEnd Turbinedump{
 };
 
-/*
-Independent ind_w{
-	varName="Atm.W";
-	//autoSetup=TRUE;
-	autoSetup=FALSE;
-};
-*/
-
 real MotorTorque=EM1.Torque+EM2.Torque;
 
-Independent ind_torque{
-	varName="MotorTorque";
-	autoSetup=TRUE;
-	//autoSetup=FALSE;
-};
 
 Independent turbPR{
 	varName="Turb.PRdes";
-	//autoSetup=TRUE;
-	//autoSetup=FALSE;
-};
+}
+
+Dependent MotorAngle2{
+	eq_rhs="EM2.EP_I.I.phaseDeg";
+	eq_lhs="EM2.CurrentAngle_Demand";
+	autoSetup=TRUE;
+}
+
+
+
+Dependent MotorAngle{
+	eq_rhs="EM1.EP_I.I.phaseDeg";
+	eq_lhs="EM1.CurrentAngle_Demand";
+	autoSetup=TRUE;
+}
+Dependent pwrSplit{
+	eq_rhs="EM1.Sh_O.pwr";
+	eq_lhs="EM2.Sh_O.pwr";
+	autoSetup=TRUE;
+}
 
 Element Shaft Turbine_Shaft {
-	Nmech=4000;   // rpm	
+	Nmech=4000;   // rpm
 	ShaftInputPort Sh1_I, Sh2_I, Sh_Turbine;	
 }
 
 setOption("ElectricPowerType","AC3");
-
 
 
 //-------------------------------------------------------------------------------------------------
@@ -155,6 +163,7 @@ setOption("ElectricPowerType","AC3");
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
 linkPortI( "Cable1.EP_O", "EM1.EP_I" );
+
 linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
 linkPortI( "Gen2.EP_O", "Cable2.EP_I" );
 linkPortI( "Cable2.EP_O", "EM2.EP_I" );
@@ -167,7 +176,7 @@ linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
 linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
 
-// continue
+//
 linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
 linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
 linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
