@@ -108,7 +108,7 @@ class Generator extends Element {
 		
 		RealPower = EP_O.S.r / Eff;	
 		
-		// determoine loss in the generator
+		// determine loss in the generator
 		Loss_r = RealPower - EP_O.S.r;
 		Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
 		
@@ -124,7 +124,7 @@ class Generator extends Element {
 			// Supply power is load power + losses
 			RealPower = EP_O.S.r + Loss_r;
 			
-			// determoine loss in the generator
+			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
 			Loss_j=sqrt((RealPower / powerfactor)**2 - RealPower**2);
 		}
