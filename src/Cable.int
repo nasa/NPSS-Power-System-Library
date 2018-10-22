@@ -79,7 +79,7 @@ class Cable extends Element {
 	void calculate() {
 		
 		//-------------------------------------------------------
-		// calcualte current from voltage drop
+		// calculate current from voltage drop
 		//-------------------------------------------------------
 		
 		dV.copy( "EP_I.V" );
