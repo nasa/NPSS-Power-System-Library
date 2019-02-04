@@ -79,7 +79,7 @@ class Cable extends Element {
 	void calculate() {
 		
 		//-------------------------------------------------------
-		// calcualte current from voltage drop
+		// calculate current from voltage drop
 		//-------------------------------------------------------
 		
 		dV.copy( "EP_I.V" );
@@ -87,12 +87,12 @@ class Cable extends Element {
 		Z.setrj( R,  L*(EP_I.frequency/60.) );
 		I.copy( "dV" );
 	    I.div( "Z" );
-	    
+
 	    //----------------------------------------------------------
 	    // set the conditions in the port
 	    //-----------------------------------------------------------
-		EP_O.setIV( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
-		EP_I.setIV( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
+		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
+		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
 		EP_O.frequency=EP_I.frequency;
 		
 		//Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;

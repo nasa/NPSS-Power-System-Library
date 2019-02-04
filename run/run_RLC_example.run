@@ -1,0 +1,57 @@
+
+
+// add in port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// add circuit elements
+#include "Resistor.int"
+#include "Inductor.int"
+#include "Capacitor.int"
+
+
+// select model
+#include "PandE2019_RLC_example.mdl"
+
+autoSolverSetup();
+
+//---------------------------------------------------------
+// just like a rocket engine, volumes last
+//---------------------------------------------------------
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2","E1","E2" }
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2" }
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "Solver.bad";
+
+
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+setOption( "ElectricPowerType", "AC1" );
+ 
+run();
+
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
+
+
+cerr << "\n Voltages \n";
+cerr << "C1: " << C1.EP_O.V.rRMS << " + " << C1.EP_O.V.jRMS << "j"<< endl;
+cerr << "L1: " << L1.EP_O.V.rRMS << " + " << L1.EP_O.V.jRMS << "j"<< endl;
+
+cerr << "\n Component Voltage  Drops \n";
+cerr << "C1: " << C1.EP_I.V.rRMS - C1.EP_O.V.rRMS << " + " << C1.EP_I.V.jRMS - C1.EP_O.V.jRMS << "j"<< endl;
+cerr << "L1: " << L1.EP_I.V.rRMS - L1.EP_O.V.rRMS << " + " << L1.EP_I.V.jRMS - L1.EP_O.V.jRMS << "j"<< endl;
+cerr << "C2: " << C2.EP_I.V.rRMS - C2.EP_O.V.rRMS << " + " << C2.EP_I.V.jRMS - C2.EP_O.V.jRMS << "j"<< endl;
+cerr << "R1: " << R1.EP_I.V.rRMS - R1.EP_O.V.rRMS << " + " << R1.EP_I.V.jRMS - R1.EP_O.V.jRMS << "j"<< endl;
+
+cerr << "\n Currents\n";
+cerr << "C1: " << C1.EP_O.I.rRMS << " + " << C1.EP_O.I.jRMS << "j"<< endl;
+cerr << "L1: " << L1.EP_O.I.rRMS << " + " << L1.EP_O.I.jRMS << "j"<< endl;
+cerr << "C2: " << C2.EP_O.I.rRMS << " + " << C2.EP_O.I.jRMS << "j"<< endl;
+cerr << "R1: " << R1.EP_O.I.rRMS << " + " << R1.EP_O.I.jRMS << "j"<< endl;
+
+cerr << "\n" << endl;

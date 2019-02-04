@@ -53,40 +53,71 @@ GroupBlock Turbomachinery {
 
 
 GroupBlock Electrical { 
-
-   DColTBlock motor { 
-		//titleBody = "Motors"; 
-		titleBody = "\n"; 
+	//titleBody = "                          ELECTRICAL POWER SYSTEM"; 
+		cout<<list("Variable")<<endl;
+   DColTBlock motor { 	
+		titleBody = "                          ELECTRICAL POWER SYSTEM"; 
 		compType = "Motor"; 
 		compTypeFormat = "????????"; 
 		compAttr = {"EP_I.S.r","EP_I.V.mag","EP_I.V.phase","EP_I.I.mag","EP_I.I.phase","Mass","Loss_r","Loss_j"};
    }
       
    DColTBlock cable { 
-   	    //titleBody = "\nACCables"; 
 		titleBody = "\n"; 
 		compType = "Cable"; 
 		compTypeFormat = "????????????"; 
 		compAttr = {"EP_I.S.r","EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
-		//showColHeader=FALSE; 
    } 
     
    DColTBlock generator { 
-    	//titleBody = "\nGenerators"; 
 		titleBody = "\n"; 
 		compType = "Generator"; 
 		compTypeFormat = "????????????"; 
 		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 
    }
-      
+    /* 
+	DColTBlock resistor { 
+		titleBody = "\n"; 
+		compType = "Resistor"; 
+		compTypeFormat = "????????"; 
+		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   }
+   */
    anchor = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "generator";
-      
-   addGutter = FALSE; 
+   addGutter = TRUE; 
 }  //end of Electrical Block
 
+
+GroupBlock CircuitsGroup { 
+
+   DColTBlock resistor { 
+		titleBody = "\n"; 
+		compType = "Resistor"; 
+		compTypeFormat = "????????"; 
+		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   }
+   
+   DColTBlock inductor { 
+		titleBody = "\n"; 
+		compType = "Inductor"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   } 
+   
+   DColTBlock capacitor { 
+		titleBody = "\n"; 
+		compType = "Capacitor"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   }
+   anchor = "resistor"; 
+   resistor.bottom = "inductor"; 
+   inductor.bottom = "capacitor";
+   addGutter = FALSE; 
+} 
 
 
 GroupBlock MapsGroup { 
@@ -97,7 +128,9 @@ GroupBlock MapsGroup {
       compAttr = { "S_map.WcMap:????.??=WcMap", "S_map.PRmap:??.???=PRmap", "S_map.effMap:??.????=effMap", 
                    "S_map.NcMap:?????.???=NcMap", "S_map.RlineMap:???.????=R/Parm", "S_map.s_WcDes:?????.????=s_WcDes", 
                    "S_map.s_PRdes:???.????=s_PRdes", "S_map.s_effDes:?.????=s_effDes", "S_map.s_NcDes:?????.???=s_NcDes" } 
-   } 
+   }
+
+   
    DColTBlock turbMaps { 
       compType = "Turbine"; 
       compTypeFormat = "????????"; 
@@ -188,6 +221,8 @@ GroupBlock ABblock {  //========================================================
    space.right = "BleedGroup"; 
 }  //end of ABblock
 
+
+
 GroupBlock Cblock {   //========================================================================================
 
    DColTBlock burners { 
@@ -206,7 +241,6 @@ GroupBlock Cblock {   //========================================================
       showColHeader = FALSE; 
    } 
     
-
    anchor = "burners"; 
    burners.bottom = "mixers"; 
    //mixers.bottom  = "nozzles"; 
@@ -215,13 +249,13 @@ GroupBlock Cblock {   //========================================================
 anchor = "TnBGroup"; 
 TnBGroup.bottom = "inputs"; 
 inputs.bottom = "Electrical"; 
-//Turbomachinery.bottom = "Electrical"; 
-Electrical.bottom = "MapsGroup";
+//Electrical.bottom = "MapsGroup";
+Electrical.bottom = "CircuitsGroup";
+CircuitsGroup.bottom = "MapsGroup";
 MapsGroup.bottom = "ABblock"; 
 ABblock.bottom = "Cblock"; 
 
 pageWidth = 0; 
 pageHeight = 0; 
 outStreamHandle = "pageStream"; 
-
 }

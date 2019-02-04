@@ -52,7 +52,7 @@ class Capacitor extends Element {
 		
 		dV.copy( "EP_I.V" );
 		dV.minus( "EP_O.V" );	
-		Z.setrj( 0., -1./(2.*PI*EP_I.frequency*C ) );
+		Z.setrj( 0., -1./(2*PI*EP_I.frequency*C ) );
 		I.copy( "dV" );
 	    I.div( "Z" );
 	    
@@ -60,8 +60,8 @@ class Capacitor extends Element {
 	    //----------------------------------------------------------
 	    // set the conditions in the ports
 	    //----------------------------------------------------------
-		EP_O.setIV( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
-		EP_I.setIV( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
+		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
+		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
 		EP_O.frequency=EP_I.frequency;
 		
 	}

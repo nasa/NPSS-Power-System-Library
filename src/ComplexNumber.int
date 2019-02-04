@@ -142,6 +142,16 @@ class ComplexNumber extends VariableContainer {
     	}
     }
     
+    
+    void setrjRMS( real r_in, real j_in ){
+    	if ( lock == 0 ){
+    		_r = r_in*sqrt(2);
+    		_j = j_in*sqrt(2);
+    	}else{
+    		cerr << "No, no, no\n";		
+    	}
+    }
+    
 	// change to mag
     void setMagPhase( real mag, real phase  ){
     	if ( lock == 0 ){
