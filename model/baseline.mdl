@@ -29,8 +29,7 @@ Element Generator Gen1 {
 	Vbus_LL=1200;	
 	Eff=0.96;
 	SpecificPower=13.;
-	
-	 frequency=400; // Hz
+	frequency=400; // Hz
 }
 
 Element Cable Cable1 {
@@ -41,40 +40,13 @@ Element Cable Cable1 {
 
 Element Motor EM1 {
 	 Eff=0.96;
-	 //powerfactor=1.0;
 	 powerfactor=0.9;
 	 SpecificPower=13.0; 
 	 Torque=55144.0; 
 	 frequency = 400.;
+	 Vreal = 1000.;
 }
 
-/*******************************************
- Branch 2
- Gen2 -> Cable2 -> EM2
-*******************************************/
-
-Element Generator Gen2 {
-	Vbus_LL=1200;	
-	Eff=0.96;
-	SpecificPower=13.;
-	
-	 frequency=400; // Hz
-}
-
-Element Cable Cable2 {
-	length=28.3464; 	
-	R=4.3245e-6;
-	L=9.84e-5*length;
-}
-
-Element Motor EM2 {
-	 Eff=0.96;
-	 //powerfactor=1.0;
-	 powerfactor=0.9;
-	 SpecificPower=13.0; 
-	 Torque=55144.0; 
-	 frequency = 400.;
-}
 
 /**************************
  Electric Motor Connections
@@ -82,13 +54,13 @@ Element Motor EM2 {
 Element FlowStart Atm{
 	Pt=14.696;
 	Tt=518.67;
-	W=4394.74/10;
+	W=4394.74/20;
 }
 
 Element Compressor Prop{
 	#include "fanE3.map";
 	PRdes=1.4;
-	effDes=0.93;
+	effDes=0.93;	
 }
 
 Element FlowEnd dump{
@@ -97,7 +69,7 @@ Element FlowEnd dump{
 
 Element Shaft Propulsor_Shaft {
 	Nmech=4000;   // rpm
-	ShaftInputPort Sh1_I, Sh2_I, Sh_Prop;
+	ShaftInputPort Sh1_I, Sh_Prop;
 }
 
 /**************************
@@ -114,6 +86,7 @@ Element Turbine Turb{
 	#include "lptE3.map";	
 	PRbase=2;
 	effDes=0.9;
+
 }
 
 Nozzle Noz{
@@ -123,17 +96,9 @@ Nozzle Noz{
 Element FlowEnd Turbinedump{
 };
 
-real MotorTorque=EM1.Torque+EM2.Torque;
-
 
 Independent turbPR{
 	varName="Turb.PRdes";
-}
-
-Dependent MotorAngle2{
-	eq_rhs="EM2.EP_I.I.phaseDeg";
-	eq_lhs="EM2.CurrentAngle_Demand";
-	autoSetup=TRUE;
 }
 
 
@@ -143,15 +108,10 @@ Dependent MotorAngle{
 	eq_lhs="EM1.CurrentAngle_Demand";
 	autoSetup=TRUE;
 }
-Dependent pwrSplit{
-	eq_rhs="EM1.Sh_O.pwr";
-	eq_lhs="EM2.Sh_O.pwr";
-	autoSetup=TRUE;
-}
 
 Element Shaft Turbine_Shaft {
 	Nmech=4000;   // rpm
-	ShaftInputPort Sh1_I, Sh2_I, Sh_Turbine;	
+	ShaftInputPort Sh1_I, Sh_Turbine;	
 }
 
 setOption("ElectricPowerType","AC3");
@@ -164,9 +124,7 @@ linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
 linkPortI( "Cable1.EP_O", "EM1.EP_I" );
 
-linkPorts( "Propulsor_Shaft.Sh2_I"  , "EM2.Sh_O"          	    , "Shaft_Motor2" );
-linkPortI( "Gen2.EP_O", "Cable2.EP_I" );
-linkPortI( "Cable2.EP_O", "EM2.EP_I" );
+
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 
 // if not using nozzle
@@ -182,4 +140,18 @@ linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
 linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
 linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
-linkPorts( "Turbine_Shaft.Sh2_I"    , "Gen2.Sh_O", "Gen2-to-Shaft");
+
+
+
+solverSequence.remove( "Gen1" );
+solverSequence.remove( "EM1" );
+solverSequence.remove( "Turbine_Shaft" );
+solverSequence.remove( "Propulsor_Shaft" );
+
+solverSequence.append( "Gen1" );
+solverSequence.append( "EM1" );
+solverSequence.append( "Turbine_Shaft" );
+solverSequence.append( "Propulsor_Shaft" );
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "soler.bad";

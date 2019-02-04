@@ -56,7 +56,7 @@ class Enode extends Element{
 	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
 	//------------------------------------------------------------
 	Independent ind_Vreal { 
-		varName = "Vreal"; 
+		varName = "VrealRMS"; 
 		autoSetup = TRUE;
 		indepRef = "1200";
 		
@@ -64,7 +64,7 @@ class Enode extends Element{
 	}
 	
 	Independent ind_Vimag { 
-		varName = "Vimag"; 
+		varName = "VimagRMS"; 
 		autoSetup = TRUE;
 		indepRef = "1200";
 		description = "Varies the volume total specific enthalpy";
@@ -88,8 +88,8 @@ class Enode extends Element{
 	real frequency;
 	real Vmag;
 	real Vangle;
-	real Vreal;
-	real Vimag;
+	real VrealRMS;
+	real VimagRMS;
 	real IrealIn;
 	real IrealOut;
 	real IimagIn;
@@ -156,7 +156,7 @@ class Enode extends Element{
         int i;		
 		for (i=0; i<ElectricPorts.entries(); i = i + 1) {
 			ElectricPorts[i]->frequency= frequency;	
-			ElectricPorts[i]->setIV(0., 0., Vreal, Vimag); 
+			ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
 		}
 		
 	}

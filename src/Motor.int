@@ -90,14 +90,14 @@ class Motor extends Element {
 		autoSetup = TRUE;
 		indepRef = "100";
 		
-		description = "Varies the volume total pressure";
+		description = "Varies the real component of the motor voltage";
 	}
 	
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
 		indepRef = "100";
-		description = "Varies the volume total specific enthalpy";
+		description = "Varies the imaginary component of the motor voltage";
 	}
 	
 	//------------------------------------------------------------
@@ -169,7 +169,7 @@ class Motor extends Element {
 	}
 	void prePass(){
 		
-		EP_I.setIV( 0., 0. , Vreal,  Vimag );
+		EP_I.setIVRMS( 0., 0. , Vreal,  Vimag );
 		EP_I.frequency = frequency;
 		
 	}
