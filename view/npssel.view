@@ -53,8 +53,7 @@ GroupBlock Turbomachinery {
 
 
 GroupBlock Electrical { 
-	//titleBody = "                          ELECTRICAL POWER SYSTEM"; 
-		cout<<list("Variable")<<endl;
+
    DColTBlock motor { 	
 		titleBody = "                          ELECTRICAL POWER SYSTEM"; 
 		compType = "Motor"; 
@@ -76,14 +75,6 @@ GroupBlock Electrical {
 		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 
    }
-    /* 
-	DColTBlock resistor { 
-		titleBody = "\n"; 
-		compType = "Resistor"; 
-		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-   }
-   */
    anchor = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "generator";

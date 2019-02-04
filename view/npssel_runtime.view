@@ -19,29 +19,6 @@ vars = { "date", "timeOfDay", "MODELNAME"}
 } // end TnBGroup
 
 
-
-GroupBlock Turbomachinery { 
-   DColTBlock comps { 
-      titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
-      compType = "Compressor"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
-                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
-   } 
-   DColTBlock turbs { 
-      compType = "Turbine"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
-                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
-      showColHeader=FALSE; 
-   } 
-   anchor = "comps"; 
-   comps.bottom = "turbs"; 
-   addGutter = FALSE; 
-}  //end of Turbomachinery block
-
-
-
 GroupBlock Electrical { 
 
    DColTBlock motor { 
@@ -73,16 +50,63 @@ GroupBlock Electrical {
    anchor = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "generator";
-      
-   addGutter = FALSE; 
+   addGutter = TRUE; 
 }  
 
-//anchor = "TnBGroup"; 
-///TnBGroup.bottom = "Electrical"; 
+GroupBlock CircuitsGroup { 
+
+   DColTBlock resistor { 
+		titleBody = "\n"; 
+		compType = "Resistor"; 
+		compTypeFormat = "????????"; 
+		compAttr = {"EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   }
+   
+   DColTBlock inductor { 
+		titleBody = "\n"; 
+		compType = "Inductor"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   } 
+   
+   DColTBlock capacitor { 
+		titleBody = "\n"; 
+		compType = "Capacitor"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+   }
+   anchor = "resistor"; 
+   resistor.bottom = "inductor"; 
+   inductor.bottom = "capacitor";
+   addGutter = FALSE; 
+} 
+
+GroupBlock Turbomachinery { 
+   DColTBlock comps { 
+      titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
+      compType = "Compressor"; 
+      compTypeFormat = "????????"; 
+      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
+                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
+   } 
+   DColTBlock turbs { 
+      compType = "Turbine"; 
+      compTypeFormat = "????????"; 
+      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
+                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
+      showColHeader=FALSE; 
+   } 
+   anchor = "comps"; 
+   comps.bottom = "turbs"; 
+   addGutter = FALSE; 
+}  //end of Turbomachinery block
+
 
 anchor = "TnBGroup"; 
-TnBGroup.bottom = "Turbomachinery"; 
-Turbomachinery.bottom = "Electrical"; 
+TnBGroup.bottom = "Electrical"; 
+Electrical.bottom = "CircuitsGroup"; 
+CircuitsGroup.bottom = "Turbomachinery"; 
+
 
 pageWidth = 0; 
 pageHeight = 0; 
