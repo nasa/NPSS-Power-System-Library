@@ -103,8 +103,8 @@ class Bus1to2 extends Element {
 		//EP_Oa.setIP(EP_I.Current*Pfrac, EP_I.RealPower*Pfrac);
 		//EP_Ob.setIP(EP_I.Current*(1-Pfrac), EP_I.RealPower*(1-Pfrac));
 		
-		EP_Oa.setIV(EP_I.I.mag*Pfrac,0,EP_I.V.mag,0);		
-		EP_Ob.setIV(EP_I.I.mag*(1-Pfrac),0, EP_I.V.mag,0);
+		EP_Oa.setIVRMS(EP_I.I.mag*Pfrac,0,EP_I.V.mag,0);		
+		EP_Ob.setIVRMS(EP_I.I.mag*(1-Pfrac),0, EP_I.V.mag,0);
 	}
 	
 	//-----------------------------------------------------------------

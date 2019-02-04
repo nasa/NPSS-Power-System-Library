@@ -145,17 +145,14 @@ Nozzle Noz{
 	PsExh = 14.;
 }
 
-
 Nozzle Noz2{
 	PsExh = 14.;
 }
-
 
 Element FlowEnd Turbinedump{
 };
 
 real MotorTorque=EM1.Torque;
-
 
 Independent turbPR{
 	varName="Turb.PRdes";
@@ -166,7 +163,6 @@ Dependent MotorAngle{
 	eq_lhs="EM1.CurrentAngle_Demand";
 	autoSetup=TRUE;
 }
-
 
 Dependent MotorAngle2{
 	eq_rhs="EM2.EP_I.I.j";
@@ -182,6 +178,7 @@ Element Shaft Turbine_Shaft {
 
 setOption("ElectricPowerType","AC3");
 
+E1.frequency = 400.;
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
@@ -203,8 +200,6 @@ linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 // using nozzle
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
 linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
-
-
 
 
 linkPorts( "Atm2.Fl_O"               , "Prop2.Fl_I"           , "St0-St12");
@@ -239,33 +234,3 @@ solverSequence.append( "EM2" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
 solverSequence.append( "Propulsor_Shaft2" );
-
-
-autoSolverSetup();
-
-
-/************************
-On design
-************************/
-
-
-
-setOption("switchDes","DESIGN"); 
-autoSolverSetup();
-
-solver.maxIterations=500;
-solver.maxJacobians = 10000;
-
-E1.frequency = 400.;
-
-
-cout << solver.list( "Independent" );
-cout << solver.list( "Dependent" );
-run();
-
-solver.maxIterations=30;
-
-setOption("switchDes","OFFDESIGN"); 
-autoSolverSetup();
-
-run();
