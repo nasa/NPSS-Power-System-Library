@@ -102,7 +102,7 @@ class Bus2to1 extends Element {
 		//EP_I.Current = Current;
 		//EP_I.S.r = SupplyPower;
 		//EP_O.setIP(Current, SupplyPower);
-		EP_O.setIV(Current,0,Voltage,0);
+		EP_O.setIVRMS(Current,0,Voltage,0);
 	}
 	
 	//-----------------------------------------------------------------

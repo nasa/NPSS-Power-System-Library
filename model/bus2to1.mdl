@@ -146,6 +146,7 @@ Element Shaft Turbine_Shaft {
 
 setOption("ElectricPowerType","AC3");
 
+E2.frequency = 400.;
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
@@ -188,22 +189,3 @@ solverSequence.append( "Gen2" );
 solverSequence.append( "EM1" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
-
-
-autoSolverSetup();
-
-
-/************************
-On design
-************************/
-
-
-
-setOption("switchDes","DESIGN"); 
-autoSolverSetup();
-
-solver.maxIterations=500;
-solver.maxJacobians = 10000;
-
-E2.frequency = 400.;
-
