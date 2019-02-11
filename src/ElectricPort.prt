@@ -30,7 +30,7 @@ class ElectricPort extends Subelement {
     }
     
     real getVdc() {
-    	return V.r;	
+    	return V.rRMS;	
     }
     
     FunctVariable Idc {
@@ -38,16 +38,18 @@ class ElectricPort extends Subelement {
         hide( 1 );
     }   
     real getIdc() {
-    	return I.r;	
+    	return I.rRMS;	
     }
     
     FunctVariable Pdc {
         getFunction = "getPdc";
         hide( 1 );
     }   
+	
     real getPdc() {
-    	return S.r;	
+    	return (V.rRMS * I.rRMS);	
     }
+	
     Pdc.hide( 0 );
     Idc.hide( 0 );
     Vdc.hide( 0 );
@@ -60,7 +62,6 @@ class ElectricPort extends Subelement {
 	Option ElectricPowerType {
 		allowedValues = { "AC1", "DC", "AC3" };
 		description = "Electric Power Type (DC, AC1, AC3)";
-		//IOstatus = 'INPUT';
 		trigger = 1;
 		rewritableValues = FALSE;
 	}
@@ -181,8 +182,6 @@ class ElectricPort extends Subelement {
 		// set the current and voltage
 		V.setrjRMS( VrRMS, VjRMS );
 		I.setrjRMS( IrRMS, IjRMS );
-		
-		cerr << V.r << endl;
 		
 		//--------------------------------------------------------------------
 		// check to see if we are in DC power mode and passing imaginary info
