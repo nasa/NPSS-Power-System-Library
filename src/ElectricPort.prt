@@ -152,7 +152,7 @@ class ElectricPort extends Subelement {
 	// and angles in degrees
 	//-----------------------------------------------------------
 	void setIVRMSphaseDeg( real ImagRMS, real Iangle, real VmagRMS, real Vangle ){
-		setIVrms( ImagRMS*cos(Iangle*PI/180.),	ImagRMS*sin(Iangle*PI/180.),
+		setIVRMS( ImagRMS*cos(Iangle*PI/180.),	ImagRMS*sin(Iangle*PI/180.),
 			VmagRMS*cos(Vangle*PI/180.), ImagRMS*sin(Vangle*PI/180.) );
 	}
 	
@@ -181,6 +181,8 @@ class ElectricPort extends Subelement {
 		// set the current and voltage
 		V.setrjRMS( VrRMS, VjRMS );
 		I.setrjRMS( IrRMS, IjRMS );
+		
+		cerr << V.r << endl;
 		
 		//--------------------------------------------------------------------
 		// check to see if we are in DC power mode and passing imaginary info
