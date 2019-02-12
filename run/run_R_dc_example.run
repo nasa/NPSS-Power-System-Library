@@ -1,5 +1,4 @@
 
-
 // add in port
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
@@ -35,9 +34,12 @@ run();
 cout<< "\n \n"<<endl;
 cout<<"====================================================="<<endl;
 cout << " Component \t Power(dc) \t Voltage(dc) \t Current(dc)"<<endl;
-cerr << "    R1: \t " << R1.EP_I.Pdc << " \t " << R1.EP_I.Vdc << "  \t " << R1.EP_I.Idc << endl;
-cerr << "    R2: \t " << R2.EP_I.Pdc << " \t " << R2.EP_I.Vdc << "  \t " << R2.EP_I.Idc << endl;
-cerr << "    R3: \t " << R3.EP_I.Pdc << " \t " << R3.EP_I.Vdc << "  \t " << R3.EP_I.Idc << endl;
+cerr << "  R1(in): \t " << R1.EP_I.Pdc << " \t\t " << R1.EP_I.Vdc << "  \t\t " << R1.EP_I.Idc << endl;
+cerr << " R1(out): \t " << R1.EP_O.Pdc << " \t\t " << R1.EP_O.Vdc << "  \t\t " << R1.EP_O.Idc << endl;
+cerr << "  R2(in): \t " << R2.EP_I.Pdc << " \t\t " << R2.EP_I.Vdc << "  \t\t " << R2.EP_I.Idc << endl;
+cerr << " R2(out): \t " << R2.EP_O.Pdc << " \t\t " << R2.EP_O.Vdc << "  \t\t " << R2.EP_O.Idc << endl;
+cerr << "  R3(in): \t " << R3.EP_I.Pdc << " \t\t " << R3.EP_I.Vdc << "  \t\t " << R3.EP_I.Idc << endl;
+cerr << " R3(out): \t " << R3.EP_O.Pdc << " \t\t " << R3.EP_O.Vdc << "  \t\t " << R3.EP_O.Idc << endl;
 
 
 page.display();  // output data to out file

@@ -1,14 +1,13 @@
 //-------------------------------------------------------------------------------------------------
 //
-//   File Name:     PandE2019_RLC_example.mdl
+//   File Name:     R_dc_example.mdl
 //   Date(s):       February 1, 2019
 //   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
 //					NASA Glenn Research Center
 //
-//   Description:   Basic RLC circuit to demonstrate ability to use NPSS for solve for 
-//					a basic circuit.  Sameple problem camealtern from
-//	https://www.allaboutcircuits.com/textbook/alternating-current/chpt-5/series-parallel-r-l-and-c/
-//
+//   Description:   Basic R circuit (DC) to demonstrate ability to use NPSS for solve for 
+//					a basic circuit.  
+//					https://www.electronics-tutorials.ws/resistor/res_5.html
 //-------------------------------------------------------------------------------------------------
 
 
@@ -21,7 +20,7 @@ real defaultFrequency = 0.;
 
 DCSource DCS{
   void postexecute(){
-    EP_O.setIVRMS( 0, 0., 100., 0.);
+    EP_O.setIVRMS( 0, 0., 12., 0.);
     EP_I1.setIVRMS( 0, 0., 0, 0. );
     EP_I2.setIVRMS( 0, 0., 0, 0. );
   }
@@ -29,15 +28,15 @@ DCSource DCS{
 
 
 Element Resistor R1{
-	R = 470.;
+	R = 6.;
 }
 
 Element Resistor R2{
-	R = 470.;
+	R = 12.;
 }
 
 Element Resistor R3{
-	R = 470.;
+	R = 12.;
 }
 
 

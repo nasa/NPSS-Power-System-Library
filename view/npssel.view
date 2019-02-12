@@ -88,21 +88,21 @@ GroupBlock CircuitsGroup {
 		titleBody = "\n"; 
 		compType = "Resistor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+		compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
    }
    
    DColTBlock inductor { 
 		titleBody = "\n"; 
 		compType = "Inductor"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+		compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
    } 
    
    DColTBlock capacitor { 
 		titleBody = "\n"; 
 		compType = "Capacitor"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.V.rRMS","EP_I.V.jRMS","EP_I.I.rRMS","EP_I.I.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
+		compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
    }
    anchor = "resistor"; 
    resistor.bottom = "inductor"; 
