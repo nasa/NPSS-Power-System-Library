@@ -54,7 +54,6 @@ cerr << "L1: " << L1.EP_O.I.rRMS << " + " << L1.EP_O.I.jRMS << "j"<< endl;
 cerr << "C2: " << C2.EP_O.I.rRMS << " + " << C2.EP_O.I.jRMS << "j"<< endl;
 cerr << "R1: " << R1.EP_O.I.rRMS << " + " << R1.EP_O.I.jRMS << "j"<< endl;
 
-
 cerr << "\n Power \n";
 cerr << " C1(in): " << C1.EP_I.S.rRMS << " + " << C1.EP_I.S.jRMS << "j"<< endl;
 cerr << "C1(out): " << C1.EP_O.S.rRMS << " + " << C1.EP_O.S.jRMS << "j"<< endl;

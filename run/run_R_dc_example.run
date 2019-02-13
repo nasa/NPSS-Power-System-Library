@@ -42,5 +42,13 @@ cerr << "  R3(in): \t " << R3.EP_I.Pdc << " \t\t " << R3.EP_I.Vdc << "  \t\t " <
 cerr << " R3(out): \t " << R3.EP_O.Pdc << " \t\t " << R3.EP_O.Vdc << "  \t\t " << R3.EP_O.Idc << endl;
 
 
+
+cerr << "  R1(in): \t " << R1.EP_I.S.rRMS << " \t\t " << R1.EP_I.V.rRMS << "  \t\t " << R1.EP_I.I.rRMS << endl;
+cerr << " R1(out): \t " << R1.EP_O.S.rRMS << " \t\t " << R1.EP_O.V.rRMS << "  \t\t " << R1.EP_O.I.rRMS << endl;
+cerr << "  R2(in): \t " << R2.EP_I.S.rRMS << " \t\t " << R2.EP_I.V.rRMS << "  \t\t " << R2.EP_I.I.rRMS << endl;
+cerr << " R2(out): \t " << R2.EP_O.S.rRMS << " \t\t " << R2.EP_O.V.rRMS << "  \t\t " << R2.EP_O.I.rRMS << endl;
+cerr << "  R3(in): \t " << R3.EP_I.S.rRMS << " \t\t " << R3.EP_I.V.rRMS << "  \t\t " << R3.EP_I.I.rRMS << endl;
+cerr << " R3(out): \t " << R3.EP_O.S.rRMS << " \t\t " << R3.EP_O.V.rRMS << "  \t\t " << R3.EP_O.I.rRMS << endl;
+
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window

@@ -193,9 +193,10 @@ class ComplexNumber extends VariableContainer {
     		jLoc = j; 
     		rExt = cNumName->r;
     		jExt = cNumName->j;
-    		_r = rLoc*rExt - jLoc*jExt;
-    		_j = jLoc*rExt + rLoc*jExt;
-    		
+    		//_r = rLoc*rExt - jLoc*jExt;
+			//_j = jLoc*rExt + rLoc*jExt;
+			_r = rLoc*rExt - jLoc*jExt;
+			_j = rLoc*jExt + jLoc*rExt;
     	}else{
     		cerr << "No, no, no\n";	   		
     	}
@@ -205,7 +206,7 @@ class ComplexNumber extends VariableContainer {
     void timesRMS( string cNumName ) {
     	if ( lock == 0 ){
     		times( cNumName );
-    		scale( .5 );
+			scale( 1/sqrt(2) );
     	}else{
     		cerr << "No, no, no\n";	   		
     	}
@@ -222,7 +223,8 @@ class ComplexNumber extends VariableContainer {
     		_j = (jLoc*rExt - rLoc*jExt)/denom;
     	}
     }
-    void conjugate() {
+    
+	void conjugate() {
     	if ( lock == 0 ){
     		_j *= -1;
     	}else{
