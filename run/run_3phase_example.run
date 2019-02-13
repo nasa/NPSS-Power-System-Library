@@ -1,0 +1,74 @@
+
+// add in port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+// add circuit elements
+#include "SimpleCable.int"
+
+// select model
+#include "AC_3phase_example.mdl"
+
+autoSolverSetup();
+
+//---------------------------------------------------------
+// just like a rocket engine, volumes last
+//---------------------------------------------------------
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "Solver.bad";
+
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+
+setOption( "ElectricPowerType", "AC3" );
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "solver.bad";
+ 
+cout<< " source -> V(LL)  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phase << endl;
+cout<< " Voltage Source  : " << Source.EP_a.V.rRMS << "  + j" << Source.EP_a.V.jRMS << endl;
+cout<< " Current Source : " << Source.EP_a.I.rRMS << "  + j" << Source.EP_a.I.jRMS << "\n" << endl;
+
+run();
+
+cout<<" \n" << endl;
+cout<< " source -> V(LL)  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phase << endl;
+cout<< " source -> V(LN) : " << Source.EP_a.VLN.mag << " /_  " << Source.EP_a.VLN.phase << endl;
+cout<< " source -> I : " << A1.EP_I.I.mag << "  /_  " << A1.EP_I.I.phase << endl;
+cout<< " source -> S : " << Source.EP_a.S.mag << "  /_  " << Source.EP_a.S.phase << "\n" << endl;
+
+
+
+
+/*
+cout<<" \n ===============================================" << endl;
+cout<<" Complex " << endl;
+
+cout<< " Current A1 (in) : " << A1.EP_I.I.rRMS << "  + j" << A1.EP_I.I.jRMS << "\n" << endl;
+
+cout<< " Voltage Source  : " << Source.EP_a.V.rRMS << "  + j" << Source.EP_a.V.jRMS << endl;
+cout<< " Voltage A1 (out): " << A1.EP_O.V.rRMS << "  + j" << A1.EP_O.V.jRMS << endl;
+cout<< " Voltage A2 (out): " << A2.EP_O.V.rRMS << "  + j" << A2.EP_O.V.jRMS << "\n" << endl;
+
+cout<< " Power Source  : " << Source.EP_a.S.rRMS << "  + j" << Source.EP_a.S.jRMS << endl;
+cout<< " Power A1 (out): " << A1.EP_O.S.rRMS << "  + j" << A1.EP_O.S.jRMS << endl;
+cout<< " Power A2 (out): " << A2.EP_O.S.rRMS << "  + j" << A2.EP_O.S.jRMS << "\n" << endl;
+
+*/
+
+
+quit();
+
+cout<<" \n ===============================================" << endl;
+cout<<" Phasors " << endl;
+cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_" << A1.EP_I.I.phase << "\n" << endl;
+
+cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_" << Source.EP_a.V.phase << endl;
+cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_" << A1.EP_O.V.phase << endl;
+cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_" << A2.EP_O.V.phase << "\n" << endl;
+
+cout<< " Power Source  : " << Source.EP_a.S.mag << " /_" << Source.EP_a.S.phase << endl;
+cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_" << A1.EP_O.S.phase << endl;
+cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_" << A2.EP_O.S.phase << "\n" << endl;
+cout<<" =============================================== \n" << endl;
+

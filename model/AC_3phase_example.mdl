@@ -1,0 +1,58 @@
+//-------------------------------------------------------------------------------------------------
+//
+//   File Name:     PandE2019_RLC_example.mdl
+//   Date(s):       February 1, 2019
+//   Author:        Tom Lavelle, David Sadey, Jeffrey Csank
+//					NASA Glenn Research Center
+//
+//   Description:   simple example of 3 phase Y circuit from fifth editon of 
+//					Power System Analysis and Design Page 67
+//
+//-------------------------------------------------------------------------------------------------
+
+class Source extends Element{
+  ElectricOutputPort EP_a;
+}
+
+class Sink extends Element{
+  ElectricInputPort EP_a;
+}
+
+real defaultFrequency = 60.;
+
+Source Source{
+    void postexecute(){;
+		EP_a.setIVRMSphaseDeg(0.,0.,480. / sqrt(3.) ,0.);
+    }
+}
+
+Sink Sink{
+    void postexecute(){
+		EP_a.setIVRMSphaseDeg( 0.,0.,0.,0.);
+    }
+}
+
+SimpleCable A1{
+	//Z.setMagPhase( 1., 85. );  
+	Z.setMagPhase( 1., 0 );  
+}
+
+SimpleCable A2{
+	//Z.setMagPhase( 30./3., 40. );
+	Z.setMagPhase( 1., 0 );  
+}
+
+//--------------------------------------------------------
+// link it up
+//--------------------------------------------------------
+linkEports( "Source.EP_a", "A1.EP_I", "PORT" );
+linkEports( "A1.EP_O", "NA1", "NODE" );
+linkEports( "A2.EP_I", "NA1", "NODE" );
+linkEports( "A2.EP_O", "Sink.EP_a", "PORT" );
+
+NA1{
+	VrealRMS = 447.3*cos( -3.78*PI/180.);
+	VimagRMS = 447.3*sin( -3.78*PI/180.);
+}
+//NA1.Vreal = 447.3*cos( -3.78*PI/180.);
+//NA1.Vimag = 447.3*sin( -3.78*PI/180.);

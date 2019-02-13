@@ -13,7 +13,6 @@
 #include "Inductor.int"
 #include "Capacitor.int"
 
-
 // select model
 #include "PandE2019_RLC_example.mdl"
 

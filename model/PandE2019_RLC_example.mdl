@@ -11,7 +11,6 @@
 //
 //-------------------------------------------------------------------------------------------------
 
-
 class ACSource extends Element{
   ElectricOutputPort EP_O;
   ElectricInputPort EP_I1, EP_I2;
