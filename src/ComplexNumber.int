@@ -62,8 +62,22 @@ class ComplexNumber extends VariableContainer {
 		description = "Real part of the complex plane";
 		getFunction = "get_rRMS";
 	}
+	
+	
 	real get_rRMS(){
-		return _r/sqrt(2.);	
+		//return _r/sqrt(2.);	
+		return _r;	
+	}
+	
+	
+	FunctVariable rPEAK {
+	    IOstatus = "unset";  units = "none";
+		description = "Real part of the complex plane";
+		getFunction = "get_rPEAK";
+	}
+	
+	real get_rPEAK(){	
+		return _r*sqrt(2);	
 	}
 	
 	FunctVariable jRMS {
@@ -72,10 +86,22 @@ class ComplexNumber extends VariableContainer {
 		description = "Imaginary part of the complex plane";
 		getFunction = "get_jRMS";
 	}
+	
 	real get_jRMS(){
-		return _j/sqrt(2.);	
+		return _j;	
 	}
    	
+	FunctVariable jPEAK {
+	    IOstatus = "unset";  units = "none";
+		description = "Real part of the complex plane";
+		getFunction = "get_jPEAK";
+	}
+	
+	real get_jPEAK(){
+		//return _r/sqrt(2.);	
+		return _j*sqrt(2);	
+	}
+	
 	FunctVariable mag {
 		units = "none"; 
 		IOstatus = "unset"; 
@@ -83,6 +109,7 @@ class ComplexNumber extends VariableContainer {
 		getFunction = "get_mag"; 
 		setFunction = "set_mag";
 	}
+	
 	real get_mag() { 
 		_mag = sqrt(r*r+j*j); 
 		return _mag;
@@ -123,7 +150,6 @@ class ComplexNumber extends VariableContainer {
 		return phaseDeg*180./PI;
 	}
 	
-	
     real get_phaseDeg() { 
     	return phase*360./(2.*PI);
     }
@@ -142,8 +168,16 @@ class ComplexNumber extends VariableContainer {
     	}
     }
     
-    
     void setrjRMS( real r_in, real j_in ){
+    	if ( lock == 0 ){
+			_r = r_in;
+    		_j = j_in;
+    	}else{
+    		cerr << "No, no, no\n";		
+    	}
+    }
+	
+	void setrjPEAK( real r_in, real j_in ){
     	if ( lock == 0 ){
     		_r = r_in*sqrt(2);
     		_j = j_in*sqrt(2);
@@ -151,7 +185,7 @@ class ComplexNumber extends VariableContainer {
     		cerr << "No, no, no\n";		
     	}
     }
-    
+	
 	// change to mag
     void setMagPhase( real mag, real phase  ){
     	if ( lock == 0 ){
@@ -162,12 +196,10 @@ class ComplexNumber extends VariableContainer {
     	}
     }
     
-    
     void copy( string cNumName ) {
     	_r = cNumName->_r;
     	_j = cNumName->_j;
     }
-    
     
     void plus( string cNumName ) {
     	if ( lock == 0 ){
@@ -193,8 +225,6 @@ class ComplexNumber extends VariableContainer {
     		jLoc = j; 
     		rExt = cNumName->r;
     		jExt = cNumName->j;
-    		//_r = rLoc*rExt - jLoc*jExt;
-			//_j = jLoc*rExt + rLoc*jExt;
 			_r = rLoc*rExt - jLoc*jExt;
 			_j = rLoc*jExt + jLoc*rExt;
     	}else{
@@ -202,11 +232,10 @@ class ComplexNumber extends VariableContainer {
     	}
     }
     
-        
     void timesRMS( string cNumName ) {
     	if ( lock == 0 ){
     		times( cNumName );
-			scale( 1/sqrt(2) );
+			//scale( 1/sqrt(2) ); // peak to RMS
     	}else{
     		cerr << "No, no, no\n";	   		
     	}

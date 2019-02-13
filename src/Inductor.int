@@ -47,13 +47,12 @@ class Inductor extends Element {
 		//-------------------------------------------------------
 		// calculate current from voltage drop
 		//-------------------------------------------------------
-		
 		dV.copy( "EP_I.V" );
 		dV.minus( "EP_O.V" );	
 		Z.setrj( 0., 2.*PI*EP_I.frequency*L );
 		I.copy( "dV" );
 	    I.div( "Z" );
-	    
+
 	    //----------------------------------------------------------
 	    // set the conditions in the ports
 	    //----------------------------------------------------------

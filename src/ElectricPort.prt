@@ -154,7 +154,8 @@ class ElectricPort extends Subelement {
 	//-----------------------------------------------------------
 	void setIVRMSphaseDeg( real ImagRMS, real Iangle, real VmagRMS, real Vangle ){
 		setIVRMS( ImagRMS*cos(Iangle*PI/180.),	ImagRMS*sin(Iangle*PI/180.),
-			VmagRMS*cos(Vangle*PI/180.), ImagRMS*sin(Vangle*PI/180.) );
+			VmagRMS*cos(Vangle*PI/180.), VmagRMS*sin(Vangle*PI/180.) );
+			
 	}
 	
 	//-----------------------------------------------------------
@@ -171,6 +172,8 @@ class ElectricPort extends Subelement {
 	// set the port conditions based on complex current and voltage
 	//-----------------------------------------------------------
 	void setIVRMS( real IrRMS, real IjRMS, real VrRMS, real VjRMS ){
+		
+		cout<< "1: "<< VrRMS << endl;
 		
 		//--------------------------------------------------------------------
 		// unlock the parameters so they can be set
@@ -199,7 +202,7 @@ class ElectricPort extends Subelement {
 		{
 			S.copy( "I" );
 			S.conjugate();
-			S.timesRMS( "V" );
+			S.times( "V" );
 			S.scale( 1./1000. );
 		}
 		
@@ -207,7 +210,7 @@ class ElectricPort extends Subelement {
 			S.copy( "I" );
 			S.conjugate();
 			S.timesRMS( "V" );
-			S.scale( 3./1000. );
+			S.scale( 1./1000. );
 			
 			VLN.copy( "V" );
 			VLN.setMagPhase( V.mag, V.phase-30.*PI/180. );
@@ -227,6 +230,8 @@ class ElectricPort extends Subelement {
 		V.lock = 1;
 		I.lock = 1;
 		S.lock = 1;
+		
+		cout<< "end: "<< V.rRMS << endl;
 		
 		pushport();
 		
