@@ -3,8 +3,11 @@
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
 // add circuit elements
-//#include "SimpleCable.int"
 #include "ThreePhaseCable.int"
 #include "ThreePhaseYLoad.int"
 
@@ -29,6 +32,8 @@ solver.diagnosticFile = "solver.bad";
  
 run();
 
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
 
 cout<<" \n ===============================================" << endl;
 cout<<" Complex " << endl;
