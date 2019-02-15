@@ -1,7 +1,7 @@
 //-------------------------------------------------------------------------------------------------
 //
-//   File Name:     PandE2019_RLC_example.mdl
-//   Date(s):       February 1, 2019
+//   File Name:     PandE2019_ThreePhaseExample.mdl
+//   Date(s):       February 14, 2019
 //   Author:        Tom Lavelle, David Sadey, Jeffrey Csank
 //					NASA Glenn Research Center
 //
@@ -22,7 +22,7 @@ real defaultFrequency = 60.;
 
 Source Source{
     void postexecute(){;
-		EP_a.setIVRMSphaseDeg(0.,0.,480. / sqrt(3.) ,0.);
+		EP_a.setIVRMSphaseDeg(0.,0.,480.,0.);
     }
 }
 
@@ -32,14 +32,12 @@ Sink Sink{
     }
 }
 
-SimpleCable A1{
-	//Z.setMagPhase( 1., 85. );  
-	Z.setMagPhase( 1., 0 );  
+ThreePhaseCable A1{
+	Z.setMagPhaseDeg( 1., 85. );
 }
 
-SimpleCable A2{
-	//Z.setMagPhase( 30./3., 40. );
-	Z.setMagPhase( 1., 0 );  
+ThreePhaseYLoad A2{
+	Z.setMagPhaseDeg( 30./3., 40. );
 }
 
 //--------------------------------------------------------

@@ -3,10 +3,10 @@
 // * 21000 Brookpark Rd
 // * Cleveland, OH 44135
 // * Jeffrey Csank, David Sadey, Tom Lavelle
-// * April 26, 2018
+// * February 14, 2019
 // ****************************************************************************
 
-class SimpleCable extends Element {
+class ThreePhaseYLoad extends Element {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******
@@ -50,12 +50,12 @@ class SimpleCable extends Element {
 		//-------------------------------------------------------
 		// calculate current from voltage drop
 		//-------------------------------------------------------
-		dV.copy( "EP_I.V" );
-		dV.minus( "EP_O.V" );	
+		dV.copy( "EP_I.VLN" );
+		dV.minus( "EP_O.VLN" );
 		I.copy( "dV" );
 	    I.div( "Z" );
 		
-	    //----------------------------------------------------------
+		  //----------------------------------------------------------
 	    // set the conditions in the port
 	    //-----------------------------------------------------------
 		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	

@@ -24,35 +24,6 @@ class ElectricPort extends Subelement {
 		lock = 1;
     }
     
-    FunctVariable Vdc {
-        getFunction = "getVdc";
-        hide( 1 );
-    }
-    
-    real getVdc() {
-    	return V.rRMS;	
-    }
-    
-    FunctVariable Idc {
-        getFunction = "getIdc";
-        hide( 1 );
-    }   
-    real getIdc() {
-    	return I.rRMS;	
-    }
-    
-    FunctVariable Pdc {
-        getFunction = "getPdc";
-        hide( 1 );
-    }   
-	
-    real getPdc() {
-    	return (V.rRMS * I.rRMS);	
-    }
-	
-    Pdc.hide( 0 );
-    Idc.hide( 0 );
-    Vdc.hide( 0 );
     V.hide( 1 );
     S.hide( 1 );
     I.hide( 1 );
@@ -81,9 +52,8 @@ class ElectricPort extends Subelement {
 		description = "port used to copy from";	
 	}
 	
-	
 	ComplexNumber VLN{
-		hide( 1 );	
+		hide( 0 );	
 	}
 	
 	//------------------------------------------------------------
@@ -94,26 +64,17 @@ class ElectricPort extends Subelement {
 		if ( name =="ElectricPowerType" ) {
 			// change variable IO status depending switchDes status
 			if ( ElectricPowerType == "DC" ) {
-				Pdc.hide( 0 );
-				Idc.hide( 0 );
-				Vdc.hide( 0 );
-				V.hide( 1 );
-				S.hide( 1 );
-				I.hide( 1 );
+				V.hide( 0 );
+				S.hide( 0 );
+				I.hide( 0 );
 				frequency=0;
 			} 
 			else if ( ElectricPowerType == "AC1" ) {
-				Pdc.hide( 1 );
-				Idc.hide( 1 );
-				Vdc.hide( 1 );
 				V.hide( 0 );
 				S.hide( 0 );
 				I.hide( 0 );		
 			} 
 			else if ( ElectricPowerType == "AC3" ) {
-				Pdc.hide( 1 );
-				Idc.hide( 1 );
-				Vdc.hide( 1 );
 				V.hide( 0 );
 				S.hide( 0 );
 				I.hide( 0 );		
@@ -129,14 +90,13 @@ class ElectricPort extends Subelement {
 		V.copy( refport+".V" );
 		I.copy( refport+".I" );
 		S.copy( refport+".S" );
+		VLN.copy( refport+".VLN" );
 		
 		frequency=refport->frequency;
 		if (refport==""){
 			cerr<<"Hey I need a refport!!!"<<endl;
 		}		
 	}
-	
-	
 	
 	//------------------------------------------------------
 	// push the port information
@@ -173,8 +133,6 @@ class ElectricPort extends Subelement {
 	//-----------------------------------------------------------
 	void setIVRMS( real IrRMS, real IjRMS, real VrRMS, real VjRMS ){
 		
-		cout<< "1: "<< VrRMS << endl;
-		
 		//--------------------------------------------------------------------
 		// unlock the parameters so they can be set
 		//--------------------------------------------------------------------
@@ -200,6 +158,10 @@ class ElectricPort extends Subelement {
 		//--------------------------------------------------------------------
 		if (ElectricPowerType == "DC" || ElectricPowerType=="AC1")
 		{
+			// VLN = V (VLL) for single phase AC			
+			VLN.copy("V");
+			
+			// calc power
 			S.copy( "I" );
 			S.conjugate();
 			S.times( "V" );
@@ -207,20 +169,20 @@ class ElectricPort extends Subelement {
 		}
 		
 		if (ElectricPowerType == "AC3"){
-			S.copy( "I" );
-			S.conjugate();
-			S.timesRMS( "V" );
-			S.scale( 1./1000. );
 			
+			// calc VLN
 			VLN.copy( "V" );
 			VLN.setMagPhase( V.mag, V.phase-30.*PI/180. );
 			VLN.scale( sqrt(1./3.) );
+
+			// calc power based off VLN (since VLN is already scaled
 			S.copy( "I" );
 			S.conjugate();
 			S.timesRMS( "VLN" );
 			S.scale( 3./1000. );
 		}
 		
+		// calc power factor
 		PF = S.r/S.mag;
 		
 		//------------------------------------------------------------------
@@ -231,12 +193,8 @@ class ElectricPort extends Subelement {
 		I.lock = 1;
 		S.lock = 1;
 		
-		cout<< "end: "<< V.rRMS << endl;
-		
-		pushport();
-		
+		pushport();	
 	}
-	
 }
 
 

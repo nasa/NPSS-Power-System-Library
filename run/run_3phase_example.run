@@ -4,7 +4,9 @@
 #include "InterpretedPort.int"
 
 // add circuit elements
-#include "SimpleCable.int"
+//#include "SimpleCable.int"
+#include "ThreePhaseCable.int"
+#include "ThreePhaseYLoad.int"
 
 // select model
 #include "AC_3phase_example.mdl"
@@ -25,22 +27,9 @@ setOption( "ElectricPowerType", "AC3" );
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
  
-cout<< " source -> V(LL)  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phase << endl;
-cout<< " Voltage Source  : " << Source.EP_a.V.rRMS << "  + j" << Source.EP_a.V.jRMS << endl;
-cout<< " Current Source : " << Source.EP_a.I.rRMS << "  + j" << Source.EP_a.I.jRMS << "\n" << endl;
-
 run();
 
-cout<<" \n" << endl;
-cout<< " source -> V(LL)  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phase << endl;
-cout<< " source -> V(LN) : " << Source.EP_a.VLN.mag << " /_  " << Source.EP_a.VLN.phase << endl;
-cout<< " source -> I : " << A1.EP_I.I.mag << "  /_  " << A1.EP_I.I.phase << endl;
-cout<< " source -> S : " << Source.EP_a.S.mag << "  /_  " << Source.EP_a.S.phase << "\n" << endl;
 
-
-
-
-/*
 cout<<" \n ===============================================" << endl;
 cout<<" Complex " << endl;
 
@@ -54,21 +43,17 @@ cout<< " Power Source  : " << Source.EP_a.S.rRMS << "  + j" << Source.EP_a.S.jRM
 cout<< " Power A1 (out): " << A1.EP_O.S.rRMS << "  + j" << A1.EP_O.S.jRMS << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.rRMS << "  + j" << A2.EP_O.S.jRMS << "\n" << endl;
 
-*/
-
-
-quit();
 
 cout<<" \n ===============================================" << endl;
 cout<<" Phasors " << endl;
-cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_" << A1.EP_I.I.phase << "\n" << endl;
+cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_" << A1.EP_I.I.phaseDeg << "\n" << endl;
 
-cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_" << Source.EP_a.V.phase << endl;
-cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_" << A1.EP_O.V.phase << endl;
-cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_" << A2.EP_O.V.phase << "\n" << endl;
+cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_" << Source.EP_a.V.phaseDeg << endl;
+cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_" << A1.EP_O.V.phaseDeg << endl;
+cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_" << A2.EP_O.V.phaseDeg << "\n" << endl;
 
-cout<< " Power Source  : " << Source.EP_a.S.mag << " /_" << Source.EP_a.S.phase << endl;
-cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_" << A1.EP_O.S.phase << endl;
-cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_" << A2.EP_O.S.phase << "\n" << endl;
+cout<< " Power Source  : " << Source.EP_a.S.mag << " /_" << Source.EP_a.S.phaseDeg << endl;
+cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_" << A1.EP_O.S.phaseDeg << endl;
+cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_" << A2.EP_O.S.phaseDeg << "\n" << endl;
 cout<<" =============================================== \n" << endl;
 

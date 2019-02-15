@@ -122,7 +122,7 @@ class ComplexNumber extends VariableContainer {
 		description = "rms value for electric purposes"; 
 		getFunction = "get_rms"; 
 	}
-	real get_rms() { return get_mag()/sqrt(2.0);}
+	real get_rms() { return get_mag();}
 	
 	FunctVariable phase {
 		units = "rad"; 
@@ -147,12 +147,8 @@ class ComplexNumber extends VariableContainer {
     	getFunction = "get_phaseDeg"; 
     }
     real get_phaseDeg() { 
-		return phaseDeg*180./PI;
+		return phase*180./PI;
 	}
-	
-    real get_phaseDeg() { 
-    	return phase*360./(2.*PI);
-    }
     
     void scale( real scale ){
     	_r = _r*scale;
@@ -177,14 +173,6 @@ class ComplexNumber extends VariableContainer {
     	}
     }
 	
-	void setrjPEAK( real r_in, real j_in ){
-    	if ( lock == 0 ){
-    		_r = r_in*sqrt(2);
-    		_j = j_in*sqrt(2);
-    	}else{
-    		cerr << "No, no, no\n";		
-    	}
-    }
 	
 	// change to mag
     void setMagPhase( real mag, real phase  ){
@@ -195,6 +183,18 @@ class ComplexNumber extends VariableContainer {
     		cerr << "No, no, no\n";	   		
     	}
     }
+	
+	
+	// change to mag
+    void setMagPhaseDeg( real mag, real phase  ){
+    	if ( lock == 0 ){
+    		_r = mag*cos( phase*PI/180. ); 
+    		_j = mag*sin( phase*PI/180. );
+    	} else{
+    		cerr << "No, no, no\n";	   		
+    	}
+    }
+	
     
     void copy( string cNumName ) {
     	_r = cNumName->_r;

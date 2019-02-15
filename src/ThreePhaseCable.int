@@ -1,0 +1,65 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * Jeffrey Csank, David Sadey, Tom Lavelle
+// * February 14, 2019
+// ****************************************************************************
+
+class ThreePhaseCable extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " Determines power for the cable";
+	
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------	
+	ComplexNumber dV;
+	ComplexNumber Z;
+	ComplexNumber I;
+
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------	
+	ElectricOutputPort EP_O {
+		description = "Electric port";
+	}
+	string EPortRef;
+	
+	ElectricInputPort EP_I {
+		description = "Electric Port";
+	}
+	
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger=FALSE;
+	}
+	
+	void calculate() {		
+		//-------------------------------------------------------
+		// calculate current from voltage drop
+		//-------------------------------------------------------
+		dV.copy( "EP_I.VLN" );
+		dV.minus( "EP_O.VLN" );
+		I.copy( "dV" );
+	    I.div( "Z" );
+
+	    //----------------------------------------------------------
+	    // set the conditions in the port
+	    //-----------------------------------------------------------
+		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
+		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 			
+		EP_O.frequency=EP_I.frequency;		
+	}
+}
