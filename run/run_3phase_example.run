@@ -7,10 +7,6 @@
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add circuit elements
-#include "ThreePhaseCable.int"
-#include "ThreePhaseYLoad.int"
-
 // select model
 #include "AC_3phase_example.mdl"
 
@@ -51,14 +47,14 @@ cout<< " Power A2 (out): " << A2.EP_O.S.rRMS << "  + j" << A2.EP_O.S.jRMS << "\n
 
 cout<<" \n ===============================================" << endl;
 cout<<" Phasors " << endl;
-cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_" << A1.EP_I.I.phaseDeg << "\n" << endl;
+cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_ " << A1.EP_I.I.phaseDeg << "\n" << endl;
 
-cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_" << Source.EP_a.V.phaseDeg << endl;
-cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_" << A1.EP_O.V.phaseDeg << endl;
-cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_" << A2.EP_O.V.phaseDeg << "\n" << endl;
+cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phaseDeg << endl;
+cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_  " << A1.EP_O.V.phaseDeg << endl;
+cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_  " << A2.EP_O.V.phaseDeg << "\n" << endl;
 
-cout<< " Power Source  : " << Source.EP_a.S.mag << " /_" << Source.EP_a.S.phaseDeg << endl;
-cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_" << A1.EP_O.S.phaseDeg << endl;
-cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_" << A2.EP_O.S.phaseDeg << "\n" << endl;
+cout<< " Power Source  : " << Source.EP_a.S.mag << " /_  " << Source.EP_a.S.phaseDeg << endl;
+cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_  " << A1.EP_O.S.phaseDeg << endl;
+cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_  " << A2.EP_O.S.phaseDeg << "\n" << endl;
 cout<<" =============================================== \n" << endl;
 

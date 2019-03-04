@@ -93,6 +93,7 @@ class ElectricPort extends Subelement {
 		VLN.copy( refport+".VLN" );
 		
 		frequency=refport->frequency;
+		
 		if (refport==""){
 			cerr<<"Hey I need a refport!!!"<<endl;
 		}		

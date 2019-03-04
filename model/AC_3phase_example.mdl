@@ -12,6 +12,7 @@
 
 class Source extends Element{
   ElectricOutputPort EP_a;
+  EP_a.frequency=60.;
 }
 
 class Sink extends Element{
@@ -19,6 +20,7 @@ class Sink extends Element{
 }
 
 real defaultFrequency = 60.;
+
 
 Source Source{
     void postexecute(){;
@@ -32,11 +34,14 @@ Sink Sink{
     }
 }
 
-ThreePhaseCable A1{
-	Z.setMagPhaseDeg( 1., 85. );
+
+Element Cable A1{
+	length = 10;
+	R = 0.0871557;
+	L = 0.002642489;
 }
 
-ThreePhaseYLoad A2{
+Element BasicLoad A2{
 	Z.setMagPhaseDeg( 30./3., 40. );
 }
 

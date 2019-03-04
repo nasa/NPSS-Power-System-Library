@@ -6,7 +6,7 @@
 // * February 14, 2019
 // ****************************************************************************
 
-class ThreePhaseYLoad extends Element {
+class BasicLoad extends Element {
 	
 	//------------------------------------------------------------
 	//     ******* DOCUMENTATION *******

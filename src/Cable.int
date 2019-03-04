@@ -82,9 +82,10 @@ class Cable extends Element {
 		// calculate current from voltage drop
 		//-------------------------------------------------------
 		
-		dV.copy( "EP_I.V" );
-		dV.minus( "EP_O.V" );	
-		Z.setrj( R,  L*(EP_I.frequency/60.) );
+		Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+		
+		dV.copy( "EP_I.VLN" );
+		dV.minus( "EP_O.VLN" );	
 		I.copy( "dV" );
 	    I.div( "Z" );
 
