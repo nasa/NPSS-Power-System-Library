@@ -37,7 +37,7 @@ Element Generator Gen1 {
 Element Cable Cable1 {
 	length=28.3464; 	
 	R=4.3245e-6;
-	L=9.84e-5*length/4.;	
+	L=9.84e-5*length/4./60./2./PI;	
 }
 
 
@@ -49,14 +49,14 @@ Element Enode E1{
 Element Cable Cable2a {
 	R=4.3245e-6;
 	length=28.3464; 
-	L=9.84e-5*length/4.;
+	L=9.84e-5*length/4./60./2./PI;
 	
 }
 
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
 	length=28.3464/3.; 
-    L=9.84e-5*length/4.;
+    L=9.84e-5*length/4./60./2./PI;
 }
 
 

@@ -35,7 +35,7 @@ Element Generator Gen1 {
 Element Cable Cable1 {
 	length=28.3464; 	
 	R=4.3245e-6;
-	L=9.84e-5*length;
+	L=9.84e-5*length/60./2./PI;
 }
 
 Element Motor EM1 {

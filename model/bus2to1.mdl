@@ -44,7 +44,7 @@ Element Generator Gen2 {
 Element Cable Cable2a {
 	R=4.3245e-6;
 	length=28.3464; 
-	L=9.84e-5*length/4.;
+	L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
 
@@ -52,7 +52,7 @@ Element Cable Cable2a {
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
 	length=28.3464/3.; 
-    L=9.84e-5*length/4.;
+    L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
 
@@ -65,7 +65,7 @@ Element Enode E2{
 Element Cable Cable3 {
 	R=4.3245e-6;
 	length=28.3464/3.; 
-    L=9.84e-5*length/4.;
+    L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
 
