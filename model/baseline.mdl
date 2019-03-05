@@ -5,14 +5,9 @@
 //   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
 //					NASA Glenn Research Center
 //
-//   Description:   Model file describes baseline model (Generator, Cable, Motor) using apparent, real, 
-//					and reactive power.
+//   Description:   Model file describes baseline model (Generator, Cable, Motor) using the electric port.
 //
 //-------------------------------------------------------------------------------------------------
-
-#include "InterpretedPort.int"
-#include "ElectricPort.prt"
-
 
 cout<<"======================================="<<endl;
 cout<<" Example Model with Real and Reactive Power "<<endl;
@@ -24,7 +19,6 @@ setThermoPackage("GasTbl");
  Branch 1 
  Gen1 -> Cable1 -> EM1
 *******************************************/
-
 Element Generator Gen1 {
 	Vbus_LL=1200;	
 	Eff=0.96;
@@ -126,11 +120,6 @@ linkPortI( "Cable1.EP_O", "EM1.EP_I" );
 
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
-
-// if not using nozzle
-//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1-End");
-
-// using nozzle
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
 linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
 
@@ -140,7 +129,6 @@ linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
 linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
 linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
-
 
 
 solverSequence.remove( "Gen1" );
