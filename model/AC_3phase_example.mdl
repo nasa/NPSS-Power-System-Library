@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------------
 //
-//   File Name:     PandE2019_ThreePhaseExample.mdl
+//   File Name:     AC_3phase_example
 //   Date(s):       February 14, 2019
 //   Author:        Tom Lavelle, David Sadey, Jeffrey Csank
 //					NASA Glenn Research Center
@@ -10,30 +10,21 @@
 //
 //-------------------------------------------------------------------------------------------------
 
+// create a power source class 
 class Source extends Element{
-  ElectricOutputPort EP_a;
-  EP_a.frequency=60.;
-}
-
-class Sink extends Element{
-  ElectricInputPort EP_a;
+  ElectricOutputPort EP_Oa;
+  ElectricInputPort EP_Ia;
+  EP_Oa.frequency=60.;
 }
 
 real defaultFrequency = 60.;
 
-
 Source Source{
     void postexecute(){;
-		EP_a.setIVRMSphaseDeg(0.,0.,480.,0.);
+		EP_Oa.setIVRMSphaseDeg(0.,0.,480.,0.);
+		EP_Ia.setIVRMSphaseDeg( 0.,0.,0.,0.);
     }
 }
-
-Sink Sink{
-    void postexecute(){
-		EP_a.setIVRMSphaseDeg( 0.,0.,0.,0.);
-    }
-}
-
 
 Element Cable A1{
 	length = 10;
@@ -48,14 +39,12 @@ Element BasicLoad A2{
 //--------------------------------------------------------
 // link it up
 //--------------------------------------------------------
-linkEports( "Source.EP_a", "A1.EP_I", "PORT" );
+linkEports( "Source.EP_Oa", "A1.EP_I", "PORT" );
 linkEports( "A1.EP_O", "NA1", "NODE" );
 linkEports( "A2.EP_I", "NA1", "NODE" );
-linkEports( "A2.EP_O", "Sink.EP_a", "PORT" );
+linkEports( "A2.EP_O", "Source.EP_Ia", "PORT" );
 
 NA1{
 	VrealRMS = 447.3*cos( -3.78*PI/180.);
 	VimagRMS = 447.3*sin( -3.78*PI/180.);
 }
-//NA1.Vreal = 447.3*cos( -3.78*PI/180.);
-//NA1.Vimag = 447.3*sin( -3.78*PI/180.);

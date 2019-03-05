@@ -1,5 +1,24 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
 
-// add in port
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+// add in electric port
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
@@ -36,11 +55,11 @@ cout<<" Complex " << endl;
 
 cout<< " Current A1 (in) : " << A1.EP_I.I.rRMS << "  + j" << A1.EP_I.I.jRMS << "\n" << endl;
 
-cout<< " Voltage Source  : " << Source.EP_a.V.rRMS << "  + j" << Source.EP_a.V.jRMS << endl;
+cout<< " Voltage Source  : " << Source.EP_Oa.V.rRMS << "  + j" << Source.EP_Oa.V.jRMS << endl;
 cout<< " Voltage A1 (out): " << A1.EP_O.V.rRMS << "  + j" << A1.EP_O.V.jRMS << endl;
 cout<< " Voltage A2 (out): " << A2.EP_O.V.rRMS << "  + j" << A2.EP_O.V.jRMS << "\n" << endl;
 
-cout<< " Power Source  : " << Source.EP_a.S.rRMS << "  + j" << Source.EP_a.S.jRMS << endl;
+cout<< " Power Source  : " << Source.EP_Oa.S.rRMS << "  + j" << Source.EP_Oa.S.jRMS << endl;
 cout<< " Power A1 (out): " << A1.EP_O.S.rRMS << "  + j" << A1.EP_O.S.jRMS << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.rRMS << "  + j" << A2.EP_O.S.jRMS << "\n" << endl;
 
@@ -49,11 +68,11 @@ cout<<" \n ===============================================" << endl;
 cout<<" Phasors " << endl;
 cout<< " Current A1 (in) : " << A1.EP_I.I.mag << " /_ " << A1.EP_I.I.phaseDeg << "\n" << endl;
 
-cout<< " Voltage Source  : " << Source.EP_a.V.mag << " /_  " << Source.EP_a.V.phaseDeg << endl;
+cout<< " Voltage Source  : " << Source.EP_Oa.V.mag << " /_  " << Source.EP_Oa.V.phaseDeg << endl;
 cout<< " Voltage A1 (out): " << A1.EP_O.V.mag << " /_  " << A1.EP_O.V.phaseDeg << endl;
 cout<< " Voltage A2 (out): " << A2.EP_O.V.mag << " /_  " << A2.EP_O.V.phaseDeg << "\n" << endl;
 
-cout<< " Power Source  : " << Source.EP_a.S.mag << " /_  " << Source.EP_a.S.phaseDeg << endl;
+cout<< " Power Source  : " << Source.EP_Oa.S.mag << " /_  " << Source.EP_Oa.S.phaseDeg << endl;
 cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_  " << A1.EP_O.S.phaseDeg << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_  " << A2.EP_O.S.phaseDeg << "\n" << endl;
 cout<<" =============================================== \n" << endl;
