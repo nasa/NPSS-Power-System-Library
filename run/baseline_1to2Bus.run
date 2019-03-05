@@ -18,21 +18,19 @@ Security, United States Department of Commerce. Violations are punishable by
 fine, imprisonment, or both.
 *******************************************************************************/
 
-// Electrical Compononent (HVHEP) Power 
-// Created: 8/11/2017
-
-
 // Make GasTbl the default thermopackage
 #ifndef THERMO
 #define THERMO GasTbl
 #endif
-
 
 //include the power train components 
 //#include "PTE_Viewer.view"
 #include "npssel.view"
 #include "npssel_runtime.view"
 
+// add in port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
 
 //model file
 #include "bus1to2.mdl"

@@ -10,9 +10,6 @@
 //
 //-------------------------------------------------------------------------------------------------
 
-#include "InterpretedPort.int"
-#include "ElectricPort.prt"
-
 real defaultFrequency =400.;
 
 cout<<"======================================="<<endl;
@@ -25,7 +22,6 @@ setThermoPackage("GasTbl");
 Branch 1 
 Gen1 -> Cable1 -> EM1
 *******************************************/
-
 Element Generator Gen1 {
 	Vbus_LL=1200;	
 	Eff=0.96;
@@ -59,15 +55,12 @@ Element Cable Cable2b {
     L=9.84e-5*length/4./60./2./PI;
 }
 
-
-
 Element Motor EM1 {
 	Eff=0.96;
 	SpecificPower=13.0; 
 	Torque=55144.0;   // in*lb ?????
 	frequency = 400.;
 }
-
 
 Element Motor EM2 {
 	Eff=0.96;
