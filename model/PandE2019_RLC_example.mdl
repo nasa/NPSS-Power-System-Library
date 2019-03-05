@@ -6,11 +6,13 @@
 //					NASA Glenn Research Center
 //
 //   Description:   Basic RLC circuit to demonstrate ability to use NPSS for solve for 
-//					a basic circuit.  Sameple problem camealtern from
+//					a basic circuit. This example is used in a paper in the 2019 Propulsion and Energy
+//					conference. Sample problem camealtern from
 //	https://www.allaboutcircuits.com/textbook/alternating-current/chpt-5/series-parallel-r-l-and-c/
 //
 //-------------------------------------------------------------------------------------------------
 
+// create and ACsource
 class ACSource extends Element{
   ElectricOutputPort EP_O;
   ElectricInputPort EP_I1, EP_I2;
@@ -43,22 +45,9 @@ Element Resistor R1{
 	R = 470.;
 }
 
-
 //--------------------------------------------------------
 // link it up
 //--------------------------------------------------------
-/*
-linkPortI( "Bat.EP_O", "C1.EP_I" );
-linkPortI( "C1.EP_O", "E1.EP_I" );
-linkPortI( "E1.EP_O1", "L1.EP_I" );
-linkPortI( "L1.EP_O", "E2.EP_I" );
-linkPortI( "E2.EP_O", "C2.EP_I" );
-linkPortI( "C2.EP_O", "Bat.EP_I1" );
-linkPortI( "E1.EP_O2", "R1.EP_I" );
-linkPortI( "R1.EP_O", "Bat.EP_I2" );
-*/
-
-
 linkEports( "ACS.EP_O", "C1.EP_I", "PORT" );
 linkEports("C1.EP_O", "n1" ,"NODE");
 linkEports( "L1.EP_I", "n1", "NODE" );
@@ -68,12 +57,10 @@ linkEports( "C2.EP_O", "ACS.EP_I1", "PORT" );
 linkEports( "R1.EP_I", "n1", "NODE" );
 linkEports( "R1.EP_O", "ACS.EP_I2", "PORT" );
 
-
 n1{
   VrealRMS = 120-70.5;  //guess value
   VimagRMS = 43;  //guess value		
 }
-
 
 n2{
   VrealRMS = 120-70.5+7.96;  //guess value
