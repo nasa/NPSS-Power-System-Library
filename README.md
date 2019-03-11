@@ -21,62 +21,66 @@ of the project (containing "model," "src," "view," etc), and then run
 >> runnpss -I model -I run -I src -I view [example run file]
 
 to run any of the included models. If you run the baseline example,
-"baseline.run," you should get an output that looks like this:
-
-     =======================================
-      Example Model with Real and Reactive Power
-     =======================================
-     *************************************************
-     Date:10/16/18    Time:16:17:47    Model:
-
-     TURBOMACHINERY PERFORMANCE DATA
-                    Wc      PR      eff         Nc       TR   efPoly        pwr     SMN     SMW
-     Prop       439.47   1.400   0.9300   4000.000   1.1085   0.9333    -8399.5   14.34   12.74
-     Turb        30.27   1.101   0.9000     85.280   1.0207   0.8990     9158.4
+"baseline.run," you should get an output that looks like this in the 
+file "engine.viewOut":
 
 
+************************************************************************************************************************************
+Date:03/11/19    Time:13:09:14    Model:                                                                    converge = 1   CASE:   0 
+Version:          NPSS_2.7.1          Gas Package: GasTbl        iter/pass/Jacb/Broy= 33/ 39/ 2/30        Run by:             jcsank 
 
-                 EP_I.S.r  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j
-     EM1         6524.492    1697.083    -8.23E-003    5150.417    -9.16E-005     481.809     271.854       0.000
+                                        FLOW STATION DATA                                                                               
+                                W        Pt        Tt       ht     FAR       Wc        Ps        Ts      rhos     Aphy      MN      gamt
+St0-St1   Atm.Fl_O         219.74    14.696    518.67   123.95  0.0000   219.74     0.000      0.00  0.000000      0.0  0.0000   1.40052
+St1-St2   Prop.Fl_O        219.74    20.574    574.97   137.46  0.0000   165.25     0.000      0.00  0.000000      0.0  0.0000   1.39944
+St00-St10 TurbineAtm.Fl>   500.00   500.000   2200.00   574.10  0.0200    30.27     0.000      0.00  0.000000      0.0  0.0000   1.30774
+St10-End0 Turb.Fl_O        500.00   476.730   2177.87   567.66  0.0200    31.58     0.000      0.00  0.000000      0.0  0.0000   1.30837
+St2-End   Noz.Fl_O         219.74    20.574    574.97   137.46  0.0000   165.25    14.000    515.05  0.073366    508.3  0.7625   1.39944
 
-
-                     EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
-     Cable2a         1639.270    1635.927    1697.059    -3.53E-003    1287.605    -4.40E-004     644.099       0.000       0.000
-     Cable2b         4916.487    4906.451    1697.059    -3.53E-003    3862.812     2.47E-005     644.099       0.000       0.000
-     Cable3          6542.378    6524.492    1697.083    -8.23E-003    5150.417    -9.16E-005     858.799       0.000       0.000
-
-
-                     EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
-     Gen1            1639.270    1697.056         0.000    1287.605    -4.40E-004     126.098      68.303       0.000
-     Gen2            4916.487    1697.056         0.000    3862.812     2.47E-005     378.191     204.854       0.000
-
-
-
-
-
-     Turbine PR 1.10112 Nozzle Thrust 11589
-     *************************************************
-     Date:10/16/18    Time:16:17:47    Model:
-
-     TURBOMACHINERY PERFORMANCE DATA
-                    Wc      PR      eff         Nc       TR   efPoly        pwr     SMN     SMW
-     Prop       402.97   1.319   0.9600   3600.000   1.0858   0.9615    -6084.9   19.03   14.28
-     Turb        30.27   1.067   0.8974     80.581   1.0138   0.8968     6165.3
+                          ELECTRICAL POWER SYSTEM                                                                           
+            EP_I.S.r  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j                
+EM1         3262.246    1202.595    -4.20E-002    1570.296    -4.93E-001     240.904     135.927    1579.978                
+                                                                                                                            
+                                                                                                                            
+                                                                                                                            
+                EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
+Cable1          3262.278    3262.246    1202.595    -4.20E-002    1570.296    -4.93E-001     785.510       0.000       0.000
+                                                                                                                            
+                                                                                                                            
+                                                                                                                            
+ Generators                                                                                                                 
+                EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j            
+Gen1            3262.278    1200.000         0.000    1570.296    -4.93E-001     250.944     135.928       0.000            
+                                                                                                                            
 
 
 
-                 EP_I.S.r  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j
-     EM1         4582.082    1697.063    -5.77E-003    3611.913    -9.16E-005     481.809     133.698       0.000
 
 
-                     EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
-     Cable2a         1149.596    1147.952    1697.056    -2.47E-003     902.979    -4.40E-004     644.099       0.000       0.000
-     Cable2b         3447.861    3442.925    1697.056    -2.47E-003    2708.934     2.47E-005     644.099       0.000       0.000
-     Cable3          4590.878    4582.082    1697.063    -5.77E-003    3611.913    -9.16E-005     858.799       0.000       0.000
+************************************************************************************************************************************
+Date:03/11/19    Time:13:09:14    Model:                                                                    converge = 1   CASE:   0 
+Version:          NPSS_2.7.1          Gas Package: GasTbl        iter/pass/Jacb/Broy= 18/ 36/ 3/14        Run by:             jcsank 
 
+                                        FLOW STATION DATA                                                                               
+                                W        Pt        Tt       ht     FAR       Wc        Ps        Ts      rhos     Aphy      MN      gamt
+St0-St1   Atm.Fl_O         201.49    14.696    518.67   123.95  0.0000   201.48     0.000      0.00  0.000000      0.0  0.0000   1.40052
+St1-St2   Prop.Fl_O        201.49    19.382    563.16   134.62  0.0000   159.19     0.000      0.00  0.000000      0.0  0.0000   1.39966
+St00-St10 TurbineAtm.Fl>   500.00   500.000   2200.00   574.10  0.0200    30.27     0.000      0.00  0.000000      0.0  0.0000   1.30774
+St10-End0 Turb.Fl_O        500.00   484.175   2185.08   569.76  0.0200    31.15     0.000      0.00  0.000000      0.0  0.0000   1.30816
+St2-End   Noz.Fl_O         201.49    19.382    563.16   134.62  0.0000   159.19    14.000    513.14  0.073639    508.3  0.6978   1.39966
 
-                     EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
-     Gen1            1149.596    1697.056         0.000     902.979    -4.40E-004     126.098       0.000       0.000
-     Gen2            3447.861    1697.056         0.000    2708.934     2.47E-005     378.191       0.000       0.000
-     
-     
+                          ELECTRICAL POWER SYSTEM                                                                           
+            EP_I.S.r  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j                
+EM1         2291.127    1202.045    -2.95E-002    1103.348    -4.81E-001     240.904      67.107    1109.643                
+                                                                                                                            
+                                                                                                                            
+                                                                                                                            
+                EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
+Cable1          2291.143    2291.127    1202.045    -2.95E-002    1103.348    -4.81E-001     785.510       0.000       0.000
+                                                                                                                            
+                                                                                                                            
+                                                                                                                            
+ Generators                                                                                                                 
+                EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j            
+Gen1            2291.143    1200.000         0.000    1103.348    -4.81E-001     250.944       0.000       0.000            
+                                                                                                                   

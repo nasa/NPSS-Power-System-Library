@@ -8,6 +8,10 @@
 //   Description:   Model file describes how to have 2 generators feeed into 1 bus and provide power
 //					to a single motor.
 //
+//					Gen1 -> cable2a ->		
+//										node -> cable3 -> motor1
+//					Gen2 -> cable2b ->		
+//
 //-------------------------------------------------------------------------------------------------
 
 real defaultFrequency =400.;
@@ -18,17 +22,15 @@ cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
 
-/*******************************************
-Branch 1 
-Gen1 -> Cable1 -> EM1
-*******************************************/
+/**************************
+Electric Power System Components
+**************************/
 Element Generator Gen1 {
 	Vbus_LL=1200;	
 	Eff=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz	
 }
-
 
 Element Generator Gen2 {
 	Vbus_LL=1200;	

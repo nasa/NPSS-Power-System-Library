@@ -7,6 +7,8 @@
 //
 //   Description:   Model file describes baseline model (Generator, Cable, Motor) using the electric port.
 //
+//					Gen1 -> cable1 -> motor1 (EM1)
+//
 //-------------------------------------------------------------------------------------------------
 
 cout<<"======================================="<<endl;
@@ -15,10 +17,9 @@ cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
 
-/*******************************************
- Branch 1 
- Gen1 -> Cable1 -> EM1
-*******************************************/
+/**************************
+Electric Power System Components
+**************************/
 Element Generator Gen1 {
 	Vbus_LL=1200;	
 	Eff=0.96;
