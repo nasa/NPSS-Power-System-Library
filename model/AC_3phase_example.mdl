@@ -21,19 +21,19 @@ real defaultFrequency = 60.;
 
 Source Source{
     void postexecute(){;
-		EP_Oa.setIVRMSphaseDeg(0.,0.,480.,0.);
+		EP_Oa.setIVRMSphaseDeg(0.,0.,208.,0.);
 		EP_Ia.setIVRMSphaseDeg( 0.,0.,0.,0.);
     }
 }
 
 Element Cable A1{
 	length = 10;
-	R = 0.0871557;
-	L = 0.002642489;
+	R = 0.017449748;
+	L = 0.001325483;
 }
 
 Element BasicLoad A2{
-	Z.setMagPhaseDeg( 30./3., 40. );
+	Z.setMagPhaseDeg( 15./3., 45. );
 }
 
 //--------------------------------------------------------

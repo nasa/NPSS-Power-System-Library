@@ -30,19 +30,19 @@ ACSource ACS{
 }
 
 Capacitor C1{
-  C = .0000047;  
+  C = .000010;  
 }
 
 Inductor L1{
-  L = .65;
+  L = .500;
 }
 
 Capacitor C2{
-  C = .0000015;
+  C = .000001;
 }
 
 Element Resistor R1{
-	R = 470.;
+	R = 500.;
 }
 
 //--------------------------------------------------------
@@ -58,11 +58,11 @@ linkEports( "R1.EP_I", "n1", "NODE" );
 linkEports( "R1.EP_O", "ACS.EP_I2", "PORT" );
 
 n1{
-  VrealRMS = 120-70.5;  //guess value
-  VimagRMS = 43;  //guess value		
+  VrealRMS = 120-70;  //guess value
+  VimagRMS = 40;  //guess value		
 }
 
 n2{
-  VrealRMS = 120-70.5+7.96;  //guess value
-  VimagRMS = 43+6.98;  //guess value
+  VrealRMS = 120-70+8;  //guess value
+  VimagRMS = 40+6.98;  //guess value
 }

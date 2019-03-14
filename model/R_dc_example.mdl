@@ -6,8 +6,7 @@
 //					NASA Glenn Research Center
 //
 //   Description:   Basic R circuit (DC) to demonstrate ability to use NPSS for solve for 
-//					a basic circuit.  
-//					https://www.electronics-tutorials.ws/resistor/res_5.html
+//					a basic circuit.
 //-------------------------------------------------------------------------------------------------
 
 
@@ -20,7 +19,7 @@ real defaultFrequency = 0.;
 
 DCSource DCS{
   void postexecute(){
-    EP_O.setIVRMS( 0, 0., 12., 0.);
+    EP_O.setIVRMS( 0, 0., 10., 0.);
     EP_I1.setIVRMS( 0, 0., 0, 0. );
     EP_I2.setIVRMS( 0, 0., 0, 0. );
   }
@@ -28,15 +27,15 @@ DCSource DCS{
 
 
 Element Resistor R1{
-	R = 6.;
+	R = 1.;
 }
 
 Element Resistor R2{
-	R = 12.;
+	R = 2.;
 }
 
 Element Resistor R3{
-	R = 12.;
+	R = 2.;
 }
 
 

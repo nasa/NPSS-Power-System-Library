@@ -41,13 +41,9 @@ St2-End   Noz.Fl_O         219.74    20.574    574.97   137.46  0.0000   165.25 
             EP_I.S.r  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j                
 EM1         3262.246    1202.595    -4.20E-002    1570.296    -4.93E-001     240.904     135.927    1579.978                
                                                                                                                             
-                                                                                                                            
-                                                                                                                            
                 EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
 Cable1          3262.278    3262.246    1202.595    -4.20E-002    1570.296    -4.93E-001     785.510       0.000       0.000
-                                                                                                                            
-                                                                                                                            
-                                                                                                                            
+                                                                                                                               
  Generators                                                                                                                 
                 EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j            
 Gen1            3262.278    1200.000         0.000    1570.296    -4.93E-001     250.944     135.928       0.000            
