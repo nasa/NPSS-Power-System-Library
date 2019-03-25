@@ -10,6 +10,7 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
+#include "ElectricPort.prt"
 class Motor extends Element {
 	
 	//------------------------------------------------------------
@@ -103,12 +104,25 @@ class Motor extends Element {
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
+	
+	// MECHANICAL PORTS
+
 	ShaftOutputPort Sh_O {
 		description = "Mechanical connection to the shaft";
 	}
 	
+	// ELECTRICAL PORTS
+
 	ElectricPort EP_I {
 		description = "Electric Port";
+	}
+
+	// SOCKETS
+
+	Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		socketType = "MOTOR_GENERATOR_MAP";
 	}
 	
 	//------------------------------------------------------------
@@ -163,7 +177,7 @@ class Motor extends Element {
 		CurrentAngle_Demand = EP_I.V.phaseDeg - acos(powerfactor) * 180/PI;
 		
 		
-		Torque = RealPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );
+		Torque = RealPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );	
 		
 		Sh_O.trq=Torque;
 	}

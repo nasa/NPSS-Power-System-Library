@@ -77,12 +77,26 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
+	
+	// 	MECHANICAL PORTS
+
 	ElectricPort EP_O {
 		description = "Electric port";
 	}
+
+	//ELECTRICAL PORTS
 	
 	ShaftOutputPort Sh_O {
 		description = "Mechanical connection to the turbine";
+	}
+
+	// SOCKETS
+
+	Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		socketType = "MOTOR_GENERATOR_MAP";
+		cout << "I ran" << endl;
 	}
 	
 	//------------------------------------------------------------
