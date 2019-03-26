@@ -129,7 +129,7 @@ class Motor extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger =FALSE;
+		trigger = FALSE;
 	}
 	
 	//------------------------------------------------------------
@@ -163,7 +163,8 @@ class Motor extends Element {
 	Socket S_map{
 		allowedValues = {"effBase"}
 		description = "Socket to calculate motor map performance";
-		socketType = "MOTOR_GENERATOR_MAP";
+		//socketType = "MOTOR_GENERATOR_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
 	}
 
 	// TABLES
@@ -196,7 +197,7 @@ class Motor extends Element {
 
 	void variableChanged(string name, any oldVal){
 		if(name == "switchDes"){
-			if(switchDes == DESIGN){
+			if(switchDes == OFFDESIGN){
 				effDes.IOstatus = "output";
 			}
 		}
