@@ -1,0 +1,189 @@
+//-------------------------------------------------------------------------------------------------
+//
+//   File Name:     baseline_turboelectric.mdl
+//   Date(s):       March 18, 2019
+//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
+//					NASA Glenn Research Center
+//
+//   Description:   Model file describes baseline model (Generator, Cable, Inverter, Motor) using the electric port.
+//
+//					Gen1 -> cable1 -> motor1 (EM1)
+//
+//-------------------------------------------------------------------------------------------------
+
+cout<<"======================================="<<endl;
+cout<<" Example Turbo-electric Model "<<endl;
+cout<<"======================================="<<endl;
+
+setThermoPackage("GasTbl");
+
+/**************************
+Electric Power System Components
+**************************/
+Element Generator Gen1 {
+	Vbus_LL=1200;	
+	Eff=0.96;
+	SpecificPower=13.;
+	frequency=400; // Hz
+}
+
+Element Cable Cable3 {
+	length=28.3464/100; 	
+	R=4.3245e-6;
+	L=9.84e-5*length/60./2./PI;
+}
+
+Element Rectifier Rect1 {
+	Eff = 1.0;
+}
+
+
+Element Cable Cable1 {
+	length=28.3464; 	
+	R=4.3245e-6;
+	L=9.84e-5*length/60./2./PI;
+}
+
+Element Inverter Inv1 {
+	//Eff = 0.965;
+	Eff = 1.0;
+	frequency=400;
+}
+
+Element Cable Cable2 {
+	length=28.3464/100; 	
+	R=4.3245e-6;
+	L=9.84e-5*length/60./2./PI;
+}
+
+Element Motor EM1 {
+	 Eff=0.96;
+	 powerfactor=0.9;
+	 SpecificPower=13.0; 
+	 Torque=55144.0; 
+	 frequency = 400.;
+	 Vreal = 1000.;
+}
+
+
+/**************************
+ Electric Motor Connections
+**************************/
+Element FlowStart Atm{
+	Pt=14.696;
+	Tt=518.67;
+	W=4394.74/20;
+}
+
+Element Compressor Prop{
+	#include "fanE3.map";
+	PRdes=1.4;
+	effDes=0.93;	
+}
+
+Element FlowEnd dump{
+};
+
+
+Element Shaft Propulsor_Shaft {
+	Nmech=4000;   // rpm
+	ShaftInputPort Sh1_I, Sh_Prop;
+}
+
+/**************************
+ Turbine Engine / Generator  Connections
+**************************/
+Element FlowStart TurbineAtm{
+	Pt=500;
+	Tt=2200;
+	W=500;
+	FAR = .02;
+}
+
+Element Turbine Turb{
+	#include "lptE3.map";	
+	PRbase=2;
+	effDes=0.9;
+
+}
+
+Nozzle Noz{
+  PsExh = 14.;
+}
+
+Element FlowEnd Turbinedump{
+};
+
+
+Independent turbPR{
+	varName="Turb.PRdes";
+}
+
+Dependent MotorAngle{
+	eq_rhs="EM1.EP_I.I.phaseDeg";
+	eq_lhs="EM1.CurrentAngle_Demand";
+	autoSetup=TRUE;
+}
+
+
+Element Shaft Turbine_Shaft {
+	Nmech=4000;   // rpm
+	ShaftInputPort Sh1_I, Sh_Turbine;	
+}
+
+setOption("ElectricPowerType","AC3");
+
+
+//-------------------------------------------------------------------------------------------------
+// Component Linkages
+//-------------------------------------------------------------------------------------------------
+linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
+linkPortI( "Gen1.EP_O", "Cable3.EP_I");
+linkPortI( "Cable3.EP_O", "Rect1.EP_I");
+linkPortI( "Rect1.EP_O", "Cable1.EP_I");
+linkPortI( "Cable1.EP_O", "Inv1.EP_I");
+linkPortI( "Inv1.EP_O", "Cable2.EP_I" );
+linkPortI( "Cable2.EP_O", "EM1.EP_I" );
+
+
+linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
+linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
+linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
+
+//
+linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
+linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
+linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
+linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
+linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
+
+
+solverSequence.remove( "Gen1" );
+solverSequence.remove( "EM1" );
+solverSequence.remove( "Turbine_Shaft" );
+solverSequence.remove( "Propulsor_Shaft" );
+solverSequence.remove( "Rect1" );
+solverSequence.remove( "Inv1" );
+
+solverSequence.append( "Gen1" );
+solverSequence.append( "EM1" );
+solverSequence.append( "Turbine_Shaft" );
+solverSequence.append( "Propulsor_Shaft" );
+solverSequence.append( "Rect1" );
+solverSequence.append( "Inv1" );
+
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "soler.bad";
+
+
+Inv1{
+  Vreal = 1020;  //guess value
+  Vimag = 0;  //guess value		
+}
+
+
+Rect1{
+  Vreal = 1100;  //guess value
+  Vimag = 0;  //guess value		
+}
