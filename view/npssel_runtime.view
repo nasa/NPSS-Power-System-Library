@@ -52,6 +52,22 @@ GroupBlock Electrical {
 		//showColHeader=FALSE; 	
    }
    
+   DColTBlock rectifier { 
+		titleBody = "\n Rectifiers"; 
+		compType = "Rectifier"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		//showColHeader=FALSE; 	
+   }
+   
+   DColTBlock inverter { 
+		titleBody = "\n Inverters"; 
+		compType = "Inverter"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		//showColHeader=FALSE; 	
+   }
+   
    DColTBlock threephaseyload { 
 		titleBody = "\n 3 Phase Y Load"; 
 		compType = "ThreePhaseYLoad"; 
@@ -64,7 +80,9 @@ GroupBlock Electrical {
    motor.bottom = "cable"; 
    cable.bottom =  "threephasecable";
    threephasecable.bottom =  "generator";
-   generator.bottom = "threephaseyload";
+   generator.bottom = "rectifier";
+   rectifier.bottom = "inverter";
+   inverter.bottom = "threephaseyload";
    addGutter = TRUE; 
 }  
 

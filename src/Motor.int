@@ -39,11 +39,6 @@ class Motor extends Element {
 		description = "Mass output of the motor";
 	}	
 	
-	real Vdes_LL{
-		value=0; IOstatus="input"; //units=rpm;
-		description = "Propulsor Torque";
-	}
-	
 	real Eff{
 		value=0.96; IOstatus="input"; //units=None;
 		description = "Projected Motor Efficiency";
@@ -127,27 +122,26 @@ class Motor extends Element {
 		Speed=Sh_O.Nmech;	
 		//EP_I.copyport();
 		
-		
+
 		real RealPower=0;
 		
 		if ( switchDes == "DESIGN" ){
-		/*****************************
-		On-Design
-		*****************************/
-		// compute power to the load
-		RealPower = EP_I.S.r * Eff;
+			/*****************************
+			On-Design
+			*****************************/
+			// compute power to the load
+			RealPower = EP_I.S.r * Eff;
 		
-		// Compute mass based on assumed specific power.
-		Mass=RealPower / SpecificPower;
+			// Compute mass based on assumed specific power.
+			Mass=RealPower / SpecificPower;
 		
-		// computer losses
-		Loss_r=EP_I.S.r * (1.0 / Eff - 1.0);
-		Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
+			// computer losses
+			Loss_r=EP_I.S.r * (1.0 / Eff - 1.0);
+			Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
 		
-		// determine resistance 
-		motorResistance =  Loss_r / 3 / EP_I.I.mag**2;
-		}
-		
+			// determine resistance 
+			motorResistance =  Loss_r / 3 / EP_I.I.mag**2;
+		}		
 		else{	
 			//*****************************
 			// Off-Design

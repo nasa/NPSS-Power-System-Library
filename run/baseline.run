@@ -45,9 +45,7 @@ solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
 solver.maxIterations=300;
 
-
 run();
-
 
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window

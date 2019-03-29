@@ -102,25 +102,27 @@ class Generator extends Element {
 		real Vbus=0;
 		
 		if (switchDes == "DESIGN" ){
-		/****************************
-		On-design
-		****************************/
+			/****************************
+			On-design
+			****************************/
 		
-		RealPower = EP_O.S.r / Eff;	
+			RealPower = EP_O.S.r / Eff;	
 		
-		// determine loss in the generator
-		Loss_r = RealPower - EP_O.S.r;
-		Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
+			// determine loss in the generator
+			Loss_r = RealPower - EP_O.S.r;
+			Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
 		
-		// determine resistance 
-		genResistance =  Loss_r / 3 / EP_O.I.mag**2;
+			// determine resistance 
+			genResistance =  Loss_r / 3 / EP_O.I.mag**2;
 		
-		// Compute mass based on assumed specific power.  Both Mass
-		// and loses are based on output power (Power Sent)
-		Mass = EP_O.S.r / SpecificPower;
-
+			// Compute mass based on assumed specific power.  Both Mass
+			// and loses are based on output power (Power Sent)
+			Mass = EP_O.S.r / SpecificPower;
 		}
 		else{
+			/****************************
+			Off-design
+			****************************/
 			
 			// Supply power is load power + losses
 			RealPower = EP_O.S.r + Loss_r;
@@ -133,7 +135,6 @@ class Generator extends Element {
 		// Generator / Turbine Engine shaft connection
 		real trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
 		Sh_O.trq = -trq;	
-		
 	}
 	void prePass(){
 		

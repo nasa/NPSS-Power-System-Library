@@ -89,8 +89,6 @@ class ElectricPort extends Subelement {
 	//------------------------------------------------------
 	void copyport() {
 		
-		cout<<refport<<endl;
-		
 		V.copy( refport+".V" );
 		I.copy( refport+".I" );
 		S.copy( refport+".S" );
