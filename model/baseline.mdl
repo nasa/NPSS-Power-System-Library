@@ -96,8 +96,6 @@ Independent turbPR{
 	varName="Turb.PRdes";
 }
 
-
-
 Dependent MotorAngle{
 	eq_rhs="EM1.EP_I.I.phaseDeg";
 	eq_lhs="EM1.CurrentAngle_Demand";
