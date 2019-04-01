@@ -45,7 +45,6 @@ class Cable extends Element {
 		description = "Mass output of the cable";
 	}
 	
-	
 	// Will add losses in future releases.
 	real Loss_r {
 		value = 0; IOstatus="output"; units="W";
