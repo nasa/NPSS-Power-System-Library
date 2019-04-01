@@ -89,7 +89,7 @@ class Generator extends Element {
 	}
 
 	real Pin {
-		value = 0.;  IOstatus = "output";  units = "W";
+		value = 0.;  IOstatus = "input";  units = "W";
 		description = "Power in to the generator";
 	}
 
@@ -99,11 +99,11 @@ class Generator extends Element {
 	}
 
 	real Speed {
-		value = 1.;  IOstatus = "output";  //units = RPM;
+		value = 1.;  IOstatus = "input";  //units = RPM;
 		description = "Shaft/generator speed";
 	}
 
-	real Torque {
+	real trq {
 		value = 1.;  IOstatus = "output";  //units = "";
 		description = "Torque from shaft";
 	}
@@ -141,13 +141,13 @@ class Generator extends Element {
 
 	// THERMAL PORTS
 
-	// 	MECHANICAL PORTS
+	// 	ELECTRICAL PORTS
 
 	ElectricPort EP_O {
 		description = "Electric port";
 	}
 
-	//ELECTRICAL PORTS
+	//MECHANICAL PORTS
 	
 	ShaftOutputPort Sh_O {
 		description = "Mechanical connection to the turbine";
@@ -210,7 +210,8 @@ class Generator extends Element {
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
-			trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
+			//trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
+			trqDes = C_HP_PER_RPMtoFT_LBF * (Pin) / Ndes;
 		
 			// determine loss in the generator
 			Loss_r = Pin - Pout;
@@ -229,12 +230,12 @@ class Generator extends Element {
 			// Off-Design
 			//*****************************
 
+			// Supply power is load power + losses
+			Pin = Pout / Eff;
+
 			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
-
-			// Supply power is load power + losses
-			Pin = Pout / Eff;
 		}
 		
 		//set efficiency value
@@ -245,11 +246,12 @@ class Generator extends Element {
 			effBase = effDes;
 		}
 		Eff = effBase;
-			
-
+		
 		// Generator and Turbine Engine shaft connection
-		Torque =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
-		Sh_O.trq = -Torque;	
+		//trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
+		trq =  C_HP_PER_RPMtoFT_LBF * (Pin) / Speed;
+		Sh_O.trq = -trq;	
+		
 		
 	} // end calculation section
 	void prePass(){

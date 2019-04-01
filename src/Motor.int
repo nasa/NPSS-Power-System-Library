@@ -99,11 +99,11 @@ class Motor extends Element {
 	}
 	
 	real Speed{
-		value=0; IOstatus="output"; //units=rpm;
+		value=0; IOstatus="input"; //units=rpm;
 		description = "Propulsor Speed";
 	}
 
-	real Torque{
+	real trq{
 		value=0; IOstatus="output"; //units=rpm;
 		description = "Propulsor Torque";
 	}
@@ -112,11 +112,6 @@ class Motor extends Element {
 		value = 1.;  IOstatus = "output";  //units = "";
 		description = "Torque at design";
 	}
-
-	real Vdes_LL{
-		value=0; IOstatus="input"; //units=rpm;
-		description = "Propulsor Torque";
-	}	
 	
 	real frequency;
 	real Vreal, Vimag;
@@ -211,7 +206,7 @@ class Motor extends Element {
 	
 	void calculate() {
 		
-		Speed=Sh_O.Nmech;	
+		Speed=Sh_O.Nmech;
 		//EP_I.copyport();
 		Pin = EP_I.S.r;
 		Current = EP_I.I.mag;
@@ -226,19 +221,20 @@ class Motor extends Element {
 			// compute power to the load
 			Pout = Pin * Eff;
 
+			// Compute mass based on assumed specific power.
+			Mass=Pout / SpecificPower;
+
 			// get design values 
 			Ndes = Sh_O.Nmech;
-			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
-		
+			//trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
+			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF / Ndes );
+
 			// compute losses
 			Loss_r=Pin * (1.0 / Eff - 1.0);
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		
 			// determine resistance 
 			motorResistance =  Loss_r / 3 / Current**2;
-
-			// Compute mass based on assumed specific power.
-			Mass=Pout / SpecificPower;
 		}
 		
 		else{	
@@ -247,7 +243,8 @@ class Motor extends Element {
 			//*****************************
 
 			// Power to the load (supply - loss)
-			Pout = Pin - Current**2 * motorResistance;
+			//Pout = Pin - Current**2 * motorResistance;
+			Pout = Pin * Eff;
 			
 			// Calculate loss
 			Loss_r = 3 * Current**2 * motorResistance;
@@ -268,8 +265,9 @@ class Motor extends Element {
 		CurrentAngle_Demand = EP_I.V.phaseDeg - acos(powerfactor) * 180/PI;
 		
 		// Motor and Propulsor shaft connection
-		Torque = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
-		Sh_O.trq=Torque;
+		//trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
+		trq = ( C_HP_PER_RPMtoFT_LBF * (Pout) / Speed );
+		Sh_O.trq=trq;
 
 	} // end calculation section
 	void prePass(){
