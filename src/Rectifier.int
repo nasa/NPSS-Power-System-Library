@@ -1,0 +1,144 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * Jeffrey Csank, David Sadey, Tom Lavelle
+// * March 18, 2019
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class Rectifier extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " Determines power for a Rectifier";
+	
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	
+	ComplexNumber Sdc;
+	ComplexNumber Idc;
+	ComplexNumber Iac;
+	ComplexNumber Vdc;
+		
+	real Eff {
+		value = 1.0; IOstatus="input"; //units=;
+		description = "Efficiency of the rectifier";
+	}
+	
+	real Vreal {
+		value = 0.0; IOstatus="input"; //units=;
+		description = "Rectifier Voltage (real)";
+	}
+	
+	real Vimag {
+		value = 0.0; IOstatus="input"; //units=;
+		description = "Rectifier Voltage (imaginary)";
+	}
+	
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+	//------------------------------------------------------------
+	Independent ind_Vreal { 
+		varName = "Vreal"; 
+		autoSetup = TRUE;
+		indepRef = "10000";
+		
+		description = "Varies the real component of the inverter voltage";
+	}
+	
+	Independent ind_Vimag { 
+		varName = "Vimag"; 
+		autoSetup = TRUE;
+		indepRef = "10000";
+		description = "Varies the imaginary component of the inverter voltage";
+	}
+	
+	Dependent dep_Power{
+		eq_rhs="EP_I.S.rRMS * Eff";
+		eq_lhs="EP_O.S.rRMS";
+		autoSetup=TRUE;
+	}
+	
+	Dependent dep_Power_factor{
+		eq_rhs="EP_I.V.phaseDeg";
+		eq_lhs="EP_I.I.phaseDeg";
+		autoSetup=TRUE;
+	}
+
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ElectricPort EP_I {
+		description = "Electric port";
+	}
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger= FALSE;
+	}
+	
+	void calculate() {
+		
+		/*
+		// output DC power = input AC power * efficiency
+		Sdc.copy( "EP_I.S" );
+		Sdc.times( "Eff" );
+		
+		//Input current is function of input power
+		Iac.copy("EP_I.S");
+		Iac.div( "EP_I.V" );
+		Iac.scale( 1./sqrt(3.));
+		
+		// Output DC Voltage
+		Vdc.copy("EP_I.V");
+		Vdc.scale( 3.*sqrt(2.) / PI);
+		
+		// compute output DC current
+		Idc.copy( "Sdc" );
+		Idc.div(  "Vdc" );
+		
+		
+		// set electric port conditions (input/output)
+		EP_O.setIVRMS( Idc.rRMS, Idc.jRMS, Vdc.rRMS, Vdc.jRMS ); 
+		EP_I.setIVRMS( Iac.rRMS, Iac.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
+		EP_O.frequency=0;
+		*/
+		
+		if (switchDes == "DESIGN" ){
+			/****************************
+			On-design
+			****************************/
+				
+			
+		}	
+	}
+	
+	//------------------------------------------------------------
+	// ******* PREPASS FUNCTION *******
+	//------------------------------------------------------------
+	void prePass() {	
+		EP_I.setIVRMS(0,0,Vreal,Vimag);
+		EP_O.setIVRMS(0,0,EP_I.V.mag * 3 * sqrt(2) / PI, 0);
+	}
+}
+
+

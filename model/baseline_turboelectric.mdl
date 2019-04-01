@@ -1,18 +1,18 @@
 //-------------------------------------------------------------------------------------------------
 //
-//   File Name:     baseline.mdl
-//   Date(s):       April 27, 2018
+//   File Name:     baseline_turboelectric.mdl
+//   Date(s):       March 18, 2019
 //   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
 //					NASA Glenn Research Center
 //
-//   Description:   Model file describes baseline model (Generator, Cable, Motor) using the electric port.
+//   Description:   Model file describes baseline model (Generator, Cable, Inverter, Motor) using the electric port.
 //
 //					Gen1 -> cable1 -> motor1 (EM1)
 //
 //-------------------------------------------------------------------------------------------------
 
 cout<<"======================================="<<endl;
-cout<<" Example Model with Real and Reactive Power "<<endl;
+cout<<" Example Turbo-electric Model "<<endl;
 cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
@@ -27,8 +27,31 @@ Element Generator Gen1 {
 	frequency=400; // Hz
 }
 
+Element Cable Cable3 {
+	length=28.3464/100; 	
+	R=4.3245e-6;
+	L=9.84e-5*length/60./2./PI;
+}
+
+Element Rectifier Rect1 {
+	Eff = 1.0;
+}
+
+
 Element Cable Cable1 {
 	length=28.3464; 	
+	R=4.3245e-6;
+	L=9.84e-5*length/60./2./PI;
+}
+
+Element Inverter Inv1 {
+	//Eff = 0.965;
+	Eff = 1.0;
+	frequency=400;
+}
+
+Element Cable Cable2 {
+	length=28.3464/100; 	
 	R=4.3245e-6;
 	L=9.84e-5*length/60./2./PI;
 }
@@ -102,6 +125,7 @@ Dependent MotorAngle{
 	autoSetup=TRUE;
 }
 
+
 Element Shaft Turbine_Shaft {
 	Nmech=4000;   // rpm
 	ShaftInputPort Sh1_I, Sh_Turbine;	
@@ -114,8 +138,12 @@ setOption("ElectricPowerType","AC3");
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
-linkPortI( "Cable1.EP_O", "EM1.EP_I" );
+linkPortI( "Gen1.EP_O", "Cable3.EP_I");
+linkPortI( "Cable3.EP_O", "Rect1.EP_I");
+linkPortI( "Rect1.EP_O", "Cable1.EP_I");
+linkPortI( "Cable1.EP_O", "Inv1.EP_I");
+linkPortI( "Inv1.EP_O", "Cable2.EP_I" );
+linkPortI( "Cable2.EP_O", "EM1.EP_I" );
 
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
@@ -134,11 +162,28 @@ solverSequence.remove( "Gen1" );
 solverSequence.remove( "EM1" );
 solverSequence.remove( "Turbine_Shaft" );
 solverSequence.remove( "Propulsor_Shaft" );
+solverSequence.remove( "Rect1" );
+solverSequence.remove( "Inv1" );
 
 solverSequence.append( "Gen1" );
 solverSequence.append( "EM1" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
+solverSequence.append( "Rect1" );
+solverSequence.append( "Inv1" );
+
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "soler.bad";
+
+
+Inv1{
+  Vreal = 1020;  //guess value
+  Vimag = 0;  //guess value		
+}
+
+
+Rect1{
+  Vreal = 1100;  //guess value
+  Vimag = 0;  //guess value		
+}

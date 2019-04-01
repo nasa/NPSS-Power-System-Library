@@ -33,7 +33,7 @@ fine, imprisonment, or both.
 #include "InterpretedPort.int"
 
 //model file
-#include "baseline.mdl"
+#include "baseline_turboelectric.mdl"
 
 /************************
 On design
@@ -43,7 +43,8 @@ autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
-solver.maxIterations=300;
+solver.maxIterations=1000;
+solver.maxJacobians=500;
 
 run();
 
@@ -51,11 +52,13 @@ page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
-
+cout<<Inv1.EP_O.frequency<<endl;
 
 /************************
 Off design
 ************************/
+
+/*
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
@@ -73,3 +76,5 @@ page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+
+*/
