@@ -22,9 +22,10 @@ Electric Power System Components
 **************************/
 Element Generator Gen1 {
 	Vbus_LL=1200;	
-	Eff=0.96;
+	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
+	#include <STARCABLmotorGenerator.map>
 }
 
 Element Cable Cable3 {
@@ -34,7 +35,10 @@ Element Cable Cable3 {
 }
 
 Element Rectifier Rect1 {
-	Eff = 1.0;
+	//Eff = 1.0;
+	effDes = .95;
+	pwrDes = 12000.;
+	#include <modelInverterRectifier.map>
 }
 
 
@@ -45,8 +49,10 @@ Element Cable Cable1 {
 }
 
 Element Inverter Inv1 {
-	//Eff = 0.965;
-	Eff = 1.0;
+	//Eff = 1.0;
+	effDes = .95;
+	pwrDes = 12000.;
+	#include <modelInverterRectifier.map>
 	frequency=400;
 }
 
@@ -57,12 +63,13 @@ Element Cable Cable2 {
 }
 
 Element Motor EM1 {
-	 Eff=0.96;
+	 effDes=0.96;
 	 powerfactor=0.9;
 	 SpecificPower=13.0; 
-	 Torque=55144.0; 
+	 trqDes=55144.0; 
 	 frequency = 400.;
-	 Vreal = 1000.;
+	 //Vreal = 1000.;
+	 #include <STARCABLmotorGenerator.map>
 }
 
 
@@ -75,10 +82,17 @@ Element FlowStart Atm{
 	W=4394.74/20;
 }
 
-Element Compressor Prop{
+/*Element Compressor Prop{
 	#include "fanE3.map";
 	PRdes=1.4;
 	effDes=0.93;	
+}*/
+
+Element Propeller Prop{
+	CT = 1.;
+	UtipDes = 150;
+	pwrLoadDes = 5.;
+	pwr = 3000.;
 }
 
 Element FlowEnd dump{

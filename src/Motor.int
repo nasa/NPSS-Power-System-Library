@@ -24,61 +24,150 @@ class Motor extends Element {
 	//------------------------------------------------------------
 	//     ******* SETUP VARIABLES ********
 	//------------------------------------------------------------
-	real Speed{
-		value=0; IOstatus="input"; //units=rpm;
-		description = "Propulsor Speed";
+
+	real Current {
+		value = 0; IOstatus="input"; //units="Amps";
+		description = "Current";
+	} 
+
+	real CurrentAngle_Demand {
+		value = 0; //IOstatus=OUTPUT; units="W";
+		description = "Current Angle for the motor";
 	}
-	
-	real Torque{
-		value=0; IOstatus="input"; //units=rpm;
-		description = "Propulsor Torque";
-	}
-	
-	real Mass {
-		value=0; IOstatus="output"; units="kg";
-		description = "Mass output of the motor";
-	}	
 	
 	real Eff{
 		value=0.96; IOstatus="input"; //units=None;
 		description = "Projected Motor Efficiency";
+	}
+
+	real effBase{
+		value = 1.;  IOstatus ="output";  units = "none";
+		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+		
+	}
+
+	real effDes{
+		value = 1.;  IOstatus = "input";  units = "none";
+		description = "Adiabatic efficiency at design point.";
+	} 
+
+	real Loss_j {
+		value = 0; //IOstatus=OUTPUT; units="W";
+		description = "Motor Loss";
+	}
+
+	real Loss_r {
+		value = 0; //IOstatus=OUTPUT; units="W";
+		description = "Motor Loss";
+	}
+
+	real Mass {
+		value=0; IOstatus="output"; units="kg";
+		description = "Mass output of the motor";
+	}
+
+	real motorResistance {
+		value = 0; IOstatus="output";; units= "W";
+		description = "Resistance of the motor based on losses";
+	} 
+
+	real Ndes{
+		value = 1.;  IOstatus = "output";  units = "rpm";
+		description = "rotational speed at design";
+	}
+
+	real Pout{
+		value = 0.;  IOstatus = "output";  units = "W";
+		description = "Power out of the motor";
+	}
+
+	real Pin{
+		value = 0.;  IOstatus = "output";  units = "W";
+		description = "Power in to the motor";
+	}
+
+	real powerfactor {
+		value = 1; //IOstatus=OUTPUT; units="W";
+		description = "Motor Loss";
 	}
 	
 	real SpecificPower {
 		value = 13; IOstatus="input"; //units=;
 		description = "Power to Weight ratio for the motor";
 	}
-	
-	real motorResistance {
-		value = 0; IOstatus="output";; units= "W";
-		description = "Resistance of the motor based on losses";
-	} 
-	
-	real Loss_r {
-		value = 0; //IOstatus=OUTPUT; units="W";
-		description = "Motor Loss";
+
+	real Speed{
+		value=0; IOstatus="input"; //units=rpm;
+		description = "Propulsor Speed";
 	}
-	
-	real Loss_j {
-		value = 0; //IOstatus=OUTPUT; units="W";
-		description = "Motor Loss";
+
+	real trq{
+		value=0; IOstatus="output"; //units=rpm;
+		description = "Propulsor Torque";
 	}
-	
-	real powerfactor {
-		value = 1; //IOstatus=OUTPUT; units="W";
-		description = "Motor Loss";
-	}
-	
-	real CurrentAngle_Demand {
-		value = 0; //IOstatus=OUTPUT; units="W";
-		description = "Current Angle for the motor";
+
+	real trqDes{
+		value = 1.;  IOstatus = "output";  //units = "";
+		description = "Torque at design";
 	}
 	
 	real frequency;
 	real Vreal, Vimag;
+
+	//------------------------------------------------------------
+	//   ******* OPTION VARIABLE SETUP *******
+	//------------------------------------------------------------
+
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger = FALSE;
+	}
 	
 	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+
+	// FLUID PORTS
+
+	// FUEL PORTS
+
+	// BLEED PORTS
+
+	// THERMAL PORTS
+
+	// MECHANICAL PORTS
+
+	ShaftOutputPort Sh_O {
+		description = "Mechanical connection to the shaft";
+	}
+
+	// ELECTRICAL PORTS
+	
+	ElectricPort EP_I {
+		description = "Electric Port";
+	}
+
+	// FLOW STATIONS
+
+	// SOCKETS
+
+	Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		//socketType = "MOTOR_GENERATOR_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
+	}
+
+	// TABLES
+	
+	//------------------------------------------------------------
+	// ******* INTERNAL SOLVER SETUP *******
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
 	//------------------------------------------------------------
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
@@ -94,73 +183,89 @@ class Motor extends Element {
 		indepRef = "100";
 		description = "Varies the imaginary component of the motor voltage";
 	}
-	
+
 	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
-	ShaftOutputPort Sh_O {
-		description = "Mechanical connection to the shaft";
-	}
-	
-	ElectricPort EP_I {
-		description = "Electric Port";
-	}
-	
+
+	void variableChanged(string name, any oldVal){
+		if(name == "switchDes"){
+			if(switchDes == OFFDESIGN){
+				effDes.IOstatus = "output";
+			}
+		}
+	} // end variableChanged()
+
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-		trigger =FALSE;
-	}
-	
 	
 	void calculate() {
 		
 		Speed=Sh_O.Nmech;	
 		//EP_I.copyport();
-		
-
-		real RealPower=0;
+		Pin = EP_I.S.r;
+		Current = EP_I.I.mag;
 		
 		if ( switchDes == "DESIGN" ){
 			/*****************************
 			On-Design
 			*****************************/
+
+			Eff = effDes;
+
 			// compute power to the load
-			RealPower = EP_I.S.r * Eff;
+			Pout = Pin * Eff;
 		
 			// Compute mass based on assumed specific power.
 			Mass=RealPower / SpecificPower;
+
+			// get design values 
+			Ndes = Sh_O.Nmech;
+			//trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
+			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF / Ndes );
 		
-			// computer losses
-			Loss_r=EP_I.S.r * (1.0 / Eff - 1.0);
-			Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
+			// compute losses
+			Loss_r=Pin * (1.0 / Eff - 1.0);
+			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		
 			// determine resistance 
-			motorResistance =  Loss_r / 3 / EP_I.I.mag**2;
+			motorResistance =  Loss_r / 3 / Current**2;
 		}		
 		else{	
 			//*****************************
 			// Off-Design
 			//*****************************
+
 			// Power to the load (supply - loss)
-			RealPower = EP_I.S.r - EP_I.I.mag**2 * motorResistance;
+			//Pout = Pin - Current**2 * motorResistance;
+			Pout = Pin * Eff;
 			
 			// Calculate loss
-			Loss_r = 3 * EP_I.I.mag**2 * motorResistance;
-			Loss_j=sqrt((EP_I.S.r / powerfactor)**2 - EP_I.S.r**2);
+			Loss_r = 3 * Current**2 * motorResistance;
+			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		}
+
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+			//cout << "I have a map!" << endl;
+		}
+		else{
+			effBase = effDes;
+			//cout << " I don't have a map!" << endl;
+		}
+		Eff = effBase;
 		
 		CurrentAngle_Demand = EP_I.V.phaseDeg - acos(powerfactor) * 180/PI;
 		
+		// Motor and Propulsor shaft connection
+		trq = Pout*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Speed );
+		trq = ( C_HP_PER_RPMtoFT_LBF * (Pout) / Speed );
 		
-		Torque = RealPower*( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Sh_O.Nmech );
-		
-		Sh_O.trq=Torque;
-	}
+		Sh_O.trq=trq;
+	} // end calculation section
+	
 	void prePass(){
 		
 		EP_I.setIVRMS( 0., 0. , Vreal,  Vimag );

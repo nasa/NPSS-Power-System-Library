@@ -24,40 +24,6 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	//     ******* SETUP VARIABLES ********
 	//------------------------------------------------------------
-	real Eff{
-		value=0.96; IOstatus="input"; //units=None;
-		description = "Projected Efficiency of the Cable";
-	}
-	
-	real SpecificPower {
-		value = 13; IOstatus="input"; //units=;
-		description = "Power to Weight ratio for the Generator";
-	}
-	
-	real genResistance {
-		value = 1; IOstatus="input"; units= "W";
-		description = "Resistance of Generator (based on efficiency)";
-	}
-	
-	real Mass {
-		value=0; IOstatus="output"; units="kg";
-		description = "Mass output of the Generator";
-	}
-	
-	real Loss_r {
-		value = 0; IOstatus="output"; units="W";
-		description = "Generator Loss";
-	}
-	
-	real Loss_j {
-		value = 0; IOstatus="output"; units="W";
-		description = "Generator Loss";
-	}
-	
-	real Vbus_LL {
-		value = 0; IOstatus="input"; units="V";
-		description = "Bus voltage (off-design)";
-	} 
 	
 	real Current {
 		value = 0; IOstatus="input"; //units="Amps";
@@ -68,26 +34,91 @@ class Generator extends Element {
 		value = 0; IOstatus="input"; units="deg";
 		description = "Current Angle";
 	}
+
+	real Eff{
+		value=0.96; IOstatus="input"; //units=None;
+		description = "Projected Efficiency of the Cable";
+	}
+
+	real effBase{
+		value = 1.;  IOstatus = "output";  units = "none";
+		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";	
+	}
+
+	real effDes{
+		value = 1.;  IOstatus = "input";  units = "none";
+		description = "Adiabatic efficiency at design point.";
+	}
 	
 	real frequency {
 		value = 0; IOstatus="input"; units="deg";
 		description = "Generator Frequency";
 	}
-	
-	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-	//------------------------------------------------------------
-	ElectricPort EP_O {
-		description = "Electric port";
+
+	real genResistance {
+		value = 1; IOstatus="input"; units= "W";
+		description = "Resistance of Generator (based on efficiency)";
+	}
+
+	real Loss_j {
+		value = 0; IOstatus="output"; units="W";
+		description = "Generator Loss";
+	}
+
+	real Loss_r {
+		value = 0; IOstatus="output"; units="W";
+		description = "Generator Loss";
+	}
+
+	real Mass {
+		value=0; IOstatus="output"; units="kg";
+		description = "Mass output of the Generator";
+	}
+
+	real Ndes{
+		value = 1.;  IOstatus = "output";  units = "rpm";
+		description = "rotational speed at design";
 	}
 	
-	ShaftOutputPort Sh_O {
-		description = "Mechanical connection to the turbine";
+	real Pout {
+		value = 1.;  IOstatus = "output";  units = "W";
+		description = "Power out of the generator";
 	}
+
+	real Pin {
+		value = 0.;  IOstatus = "input";  units = "W";
+		description = "Power in to the generator";
+	}
+
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=;
+		description = "Power to Weight ratio for the Generator";
+	}
+
+	real Speed {
+		value = 1.;  IOstatus = "input";  //units = RPM;
+		description = "Shaft/generator speed";
+	}
+
+	real trq {
+		value = 1.;  IOstatus = "output";  //units = "";
+		description = "Torque from shaft";
+	}
+
+	real trqDes{
+		value = 1.;  IOstatus = "output";  //units = "";
+		description = "Torque at design";
+	}
+
+	real Vbus_LL {
+		value = 0; IOstatus="input"; units="V";
+		description = "Bus voltage (off-design)";
+	} 
 	
 	//------------------------------------------------------------
-	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//   ******* OPTION VARIABLE SETUP *******
 	//------------------------------------------------------------
+
 	Option switchDes {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
@@ -95,29 +126,101 @@ class Generator extends Element {
 		trigger= FALSE;
 	}
 	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+
+	// FLUID PORTS
+
+	// FUEL PORTS
+
+	// BLEED PORTS
+
+	// THERMAL PORTS
+
+	// 	ELECTRICAL PORTS
+
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	//MECHANICAL PORTS
+	
+	ShaftOutputPort Sh_O {
+		description = "Mechanical connection to the turbine";
+	}
+
+	// FLOW STATIONS 
+
+	// SOCKETS
+
+	Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		//socketType = "MOTOR_GENERATOR_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
+	}
+
+	// TABLES
+	
+	//------------------------------------------------------------
+	// ******* INTERNAL SOLVER SETUP *******
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+
+	void variableChanged(string name, any oldVal){
+		if(name == "switchDes"){
+			if(switchDes == OFFDESIGN){
+				effDes.IOstatus = "output";
+			}
+		}
+	} // end variableChanged()
+	
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+
 	void calculate() {
 		
-		real RealPower=0;
 		real powerfactor=1.0;
 		real Vbus=0;
 		
+		Speed = Sh_O.Nmech;
+		Pout = EP_O.S.r;
+		Current = EP_O.I.mag;
+
 		if (switchDes == "DESIGN" ){
 			/****************************
 			On-design
 			****************************/
+
+			Eff = effDes;
 		
-			RealPower = EP_O.S.r / Eff;	
+			// compute power to the generator
+			Pin = Pout / Eff;
+
+			// get design values 
+			Ndes = Sh_O.Nmech;
+			//trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
+			trqDes = C_HP_PER_RPMtoFT_LBF * (Pin) / Ndes;
 		
 			// determine loss in the generator
-			Loss_r = RealPower - EP_O.S.r;
-			Loss_j= sqrt((RealPower / powerfactor)**2 - RealPower**2);
+			Loss_r = Pin - Pout;
+			Loss_j= sqrt((Pin / powerfactor)**2 - Pin**2);
 		
 			// determine resistance 
-			genResistance =  Loss_r / 3 / EP_O.I.mag**2;
+			genResistance =  Loss_r / 3 / Current**2;
 		
 			// Compute mass based on assumed specific power.  Both Mass
 			// and loses are based on output power (Power Sent)
-			Mass = EP_O.S.r / SpecificPower;
+			Mass = Pout / SpecificPower;
 		}
 		else{
 			/****************************
@@ -125,15 +228,25 @@ class Generator extends Element {
 			****************************/
 			
 			// Supply power is load power + losses
-			RealPower = EP_O.S.r + Loss_r;
+			Pin = Pout / Eff;
 			
 			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
-			Loss_j=sqrt((RealPower / powerfactor)**2 - RealPower**2);
+			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		}
+
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
 		
 		// Generator / Turbine Engine shaft connection
-		real trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
+		//trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
+		trq =  C_HP_PER_RPMtoFT_LBF * (Pin) / Speed;
 		Sh_O.trq = -trq;	
 	}
 	void prePass(){

@@ -35,23 +35,93 @@ class Inverter extends Element {
 		value = 1.0; IOstatus="input"; //units=;
 		description = "Efficiency of the inverter";
 	}
+
+	real effBase {
+		value = 1.;  IOstatus = "output";  units = "none";
+		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+	}
+
+	real effDes {
+		value = 1.;  IOstatus = "input";  units = "none";
+		description = "Adiabatic efficiency at design point.";
+	}
 	
 	real frequency {
 		value = 60.; IOstatus="input"; //units=;
 		description = "Frequency of AC output power";
 	}
-	
-	
-	real Vreal {
-		value = 0.0; IOstatus="input"; //units=;
-		description = "Rectifier Voltage (real)";
+
+	real pwrDes {
+		value = 1.;  IOstatus = "input";  units = "kW";
+		description = "Output power at design";
+	}
+
+	real pwrOut {
+		value = 1.;  IOstatus = "output";  units = "kW";
+		description = "Output power";
 	}
 	
 	real Vimag {
 		value = 0.0; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (imaginary)";
 	}
+
+	real Vreal {
+		value = 0.0; IOstatus="input"; //units=;
+		description = "Rectifier Voltage (real)";
+
+	//------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger= FALSE;
+	}
+	}
 	
+	
+	
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	
+    // FLUID PORTS
+
+    // FUEL PORTS
+
+    // BLEED PORTS
+     
+    // THERMAL PORTS
+
+    //ELECTRICAL PORTS
+
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ElectricPort EP_I {
+		description = "Electric port";
+	}
+
+	// MECHANICAL PORTS
+
+    // FLOW STATIONS
+
+    // SOCKETS
+
+    Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		//socketType = "INVERTER_RECTIFIER_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
+	}
+
+    // TABLES
+
 	//------------------------------------------------------------
 	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
 	//------------------------------------------------------------
@@ -83,30 +153,26 @@ class Inverter extends Element {
 		eq_lhs="EP_O.V.phaseDeg";
 		autoSetup=TRUE;
 	}
-	
-	
+
 	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
-	ElectricPort EP_O {
-		description = "Electric port";
-	}
-	
-	ElectricPort EP_I {
-		description = "Electric port";
-	}
+
+	void variableChanged(string name, any oldVal){
+		if(name == "switchDes"){
+			if(switchDes == OFFDESIGN){
+				effDes.IOstatus = "output";
+			}
+		}
+	} // end variableChanged()
 	
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-		trigger= FALSE;
-	}
 	
 	void calculate() {
+
+		pwrOut = EP_O.S.r;
 		/*
 		// AC power = DC input power * inverter efficiency
 		Sac.copy( "EP_I.S" );
@@ -173,6 +239,20 @@ class Inverter extends Element {
 				
 			
 		}	
+		else{
+			//*****************************
+			// Off-Design
+			//*****************************
+		}	
+
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
 	}
 	
 	//------------------------------------------------------------

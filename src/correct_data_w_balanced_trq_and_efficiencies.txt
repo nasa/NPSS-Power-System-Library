@@ -1,0 +1,96 @@
+************************************************************************************************************************************
+Date:04/01/19    Time:15:07:42    Model:                                                                    converge = 1   CASE:   0 
+Version:          NPSS_2.7.1          Gas Package: GasTbl        iter/pass/Jacb/Broy= 36/ 45/ 3/32        Run by:           jbergeso 
+
+                                        FLOW STATION DATA                                                                               
+                                W        Pt        Tt       ht     FAR       Wc        Ps        Ts      rhos     Aphy      MN      gamt
+St0-St1   Atm.Fl_O         219.74    14.696    518.67   123.95  0.0000   219.74     0.000      0.00  0.000000      0.0  0.0000   1.40052
+St1-St2   Prop.Fl_O        219.74    20.574    574.97   137.46  0.0000   165.25     0.000      0.00  0.000000      0.0  0.0000   1.39944
+St00-St10 TurbineAtm.Fl>   500.00   500.000   2200.00   574.10  0.0200    30.27     0.000      0.00  0.000000      0.0  0.0000   1.30774
+St10-End0 Turb.Fl_O        500.00   476.729   2177.87   567.66  0.0200    31.58     0.000      0.00  0.000000      0.0  0.0000   1.30837
+St2-End   Noz.Fl_O         219.74    20.574    574.97   137.46  0.0000   165.25    14.000    515.05  0.073366    508.3  0.7625   1.39944
+
+                          ELECTRICAL POWER SYSTEM                                                                                       
+                 Pin        Pout         Eff  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j    
+EM1         4374.744    4199.754   9.60E-001    1202.993    -5.64E-002    2105.103    -5.07E-001     323.058     182.281    2118.785    
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+                EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j            
+Cable1          4374.802    4374.744    1202.993    -5.64E-002    2105.103    -5.07E-001    1053.037       0.000       0.000            
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Generators                                                                                                                             
+                     Pin        Pout         Eff  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
+Gen1            4557.085    4374.802   9.60E-001    1200.000         0.000    2105.103    -5.07E-001     336.523     182.283       0.000
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Shafts                                                                                                                                 
+                   trqIn      trqOut       pwrIn                                                                                        
+Turbine_Sha>    5983.572   -5983.581    4557.078                                                                                        
+Propulsor_S>    5514.396   -5514.396    4199.754                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Turbines                                                                                                                               
+                     trq         pwr                                                                                                    
+Turb            5983.572    4557.078                                                                                                    
+                                                                                                                                        
+                                                                                                                                        
+ Compressors                                                                                                                            
+                     trq         pwr                                                                                                    
+Prop           -5514.396   -4199.754                                                                                                    
+
+
+
+
+
+************************************************************************************************************************************
+Date:04/01/19    Time:15:07:42    Model:                                                                    converge = 1   CASE:   0 
+Version:          NPSS_2.7.1          Gas Package: GasTbl        iter/pass/Jacb/Broy=  7/ 13/ 1/ 5        Run by:           jbergeso 
+
+                                        FLOW STATION DATA                                                                               
+                                W        Pt        Tt       ht     FAR       Wc        Ps        Ts      rhos     Aphy      MN      gamt
+St0-St1   Atm.Fl_O         201.49    14.696    518.67   123.95  0.0000   201.48     0.000      0.00  0.000000      0.0  0.0000   1.40052
+St1-St2   Prop.Fl_O        201.49    19.382    563.16   134.62  0.0000   159.19     0.000      0.00  0.000000      0.0  0.0000   1.39966
+St00-St10 TurbineAtm.Fl>   500.00   500.000   2200.00   574.10  0.0200    30.27     0.000      0.00  0.000000      0.0  0.0000   1.30774
+St10-End0 Turb.Fl_O        500.00   483.026   2183.97   569.44  0.0200    31.22     0.000      0.00  0.000000      0.0  0.0000   1.30819
+St2-End   Noz.Fl_O         201.49    19.382    563.16   134.62  0.0000   159.19    14.000    513.14  0.073639    508.3  0.6978   1.39966
+
+                          ELECTRICAL POWER SYSTEM                                                                                       
+                 Pin        Pout         Eff  EP_I.V.mag  EP_I.V.phase  EP_I.I.mag  EP_I.I.phase        Mass      Loss_r      Loss_j    
+EM1         3169.227    3042.458   9.60E-001    1202.551    -4.09E-002    1525.578    -4.92E-001     323.058      95.733    1534.927    
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+                EP_I.S.r    EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j            
+Cable1          3169.257    3169.227    1202.551    -4.09E-002    1525.578    -4.92E-001    1053.037       0.000       0.000            
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Generators                                                                                                                             
+                     Pin        Pout         Eff  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
+Gen1            3301.309    3169.257   9.60E-001    1200.000         0.000    1525.578    -4.92E-001     336.523      95.735       0.000
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Shafts                                                                                                                                 
+                   trqIn      trqOut       pwrIn                                                                                        
+Turbine_Sha>    4513.758   -4513.757    3301.310                                                                                        
+Propulsor_S>    4438.704   -4438.689    3042.458                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+ Turbines                                                                                                                               
+                     trq         pwr                                                                                                    
+Turb            4513.758    3301.310                                                                                                    
+                                                                                                                                        
+                                                                                                                                        
+ Compressors                                                                                                                            
+                     trq         pwr                                                                                                    
+Prop           -4438.689   -3042.448                                                                                                    
+
+
+
+
+
