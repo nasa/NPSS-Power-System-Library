@@ -49,21 +49,21 @@ Element Cable Cable1 {
 }
 
 Element Inverter Inv1 {
-	//Eff = 1.;
+	//Eff = 1.0;
 	effDes = .95;
 	pwrDes = 12000.;
-	frequency=400;
 	#include <modelInverterRectifier.map>
+	frequency=400;
 }
 
 Element Cable Cable2 {
-	length=28.3464/100.; 	
+	length=28.3464/100; 	
 	R=4.3245e-6;
 	L=9.84e-5*length/60./2./PI;
 }
 
 Element Motor EM1 {
-	effDes = .96;
+	 effDes=0.96;
 	 powerfactor=0.9;
 	 SpecificPower=13.0; 
 	 trqDes=55144.0; 

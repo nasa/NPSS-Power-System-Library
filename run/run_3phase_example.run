@@ -76,4 +76,3 @@ cout<< " Power Source  : " << Source.EP_Oa.S.mag << " /_  " << Source.EP_Oa.S.ph
 cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_  " << A1.EP_O.S.phaseDeg << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_  " << A2.EP_O.S.phaseDeg << "\n" << endl;
 cout<<" =============================================== \n" << endl;
-

@@ -7,7 +7,6 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-
 class Rectifier extends Element {
 	
 	//------------------------------------------------------------
@@ -70,7 +69,7 @@ class Rectifier extends Element {
 		value = 0.0; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (real)";
 	}
-
+	
 	//------------------------------------------------------------
     //   ******* OPTION VARIABLE SETUP *******
     //------------------------------------------------------------
@@ -81,7 +80,9 @@ class Rectifier extends Element {
 		rewritableValues = FALSE;
 		trigger= FALSE;
 	}
+
 	
+
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
@@ -119,8 +120,9 @@ class Rectifier extends Element {
 
     // TABLES
 
+	
 	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
 	//------------------------------------------------------------
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
@@ -160,11 +162,11 @@ class Rectifier extends Element {
 			}
 		}
 	} // end variableChanged()
-	
+
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	
+
 	void calculate() {
 		
 		pwrOut = EP_O.S.r;
@@ -224,3 +226,5 @@ class Rectifier extends Element {
 		EP_O.setIVRMS(0,0,EP_I.V.mag * 3 * sqrt(2) / PI, 0);
 	}
 }
+
+

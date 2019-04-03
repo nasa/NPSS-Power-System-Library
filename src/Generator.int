@@ -7,9 +7,6 @@
 // ****************************************************************************
 
 //#include <InterpIncludes.ncp>
-//#include "ElectricPort.prt"
-//#include<MotorGeneratorMap.c>
-//#include<STARCABLmotorGeneratorMap.c>
 class Generator extends Element {
 	
 	//------------------------------------------------------------
@@ -27,7 +24,7 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	//     ******* SETUP VARIABLES ********
 	//------------------------------------------------------------
-
+	
 	real Current {
 		value = 0; IOstatus="input"; //units="Amps";
 		description = "Current";
@@ -39,7 +36,7 @@ class Generator extends Element {
 	}
 
 	real Eff{
-		value=.96; IOstatus="output"; //units=None;
+		value=0.96; IOstatus="input"; //units=None;
 		description = "Projected Efficiency of the Cable";
 	}
 
@@ -52,17 +49,17 @@ class Generator extends Element {
 		value = 1.;  IOstatus = "input";  units = "none";
 		description = "Adiabatic efficiency at design point.";
 	}
-
+	
 	real frequency {
-		value = 0.; IOstatus="input"; units="deg";
+		value = 0; IOstatus="input"; units="deg";
 		description = "Generator Frequency";
 	}
 
 	real genResistance {
-		value = 1; IOstatus="output"; units= "W";
+		value = 1; IOstatus="input"; units= "W";
 		description = "Resistance of Generator (based on efficiency)";
 	}
-	
+
 	real Loss_j {
 		value = 0; IOstatus="output"; units="W";
 		description = "Generator Loss";
@@ -117,7 +114,7 @@ class Generator extends Element {
 		value = 0; IOstatus="input"; units="V";
 		description = "Bus voltage (off-design)";
 	} 
-
+	
 	//------------------------------------------------------------
 	//   ******* OPTION VARIABLE SETUP *******
 	//------------------------------------------------------------
@@ -132,7 +129,7 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
-	
+
 	// FLUID PORTS
 
 	// FUEL PORTS
@@ -146,7 +143,7 @@ class Generator extends Element {
 	ElectricPort EP_O {
 		description = "Electric port";
 	}
-
+	
 	//MECHANICAL PORTS
 	
 	ShaftOutputPort Sh_O {
@@ -185,28 +182,29 @@ class Generator extends Element {
 			}
 		}
 	} // end variableChanged()
-
+	
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
+
 	void calculate() {
 		
 		real powerfactor=1.0;
 		real Vbus=0;
-
+		
 		Speed = Sh_O.Nmech;
 		Pout = EP_O.S.r;
 		Current = EP_O.I.mag;
-		
+
 		if (switchDes == "DESIGN" ){
 			/****************************
 			On-design
 			****************************/
 
 			Eff = effDes;
-
+		
 			// compute power to the generator
-			Pin = Pout / Eff;	
+			Pin = Pout / Eff;
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
@@ -221,23 +219,22 @@ class Generator extends Element {
 			genResistance =  Loss_r / 3 / Current**2;
 		
 			// Compute mass based on assumed specific power.  Both Mass
-			// and losses are based on output power (Power Sent)
+			// and loses are based on output power (Power Sent)
 			Mass = Pout / SpecificPower;
-
 		}
 		else{
-			//*****************************
-			// Off-Design
-			//*****************************
-
+			/****************************
+			Off-design
+			****************************/
+			
 			// Supply power is load power + losses
 			Pin = Pout / Eff;
-
+			
 			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		}
-		
+
 		//set efficiency value
 		if(!S_map.isEmpty()){
 			S_map.execute();
@@ -247,13 +244,11 @@ class Generator extends Element {
 		}
 		Eff = effBase;
 		
-		// Generator and Turbine Engine shaft connection
-		//trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
+		// Generator / Turbine Engine shaft connection
+		//trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
 		trq =  C_HP_PER_RPMtoFT_LBF * (Pin) / Speed;
 		Sh_O.trq = -trq;	
-		
-		
-	} // end calculation section
+	}
 	void prePass(){
 		
 		//real Vbus = Vbus_LL / sqrt(3.);
@@ -261,6 +256,6 @@ class Generator extends Element {
 		EP_O.setIVRMS( 0., 0. , Vbus_LL,  0. );
 	}
 	
-} // end of the Generator element class
+}
 
 
