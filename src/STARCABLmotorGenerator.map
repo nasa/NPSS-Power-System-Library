@@ -9,6 +9,9 @@ Subelement MotorGeneratorMap S_map{
     NmapDes = .5;
     trqMapDes = .488;
 
+    // resulting performance
+    //effMap = 
+
     Table TB_eff(real trqMap, real Nmap){
 
         trqMap = .04{
@@ -82,6 +85,6 @@ Subelement MotorGeneratorMap S_map{
         trqMap.interp = "linear";    //find more accurate case
         trqMap.extrap = "none";
 
-        printExtrap = 0;
+        printExtrap = 1;
     } // end TB_eff  
 } // end S_map

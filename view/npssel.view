@@ -96,7 +96,7 @@ GroupBlock Electrical {
 		titleBody = "\n Shafts"; 
 		compType = "Shaft"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"trqIn","trqOut", "pwrIn"}; 
+		compAttr = {"trqIn","trqOut", "pwrIn","pwrOut","HPX"}; 
 		//showColHeader=FALSE; 	
    }
 
@@ -115,6 +115,22 @@ GroupBlock Electrical {
 		compAttr = {"trq", "pwr"}; 
 		//showColHeader=FALSE; 	
    }
+
+   DColTBlock inverter { 
+		titleBody = "\n Inverters"; 
+		compType = "Inverter"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"pwrOut", "EP_I.S.r","Eff","effBase","effDes"}; 
+		//showColHeader=FALSE; 	
+   }
+
+   DColTBlock rectifier { 
+		titleBody = "\n Rectifiers"; 
+		compType = "Rectifier"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"pwrOut", "EP_I.S.r","Eff","effBase","effDes"}; 
+		//showColHeader=FALSE; 	
+   }
       
    anchor = "motor"; 
    motor.bottom = "cable"; 
@@ -124,6 +140,8 @@ GroupBlock Electrical {
    threephaseyload.bottom = "shaft";
    shaft.bottom = "turbine";
    turbine.bottom = "compressor";
+   compressor.bottom = "inverter";
+   inverter.bottom = "rectifier";
    addGutter = TRUE; 
 }  //end of Electrical Block
 

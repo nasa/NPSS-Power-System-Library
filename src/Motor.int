@@ -236,10 +236,7 @@ class Motor extends Element {
 			// determine resistance 
 			motorResistance =  Loss_r / 3 / Current**2;
 		}
-		
-			// determine resistance 
-			motorResistance =  Loss_r / 3 / EP_I.I.mag**2;
-		}		
+
 		else{	
 			//*****************************
 			// Off-Design
