@@ -249,13 +249,13 @@ class Inverter extends Element {
 			effBase = effDes;
 		}
 		Eff = effBase;
+		cout << EP_I.S.r << EP_O.S.r << endl;
 	}
 	
 	//------------------------------------------------------------
 	// ******* PREPASS FUNCTION *******
 	//------------------------------------------------------------
 	void prePass() {
-        //cout << "Prepass: " << effDes << Eff << effBase << endl;
 		EP_O.setIVRMS(0,0,Vreal,Vimag);
 		EP_I.setIVRMS(0,0,EP_O.V.mag * sqrt(2),0);
 		EP_O.frequency = frequency;

@@ -54,6 +54,8 @@ solver.addIndependent("prop_pwr");
 solver.addDependent("target_pwr");
 cout << solver.list("Independent", TRUE) << endl;
 cout << solver.list("Dependent", TRUE) << endl;
+solver.diagnosticFile = "mySolverOutput";
+solver.debugLevel = "ITERATION_DETAILS";
 run();
 
 page.display();  // output data to out file
