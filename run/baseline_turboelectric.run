@@ -1,0 +1,111 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+// Make GasTbl the default thermopackage
+#ifndef THERMO
+#define THERMO GasTbl
+#endif
+
+//include the power train components 
+//#include "PTE_Viewer.view"
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// add in electric port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+//model file
+#include "baseline_turboelectric.mdl"
+
+/************************
+On design
+************************/
+setOption("switchDes","DESIGN"); 
+autoSolverSetup();
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "solver.bad";
+solver.maxIterations=5000;
+solver.maxJacobians=500;
+Independent prop_pwr{varName = "Prop.pwr";}
+Dependent target_pwr{
+  eq_lhs = "15000.";
+  eq_rhs = "Turb.pwr";
+}
+solver.addIndependent("prop_pwr");
+solver.addDependent("target_pwr");
+cout << solver.list("Independent", TRUE) << endl;
+cout << solver.list("Dependent", TRUE) << endl;
+run();
+
+page.display();  // output data to out file
+//page_runtime.display(); // output data to cmd window
+real Turb_speed = Turb.Np;
+//cout << Turb_speed << endl;
+
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+//cout<<Inv1.EP_O.frequency<<endl;
+
+/************************
+Off design
+************************/
+
+setOption("switchDes","OFFDESIGN"); 
+autoSolverSetup();
+
+Independent ind_AtmW{
+  varName = "Atm.W";
+}
+
+Independent burner_FAR{varName = "TurbineAtm.W";}
+Dependent part_power{
+  eq_lhs = "Turb.pwr";
+  eq_rhs = "5000.";
+}
+
+Dependent corr_speed{
+  //eq_lhs = "Turb_speed";
+  eq_lhs = "84.";
+  eq_rhs = "Turb.Np";
+}
+
+Dependent set_pwr{
+  eq_lhs = "Prop.pwr";
+  eq_rhs = "5000";
+}
+solver.addIndependent( "ind_AtmW" );
+
+solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
+
+//Propulsor_Shaft.Nmech*=.9;
+
+solver.addDependent("corr_speed");
+
+solver.addIndependent("prop_pwr");
+//solver.addDependent("part_power");
+solver.maxIterations = 10000;
+
+run();
+
+page.display();  // output data to out file
+//page_runtime.display(); // output data to cmd window
+
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
