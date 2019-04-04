@@ -188,7 +188,6 @@ class Generator extends Element {
 	//------------------------------------------------------------
 
 	void calculate() {
-		
 		real powerfactor=1.0;
 		real Vbus=0;
 		

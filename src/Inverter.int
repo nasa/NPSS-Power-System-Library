@@ -62,12 +62,12 @@ class Inverter extends Element {
 	}
 	
 	real Vimag {
-		value = 0.0; IOstatus="input"; //units=;
+		value = 1.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (imaginary)";
 	}
 
 	real Vreal {
-		value = 0.0; IOstatus="input"; //units=;
+		value = 1.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (real)";
 	}
 
