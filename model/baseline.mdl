@@ -25,6 +25,7 @@ Element Generator Gen1 {
 	Eff=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
+	#include <STARCABLmotorGenerator.map>
 }
 
 Element Cable Cable1 {
@@ -37,9 +38,10 @@ Element Motor EM1 {
 	 Eff=0.96;
 	 powerfactor=0.9;
 	 SpecificPower=13.0; 
-	 Torque=55144.0; 
+	 trq=55144.0; 
 	 frequency = 400.;
 	 Vreal = 1000.;
+	 #include <STARCABLmotorGenerator.map>
 }
 
 

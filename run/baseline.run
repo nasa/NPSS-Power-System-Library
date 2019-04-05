@@ -34,6 +34,9 @@ fine, imprisonment, or both.
 
 //model file
 #include "baseline.mdl"
+Turb.PRbase = 1.0449;
+EM1.Vimag = -6.5081e+001;
+EM1.Vreal = 1.2012e+003;
 
 /************************
 On design
@@ -43,6 +46,10 @@ autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
+
+solver.diagnosticFile = "no_rect_inv_mySolverOutput";
+solver.debugLevel = "ITERATION_DETAILS";
+
 solver.maxIterations=300;
 
 run();
@@ -52,7 +59,7 @@ page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
 
-
+quit();
 /************************
 Off design
 ************************/

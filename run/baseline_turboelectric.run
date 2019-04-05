@@ -38,6 +38,15 @@ fine, imprisonment, or both.
 /************************
 On design
 ************************/
+Turb.PRbase = 1.1723e+000;
+EM1.Vimag = -2.1149e+000;
+EM1.Vreal = 1.1472e+003;
+Rect1.Vimag = -2.2613e+000;
+Rect1.Vreal = 1.2012e+003;
+Inv1.Vimag = 1.3341e-026;
+Inv1.Vreal = 1.1471e+003;
+Prop.pwr = 1.2503e+004;
+
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
@@ -53,11 +62,14 @@ Dependent target_pwr{
 }
 solver.addIndependent("prop_pwr");
 solver.addDependent("target_pwr");
+solver.diagnosticFile = "mySolverOutput";
+solver.debugLevel = "ITERATION_DETAILS";
 
 run();
 
 page.display();  // output data to out file
-page_runtime.display(); // output data to cmd window
+quit();
+//page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
@@ -97,7 +109,7 @@ solver.maxIterations = 10000;
 run();
 
 page.display();  // output data to out file
-page_runtime.display(); // output data to cmd window
+//page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
 
