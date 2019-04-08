@@ -128,7 +128,6 @@ class Generator extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger= FALSE;
 	}
 	
 	//------------------------------------------------------------
@@ -178,23 +177,25 @@ class Generator extends Element {
 
 	Independent ind_trqTemp {
 		varName = "trqTemp";
-		autoSetup = FALSE;
 		description = "Varies temporary torque to match calculated torque for map";
 	}
 
 	Dependent dep_trq_map {
 		eq_lhs = "trqTemp";
 		eq_rhs = "trq";
-		autoSetup = FALSE;
 	}
 
 	//------------------------------------------------------------
 	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
 
-	void variableChanged(string name, any oldVal){
-		if(name == "switchDes"){
-			if(switchDes == OFFDESIGN){
+	void variableChanged( string name, any oldVal ) {
+		if (name =="switchDes") {
+			if (switchDes == DESIGN) {
+				ind_trqTemp.autoSetup = FALSE;
+				dep_trq_map.autoSetup = FALSE;
+			}
+			else if (switchDes == OFFDESIGN) {
 				effDes.IOstatus = "output";
 				ind_trqTemp.autoSetup = TRUE;
 				dep_trq_map.autoSetup = TRUE;

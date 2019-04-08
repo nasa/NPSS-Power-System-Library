@@ -129,7 +129,6 @@ class Motor extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger = FALSE;
 	}
 	
 	//------------------------------------------------------------
@@ -193,14 +192,12 @@ class Motor extends Element {
 
 	Independent ind_trqTemp {
 		varName = "trqTemp";
-		autoSetup = TRUE;
 		description = "Varies temporary torque to match calculated torque for map";
 	}
 
 	Dependent dep_trq_map {
 		eq_lhs = "trqTemp";
 		eq_rhs = "trq";
-		autoSetup = TRUE;
 	}
 
 	//------------------------------------------------------------
@@ -215,6 +212,8 @@ class Motor extends Element {
 			}
 			if(switchDes == OFFDESIGN){
 				effDes.IOstatus = "output";
+				ind_trqTemp.autoSetup = TRUE;
+				dep_trq_map.autoSetup = TRUE;
 			}
 		}
 	} // end variableChanged()
