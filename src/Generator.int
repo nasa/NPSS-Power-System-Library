@@ -26,7 +26,7 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	
 	real Current {
-		value = 0; IOstatus="input"; //units="Amps";
+		value = 1.; IOstatus="input"; //units="Amps";
 		description = "Current";
 	} 
 	
@@ -36,7 +36,7 @@ class Generator extends Element {
 	}
 
 	real Eff{
-		value=0.96; IOstatus="input"; //units=None;
+		value=1.; IOstatus="input"; //units=None;
 		description = "Projected Efficiency of the Cable";
 	}
 
@@ -56,22 +56,22 @@ class Generator extends Element {
 	}
 
 	real genResistance {
-		value = 1; IOstatus="input"; units= "W";
+		value = 1; IOstatus="input"; units= "kW";
 		description = "Resistance of Generator (based on efficiency)";
 	}
 
 	real Loss_j {
-		value = 0; IOstatus="output"; units="W";
+		value = 0; IOstatus="output"; units="kW";
 		description = "Generator Loss";
 	}
 
 	real Loss_r {
-		value = 0; IOstatus="output"; units="W";
+		value = 0; IOstatus="output"; units="kW";
 		description = "Generator Loss";
 	}
 
 	real Mass {
-		value=0; IOstatus="output"; units="kg";
+		value=1.; IOstatus="output"; units="kg";
 		description = "Mass output of the Generator";
 	}
 
@@ -81,12 +81,12 @@ class Generator extends Element {
 	}
 	
 	real Pout {
-		value = 1.;  IOstatus = "output";  units = "W";
+		value = 1.;  IOstatus = "output";  units = "kW";
 		description = "Power out of the generator";
 	}
 
 	real Pin {
-		value = 0.;  IOstatus = "input";  units = "W";
+		value = 1.;  IOstatus = "input";  units = "kW";
 		description = "Power in to the generator";
 	}
 
@@ -108,6 +108,11 @@ class Generator extends Element {
 	real trqDes{
 		value = 1.;  IOstatus = "output";  //units = "";
 		description = "Torque at design";
+	}
+
+	real trqTemp{
+		value = 1.;  IOstatus = "output";  //units = "";
+		description = "Temporary torque which the solver drives to match actual torque";
 	}
 
 	real Vbus_LL {
@@ -171,6 +176,18 @@ class Generator extends Element {
 	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
 	//------------------------------------------------------------
 
+	Independent ind_trqTemp {
+		varName = "trqTemp";
+		autoSetup = FALSE;
+		description = "Varies temporary torque to match calculated torque for map";
+	}
+
+	Dependent dep_trq_map {
+		eq_lhs = "trqTemp";
+		eq_rhs = "trq";
+		autoSetup = FALSE;
+	}
+
 	//------------------------------------------------------------
 	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
@@ -179,6 +196,8 @@ class Generator extends Element {
 		if(name == "switchDes"){
 			if(switchDes == OFFDESIGN){
 				effDes.IOstatus = "output";
+				ind_trqTemp.autoSetup = TRUE;
+				dep_trq_map.autoSetup = TRUE;
 			}
 		}
 	} // end variableChanged()
@@ -207,8 +226,9 @@ class Generator extends Element {
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
-			//trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
-			trqDes = C_HP_PER_RPMtoFT_LBF * (Pin) / Ndes;
+			trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
+			trqTemp = trqDes;
+			trq = trqDes;
 		
 			// determine loss in the generator
 			Loss_r = Pin - Pout;
@@ -221,7 +241,17 @@ class Generator extends Element {
 			// and loses are based on output power (Power Sent)
 			Mass = Pout / SpecificPower;
 		}
+
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
 		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
+
+		if (switchDes == "OFFDESIGN" ){
 			/****************************
 			Off-design
 			****************************/
@@ -233,19 +263,9 @@ class Generator extends Element {
 			Loss_r = 3 * Current**2 * genResistance;
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		}
-
-		//set efficiency value
-		if(!S_map.isEmpty()){
-			S_map.execute();
-		}
-		else{
-			effBase = effDes;
-		}
-		Eff = effBase;
 		
 		// Generator / Turbine Engine shaft connection
-		//trq =  C_HP_PER_RPMtoFT_LBF * (RealPower / 0.745699872) / Sh_O.Nmech;
-		trq =  C_HP_PER_RPMtoFT_LBF * (Pin) / Speed;
+		trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
 		Sh_O.trq = -trq;	
 	}
 	void prePass(){

@@ -28,12 +28,12 @@ class Motor extends Element {
 	//------------------------------------------------------------
 	
 	real Current {
-		value = 0; IOstatus="input"; //units="Amps";
+		value = 1.; IOstatus="input"; //units="Amps";
 		description = "Current";
 	} 
 
 	real CurrentAngle_Demand {
-		value = 0; IOstatus="output"; units="W";
+		value = 0; IOstatus="output"; units="kW";
 		description = "Current Angle for the motor";
 	}
 	
@@ -54,22 +54,22 @@ class Motor extends Element {
 	} 
 	
 	real Loss_j {
-		value = 0; //IOstatus=OUTPUT; units="W";
+		value = 0; //IOstatus=OUTPUT; units="kW";
 		description = "Motor Loss";
 	}
 
 	real Loss_r {
-		value = 0; //IOstatus=OUTPUT; units="W";
+		value = 0; //IOstatus=OUTPUT; units="kW";
 		description = "Motor Loss";
 	}
 
 	real Mass {
-		value=0; IOstatus="output"; units="kg";
+		value=1.; IOstatus="output"; units="kg";
 		description = "Mass output of the motor";
 	}
 
 	real motorResistance {
-		value = 0; IOstatus="output"; units= "W";
+		value = 1.; IOstatus="output"; units= "kW";
 		description = "Resistance of the motor based on losses";
 	} 
 
@@ -79,17 +79,17 @@ class Motor extends Element {
 	}
 
 	real Pout{
-		value = 0.;  IOstatus = "output";  units = "W";
+		value = 1.;  IOstatus = "output";  units = "kW";
 		description = "Power out of the motor";
 	}
 
 	real Pin{
-		value = 0.;  IOstatus = "output";  units = "W";
+		value = 1.;  IOstatus = "output";  units = "kW";
 		description = "Power in to the motor";
 	}
 
 	real powerfactor {
-		value = 1; //IOstatus=OUTPUT; units="W";
+		value = 1; //IOstatus=OUTPUT; units="kW";
 		description = "Motor Loss";
 	}
 	
@@ -99,18 +99,23 @@ class Motor extends Element {
 	}
 	
 	real Speed{
-		value=0; IOstatus="input"; //units=rpm;
+		value=1.; IOstatus="input"; //units=rpm;
 		description = "Propulsor Speed";
 	}
 
 	real trq{
-		value=0; IOstatus="output"; //units=rpm;
+		value=1.; IOstatus="output"; //units=rpm;
 		description = "Propulsor Torque";
 	}
 
 	real trqDes{
 		value = 1.;  IOstatus = "output";  //units = "";
 		description = "Torque at design";
+	}
+
+	real trqTemp{
+		value = 1.;  IOstatus = "output";  //units = "";
+		description = "Temporary torque which the solver drives to match actual torque";
 	}
 	
 	real frequency;
@@ -186,12 +191,28 @@ class Motor extends Element {
 		description = "Varies the imaginary component of the motor voltage";
 	}
 
+	Independent ind_trqTemp {
+		varName = "trqTemp";
+		autoSetup = TRUE;
+		description = "Varies temporary torque to match calculated torque for map";
+	}
+
+	Dependent dep_trq_map {
+		eq_lhs = "trqTemp";
+		eq_rhs = "trq";
+		autoSetup = TRUE;
+	}
+
 	//------------------------------------------------------------
 	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
 
 	void variableChanged(string name, any oldVal){
 		if(name == "switchDes"){
+			if(switchDes == DESIGN){
+				ind_trqTemp.autoSetup = FALSE;
+				dep_trq_map.autoSetup = FALSE;
+			}
 			if(switchDes == OFFDESIGN){
 				effDes.IOstatus = "output";
 			}
@@ -201,8 +222,6 @@ class Motor extends Element {
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	
-	
 	
 	void calculate() {
 		
@@ -226,8 +245,9 @@ class Motor extends Element {
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
-			//trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
-			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF / Ndes );
+			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
+			trqTemp = trqDes;
+			trq = trqDes;
 
 			// compute losses
 			Loss_r=Pin * (1.0 / Eff - 1.0);
@@ -237,7 +257,17 @@ class Motor extends Element {
 			motorResistance =  Loss_r / 3 / Current**2;
 		}
 
-		else{	
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+
+		Eff = effBase;
+
+		if ( switchDes == "OFFDESIGN" ){	
 			//*****************************
 			// Off-Design
 			//*****************************
@@ -250,23 +280,11 @@ class Motor extends Element {
 			Loss_r = 3 * Current**2 * motorResistance;
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		}
-
-		//set efficiency value
-		if(!S_map.isEmpty()){
-			S_map.execute();
-			//cout << "I have a map!" << endl;
-		}
-		else{
-			effBase = effDes;
-			//cout << " I don't have a map!" << endl;
-		}
-		Eff = effBase;
 		
 		CurrentAngle_Demand = EP_I.V.phaseDeg - acos(powerfactor) * 180/PI;
 		
 		// Motor and Propulsor shaft connection
-		//trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
-		trq = ( C_HP_PER_RPMtoFT_LBF * (Pout) / Speed );
+		trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
 		Sh_O.trq=trq;
 
 	} // end calculation section
