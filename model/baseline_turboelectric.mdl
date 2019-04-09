@@ -35,10 +35,10 @@ Element Cable Cable3 {
 }
 
 Element Rectifier Rect1 {
-	//Eff = 1.0;
 	effDes = .95;
 	pwrDes = 12000.;
 	#include <modelInverterRectifier.map>
+	frequency = 400.;
 }
 
 
@@ -49,7 +49,6 @@ Element Cable Cable1 {
 }
 
 Element Inverter Inv1 {
-	//Eff = 1.0;
 	effDes = .95;
 	pwrDes = 12000.;
 	#include <modelInverterRectifier.map>
@@ -190,7 +189,7 @@ solverSequence.append( "Inv1" );
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "soler.bad";
 
-
+/*
 Inv1{
   Vreal = 1020;  //guess value
   Vimag = 0;  //guess value		
@@ -201,3 +200,4 @@ Rect1{
   Vreal = 1100;  //guess value
   Vimag = 0;  //guess value		
 }
+*/

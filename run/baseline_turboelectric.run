@@ -38,22 +38,14 @@ fine, imprisonment, or both.
 /************************
 On design
 ************************/
-Turb.PRbase = 1.1723e+000;
-EM1.Vimag = -2.1149e+000;
-EM1.Vreal = 1.1472e+003;
-Rect1.Vimag = -2.2613e+000;
-Rect1.Vreal = 1.2012e+003;
-Inv1.Vimag = 1.3341e-026;
-Inv1.Vreal = 1.1471e+003;
-Prop.pwr = 1.2503e+004;
 
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
-solver.maxIterations=1000;
-solver.maxJacobians=500;
+solver.maxIterations=10000;
+solver.maxJacobians=5000;
 
 Independent prop_pwr{varName = "Prop.pwr";}
 Dependent target_pwr{
@@ -68,12 +60,11 @@ solver.debugLevel = "ITERATION_DETAILS";
 run();
 
 page.display();  // output data to out file
-quit();
+
 //page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
-cout<<Inv1.EP_O.frequency<<endl;
 
 /************************
 Off design
@@ -85,11 +76,7 @@ autoSolverSetup();
 Independent ind_AtmW{
   varName = "Atm.W";
 }
-Independent burner_FAR{varName = "TurbineAtm.W";}
-Dependent part_power{
-  eq_lhs = "Turb.pwr";
-  eq_rhs = "5000.";
-}
+
 Dependent corr_speed{
   //eq_lhs = "Turb_speed";
   eq_lhs = "84.";

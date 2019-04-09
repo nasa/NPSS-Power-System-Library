@@ -7,7 +7,7 @@
 // Variables that exist in the parent Motor or Generator element 
 // and are used in this subelement.
 extern real Speed;
-extern real trq;
+extern real trqTemp;
 extern real Ndes;
 extern real trqDes;
 extern real effDes;
@@ -156,7 +156,7 @@ class MotorGeneratorMap extends Subelement{
     void calculate(){
 
         if(switchDes == DESIGN){
-
+            //cout << "top " << effMapDes << endl;
             // set map values at design point
             Nmap = NmapDes;
             trqMap = trqMapDes;
@@ -173,11 +173,12 @@ class MotorGeneratorMap extends Subelement{
         // OFFDESIGN calculations:
         // calculate map values
         Nmap = Speed / s_Ndes;
-        trqMap = trq / s_trqDes;
+        trqMap = trqTemp / s_trqDes;
         effMap = TB_eff(trqMap, Nmap);
         
         //set efficiency to send to parent element
         effBase = effMap * s_effDes;
+        //cout << "bottom " << effDes << endl;
 
     } // end of calculations
 } // end of MotorGeneratorMap subelement class

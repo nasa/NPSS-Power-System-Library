@@ -67,7 +67,7 @@ class Inverter extends Element {
 	}
 
 	real Vreal {
-		value = 1.; IOstatus="input"; //units=;
+		value = 1000.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (real)";
 	}
 
@@ -79,7 +79,6 @@ class Inverter extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger= FALSE;
 	}
 	
 	
@@ -129,7 +128,7 @@ class Inverter extends Element {
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		
 		description = "Varies the real component of the inverter voltage";
 	}
@@ -138,7 +137,7 @@ class Inverter extends Element {
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		description = "Varies the imaginary component of the inverter voltage";
 	}
 	
@@ -235,7 +234,7 @@ class Inverter extends Element {
 		
 		if (switchDes == "DESIGN" ){
 			/****************************
-			On-design
+				On-design
 			****************************/
 				
 			
@@ -245,7 +244,8 @@ class Inverter extends Element {
 			// Off-Design
 			//*****************************
 		}	
-
+		//cout << "Out of inverter: " << pwrOut << endl;
+		//cout << "top: " << effBase << ":::" << pwrOut << endl;
 		//set efficiency value
 		if(!S_map.isEmpty()){
 			S_map.execute();
@@ -255,6 +255,8 @@ class Inverter extends Element {
 		}
 		Eff = effBase;
 	}
+	
+	
 	
 	//------------------------------------------------------------
 	// ******* PREPASS FUNCTION *******

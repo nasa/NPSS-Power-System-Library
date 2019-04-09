@@ -117,9 +117,18 @@ class Motor extends Element {
 		value = 1.;  IOstatus = "output";  //units = "";
 		description = "Temporary torque which the solver drives to match actual torque";
 	}
+
+	real Vreal{
+		value = 1000.;  IOstatus = "output";  //units = "";
+		description = "Real portion of voltage";
+	}
+
+	real Vimag{
+		value = -1.;  IOstatus = "output";  //units = "";
+		description = "Imaginary portion of voltage";
+	}
 	
 	real frequency;
-	real Vreal, Vimag;
 	
 	//------------------------------------------------------------
 	//   ******* OPTION VARIABLE SETUP *******
@@ -227,6 +236,7 @@ class Motor extends Element {
 		Speed=Sh_O.Nmech;
 		//EP_I.copyport();
 		Pin = EP_I.S.r;
+		//cout << "into motor: " << Pin << endl;
 		Current = EP_I.I.mag;
 		
 		if ( switchDes == "DESIGN" ){

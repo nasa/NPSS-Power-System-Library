@@ -6,7 +6,7 @@
 Subelement InverterRectifierMap S_map{
 
     // default design point location
-    pwrMapDes = .2;
+    pwrMapDes = .75;
 
     // resulting performance
     //effMap = 

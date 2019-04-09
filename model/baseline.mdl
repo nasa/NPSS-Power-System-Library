@@ -22,7 +22,7 @@ Electric Power System Components
 **************************/
 Element Generator Gen1 {
 	Vbus_LL=1200;	
-	Eff=0.96;
+	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
 	#include <STARCABLmotorGenerator.map>
@@ -35,7 +35,7 @@ Element Cable Cable1 {
 }
 
 Element Motor EM1 {
-	 Eff=0.96;
+	 effDes=0.96;
 	 powerfactor=0.9;
 	 SpecificPower=13.0; 
 	 trq=55144.0; 

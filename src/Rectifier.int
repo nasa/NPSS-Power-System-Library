@@ -61,12 +61,12 @@ class Rectifier extends Element {
 	}
 
 	real Vimag {
-		value = 0.; IOstatus="input"; //units=;
+		value = -1.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (imaginary)";
 	}
 	
 	real Vreal {
-		value = 0.; IOstatus="input"; //units=;
+		value = 1000.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (real)";
 	}
 	
@@ -78,7 +78,6 @@ class Rectifier extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger= FALSE;
 	}
 
 	
@@ -195,27 +194,28 @@ class Rectifier extends Element {
 		EP_O.frequency=0;
 		*/
 		
-		if (switchDes == "DESIGN" ){
-			/****************************
-			On-design
-			****************************/
+		//if (switchDes == "DESIGN" ){
+		//	/****************************
+		//	On-design
+		//	****************************/
 				
 			
-		}	
-		else{
-			//*****************************
-			// Off-Design
-			//*****************************
-		}	
+		//}	
+		//else{
+		//	//*****************************
+		//	// Off-Design
+		//	//*****************************
+		//}	
 
 		//set efficiency value
-		if(!S_map.isEmpty()){
-			S_map.execute();
-		}
-		else{
-			effBase = effDes;
-		}
-		Eff = effBase;
+		//if(!S_map.isEmpty()){
+		//	S_map.execute();
+		//}
+		//else{
+		//	effBase = effDes;
+		//}
+		//Eff = effBase;
+		Eff = effDes;
 	}
 	
 	//------------------------------------------------------------

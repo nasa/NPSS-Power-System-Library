@@ -150,7 +150,6 @@ class InverterRectifierMap extends Subelement{
             // calculate map scalars
             s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
             s_pwrDes = pwrDes / pwrMapDes; // pwrDes is from parent element, pwrMapDes is from map input value            
-
         } // end of DESIGN calculations
 
         // OFFDESIGN calculations:
