@@ -25,40 +25,67 @@ class Cable extends Element {
 	//     ******* SETUP VARIABLES ********
 	//------------------------------------------------------------
 	
-	real R;
-    
-	real L;
-    
-    real length;
-	
-	ComplexNumber dV;
-	ComplexNumber Z;
-	ComplexNumber I;
-	
-	real SpecificAmperage {
-	value = 170.; IOstatus="input"; //units=;
-	description = "Amps to Weight/length ratio for the cable";
+	real R{
+		value = .01;  IOstatus = "input";  units = OHM;
 	}
-	
+    
+	real L{
+		value = .0000796;  IOstatus = "input";  //units = H_PER_FT;
+	}
+    
+    real length{
+		value = 1.;  IOstatus = "input";  units = M;
+	}
+
+	// Will add losses in future releases.
+	real Loss_j {
+		value = 0; IOstatus="output"; units=W;
+		description = "Cable Loss";
+	}
+
+	real Loss_r {
+		value = 0; IOstatus="output"; units=W;
+		description = "Cable Loss";
+	}
+
 	real Mass {
-		value=0; IOstatus="output"; //units="kg";
+		value=0; IOstatus="output"; //units=KG;
 		description = "Mass output of the cable";
 	}
 	
-	// Will add losses in future releases.
-	real Loss_r {
-		value = 0; IOstatus="output"; units="W";
-		description = "Cable Loss";
+	real SpecificAmperage {
+	value = 170.; IOstatus="input"; //units=amp * m / kg;
+	description = "Amps to Weight/length ratio for the cable";
 	}
-	
-	real Loss_j {
-		value = 0; IOstatus="output"; units="W";
-		description = "Cable Loss";
+
+	ComplexNumber dV;
+	ComplexNumber Z;
+	ComplexNumber I;
+
+	//------------------------------------------------------------
+	//   ******* OPTION VARIABLE SETUP *******
+	//------------------------------------------------------------
+
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger=FALSE;
 	}
 	
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------	
+	// FLUID PORTS
+
+	// FUEL PORTS
+
+	// BLEED PORTS
+
+	// THERMAL PORTS
+
+	// 	ELECTRICAL PORTS
+
 	ElectricOutputPort EP_O {
 		description = "Electric port";
 	}
@@ -67,13 +94,39 @@ class Cable extends Element {
 	ElectricInputPort EP_I {
 		description = "Electric Port";
 	}
-	
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-		trigger=FALSE;
-	}
+
+	//MECHANICAL PORTS
+
+	// FLOW STATIONS 
+
+	// SOCKETS
+
+	// TABLES
+
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+
+	void variableChanged( string name, any oldVal ) {
+		if (name =="switchDes") {
+			if (switchDes == DESIGN) {
+				R.IOstatus = INPUT;
+				L.IOstatus = INPUT;
+				length.IOstatus = INPUT;
+				SpecificAmperage.IOstatus = INPUT;
+			}
+			else if (switchDes == OFFDESIGN) {
+				R.IOstatus = OUTPUT;
+				L.IOstatus = OUTPUT;
+				length.IOstatus = OUTPUT;
+				SpecificAmperage.IOstatus = OUTPUT;
+			}
+		}
+	} // end variableChanged()
+
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
 	
 	void calculate() {
 		

@@ -26,7 +26,7 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	
 	real Current {
-		value = 1.; IOstatus="input"; //units="Amps";
+		value = 1.; IOstatus="input"; units="A";
 		description = "Current";
 	} 
 	
@@ -36,7 +36,7 @@ class Generator extends Element {
 	}
 
 	real Eff{
-		value=1.; IOstatus="input"; //units=None;
+		value=1.; IOstatus="input"; units = "none";
 		description = "Projected Efficiency of the Cable";
 	}
 
@@ -91,27 +91,27 @@ class Generator extends Element {
 	}
 
 	real SpecificPower {
-		value = 13; IOstatus="input"; //units=;
+		value = 13; IOstatus="input"; //units=KW_PER_KG;
 		description = "Power to Weight ratio for the Generator";
 	}
 
 	real Speed {
-		value = 1.;  IOstatus = "input";  //units = RPM;
+		value = 1.;  IOstatus = "input";  units = "rpm";
 		description = "Shaft/generator speed";
 	}
 
 	real trq {
-		value = 1.;  IOstatus = "output";  //units = "";
+		value = 1.;  IOstatus = "output";  units = "ft*lbf";
 		description = "Torque from shaft";
 	}
 
 	real trqDes{
-		value = 1.;  IOstatus = "output";  //units = "";
+		value = 1.;  IOstatus = "output";  units = "ft*lbf";
 		description = "Torque at design";
 	}
 
 	real trqTemp{
-		value = 1.;  IOstatus = "output";  //units = "";
+		value = 1.;  IOstatus = "output";  units = "ft*lbf";
 		description = "Temporary torque which the solver drives to match actual torque";
 	}
 

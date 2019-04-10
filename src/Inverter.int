@@ -32,17 +32,17 @@ class Inverter extends Element {
 	ComplexNumber Vdc;
 	
 	real Eff {
-		value = 1.0; IOstatus="input"; //units=;
+		value = 1.0; IOstatus="input"; units=NONE;
 		description = "Efficiency of the inverter";
 	}
 
 	real effBase {
-		value = 1.;  IOstatus = "output";  units = "none";
+		value = 1.;  IOstatus = "output";  units = NONE;
 		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
 	}
 
 	real effDes {
-		value = 1.;  IOstatus = "input";  units = "none";
+		value = 1.;  IOstatus = "input";  units = NONE;
 		description = "Adiabatic efficiency at design point.";
 	}
 	
@@ -244,8 +244,6 @@ class Inverter extends Element {
 			// Off-Design
 			//*****************************
 		}	
-		//cout << "Out of inverter: " << pwrOut << endl;
-		//cout << "top: " << effBase << ":::" << pwrOut << endl;
 		//set efficiency value
 		if(!S_map.isEmpty()){
 			S_map.execute();

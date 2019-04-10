@@ -31,7 +31,7 @@ class Rectifier extends Element {
 	ComplexNumber Vdc;
 		
 	real Eff {
-		value = 1.0; IOstatus="input"; //units=;
+		value = 1.0; IOstatus="input"; units= NONE;
 		description = "Efficiency of the rectifier";
 	}
 
@@ -194,28 +194,27 @@ class Rectifier extends Element {
 		EP_O.frequency=0;
 		*/
 		
-		//if (switchDes == "DESIGN" ){
-		//	/****************************
-		//	On-design
-		//	****************************/
+		if (switchDes == "DESIGN" ){
+			/****************************
+			On-design
+			****************************/
 				
 			
-		//}	
-		//else{
-		//	//*****************************
-		//	// Off-Design
-		//	//*****************************
-		//}	
+		}	
+		else{
+			//*****************************
+			// Off-Design
+			//*****************************
+		}	
 
 		//set efficiency value
-		//if(!S_map.isEmpty()){
-		//	S_map.execute();
-		//}
-		//else{
-		//	effBase = effDes;
-		//}
-		//Eff = effBase;
-		Eff = effDes;
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
 	}
 	
 	//------------------------------------------------------------
