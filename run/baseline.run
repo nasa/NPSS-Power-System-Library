@@ -35,18 +35,12 @@ fine, imprisonment, or both.
 //model file
 #include "baseline.mdl"
 Turb.PRbase = 1.0488e+000;
-Gen1.trqTemp = 5.9836e+003;
-EM1.Vimag = -5.0553e+001;
-EM1.trqTemp = 5.5144e+003;
-EM1.Vreal = 1.2015e+003;
+EM1.Vimag = -1.3413e+002;
+EM1.Vreal = 1.1947e+003;
 
 /************************
 On design
 ************************/
-
-Turb.PRbase = 1.0488e+000;
-EM1.Vimag = -5.0553e+001;
-EM1.Vreal = 1.2015e+003;
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 

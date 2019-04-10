@@ -190,7 +190,7 @@ class Motor extends Element {
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		
 		description = "Varies the real component of the motor voltage";
 	}
@@ -198,7 +198,7 @@ class Motor extends Element {
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		description = "Varies the imaginary component of the motor voltage";
 	}
 
@@ -239,7 +239,6 @@ class Motor extends Element {
 		Speed=Sh_O.Nmech;
 		//EP_I.copyport();
 		Pin = EP_I.S.r;
-		//cout << "into motor: " << Pin << endl;
 		Current = EP_I.I.mag;
 		
 		if ( switchDes == "DESIGN" ){

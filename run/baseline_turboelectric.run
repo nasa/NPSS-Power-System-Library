@@ -39,6 +39,11 @@ fine, imprisonment, or both.
 On design
 ************************/
 
+/*Turb.PRbase = 
+EM1.Vimag = 
+EM1.Vreal = 
+*/
+
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
@@ -46,20 +51,24 @@ solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
-
+/*
 Independent prop_pwr{varName = "Prop.pwr";}
 Dependent target_pwr{
   eq_lhs = "15000.";
   eq_rhs = "Turb.pwr";
 }
-solver.addIndependent("prop_pwr");
-solver.addDependent("target_pwr");
+*/
+//solver.addIndependent("prop_pwr");
+//solver.addDependent("target_pwr");
 solver.diagnosticFile = "mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
+//solver.clear();
 
 run();
 
 page.display();  // output data to out file
+
+quit();
 
 //page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;

@@ -126,7 +126,7 @@ class Rectifier extends Element {
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
 		autoSetup = TRUE;
-		indepRef = "10000";
+		indepRef = "1000";
 		
 		description = "Varies the real component of the inverter voltage";
 	}
@@ -134,7 +134,7 @@ class Rectifier extends Element {
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
-		indepRef = "10000";
+		indepRef = "1000";
 		description = "Varies the imaginary component of the inverter voltage";
 	}
 	
@@ -144,7 +144,7 @@ class Rectifier extends Element {
 		autoSetup=TRUE;
 	}
 	
-	Dependent dep_Power_factor{
+	Dependent dep_phase{
 		eq_rhs="EP_I.V.phaseDeg";
 		eq_lhs="EP_I.I.phaseDeg";
 		autoSetup=TRUE;
@@ -168,31 +168,7 @@ class Rectifier extends Element {
 
 	void calculate() {
 		
-		pwrOut = EP_O.S.r;
-		/*
-		// output DC power = input AC power * efficiency
-		Sdc.copy( "EP_I.S" );
-		Sdc.times( "Eff" );
-		
-		//Input current is function of input power
-		Iac.copy("EP_I.S");
-		Iac.div( "EP_I.V" );
-		Iac.scale( 1./sqrt(3.));
-		
-		// Output DC Voltage
-		Vdc.copy("EP_I.V");
-		Vdc.scale( 3.*sqrt(2.) / PI);
-		
-		// compute output DC current
-		Idc.copy( "Sdc" );
-		Idc.div(  "Vdc" );
-		
-		
-		// set electric port conditions (input/output)
-		EP_O.setIVRMS( Idc.rRMS, Idc.jRMS, Vdc.rRMS, Vdc.jRMS ); 
-		EP_I.setIVRMS( Iac.rRMS, Iac.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
-		EP_O.frequency=0;
-		*/
+		pwrOut = EP_O.S.rRMS;
 		
 		if (switchDes == "DESIGN" ){
 			/****************************
