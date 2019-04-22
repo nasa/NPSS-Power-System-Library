@@ -172,7 +172,7 @@ class Inverter extends Element {
 	
 	void calculate() {
 
-		//pwrOut = EP_O.S.rRMS;
+		pwrOut = EP_O.S.rRMS;
 		
 		if (switchDes == "DESIGN" ){
 			/****************************

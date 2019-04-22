@@ -69,15 +69,15 @@ solver.diagnosticFile = "mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 //solver.clear();
 
-// <GLT> Try changing these solver ICs to different values. Convergence seems more robust now.
+// <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
 // Looks like the only thing that botches this up now is guessing them such that you get currents
 // with the wrong sign...
-Rect1.Vreal  = 1000;
-Rect1.Vimag  = 0;
-Inv1.Vreal   = 1000;
-Inv1.Vimag   = 0;
-EM1.Vreal    = 1000;
-EM1.Vimag    = 0;
+Rect1.Vreal  = 1;
+Rect1.Vimag  = 1;
+Inv1.Vreal   = 1;
+Inv1.Vimag   = 1;
+EM1.Vreal    = 1;
+EM1.Vimag    = 1;
 
 
 cout << solverSequence << endl;

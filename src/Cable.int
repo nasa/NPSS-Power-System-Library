@@ -148,6 +148,8 @@ class Cable extends Element {
 		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
 		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
 		
+		Loss_r = EP_I.S.r - EP_O.S.r;
+		Loss_j = EP_I.S.j - EP_O.S.j;
 		
 		//Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
 		if (switchDes=="DESIGN"){
