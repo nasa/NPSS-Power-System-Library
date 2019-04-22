@@ -145,7 +145,7 @@ class Rectifier extends Element {
 	}
 	
 	Dependent dep_phase{
-		eq_rhs="EP_I.V.phaseDeg";
+		eq_rhs="EP_I.VLN.phaseDeg";
 		eq_lhs="EP_I.I.phaseDeg";
 		autoSetup=TRUE;
 	}

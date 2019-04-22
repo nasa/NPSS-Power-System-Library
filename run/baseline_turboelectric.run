@@ -39,11 +39,6 @@ fine, imprisonment, or both.
 On design
 ************************/
 
-/*Turb.PRbase = 
-EM1.Vimag = 
-EM1.Vreal = 
-*/
-
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
@@ -51,24 +46,46 @@ solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
-/*
+
 Independent prop_pwr{varName = "Prop.pwr";}
 Dependent target_pwr{
   eq_lhs = "15000.";
   eq_rhs = "Turb.pwr";
 }
-*/
-//solver.addIndependent("prop_pwr");
-//solver.addDependent("target_pwr");
+// <GLT> Add biases to solver variables so that if you guess the wrong sign,
+// or solver independents otherwise need to cross zero, you won't die by div/0.
+real bias_value = 10*Gen1.Vbus_LL;
+Rect1.ind_Vimag.a  = bias_value;
+Rect1.ind_Vimag.a  = bias_value;
+Inv1.ind_Vreal.a   = bias_value;
+Inv1.ind_Vimag.a   = bias_value;
+EM1.ind_Vreal.a    = bias_value;
+EM1.ind_Vimag.a    = bias_value;
+prop_pwr.a 		   = bias_value;
+
+solver.addIndependent("prop_pwr");
+solver.addDependent("target_pwr");
 solver.diagnosticFile = "mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 //solver.clear();
 
+// <GLT> Try changing these solver ICs to different values. Convergence seems more robust now.
+// Looks like the only thing that botches this up now is guessing them such that you get currents
+// with the wrong sign...
+Rect1.Vreal  = 1000;
+Rect1.Vimag  = 0;
+Inv1.Vreal   = 1000;
+Inv1.Vimag   = 0;
+EM1.Vreal    = 1000;
+EM1.Vimag    = 0;
+
+
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
 run();
 
 page.display();  // output data to out file
-
-quit();
 
 //page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;
