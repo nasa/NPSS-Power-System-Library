@@ -174,7 +174,9 @@ class Rectifier extends Element {
 			/****************************
 			On-design
 			****************************/
-				
+			// Handle case guessed design power is zero.
+			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
+			pwrDes = pwrOut;
 			
 		}	
 		else{

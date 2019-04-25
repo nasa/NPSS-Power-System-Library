@@ -178,7 +178,9 @@ class Inverter extends Element {
 			/****************************
 				On-design
 			****************************/
-				
+			// Handle case guessed design power is zero.
+			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
+			pwrDes = pwrOut;
 			
 		}	
 		else{
@@ -187,14 +189,13 @@ class Inverter extends Element {
 			//*****************************
 		}	
 		//set efficiency value
-		/*if(!S_map.isEmpty()){
+		if(!S_map.isEmpty()){
 			S_map.execute();
 		}
 		else{
 			effBase = effDes;
 		}
-		Eff = effBase;*/
-		Eff = effDes;
+		Eff = effBase;
 	}
 	
 	
