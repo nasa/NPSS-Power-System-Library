@@ -21,48 +21,59 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
-	Vbus_LL=1200;	
-	Eff=0.96;
+	Vbus_LL=1000;	
+	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
+	#include <STARCABLmotorGenerator.map>
 }
 
 Element Cable Cable3 {
-	length=28.3464/100; 	
-	R=4.3245e-6;
-	L=9.84e-5*length/60./2./PI;
+	length=28.3464; 	
+	//R=4.3245e-6;
+	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
+	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
 }
 
 Element Rectifier Rect1 {
-	Eff = 1.0;
+	effDes = .95;
+	pwrDes = 12000.;
+	#include <modelInverterRectifier.map>
+	frequency = 400.;
 }
 
 
 Element Cable Cable1 {
 	length=28.3464; 	
-	R=4.3245e-6;
-	L=9.84e-5*length/60./2./PI;
+	//R=4.3245e-6;
+	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
+	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
 }
 
 Element Inverter Inv1 {
-	//Eff = 0.965;
-	Eff = 1.0;
+	effDes = .95;
+	pwrDes = 12000.;
+	#include <modelInverterRectifier.map>
 	frequency=400;
 }
 
 Element Cable Cable2 {
-	length=28.3464/100; 	
-	R=4.3245e-6;
-	L=9.84e-5*length/60./2./PI;
+	length=28.3464; 
+	//R=4.3245e-6;	
+	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
+	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
+	void postexecute() {
+	}
 }
 
 Element Motor EM1 {
-	 Eff=0.96;
-	 powerfactor=0.9;
+	 effDes=0.96;
+	 powerfactor=1.0;
 	 SpecificPower=13.0; 
-	 Torque=55144.0; 
+	 trqDes=55144.0; 
 	 frequency = 400.;
-	 Vreal = 1000.;
+	 //Vreal = 1000.;
+	 #include <STARCABLmotorGenerator.map>
 }
 
 
@@ -75,10 +86,17 @@ Element FlowStart Atm{
 	W=4394.74/20;
 }
 
-Element Compressor Prop{
+/*Element Compressor Prop{
 	#include "fanE3.map";
 	PRdes=1.4;
 	effDes=0.93;	
+}*/
+
+Element Propeller Prop{
+	CT = 1.;
+	UtipDes = 150;
+	pwrLoadDes = 5.;
+	pwr = 3000.;
 }
 
 Element FlowEnd dump{
@@ -104,6 +122,9 @@ Element Turbine Turb{
 	#include "lptE3.map";	
 	PRbase=2;
 	effDes=0.9;
+	//void postexecute() {
+	//	cout << PRbase << "turb.PRbase" << endl;
+	//}
 
 }
 
@@ -132,6 +153,10 @@ Element Shaft Turbine_Shaft {
 }
 
 setOption("ElectricPowerType","AC3");
+Rect1.EP_O.setOption("ElectricPowerType","DC");
+Inv1.EP_I.setOption("ElectricPowerType","DC");
+Cable1.EP_O.setOption("ElectricPowerType","DC");
+Cable1.EP_I.setOption("ElectricPowerType","DC");
 
 
 //-------------------------------------------------------------------------------------------------
@@ -178,12 +203,12 @@ solver.diagnosticFile = "soler.bad";
 
 
 Inv1{
-  Vreal = 1020;  //guess value
+  Vreal = 950;  //guess value
   Vimag = 0;  //guess value		
 }
 
 
 Rect1{
-  Vreal = 1100;  //guess value
+  Vreal = 999.999999;  //guess value
   Vimag = 0;  //guess value		
 }

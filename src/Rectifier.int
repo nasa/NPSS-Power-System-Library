@@ -31,27 +31,102 @@ class Rectifier extends Element {
 	ComplexNumber Vdc;
 		
 	real Eff {
-		value = 1.0; IOstatus="input"; //units=;
+		value = 1.0; IOstatus="input"; units= NONE;
 		description = "Efficiency of the rectifier";
 	}
-	
-	real Vreal {
-		value = 0.0; IOstatus="input"; //units=;
-		description = "Rectifier Voltage (real)";
+
+	real effBase {
+		value = 1.;  IOstatus = "output";  units = "none";
+		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+	}
+
+	real effDes {
+		value = 1.;  IOstatus = "input";  units = "none";
+		description = "Adiabatic efficiency at design point.";
 	}
 	
+	real frequency {
+		value = 60.; IOstatus="input"; //units=;
+		description = "Frequency of AC output power";
+	}
+
+	real pwrDes {
+		value = 1.;  IOstatus = "input";  units = "kW";
+		description = "Output power at design";
+	}
+
+	real pwrOut {
+		value = 1.;  IOstatus = "output";  units = "kW";
+		description = "Output power";
+	}
+
 	real Vimag {
-		value = 0.0; IOstatus="input"; //units=;
+		value = -1.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (imaginary)";
 	}
 	
+	real Vreal {
+		value = 1000.; IOstatus="input"; //units=;
+		description = "Rectifier Voltage (real)";
+	}
+	
 	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+	}
+
+	
+
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+
+	// FLUID PORTS
+
+    // FUEL PORTS
+
+    // BLEED PORTS
+     
+    // THERMAL PORTS
+
+    //ELECTRICAL PORTS
+
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ElectricPort EP_I {
+		description = "Electric port";
+	}
+
+	// MECHANICAL PORTS
+
+    // FLOW STATIONS
+
+    // SOCKETS
+
+    Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		//socketType = "INVERTER_RECTIFIER_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
+	}
+
+    // TABLES
+
+	
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
 	//------------------------------------------------------------
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
 		autoSetup = TRUE;
-		indepRef = "10000";
+		indepRef = "1000";
 		
 		description = "Varies the real component of the inverter voltage";
 	}
@@ -59,7 +134,7 @@ class Rectifier extends Element {
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
-		indepRef = "10000";
+		indepRef = "1000";
 		description = "Varies the imaginary component of the inverter voltage";
 	}
 	
@@ -69,67 +144,55 @@ class Rectifier extends Element {
 		autoSetup=TRUE;
 	}
 	
-	Dependent dep_Power_factor{
-		eq_rhs="EP_I.V.phaseDeg";
+	Dependent dep_phase{
+		eq_rhs="EP_I.VLN.phaseDeg";
 		eq_lhs="EP_I.I.phaseDeg";
 		autoSetup=TRUE;
 	}
 
 	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
-	ElectricPort EP_O {
-		description = "Electric port";
-	}
-	
-	ElectricPort EP_I {
-		description = "Electric port";
-	}
-	
+
+	void variableChanged(string name, any oldVal){
+		if(name == "switchDes"){
+			if(switchDes == OFFDESIGN){
+				effDes.IOstatus = "output";
+			}
+		}
+	} // end variableChanged()
+
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-		trigger= FALSE;
-	}
-	
+
 	void calculate() {
 		
-		/*
-		// output DC power = input AC power * efficiency
-		Sdc.copy( "EP_I.S" );
-		Sdc.times( "Eff" );
-		
-		//Input current is function of input power
-		Iac.copy("EP_I.S");
-		Iac.div( "EP_I.V" );
-		Iac.scale( 1./sqrt(3.));
-		
-		// Output DC Voltage
-		Vdc.copy("EP_I.V");
-		Vdc.scale( 3.*sqrt(2.) / PI);
-		
-		// compute output DC current
-		Idc.copy( "Sdc" );
-		Idc.div(  "Vdc" );
-		
-		
-		// set electric port conditions (input/output)
-		EP_O.setIVRMS( Idc.rRMS, Idc.jRMS, Vdc.rRMS, Vdc.jRMS ); 
-		EP_I.setIVRMS( Iac.rRMS, Iac.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
-		EP_O.frequency=0;
-		*/
+		pwrOut = EP_O.S.rRMS;
 		
 		if (switchDes == "DESIGN" ){
 			/****************************
 			On-design
 			****************************/
-				
+			// Handle case guessed design power is zero.
+			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
+			pwrDes = pwrOut;
 			
 		}	
+		else{
+			//*****************************
+			// Off-Design
+			//*****************************
+		}	
+
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
 	}
 	
 	//------------------------------------------------------------

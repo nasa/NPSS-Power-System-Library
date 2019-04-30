@@ -32,33 +32,103 @@ class Inverter extends Element {
 	ComplexNumber Vdc;
 	
 	real Eff {
-		value = 1.0; IOstatus="input"; //units=;
+		value = 1.0; IOstatus="input"; units=NONE;
 		description = "Efficiency of the inverter";
+	}
+
+	real effBase {
+		value = 1.;  IOstatus = "output";  units = NONE;
+		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+	}
+
+	real effDes {
+		value = 1.;  IOstatus = "input";  units = NONE;
+		description = "Adiabatic efficiency at design point.";
 	}
 	
 	real frequency {
 		value = 60.; IOstatus="input"; //units=;
 		description = "Frequency of AC output power";
 	}
-	
-	
-	real Vreal {
-		value = 0.0; IOstatus="input"; //units=;
-		description = "Rectifier Voltage (real)";
+
+	real pwrDes {
+		value = 1.;  IOstatus = "input";  units = "kW";
+		description = "Output power at design";
+	}
+
+	real pwrOut {
+		value = 1.;  IOstatus = "output";  units = "kW";
+		description = "Output power";
 	}
 	
 	real Vimag {
-		value = 0.0; IOstatus="input"; //units=;
+		value = 1.; IOstatus="input"; //units=;
 		description = "Rectifier Voltage (imaginary)";
 	}
+
+	real Vreal {
+		value = 1000.; IOstatus="input"; //units=;
+		description = "Rectifier Voltage (real)";
+	}
+
+	//------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+	}
 	
+	
+	
+	
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------
+	
+    // FLUID PORTS
+
+    // FUEL PORTS
+
+    // BLEED PORTS
+     
+    // THERMAL PORTS
+
+    //ELECTRICAL PORTS
+
+	ElectricPort EP_O {
+		description = "Electric port";
+	}
+	
+	ElectricPort EP_I {
+		description = "Electric port";
+	}
+
+	// MECHANICAL PORTS
+
+    // FLOW STATIONS
+
+    // SOCKETS
+
+    Socket S_map{
+		allowedValues = {"effBase"}
+		description = "Socket to calculate motor map performance";
+		//socketType = "INVERTER_RECTIFIER_MAP";
+		socketType = "TURBINE_EFFICIENCY_MAP";
+	}
+
+    // TABLES
+
 	//------------------------------------------------------------
 	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
 	//------------------------------------------------------------
 	Independent ind_Vreal { 
 		varName = "Vreal"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		
 		description = "Varies the real component of the inverter voltage";
 	}
@@ -67,7 +137,7 @@ class Inverter extends Element {
 	Independent ind_Vimag { 
 		varName = "Vimag"; 
 		autoSetup = TRUE;
-		indepRef = "100";
+		indepRef = "10000";
 		description = "Varies the imaginary component of the inverter voltage";
 	}
 	
@@ -78,110 +148,67 @@ class Inverter extends Element {
 	}
 	
 	
-	Dependent dep_power_factor{
+	Dependent dep_phase{
 		eq_rhs="0";
 		eq_lhs="EP_O.V.phaseDeg";
 		autoSetup=TRUE;
 	}
-	
-	
+
 	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
-	ElectricPort EP_O {
-		description = "Electric port";
-	}
-	
-	ElectricPort EP_I {
-		description = "Electric port";
-	}
+
+	void variableChanged(string name, any oldVal){
+		if(name == "switchDes"){
+			if(switchDes == OFFDESIGN){
+				effDes.IOstatus = "output";
+			}
+		}
+	} // end variableChanged()
 	
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-		trigger= FALSE;
-	}
 	
 	void calculate() {
-		/*
-		// AC power = DC input power * inverter efficiency
-		Sac.copy( "EP_I.S" );
-		Sac.scale( Eff );
 
-		// output AC voltage		
-		Vac.setrj(Vreal,Vimag);
-		
-		// output AC current = AC power / AC voltage
-		// for now assume 3 phase AC power
-		Iac.copy( "Sac" );
-		Iac.scale ( 1000. );
-		Iac.div( "Vac" );
-		Iac.scale ( 1. / 3.);
-		
-		cout<< "Sac: " << Sac.mag << "/____ " << Sac.phaseDeg << endl;
-		cout<< "Iac: " << Iac.mag << "/____ " << Iac.phaseDeg << endl;
-		cout<< "Vac: " << Vac.mag << "/____ " << Vac.phaseDeg << endl;
-
-			*/	
-		// DC input current = DC power / DC voltage
-		//Vdc.setrj(Vreal,Vimag);
-		//cout<<"  Vdc: " << Vdc.rRMS << " + j" << Vdc.jRMS << endl;
-		//cout<<" EP_I: " << EP_I.V.rRMS << " + j" << EP_I.V.jRMS << endl;
-		
-		//Idc.copy( "EP_I.S" );
-		//Idc.div( "Vdc" );
-		//Idc.rRMS = EP_I.S.rRMS / EP_I.V.rRMS;
-		//Idc.jRMS = 0;
-		//cout<<" EP_I: " << EP_I.I.mag << " /__ " << EP_I.I.phaseDeg << endl;
-		//cout<<" Idc: " << Idc.mag << " /__ " << Idc.phaseDeg << endl;
-		//cout<<" EP_I: " << EP_I.I.mag << " /__ " << EP_I.I.phaseDeg << endl;
-		
-		
-		// output AC voltage = DC voltage / sqrt(2)
-		//Vac.copy("EP_I.V");
-		//Vac.scale( 1. / sqrt(2.));
-		
-		//cout<<" EP_I: " << EP_I.V.mag << " /__ " << EP_I.V.phaseDeg << endl;
-		//cout<<" EP_O: " << EP_O.V.mag << " /__ " << EP_O.V.phaseDeg << endl;
-		//cout<<" Vac: " << Vac.mag << " /__ " << Vac.phaseDeg << endl;
-		
-		
-		// output AC current = AC power / AC voltage
-		// for now assume 3 phase AC power
-		//Iac.copy( "Sac" );
-		//Iac.div( "Vac" );
-		//Iac.scale ( 1. / 3.);
-		
-		/*
-		// set electric port conditions (input/output)
-		EP_O.setIVRMS( Iac.rRMS, Iac.jRMS, Vac.rRMS, Vac.jRMS ); 
-		EP_I.setIVRMS( Idc.rRMS, Idc.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
-		EP_O.frequency=frequency;
-		
-		*/
-		//EP_O.setIVRMS( Iac.rRMS, Iac.jRMS, Vac.rRMS, Vac.jRMS ); 
-		//EP_I.setIVRMS(
+		pwrOut = EP_O.S.rRMS;
 		
 		if (switchDes == "DESIGN" ){
 			/****************************
-			On-design
+				On-design
 			****************************/
-				
+			// Handle case guessed design power is zero.
+			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
+			pwrDes = pwrOut;
 			
 		}	
+		else{
+			//*****************************
+			// Off-Design
+			//*****************************
+		}	
+		//set efficiency value
+		if(!S_map.isEmpty()){
+			S_map.execute();
+		}
+		else{
+			effBase = effDes;
+		}
+		Eff = effBase;
 	}
+	
+	
 	
 	//------------------------------------------------------------
 	// ******* PREPASS FUNCTION *******
 	//------------------------------------------------------------
 	void prePass() {
+		EP_O.frequency = frequency;
 		EP_O.setIVRMS(0,0,Vreal,Vimag);
 		EP_I.setIVRMS(0,0,EP_O.V.mag * sqrt(2),0);
-		EP_O.frequency = frequency;
+		
+		
 	}
 }
 

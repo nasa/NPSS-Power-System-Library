@@ -2,7 +2,7 @@
 //         General Output DataViewer Specification
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-OutFileStream pageStream { filename = "output/engine.viewOut"; } 
+OutFileStream pageStream { filename = "engine.viewOut"; } 
 
 DataViewer PageViewer page { 
 
@@ -58,21 +58,21 @@ GroupBlock Electrical {
 		titleBody = "                          ELECTRICAL POWER SYSTEM"; 
 		compType = "Motor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.S.r","EP_I.V.mag","EP_I.V.phase","EP_I.I.mag","EP_I.I.phase","Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","Eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j"};
    }
       
    DColTBlock cable { 
 		titleBody = "\n"; 
 		compType = "Cable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
    } 
     
 	DColTBlock threephasecable { 
 		titleBody = "\n 3 Phase Cable"; 
 		compType = "ThreePhaseCable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
+		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
 		//showColHeader=FALSE; 	
 	}
 	
@@ -80,7 +80,7 @@ GroupBlock Electrical {
 		titleBody = "\n Generators"; 
 		compType = "Generator"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"Pin","Pout","Eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 	
    }
    
@@ -91,12 +91,30 @@ GroupBlock Electrical {
 		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
 		//showColHeader=FALSE; 	
 	}
+
+   DColTBlock inverter { 
+		titleBody = "\n Inverters"; 
+		compType = "Inverter"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		//showColHeader=FALSE; 	
+   }
+
+   DColTBlock rectifier { 
+		titleBody = "\n Rectifiers"; 
+		compType = "Rectifier"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		//showColHeader=FALSE; 	
+   }
       
    anchor = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "threephasecable";
    threephasecable.bottom =  "generator";
    generator.bottom = "threephaseyload";
+   threephaseyload.bottom = "rectifier";
+   rectifier.bottom = "inverter";
    addGutter = TRUE; 
 }  //end of Electrical Block
 
