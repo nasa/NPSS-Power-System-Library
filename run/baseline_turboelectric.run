@@ -128,7 +128,7 @@ solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
 solver.maxIterations = 10000;
 
 // Run something like a power hook, start at design power, then drop it down to
-// a little less than half power and see how efficiencies, P_in/P_out change
+// a little less than half power and see how efficiencies, P_out/P_in change
 for (CASE = 1 ; CASE < 12; CASE++)
 {
 	run();

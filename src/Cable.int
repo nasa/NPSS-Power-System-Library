@@ -26,7 +26,7 @@ class Cable extends Element {
 	//------------------------------------------------------------
 	
 	real R{
-		value = .01;  IOstatus = "input";  units = OHM;
+		value = .01;  IOstatus = "input";  //units = OHM;
 	}
     
 	real L{
@@ -34,17 +34,17 @@ class Cable extends Element {
 	}
     
     real length{
-		value = 1.;  IOstatus = "input";  units = M;
+		value = 1.;  IOstatus = "input";  //units = M;
 	}
 
 	// Will add losses in future releases.
 	real Loss_j {
-		value = 0; IOstatus="output"; units=W;
+		value = 0; IOstatus="output"; //units=W;
 		description = "Cable Loss";
 	}
 
 	real Loss_r {
-		value = 0; IOstatus="output"; units=W;
+		value = 0; IOstatus="output"; //units=W;
 		description = "Cable Loss";
 	}
 
