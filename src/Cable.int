@@ -54,27 +54,55 @@ class Cable extends Element {
 	}
 	
 	real SpecificAmperage {
-	value = 170.; IOstatus="input"; //units=amp * m / kg;
-	description = "Amps to Weight/length ratio for the cable";
+		value = 170.; IOstatus="input"; //units=amp * m / kg;
+		description = "Amps to Weight/length ratio for the cable";
 	}
 
 	ComplexNumber dV;
 	ComplexNumber Z;
 	ComplexNumber I;
 	
-	voltage_drop
-	impedance
-	mass
-	cable_size
-	paralleled
-	ampacity
-	params_test
+	real frequency {
+		value = 400; IOstatus="input"; //units=HZ;
+		description = "Frequency of AC current in cable";
+	}
 	
-	voltage
-	current
-	n_parallel
-	drop_tolerance
-
+	int n_phases {
+		value = 3; IOstatus="input"; //units=none;
+		description = "Number of electrical phase current carried by this cable (cable assembly)";
+	}
+	
+	int n_parallel {
+		value = 3; IOstatus="input"; //units=none;
+		description = "Constraint: max allowed number of parallel wires to make the cable";
+	}
+	
+	real drop_tolerance {
+		value = 1.; IOstatus="input"; //units=none;
+		description = "Constraint: max voltage allowed to drop across cable, as a fraction of input voltage";
+	}
+	
+	string cable_size {
+		value = "1 Gauge"; IOstatus="output";
+		description = "Cable size in AWG or kcmil";
+	}
+	
+	real paralleled {
+		value = 1.; IOstatus="output"; //units=none;
+		description = "Number of wires paralleled to make this cable";
+	}
+	
+	real ampacity {
+		value = 1000.; IOstatus="output"; //units=amp;
+		description = "Current carrying capacity for this cable solution";
+	}
+	
+	int params_test {
+		value = 0; IOstatus="output"; //units=none;
+		description = "Error flag for the sizing tool";
+	}
+	
+	
 	//------------------------------------------------------------
 	//   ******* OPTION VARIABLE SETUP *******
 	//------------------------------------------------------------
@@ -145,14 +173,14 @@ class Cable extends Element {
 	// AC Cable metrics function
 	//---------------------------------
 	void ac_cable_metrics()
-
+	{
 		// Set cable parameters 
 		// Cable sizes available
 		string cable_sizes[] = {"18 Gauge","16 Gauge","14 Gauge","12 Gauge","10 Gauge",
 			"8 Gauge","6 Gauge","4 Gauge","2 Gauge","1 Gauge","1/0","2/0","3/0",
 			"4/0","262 kcmil","313 kcmil","373 kcmil","444 kcmil","535 kcmil",
 			"646 kcmil","777 kcmil","1111 kcmil"};
-		// Cable mass [kg/m]
+		// Cable Mass [kg/m]
 		real cable_mass[] = {0.047621, 0.050598, 0.065479, 0.078873, 0.101195, 0.142864,
 							 0.193461, 0.312514, 0.467283, 0.584848, 0.721759, 0.886945,
 							 1.055107, 1.244104, 1.510485, 1.753056, 2.083428, 2.461421,
@@ -192,124 +220,151 @@ class Cable extends Element {
 										  0.000173, 0.000143};
 		
 		// Combined characteristics
-		real cable_ampacities[][] = {cable_ampacities_400;cable_ampacities_680;cable_ampacities_800};
-		cable_resistivities = [cable_resistivities_400;cable_resistivities_680;cable_resistivities_800];
-		
+		real cable_ampacities[][];
+		cable_ampacities.append(cable_ampacities_400);
+		cable_ampacities.append(cable_ampacities_680);
+		cable_ampacities.append(cable_ampacities_800);
+		real cable_resistivities[][];
+		cable_resistivities.append(cable_resistivities_400);
+		cable_resistivities.append(cable_resistivities_680);
+		cable_resistivities.append(cable_resistivities_800);
 		// Perform error check on input data
-		if frequency ~= 400
-			if frequency ~= 680
-				if frequency ~= 800
-					msg = 'Incompatible frequency';
-					error(msg)
-				end
-			end
-		end
-		
+		if (frequency != 400) {
+			if (frequency != 680) {
+				if (frequency != 800) {
+					cerr << "Incompatible frequency";
+				}
+			}
+		}
 		// Determine number of lines
-		if n_phases == 1
+		real lines;
+		if (n_phases == 1) {
 			lines = 2;
-		elseif n_phases == 3
+		}
+		else if (n_phases == 3) {
 			lines = 3;
-		elseif n_phases == 9
+		}
+		else if (n_phases == 9) {
 			lines = 9;
-		end
+		}
 		
 		// Loop through searching for the cable
 		params_test = 0;    // Error check (ie. no cable is found)
-		mass = inf;
-		impedance = 0;
 		cable_size = "";
-		optimal_wire = 0;
 		paralleled = 0;
-		conductors = 1;
-		temp_current = 0;   // Temporary test current
-		search_stop = 0;
-		index = 1;
+		int found;
+		Mass = inf;
+		int optimal_wire = 0;
+		int conductors = 1;
+		real temp_current = 0;   // Temporary test current
+		int search_stop = 0;
+		int index = 1;
+		int row;
+
+		real percent;
+		real resistance; // [ohms/m]
+		real reactance; // [ohms/m]
+		ComplexNumber impedance;   // [ohms]
+		ComplexNumber voltage_drop;
+		ComplexNumber voltage;
+		ComplexNumber current;
+		voltage.copy("EP_I.VLN");
 		
-		if frequency == 400
+		if (frequency == 400) {
 			row = 1;
-		elseif frequency == 680
+		}
+		else if (frequency == 680) {
 			row = 2;
-		elseif frequency == 800
+		}
+		else if (frequency == 800) {
 			row = 3;
-		end
+		}
 		
-		while search_stop == 0
+		while (search_stop == 0) {
 			found = 0;
-			while found==0
-				if conductors > n_parallel
+			while (found==0) {
+				if (conductors > n_parallel) {
 					search_stop = 1;
 					found = 1;
-					if optimal_wire == 0
+					if (optimal_wire == 0) {
 						params_test = 1;
-						mass = 0;
+						Mass = 0;
 						impedance = 0;
 						voltage_drop = 0;
 						ampacity = 0;
 						cable_size = "";
-						fprintf('\nNo cables were found for these settings')
-						fprintf('\n          LL voltage            : %5.0f',voltage)
-						fprintf('\n          Current               : %5.0f', current)
-						fprintf('\n          parallelled conductors: %5.0f',n_parallel)
-						fprintf('\n          voltage drop tolerance: %5.2f',drop_tolerance)
-						fprintf('\n')
-					end 
-				
-				elseif index > size(cable_sizes,2)
+						cerr << endl << "No cables were found for these settings";
+						cerr << endl << "          LL voltage            : " << voltage.abs;
+						cerr << endl << "          Current               : " << current.abs;
+						cerr << endl << "          parallelled conductors: " << n_parallel;
+						cerr << endl << "          voltage drop tolerance: " << drop_tolerance << endl;
+					} 
+				}
+				else if (index > cable_sizes.entries()) {
 					// Increase the conductors and start searching again
 					conductors = conductors + 1;
 					index = 1;
-				else
-					temp_current = cable_ampacities(row,index)*conductors;
-					if temp_current > abs(current)
-						// Exit loop once compatible cable setup is found
-						found=1;
+				}
+				else {
+					temp_current = cable_ampacities[row][index]*conductors;
+					
+					// Exit loop once compatible cable setup is found
+					found=1;
 
+					resistance = cable_resistivities[row][index]; // [ohms/m]
+					reactance = (frequency/60)*cable_reactances[index]; // [ohms/m]
+					impedance.setrj(resistance, reactance);
+					impedance.setMagPhase( impedance.mag*length/conductors, impedance.phase );   // [ohms]
+					voltage_drop.copy("dV");
+					current.copy("dV");
+					current.div("impedance");
+					
+					percent = 100*voltage_drop.mag/voltage.mag;
+						
+					if (temp_current > current.mag) {
 						// Check to see if cable setup is optimal
 						// This is an AC bus, so there may or may not be send & return lines multiplied
 						// by the number of paralleled conductors
-						resistance = cable_resistivities(row,index); // [ohms/m]
-						reactance = (frequency/60)*cable_reactances(index); // [ohms/m]
-						impedance = (resistance+j*reactance)*length/conductors;   // [ohms]
-						voltage_drop = abs(current)*abs(impedance);
-						
-						percent = 100*voltage_drop/voltage;
-						
-						if percent > drop_tolerance
+						if (percent > drop_tolerance) {
 							index = index + 1;
-						elseif (lines*cable_mass(index)*conductors*length) < mass
+						}
+						else if ((lines*cable_mass[index]*conductors*length) < Mass) {
 							// If optimal weight, then re-initialize weight, index, and
 							// number of paralleled conductors
-							mass = lines*cable_mass(index)*conductors*length; // [lbs]
+							Mass = lines*cable_mass[index]*conductors*length; // [lbs]
 							optimal_wire = index;
 							paralleled = conductors;
-							index = size(cable_sizes,2)+1;  // Terminate loop
-						else
-							index = size(cable_sizes,2)+1;  // Terminate loop
-						end
-					else
+							index = cable_sizes.entries()+1;  // Terminate loop
+						}
+						else {
+							index = cable_sizes.entries()+1;  // Terminate loop
+						}
+					}
+					else {
 						index = index+1;  // Terminate loop
-					end
-				end
-			end
-		end
+					}
+				}
+			}
+		}
 		
-		if optimal_wire ~= 0
+		if (optimal_wire != 0) {
 			// Initialize rest of output
-			cable_size = cable_sizes(optimal_wire);
+			cable_size = cable_sizes[optimal_wire];
 			
 			// Single wire resistance and reactance
-			resistance = cable_resistivities(row,optimal_wire); // [ohms/m]
-			reactance = (frequency/60)*cable_reactances(optimal_wire); // [ohms/m]
+			resistance = cable_resistivities[row][optimal_wire]; // [ohms/m]
+			reactance = (frequency/60)*cable_reactances[optimal_wire]; // [ohms/m]
 			
 			// Bundled impedance
-			impedance = (resistance+j*reactance)*length/paralleled;    // [ohms]
-			voltage_drop = current*impedance;
-			mass = lines*cable_mass(optimal_wire)*length*paralleled;
-			ampacity = cable_ampacities(row,optimal_wire)*paralleled;
-		end
-	end
-
+			impedance.setrj(resistance, reactance);
+			impedance.setMagPhase( impedance.mag*length/paralleled, impedance.phase );   // [ohms]
+			voltage_drop.copy("current");
+			voltage_drop.times("impedance");
+			Mass = lines*cable_mass[optimal_wire]*length*paralleled;
+			ampacity = cable_ampacities[row][optimal_wire]*paralleled;
+		}
+	}
+/*
 	%---------------------------------
 	// DC Cable metrics function
 	%---------------------------------
@@ -325,7 +380,7 @@ class Cable extends Element {
 		cable_resistivities = (1/0.3048)*(1/1000)*[7.1986,4.5132,2.8454,1.7873,1.1281,0.6931,0.4350,
 			0.2942,0.1799,0.1438,0.1150,0.0922,0.0737,0.0590,0.0494,0.0413,0.0347,
 			0.0302,0.0258,0.0221,0.0192,0.0133];
-		// Cable mass [kg/m]
+		// Cable Mass [kg/m]
 		cable_mass = 0.453592*(1/0.3048)*(1/1000)*[32,34,44,53,68,96,130,210,314,393,485,596,709,836,1015,
 			1178,1400,1654,2005,2348,2709,3965];
 		// Cable ampacity [A]
@@ -334,7 +389,7 @@ class Cable extends Element {
 		
 		// Loop through searching for the cable
 		params_test = 0;    // Error check (ie. no cable is found)
-		mass = inf;
+		Mass = inf;
 		resistance = 0;
 		voltage_drop = 0;
 		cable_size = "";
@@ -352,23 +407,23 @@ class Cable extends Element {
 					found = 1;
 					if optimal_wire == 0
 						params_test = 1;
-						mass = 0;
+						Mass = 0;
 						resistance = 0;
 						cable_size = "";
-						fprintf('\nNo cables were found for these settings')
-						fprintf('\n          voltage               : %5.0f',voltage)
-						fprintf('\n          current               : %5.0e',current*1000)
-						fprintf('\n          parallelled conductors: %5.0f',n_parallel)
-						fprintf('\n          voltage drop tolerance: %5.2f',drop_tolerance)
-						fprintf('\n')
+						cerr << endl << "No cables were found for these settings')
+						cerr << endl << "          voltage               : %5.0f',voltage)
+						cerr << endl << "          current               : %5.0e',current*1000)
+						cerr << endl << "          parallelled conductors: %5.0f',n_parallel)
+						cerr << endl << "          voltage drop tolerance: %5.2f',drop_tolerance)
+						cerr << endl << "')
 					end
 
-				elseif index > size(cable_sizes,2)               
+				elseif index > cable_sizes.entries()               
 					// Increase the conductors and start searching again
 					conductors = conductors + 1;
 					index = 1;
 				else
-					temp_current = cable_ampacities(index)*conductors;
+					temp_current = cable_ampacities[index]*conductors;
 					if temp_current > current
 						// Exit loop once compatible cable setup is found
 						found=1;
@@ -376,21 +431,21 @@ class Cable extends Element {
 						// Check to see if cable setup is optimal
 						// This is a DC bus, so there will be send & return lines multiplied
 						// by the number of paralleled conductors
-						voltage_drop = current*(2*cable_resistivities(index)*length/conductors); // ohms
+						voltage_drop = current*(2*cable_resistivities[index]*length/conductors); // ohms
 						 
 						percent = 100*voltage_drop/voltage;
 						
 						if percent > drop_tolerance  
 							index = index + 1;
-						elseif (cable_mass(index)*conductors*2) < mass
+						elseif (cable_mass[index]*conductors*2) < Mass
 							// If optimal weight, then re-initialize weight, index, and
 							// number of paralleled conductors
-							mass = cable_mass(index)*conductors*2;
+							Mass = cable_mass[index]*conductors*2;
 							optimal_wire = index;
 							paralleled = conductors;
-							index = size(cable_sizes,2)+1;  // Terminate loop
+							index = cable_sizes.entries()+1;  // Terminate loop
 						else
-							index = size(cable_sizes,2)+1;  // Terminate loop
+							index = cable_sizes.entries()+1;  // Terminate loop
 						end
 					else
 						index = index+1;  // Terminate loop
@@ -399,14 +454,14 @@ class Cable extends Element {
 			end
 		end
 		// Initialize rest of output
-		if optimal_wire ~= 0
+		if optimal_wire != 0
 			resistance = 2*cable_resistivities(optimal_wire)*length/paralleled;    // [ohms]
 			cable_size = cable_sizes(optimal_wire);
 			voltage_drop = current*(2*cable_resistivities(optimal_wire)*length/paralleled); // ohms
-			mass = 2*cable_mass(optimal_wire)*length*paralleled;
+			Mass = 2*cable_mass(optimal_wire)*length*paralleled;
 		end   
 	end
-
+	*/
 
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
@@ -439,7 +494,7 @@ class Cable extends Element {
 		if (switchDes=="DESIGN"){
 			/***************************
 			On-Design
-			in on design, calculate the mass of the cable
+			in on design, calculate the Mass of the cable
 			***************************/
 			Mass=EP_I.I.mag/SpecificAmperage*length*3;
 		}		

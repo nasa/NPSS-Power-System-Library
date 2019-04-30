@@ -1,0 +1,69 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+// add in electric port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+string listy[] = {"hi", "bro"};
+cout << listy << endl;
+
+// select model
+#include "cable_test.mdl"
+ACCable.calculate();
+//ACCable.ac_cable_metrics();
+quit();
+
+autoSolverSetup();
+
+/*
+//---------------------------------------------------------
+// just like a rocket engine, volumes last
+//---------------------------------------------------------
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2","E1","E2" }
+//solverSequence = { "Bat", "R1", "C1", "L1", "C2" }
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "Solver.bad";
+
+
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+setOption( "ElectricPowerType", "DC" );
+ 
+run();
+
+cout<< "\n \n"<<endl;
+cout<<"====================================================="<<endl;
+cout << " Component \t Power(dc) \t Voltage(dc) \t Current(dc)"<<endl;
+cout << "  R1(in): \t " << R1.EP_I.S.rRMS << " \t\t " << R1.EP_I.V.rRMS << "  \t\t " << R1.EP_I.I.rRMS << endl;
+cout << " R1(out): \t " << R1.EP_O.S.rRMS << " \t\t " << R1.EP_O.V.rRMS << "  \t\t " << R1.EP_O.I.rRMS << endl;
+cout << "  R2(in): \t " << R2.EP_I.S.rRMS << " \t\t " << R2.EP_I.V.rRMS << "  \t\t " << R2.EP_I.I.rRMS << endl;
+cout << " R2(out): \t " << R2.EP_O.S.rRMS << " \t\t " << R2.EP_O.V.rRMS << "  \t\t " << R2.EP_O.I.rRMS << endl;
+cout << "  R3(in): \t " << R3.EP_I.S.rRMS << " \t\t " << R3.EP_I.V.rRMS << "  \t\t " << R3.EP_I.I.rRMS << endl;
+cout << " R3(out): \t " << R3.EP_O.S.rRMS << " \t\t " << R3.EP_O.V.rRMS << "  \t\t " << R3.EP_O.I.rRMS << endl;
+
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
+*/
+
