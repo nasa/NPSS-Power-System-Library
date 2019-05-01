@@ -1,0 +1,2065 @@
+
+--------------------------------------------------------------
+SETUP INFO FOR SOLVER 'solver'
+--------------------------------------------------------------
+
+Case No. = 0
+Parent assembly = 
+Solution mode = STEADY_STATE
+
+Operational limits:
+   max allowed solver iterations: maxIterations = 300
+   max allowed model passes: maxPasses = 0
+   max allowed new Jacobians: maxJacobians = 10
+   max allowed Broyden updates to a single Jacobian: maxBroydens = 50
+
+Matrix generation details:
+   criterion for regenerating a new Jacobian: regenNewJacobian = WHEN_NEEDED
+   carry over or calculate Jacobian between cases: firstNewJacobian = CARRY_OVER
+  upper limit on convergenceRatio for an iteration to be judged successfull: convergenceLimit = 1
+  lower limit on convergenceRatio below which a Broyden update will not be performed: broydenLimit = 0
+   max allowed number of consecutive unsuccessful 
+      iterations before a new Jacobian is needed: maxConvergeFailures =  3
+   upper limit on convergenceRatio allowed 
+      before immediately forcing a new Jacobian: divergenceLimit = 2
+
+Independent default attributes:
+   default perturbation type for matrix generation: defaultPerturbationType = FRACTIONAL
+   default perturbation value for Jacobian generation: defaultPerturbation = 0.001
+   default limit type for independent updates: defaultDxLimitType = FRACTIONAL
+   default limit value for independent updates: defaultDxLimit = 0.1
+   default tolerance type for update convergence tests: defaultToleranceType = FRACTIONAL
+   default tolerance value for update convergence tests: defaultTolerance = 0.0001
+   test independent variable updates for convergence: testXConvergenceStr : FALSE
+List of Active Independents: 
+   1  Cable1.ind_Ireal
+   2  Cable1.ind_Iimag
+   3  Turb.S_map.ind_PRbase
+   4  EM1.ind_Vimag
+   5  EM1.ind_Vreal
+
+Dependent default attributes:
+   default tolerance type for error convergence tests: defaultToleranceType = FRACTIONAL
+   default tolerance value for error convergence tests: defaultTolerance = 0.0001
+List of Active Dependents:
+   1  MotorAngle
+   2  Cable1.dep_Vreal_err
+   3  Cable1.dep_Vimag_err
+   4  Turbine_Shaft.integrate_Nmech(integrator)
+   5  Propulsor_Shaft.integrate_Nmech(integrator)
+
+Constraint handling settings:
+   enable constraints: constraintHandlingOptStr :  TRUE
+   max number of error-projections on a single iteration: maxConstraintProjections = 3
+   when MIN and MAX constraints conflict, choose: resolveMinMaxConflict : MAX
+List of Inactive Dependents (including constraints) : NONE
+
+DSV (discontinuity handling) settings:
+   max discontinuous iterations: maxDisconIterations : 10
+   max free toggles: maxFreeToggles : 0
+List of DSVs : NONE
+
+
+--------------------------------------------------------------
+SETUP DETAILS FOR INDEPENDENTS IN SOLVER
+   'solver'
+--------------------------------------------------------------
+   *** Only attributes with values unique to each independent 
+   are listed here.***
+--------------------------------------------------------------
+
+1   Cable1.ind_Ireal
+   varName = Ireal
+
+2   Cable1.ind_Iimag
+   varName = Iimag
+
+3   Turb.S_map.ind_PRbase
+   varName = PRbase
+
+4   EM1.ind_Vimag
+   varName = Vimag
+   Independent Reference Value Expression : 10000
+
+5   EM1.ind_Vreal
+   varName = Vreal
+   Independent Reference Value Expression : 10000
+
+
+--------------------------------------------------------------
+SETUP DETAILS FOR DEPENDENTS IN SOLVER
+   'solver'
+--------------------------------------------------------------
+   *** Only attributes with values unique to each dependent 
+   are listed here.***
+--------------------------------------------------------------
+
+1   MotorAngle
+     eq_lhs Expression: EM1.CurrentAngle_Demand
+     eq_rhs Expression: EM1.EP_I.I.phaseDeg
+
+2   Cable1.dep_Vreal_err
+     eq_lhs Expression: EP_I.VLN.r
+     eq_rhs Expression: EP_O.VLN.r+Vreal_drop
+
+3   Cable1.dep_Vimag_err
+     eq_lhs Expression: EP_I.VLN.j
+     eq_rhs Expression: EP_O.VLN.j+Vimag_drop
+
+4   Turbine_Shaft.integrate_Nmech
+     eq_lhs Expression: trqNet
+     eq_rhs Expression: 0.0000
+     Reference Expression (eq_Ref) : trqIn
+
+5   Propulsor_Shaft.integrate_Nmech
+     eq_lhs Expression: trqNet
+     eq_rhs Expression: 0.0000
+     Reference Expression (eq_Ref) : trqIn
+
+
+
+START CONTINUOUS MODEL CONVERGENCE:
+=========================
+ITERATION #1
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.0000e+001   +1.0000e+001   +1.0010e+004   
+2    Cable1.ind_Iimag      Iimag          +0.0000e+000   +0.0000e+000   +1.0000e+004   
+3    Turb.S_map.ind_PRbase PRbase         +1.0488e+000   +1.0488e+000   +1.0488e+000   
+4    EM1.ind_Vimag         Vimag          -1.3413e+002   -1.3413e+002   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1947e+003   +1.1947e+003   +1.0000e+004   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -6.2248e+001   +0.0000e+000   +1.0000e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -6.2248e+001   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +5.5863e+002   +5.5863e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +7.4056e-002   +1.0000e-004   FALSE     DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -4.1145e+002   +4.1145e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +1.5808e-001   +1.0000e-004   FALSE     DY3I1
+4    Turbine_Shaft.integrate_Nmech   I    +5.9490e+003   +0.0000e+000   +5.9820e+003   trqNet         0.0000         trqIn          +9.9448e-001   +1.0000e-004   FALSE     DY4I1
+5    Propulsor_Shaft.integrate_Nmech I    -5.4861e+003   +0.0000e+000   +2.8329e+001   trqNet         0.0000         trqIn          -1.9366e+002   +1.0000e-004   FALSE     DY5I1
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0              errorMagNorm        = 203.4          convergenceRatio    = 0              
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+--------------------------------------------
+JACOBIAN BEING GENERATED FOR SOLVER  'solver'
+--------------------------------------------
+
+BASE POINT FOR MATRIX GENERATION
+--------------------------------------------
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.0000e+001   +1.0000e+001   +1.0010e+004   
+2    Cable1.ind_Iimag      Iimag          +0.0000e+000   +0.0000e+000   +1.0000e+004   
+3    Turb.S_map.ind_PRbase PRbase         +1.0488e+000   +1.0488e+000   +1.0488e+000   
+4    EM1.ind_Vimag         Vimag          -1.3413e+002   -1.3413e+002   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1947e+003   +1.1947e+003   +1.0000e+004   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -6.2248e+001   +0.0000e+000   +1.0000e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -6.2248e+001   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +5.5863e+002   +5.5863e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +7.4056e-002   +1.0000e-004   FALSE     DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -4.1145e+002   +4.1145e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +1.5808e-001   +1.0000e-004   FALSE     DY3I1
+4    Turbine_Shaft.integrate_Nmech   I    +5.9490e+003   +0.0000e+000   +5.9820e+003   trqNet         0.0000         trqIn          +9.9448e-001   +1.0000e-004   FALSE     DY4I1
+5    Propulsor_Shaft.integrate_Nmech I    -5.4861e+003   +0.0000e+000   +2.8329e+001   trqNet         0.0000         trqIn          -1.9366e+002   +1.0000e-004   FALSE     DY5I1
+
+No Constrained Targets found in Solver 'solver'
+
+
+
+PERTURBATION RESULTS:
+--------------------------------------------
+
+MATRIX COLUMN 1 : Independent 'Cable1.ind_Ireal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10010;   PERTURBED X VALUE = 20.01;   DX = 10.01;   PX1
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -6.2248e+001   +0.0000e+000   +1.0000e+000   -6.2248e+001   -6.2248e+001   +0.0000e+000   +0.0000e+000   PX1PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +5.5893e+002   +5.5863e+002   +7.3526e-002   +7.4056e-002   -5.3031e-004   -5.2978e-005   PX1PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -4.1192e+002   +4.1145e+002   +1.5921e-001   +1.5808e-001   +1.1333e-003   +1.1322e-004   PX1PY3
+4    Turbine_Shaft.integrate_Nmech    +5.9159e+003   +0.0000e+000   +5.9820e+003   +9.8896e-001   +9.9448e-001   -5.5246e-003   -5.5191e-004   PX1PY4
+5    Propulsor_Shaft.integrate_Nmech  -5.4577e+003   +0.0000e+000   +2.8329e+001   -1.9266e+002   -1.9366e+002   +1.0010e+000   +1.0000e-001   PX1PY5
+
+MATRIX COLUMN 2 : Independent 'Cable1.ind_Iimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = 10;   DX = 10;   PX2
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -6.2248e+001   +4.5000e+001   +1.0000e+000   -1.0725e+002   -6.2248e+001   -4.5000e+001   -4.5000e+000   PX2PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +5.5876e+002   +5.5863e+002   +7.3815e-002   +7.4056e-002   -2.4076e-004   -2.4076e-005   PX2PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -4.1178e+002   +4.1145e+002   +1.5888e-001   +1.5808e-001   +8.0639e-004   +8.0639e-005   PX2PY3
+4    Turbine_Shaft.integrate_Nmech    +5.9680e+003   +0.0000e+000   +5.9820e+003   +9.9767e-001   +9.9448e-001   +3.1864e-003   +3.1864e-004   PX2PY4
+5    Propulsor_Shaft.integrate_Nmech  -5.5070e+003   +0.0000e+000   +2.8329e+001   -1.9439e+002   -1.9366e+002   -7.3742e-001   -7.3742e-002   PX2PY5
+
+MATRIX COLUMN 3 : Independent 'Turb.S_map.ind_PRbase'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 1.0488;   PERTURBED X VALUE = 1.04985;   DX = 0.0010488;   PX3
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME            y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -6.2248e+001   +0.0000e+000   +1.0000e+000   -6.2248e+001   -6.2248e+001   +0.0000e+000   +0.0000e+000   PX3PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +5.5878e+002   +5.5863e+002   +7.3791e-002   +7.4056e-002   -2.6498e-004   -2.5265e-001   PX3PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -4.1193e+002   +4.1145e+002   +1.5924e-001   +1.5808e-001   +1.1663e-003   +1.1120e+000   PX3PY3
+4    Turbine_Shaft.integrate_Nmech    +6.0738e+003   +0.0000e+000   +5.9820e+003   +1.0153e+000   +9.9448e-001   +2.0859e-002   +1.9888e+001   PX3PY4
+5    Propulsor_Shaft.integrate_Nmech  -5.4861e+003   +0.0000e+000   +2.8329e+001   -1.9366e+002   -1.9366e+002   +0.0000e+000   +0.0000e+000   PX3PY5
+
+MATRIX COLUMN 4 : Independent 'EM1.ind_Vimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = -124.13;   DX = 10;   PX4
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -6.1774e+001   +0.0000e+000   +1.0000e+000   -6.1774e+001   -6.2248e+001   +4.7404e-001   +4.7404e-002   PX4PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +5.6166e+002   +5.5863e+002   +6.8624e-002   +7.4056e-002   -5.4325e-003   -5.4325e-004   PX4PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -4.0693e+002   +4.1145e+002   +1.4709e-001   +1.5808e-001   -1.0986e-002   -1.0986e-003   PX4PY3
+4    Turbine_Shaft.integrate_Nmech    +5.9490e+003   +0.0000e+000   +5.9820e+003   +9.9448e-001   +9.9448e-001   +0.0000e+000   +0.0000e+000   PX4PY4
+5    Propulsor_Shaft.integrate_Nmech  -5.4859e+003   +0.0000e+000   +2.8329e+001   -1.9365e+002   -1.9366e+002   +5.1676e-003   +5.1676e-004   PX4PY5
+
+MATRIX COLUMN 5 : Independent 'EM1.ind_Vreal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = 1204.7;   DX = 10;   PX5
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -6.2195e+001   +0.0000e+000   +1.0000e+000   -6.2195e+001   -6.2248e+001   +5.2737e-002   +5.2737e-003   PX5PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +5.6378e+002   +5.5863e+002   +6.4841e-002   +7.4056e-002   -9.2154e-003   -9.2154e-004   PX5PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -4.1482e+002   +4.1145e+002   +1.6626e-001   +1.5808e-001   +8.1823e-003   +8.1823e-004   PX5PY3
+4    Turbine_Shaft.integrate_Nmech    +5.9490e+003   +0.0000e+000   +5.9820e+003   +9.9448e-001   +9.9448e-001   +0.0000e+000   +0.0000e+000   PX5PY4
+5    Propulsor_Shaft.integrate_Nmech  -5.4858e+003   +0.0000e+000   +2.8329e+001   -1.9365e+002   -1.9366e+002   +8.9505e-003   +8.9505e-004   PX5PY5
+
+RESULTING JACOBIAN MATRIX
+----------------------------
++0.000000e+000 -4.500000e+000 +0.000000e+000 +4.740423e-002 +5.273702e-003 
+-5.297762e-005 -2.407558e-005 -2.526523e-001 -5.432536e-004 -9.215449e-004 
++1.132205e-004 +8.063893e-005 +1.111996e+000 -1.098583e-003 +8.182275e-004 
+-5.519056e-004 +3.186429e-004 +1.988814e+001 +0.000000e+000 +0.000000e+000 
++1.000000e-001 -7.374204e-002 +0.000000e+000 +5.167555e-004 +8.950468e-004 
+
+
+determinant = +1.302305e-005
+
+
+INDEPENDENT UPDATES - [scaleFactor = 0.519116: Limiting Independent is # 1 - Cable1.ind_Ireal]
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      +1.9283e+003   +1.1011e+003   +1.0010e+003   
+2    Cable1.ind_Iimag      -1.1665e+001   +9.9939e+002   -6.0555e+000   
+3    Turb.S_map.ind_PRbase +3.6938e-003   +1.0507e-001   +1.9175e-003   
+4    EM1.ind_Vimag         +2.2394e+002   +1.0000e+003   +1.1625e+002   
+5    EM1.ind_Vreal         -1.6321e+002   +1.0000e+003   -8.4727e+001   
+
+
+=========================
+ITERATION #2
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.0110e+003   +1.0110e+003   +1.1011e+004   
+2    Cable1.ind_Iimag      Iimag          -6.0555e+000   -6.0555e+000   +9.9939e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0507e+000   +1.0507e+000   +1.0507e+000   
+4    EM1.ind_Vimag         Vimag          -1.7878e+001   -1.7878e+001   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1100e+003   +1.1100e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6765e+001   -3.4318e-001   +3.4318e-001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -1.6441e+002   +1.0000e-004   FALSE     DY1I2
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +5.5927e+002   +5.5927e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +7.2824e-002   +1.0000e-004   FALSE     DY2I2
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.2816e+002   +3.2816e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               -5.5624e-002   +1.0000e-004   FALSE     DY3I2
+4    Turbine_Shaft.integrate_Nmech   I    +2.8607e+003   +0.0000e+000   +6.2100e+003   trqNet         0.0000         trqIn          +4.6065e-001   +1.0000e-004   FALSE     DY4I2
+5    Propulsor_Shaft.integrate_Nmech I    -2.6854e+003   +0.0000e+000   +2.8290e+003   trqNet         0.0000         trqIn          -9.4923e-001   +1.0000e-004   FALSE     DY5I2
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 203.4          errorMagNorm        = 164.4          convergenceRatio    = 0.8083         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -2.648759e+001
+  3.729503e-002
+ -1.203810e-001
+ -1.941841e-005
+ -1.667187e+000
+
+
+
+D = 1.970138e+006
+
+Broyden delta-J:
+----------------
+
+ -2.592478e-002  1.568310e-004 -4.966144e-008 -3.010799e-003  2.194340e-003
+  3.650259e-005 -2.208211e-007  6.992425e-011  4.239263e-006 -3.089673e-006
+ -1.178231e-004  7.127667e-007 -2.257016e-010 -1.368350e-005  9.972849e-006
+ -1.900581e-008  1.149750e-010 -3.640747e-014 -2.207258e-009  1.608700e-009
+ -1.631763e-003  9.871291e-006 -3.125800e-009 -1.895063e-004  1.381166e-004
+
+
+
+Updated J:
+----------
+
+ -2.592478e-002 -4.499843e+000 -4.966144e-008 +4.439343e-002 +7.468042e-003
+ -1.647502e-005 -2.429640e-005 -2.526523e-001 -5.390144e-004 -9.246346e-004
+ -4.602653e-006 +8.135170e-005 +1.111996e+000 -1.112267e-003 +8.282003e-004
+ -5.519246e-004 +3.186430e-004 +1.988814e+001 -2.207258e-009 +1.608700e-009
+ +9.836824e-002 -7.373217e-002 -3.125800e-009 +3.272492e-004 +1.033163e-003
+
+
+
+determinant = +1.302305e-005
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      +9.4962e+002   +1.1961e+003   +9.4962e+002   
+2    Cable1.ind_Iimag      -1.7886e+001   +9.9761e+002   -1.7886e+001   
+3    Turb.S_map.ind_PRbase +2.5948e-003   +1.0533e-001   +2.5948e-003   
+4    EM1.ind_Vimag         +2.3750e+000   +1.0000e+003   +2.3750e+000   
+5    EM1.ind_Vreal         +6.0306e+001   +1.0000e+003   +6.0306e+001   
+
+
+=========================
+ITERATION #3
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.9606e+003   +1.9606e+003   +1.1961e+004   
+2    Cable1.ind_Iimag      Iimag          -2.3942e+001   -2.3942e+001   +9.9761e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0533e+000   +1.0533e+000   +1.0533e+000   
+4    EM1.ind_Vimag         Vimag          -1.5503e+001   -1.5503e+001   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1703e+003   +1.1703e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6601e+001   -6.9962e-001   +6.9962e-001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -7.9903e+001   +1.0000e-004   FALSE     DY1I3
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +5.8516e+002   +5.8516e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +2.5368e-002   +1.0000e-004   FALSE     DY2I3
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4358e+002   +3.4358e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               -8.2245e-003   +1.0000e-004   FALSE     DY3I3
+4    Turbine_Shaft.integrate_Nmech   I    -8.6440e-001   +0.0000e+000   +6.5177e+003   trqNet         0.0000         trqIn          -1.3262e-004   +1.0000e-004   FALSE     DY4I3
+5    Propulsor_Shaft.integrate_Nmech I    +3.0081e+002   +0.0000e+000   +5.8152e+003   trqNet         0.0000         trqIn          +5.1728e-002   +1.0000e-004   FALSE     DY5I3
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 164.4          errorMagNorm        = 79.9           convergenceRatio    = 0.486          
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -5.590128e+001
+  2.657290e-002
+ -6.867872e-003
+ -1.445010e-004
+  1.061850e+001
+
+
+
+D = 9.057333e+005
+
+Broyden delta-J:
+----------------
+
+ -5.860970e-002  1.103914e-003 -1.601486e-007 -1.465826e-004 -3.722066e-003
+  2.786036e-005 -5.247500e-007  7.612727e-011  6.967865e-008  1.769299e-006
+ -7.200621e-006  1.356237e-007 -1.967540e-011 -1.800873e-008 -4.572824e-007
+ -1.515021e-007  2.853542e-009 -4.139731e-013 -3.789061e-010 -9.621284e-009
+  1.113297e-002 -2.096895e-004  3.042037e-008  2.784350e-005  7.070097e-004
+
+
+
+Updated J:
+----------
+
+ -8.453449e-002 -4.498739e+000 -2.098100e-007 +4.424685e-002 +3.745976e-003
+ +1.138534e-005 -2.482115e-005 -2.526523e-001 -5.389447e-004 -9.228653e-004
+ -1.180327e-005 +8.148732e-005 +1.111996e+000 -1.112285e-003 +8.277431e-004
+ -5.520761e-004 +3.186458e-004 +1.988814e+001 -2.586164e-009 -8.012584e-009
+ +1.095012e-001 -7.394186e-002 +2.729457e-008 +3.550927e-004 +1.740173e-003
+
+
+
+determinant = +1.303341e-005
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -1.0437e+002   +1.1856e+003   -1.0437e+002   
+2    Cable1.ind_Iimag      -1.0358e+001   +9.9657e+002   -1.0358e+001   
+3    Turb.S_map.ind_PRbase -2.7239e-003   +1.0506e-001   -2.7239e-003   
+4    EM1.ind_Vimag         +8.8408e+000   +1.0000e+003   +8.8408e+000   
+5    EM1.ind_Vreal         +2.3368e+001   +1.0000e+003   +2.3368e+001   
+
+
+=========================
+ITERATION #4
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.8562e+003   +1.8562e+003   +1.1856e+004   
+2    Cable1.ind_Iimag      Iimag          -3.4300e+001   -3.4300e+001   +9.9657e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0506e+000   +1.0506e+000   +1.0506e+000   
+4    EM1.ind_Vimag         Vimag          -6.6622e+000   -6.6622e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1936e+003   +1.1936e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6162e+001   -1.0586e+000   +1.0586e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -5.2053e+001   +1.0000e-004   FALSE     DY1I4
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0181e+002   +6.0181e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -3.0130e-003   +1.0000e-004   FALSE     DY2I4
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4600e+002   +3.4600e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               -1.1716e-003   +1.0000e-004   FALSE     DY3I4
+4    Turbine_Shaft.integrate_Nmech   I    +8.9073e-001   +0.0000e+000   +6.1947e+003   trqNet         0.0000         trqIn          +1.4379e-004   +1.0000e-004   FALSE     DY4I4
+5    Propulsor_Shaft.integrate_Nmech I    +1.4605e+002   +0.0000e+000   +5.6605e+003   trqNet         0.0000         trqIn          +2.5803e-002   +1.0000e-004   FALSE     DY5I4
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 79.9           errorMagNorm        = 52.05          convergenceRatio    = 0.6515         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -5.510312e+001
+ -3.245915e-003
+ -9.852450e-004
+  1.489021e-004
+  5.155716e+000
+
+
+
+D = 1.162381e+004
+
+Broyden delta-J:
+----------------
+
+  4.947519e-001  4.910468e-002  1.291260e-005 -4.191000e-002 -1.107756e-001
+  2.914395e-005  2.892570e-006  7.606324e-010 -2.468759e-006 -6.525370e-006
+  8.846175e-006  8.779928e-007  2.308776e-010 -7.493518e-007 -1.980670e-006
+ -1.336941e-006 -1.326929e-007 -3.489302e-011  1.132511e-007  2.993428e-007
+ -4.629140e-002 -4.594473e-003 -1.208166e-006  3.921304e-003  1.036470e-002
+
+
+
+Updated J:
+----------
+
+ +4.102174e-001 -4.449635e+000 +1.270279e-005 +2.336847e-003 -1.070296e-001
+ +4.052929e-005 -2.192858e-005 -2.526523e-001 -5.414135e-004 -9.293907e-004
+ -2.957099e-006 +8.236531e-005 +1.111996e+000 -1.113034e-003 +8.257624e-004
+ -5.534131e-004 +3.185131e-004 +1.988814e+001 +1.106649e-007 +2.913302e-007
+ +6.320981e-002 -7.853634e-002 -1.180872e-006 +4.276397e-003 +1.210488e-002
+
+
+
+determinant = +1.460554e-005
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -1.0824e+002   +1.1748e+003   -1.0824e+002   
+2    Cable1.ind_Iimag      -2.2298e+001   +9.9434e+002   -2.2298e+001   
+3    Turb.S_map.ind_PRbase -2.6624e-003   +1.0479e-001   -2.6624e-003   
+4    EM1.ind_Vimag         -7.0336e+000   +1.0000e+003   -7.0336e+000   
+5    EM1.ind_Vreal         -2.8657e+000   +1.0000e+003   -2.8657e+000   
+
+
+=========================
+ITERATION #5
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.7480e+003   +1.7480e+003   +1.1748e+004   
+2    Cable1.ind_Iimag      Iimag          -5.6598e+001   -5.6598e+001   +9.9434e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0479e+000   +1.0479e+000   +1.0479e+000   
+4    EM1.ind_Vimag         Vimag          -1.3696e+001   -1.3696e+001   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1908e+003   +1.1908e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6501e+001   -1.8545e+000   +1.8545e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.9467e+001   +1.0000e-004   FALSE     DY1I5
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +5.9797e+002   +5.9797e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +3.3890e-003   +1.0000e-004   FALSE     DY2I5
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4890e+002   +3.4890e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +7.1228e-003   +1.0000e-004   FALSE     DY3I5
+4    Turbine_Shaft.integrate_Nmech   I    -1.0089e+000   +0.0000e+000   +5.8779e+003   trqNet         0.0000         trqIn          -1.7164e-004   +1.0000e-004   FALSE     DY4I5
+5    Propulsor_Shaft.integrate_Nmech I    -1.7109e+002   +0.0000e+000   +5.3433e+003   trqNet         0.0000         trqIn          -3.2019e-002   +1.0000e-004   FALSE     DY5I5
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 52.05          errorMagNorm        = 29.47          convergenceRatio    = 0.5661         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -5.464639e+001
+  3.627702e-003
+  6.039819e-003
+ -1.686550e-004
+ -6.039324e+000
+
+
+
+D = 1.227180e+004
+
+Broyden delta-J:
+----------------
+
+  4.820144e-001  9.929186e-002  1.185547e-005  3.132050e-002  1.276083e-002
+ -3.199854e-005 -6.591494e-006 -7.870255e-010 -2.079213e-006 -8.471279e-007
+ -5.327488e-005 -1.097428e-005 -1.310331e-009 -3.461714e-006 -1.410397e-006
+  1.487640e-006  3.064442e-007  3.658949e-011  9.666439e-008  3.938371e-008
+  5.327052e-002  1.097338e-002  1.310224e-006  3.461431e-003  1.410281e-003
+
+
+
+Updated J:
+----------
+
+ +8.922318e-001 -4.350343e+000 +2.455826e-005 +3.365735e-002 -9.426880e-002
+ +8.530747e-006 -2.852007e-005 -2.526523e-001 -5.434927e-004 -9.302378e-004
+ -5.623198e-005 +7.139103e-005 +1.111996e+000 -1.116496e-003 +8.243520e-004
+ -5.519254e-004 +3.188196e-004 +1.988814e+001 +2.073293e-007 +3.307139e-007
+ +1.164803e-001 -6.756295e-002 +1.293524e-007 +7.737827e-003 +1.351516e-002
+
+
+
+determinant = +7.374106e-006
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      +5.0065e+001   +1.1798e+003   +5.0065e+001   
+2    Cable1.ind_Iimag      -2.2790e+000   +9.9411e+002   -2.2790e+000   
+3    Turb.S_map.ind_PRbase +1.4343e-003   +1.0494e-001   +1.4343e-003   
+4    EM1.ind_Vimag         +4.9974e+000   +1.0000e+003   +4.9974e+000   
+5    EM1.ind_Vreal         +1.1194e+000   +1.0000e+003   +1.1194e+000   
+
+
+=========================
+ITERATION #6
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.7981e+003   +1.7981e+003   +1.1798e+004   
+2    Cable1.ind_Iimag      Iimag          -5.8877e+001   -5.8877e+001   +9.9411e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0494e+000   +1.0494e+000   +1.0494e+000   
+4    EM1.ind_Vimag         Vimag          -8.6983e+000   -8.6983e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1919e+003   +1.1919e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6260e+001   -1.8754e+000   +1.8754e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.8998e+001   +1.0000e-004   FALSE     DY1I6
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0016e+002   +6.0016e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -2.7282e-004   +1.0000e-004   FALSE     DY2I6
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4667e+002   +3.4667e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +7.5928e-004   +1.0000e-004   FALSE     DY3I6
+4    Turbine_Shaft.integrate_Nmech   I    +1.3642e-001   +0.0000e+000   +6.0487e+003   trqNet         0.0000         trqIn          +2.2554e-005   +1.0000e-004   TRUE      DY4I6
+5    Propulsor_Shaft.integrate_Nmech I    +7.2978e-001   +0.0000e+000   +5.5151e+003   trqNet         0.0000         trqIn          +1.3232e-004   +1.0000e-004   FALSE     DY5I6
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 29.47          errorMagNorm        = 29             convergenceRatio    = 0.9841         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -5.438461e+001
+ -2.931070e-004
+  6.397421e-004
+  2.280515e-005
+  2.576097e-002
+
+
+
+D = 2.537894e+003
+
+Broyden delta-J:
+----------------
+
+ -1.072838e+000  4.883668e-002 -3.073593e-005 -1.070905e-001 -2.398814e-002
+ -5.782082e-006  2.632063e-007 -1.656519e-010 -5.771667e-007 -1.292846e-007
+  1.262010e-005 -5.744801e-007  3.615557e-010  1.259737e-006  2.821795e-007
+  4.498740e-007 -2.047873e-008  1.288852e-011  4.490637e-008  1.005897e-008
+  5.081832e-004 -2.313302e-005  1.455903e-008  5.072677e-005  1.136273e-005
+
+
+
+Updated J:
+----------
+
+ -1.806060e-001 -4.301506e+000 -6.177671e-006 -7.343318e-002 -1.182569e-001
+ +2.748664e-006 -2.825687e-005 -2.526523e-001 -5.440698e-004 -9.303671e-004
+ -4.361188e-005 +7.081655e-005 +1.111996e+000 -1.115236e-003 +8.246342e-004
+ -5.514755e-004 +3.187991e-004 +1.988814e+001 +2.522357e-007 +3.407729e-007
+ +1.169885e-001 -6.758608e-002 +1.439114e-007 +7.788554e-003 +1.352652e-002
+
+
+
+determinant = +1.318183e-005
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -7.3512e+000   +1.1791e+003   -7.3512e+000   
+2    Cable1.ind_Iimag      -1.2336e+001   +9.9288e+002   -1.2336e+001   
+3    Turb.S_map.ind_PRbase -7.2533e-006   +1.0494e-001   -7.2533e-006   
+4    EM1.ind_Vimag         +6.9848e-002   +1.0000e+003   +6.9848e-002   
+5    EM1.ind_Vreal         -9.8402e-004   +1.0000e+003   -9.8402e-004   
+
+
+=========================
+ITERATION #7
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.7907e+003   +1.7907e+003   +1.1791e+004   
+2    Cable1.ind_Iimag      Iimag          -7.1212e+001   -7.1212e+001   +9.9288e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0494e+000   +1.0494e+000   +1.0494e+000   
+4    EM1.ind_Vimag         Vimag          -8.6284e+000   -8.6284e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1919e+003   +1.1919e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.6257e+001   -2.2773e+000   +2.2773e+000   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.3703e+001   +1.0000e-004   FALSE     DY1I7
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0017e+002   +6.0017e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -2.8270e-004   +1.0000e-004   FALSE     DY2I7
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4669e+002   +3.4669e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +8.1266e-004   +1.0000e-004   FALSE     DY3I7
+4    Turbine_Shaft.integrate_Nmech   I    +3.0371e-002   +0.0000e+000   +6.0478e+003   trqNet         0.0000         trqIn          +5.0218e-006   +1.0000e-004   TRUE      DY4I7
+5    Propulsor_Shaft.integrate_Nmech I    +5.6856e-001   +0.0000e+000   +5.5150e+003   trqNet         0.0000         trqIn          +1.0309e-004   +1.0000e-004   FALSE     DY5I7
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 29             errorMagNorm        = 23.7           convergenceRatio    = 0.8174         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -5.397939e+001
+ -3.037212e-004
+  6.847548e-004
+  5.077063e-006
+  2.007009e-002
+
+
+
+D = 2.062144e+002
+
+Broyden delta-J:
+----------------
+
+  1.924287e+000  3.229027e+000  1.898647e-006 -1.828369e-002  2.575806e-004
+  1.082722e-005  1.816849e-005  1.068295e-011 -1.028752e-007  1.449306e-009
+ -2.441052e-005 -4.096178e-005 -2.408526e-011  2.319374e-007 -3.267534e-009
+ -1.809900e-007 -3.037080e-007 -1.785784e-013  1.719683e-009 -2.422689e-011
+ -7.154699e-004 -1.200586e-003 -7.059366e-010  6.798063e-006 -9.577111e-008
+
+
+
+Updated J:
+----------
+
+ +1.743681e+000 -1.072479e+000 -4.279023e-006 -9.171686e-002 -1.179994e-001
+ +1.357589e-005 -1.008838e-005 -2.526523e-001 -5.441727e-004 -9.303656e-004
+ -6.802240e-005 +2.985477e-005 +1.111996e+000 -1.115004e-003 +8.246309e-004
+ -5.516565e-004 +3.184954e-004 +1.988814e+001 +2.539554e-007 +3.407487e-007
+ +1.162730e-001 -6.878667e-002 +1.432055e-007 +7.795352e-003 +1.352643e-002
+
+
+
+determinant = +1.521805e-005
+
+
+
+INDEPENDENT UPDATES - [scaleFactor = 0.733463: Limiting Independent is # 2 - Cable1.ind_Iimag]
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -8.0132e+002   +1.1203e+003   -5.8774e+002   
+2    Cable1.ind_Iimag      -1.3537e+003   +8.9359e+002   -9.9288e+002   
+3    Turb.S_map.ind_PRbase -5.4905e-004   +1.0490e-001   -4.0271e-004   
+4    EM1.ind_Vimag         +1.0320e+001   +1.0000e+003   +7.5692e+000   
+5    EM1.ind_Vreal         -3.2277e+000   +1.0000e+003   -2.3674e+000   
+
+
+=========================
+ITERATION #8
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.2030e+003   +1.2030e+003   +1.1203e+004   
+2    Cable1.ind_Iimag      Iimag          -1.0641e+003   -1.0641e+003   +8.9359e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0490e+000   +1.0490e+000   +1.0490e+000   
+4    EM1.ind_Vimag         Vimag          -1.0593e+000   -1.0593e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1895e+003   +1.1895e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5893e+001   -4.1494e+001   +4.1494e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -3.4700e-001   +1.0000e-004   FALSE     DY1I8
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0008e+002   +6.0008e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -1.3258e-004   +1.0000e-004   FALSE     DY2I8
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4654e+002   +3.4654e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.8661e-004   +1.0000e-004   FALSE     DY3I8
+4    Turbine_Shaft.integrate_Nmech   I    -8.4281e-003   +0.0000e+000   +5.9999e+003   trqNet         0.0000         trqIn          -1.4047e-006   +1.0000e-004   TRUE      DY4I8
+5    Propulsor_Shaft.integrate_Nmech I    -3.2117e+001   +0.0000e+000   +5.4823e+003   trqNet         0.0000         trqIn          -5.8583e-003   +1.0000e-004   FALSE     DY5I8
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 23.7           errorMagNorm        = 0.3471         convergenceRatio    = 0.01464        
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.112997e-002
+ -6.145934e-005
+  1.431091e-004
+ -2.762137e-006
+ -1.139063e+000
+
+
+
+D = 1.815104e+006
+
+Broyden delta-J:
+----------------
+
+  4.913614e-006  8.300623e-006  3.366719e-012 -6.327939e-008  1.979172e-008
+  2.713281e-008  4.583575e-008  1.859091e-014 -3.494266e-010  1.092892e-010
+ -6.317920e-008 -1.067293e-007 -4.328924e-014  8.136458e-010 -2.544817e-010
+  1.219417e-009  2.059974e-009  8.355221e-016 -1.570411e-011  4.911731e-012
+  5.028687e-004  8.495016e-004  3.445565e-010 -6.476134e-006  2.025522e-006
+
+
+
+Updated J:
+----------
+
+ +1.743686e+000 -1.072470e+000 -4.279020e-006 -9.171693e-002 -1.179993e-001
+ +1.360302e-005 -1.004254e-005 -2.526523e-001 -5.441731e-004 -9.303655e-004
+ -6.808557e-005 +2.974805e-005 +1.111996e+000 -1.115003e-003 +8.246307e-004
+ -5.516553e-004 +3.184974e-004 +1.988814e+001 +2.539397e-007 +3.407536e-007
+ +1.167759e-001 -6.793717e-002 +1.435500e-007 +7.788876e-003 +1.352845e-002
+
+
+
+determinant = +1.376618e-007
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      +3.5774e+001   +1.1239e+003   +3.5774e+001   
+2    Cable1.ind_Iimag      +4.4767e+001   +8.9807e+002   +4.4767e+001   
+3    Turb.S_map.ind_PRbase +2.7545e-004   +1.0492e-001   +2.7545e-004   
+4    EM1.ind_Vimag         -3.9259e-001   +1.0000e+003   -3.9259e-001   
+5    EM1.ind_Vreal         +4.1590e-002   +1.0000e+003   +4.1590e-002   
+
+
+=========================
+ITERATION #9
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.2388e+003   +1.2388e+003   +1.1239e+004   
+2    Cable1.ind_Iimag      Iimag          -1.0193e+003   -1.0193e+003   +8.9807e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0492e+000   +1.0492e+000   +1.0492e+000   
+4    EM1.ind_Vimag         Vimag          -1.4519e+000   -1.4519e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1896e+003   +1.1896e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5912e+001   -3.9450e+001   +3.9450e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -4.1729e-001   +1.0000e-004   FALSE     DY1I9
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0007e+002   +6.0007e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -1.1762e-004   +1.0000e-004   FALSE     DY2I9
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4655e+002   +3.4655e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.9634e-004   +1.0000e-004   FALSE     DY3I9
+4    Turbine_Shaft.integrate_Nmech   I    -5.0291e-003   +0.0000e+000   +6.0327e+003   trqNet         0.0000         trqIn          -8.3365e-007   +1.0000e-004   TRUE      DY4I9
+5    Propulsor_Shaft.integrate_Nmech I    -1.8533e+000   +0.0000e+000   +5.5125e+003   trqNet         0.0000         trqIn          -3.3620e-004   +1.0000e-004   FALSE     DY5I9
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.3471         errorMagNorm        = 0.4173         convergenceRatio    = 1.202          
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 1              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.646209e+001
+ -1.263457e-004
+  3.338222e-004
+ -8.407128e-007
+ -6.542184e-002
+
+
+
+D = 3.283969e+003
+
+Broyden delta-J:
+----------------
+
+ -1.793294e-001 -2.244087e-001 -1.380818e-006  1.968013e-003 -2.084843e-004
+ -1.376344e-006 -1.722326e-006 -1.059771e-011  1.510441e-008 -1.600106e-009
+  3.636485e-006  4.550614e-006  2.800056e-011 -3.990784e-008  4.227694e-009
+ -9.158286e-009 -1.146047e-008 -7.051786e-014  1.005057e-010 -1.064721e-011
+ -7.126714e-004 -8.918207e-004 -5.487496e-009  7.821063e-006 -8.285354e-007
+
+
+
+Updated J:
+----------
+
+ +1.564357e+000 -1.296879e+000 -5.659838e-006 -8.974891e-002 -1.182078e-001
+ +1.222667e-005 -1.176487e-005 -2.526523e-001 -5.441580e-004 -9.303671e-004
+ -6.444909e-005 +3.429866e-005 +1.111996e+000 -1.115043e-003 +8.246349e-004
+ -5.516645e-004 +3.184860e-004 +1.988814e+001 +2.540402e-007 +3.407430e-007
+ +1.160632e-001 -6.882899e-002 +1.380625e-007 +7.796697e-003 +1.352762e-002
+
+
+
+determinant = +1.973959e-007
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -2.4521e+001   +1.1214e+003   -2.4521e+001   
+2    Cable1.ind_Iimag      -4.2284e+001   +8.9384e+002   -4.2284e+001   
+3    Turb.S_map.ind_PRbase -2.9941e-006   +1.0492e-001   -2.9941e-006   
+4    EM1.ind_Vimag         +3.2831e-001   +1.0000e+003   +3.2831e-001   
+5    EM1.ind_Vreal         -1.1456e-001   +1.0000e+003   -1.1456e-001   
+
+
+=========================
+ITERATION #10
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.2142e+003   +1.2142e+003   +1.1214e+004   
+2    Cable1.ind_Iimag      Iimag          -1.0616e+003   -1.0616e+003   +8.9384e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0492e+000   +1.0492e+000   +1.0492e+000   
+4    EM1.ind_Vimag         Vimag          -1.1235e+000   -1.1235e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1895e+003   +1.1895e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5896e+001   -4.1163e+001   +4.1163e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -3.5791e-001   +1.0000e-004   FALSE     DY1I10
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0006e+002   +6.0006e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -1.0579e-004   +1.0000e-004   FALSE     DY2I10
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4653e+002   +3.4653e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.5655e-004   +1.0000e-004   FALSE     DY3I10
+4    Turbine_Shaft.integrate_Nmech   I    -4.6151e-003   +0.0000e+000   +6.0323e+003   trqNet         0.0000         trqIn          -7.6506e-007   +1.0000e-004   TRUE      DY4I10
+5    Propulsor_Shaft.integrate_Nmech I    -2.8023e+000   +0.0000e+000   +5.5116e+003   trqNet         0.0000         trqIn          -5.0843e-004   +1.0000e-004   FALSE     DY5I10
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.4173         errorMagNorm        = 0.3579         convergenceRatio    = 0.8577         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.473266e+001
+ -1.136369e-004
+  3.002942e-004
+ -7.714941e-007
+ -9.891993e-002
+
+
+
+D = 2.389300e+003
+
+Broyden delta-J:
+----------------
+
+  1.511964e-001  2.607261e-001  1.846165e-008 -2.024371e-003  7.063817e-004
+  1.166218e-006  2.011049e-006  1.423996e-013 -1.561450e-008  5.448508e-009
+ -3.081819e-006 -5.314351e-006 -3.763016e-013  4.126251e-008 -1.439810e-008
+  7.917588e-009  1.365325e-008  9.667670e-016 -1.060087e-010  3.699055e-011
+  1.015182e-003  1.750601e-003  1.239576e-010 -1.359229e-005  4.742878e-006
+
+
+
+Updated J:
+----------
+
+ +1.715553e+000 -1.036153e+000 -5.641376e-006 -9.177328e-002 -1.175014e-001
+ +1.339289e-005 -9.753819e-006 -2.526523e-001 -5.441736e-004 -9.303617e-004
+ -6.753091e-005 +2.898431e-005 +1.111996e+000 -1.115002e-003 +8.246205e-004
+ -5.516566e-004 +3.184996e-004 +1.988814e+001 +2.539342e-007 +3.407799e-007
+ +1.170784e-001 -6.707839e-002 +1.381865e-007 +7.783105e-003 +1.353237e-002
+
+
+
+determinant = +1.261812e-006
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -1.4406e+002   +1.1070e+003   -1.4406e+002   
+2    Cable1.ind_Iimag      -2.5283e+002   +8.6856e+002   -2.5283e+002   
+3    Turb.S_map.ind_PRbase +5.3079e-005   +1.0493e-001   +5.3079e-005   
+4    EM1.ind_Vimag         +1.9550e+000   +1.0000e+003   +1.9550e+000   
+5    EM1.ind_Vreal         -7.0317e-001   +1.0000e+003   -7.0317e-001   
+
+
+=========================
+ITERATION #11
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.0702e+003   +1.0702e+003   +1.1070e+004   
+2    Cable1.ind_Iimag      Iimag          -1.3144e+003   -1.3144e+003   +8.6856e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +8.3143e-001   +8.3143e-001   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1888e+003   +1.1888e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5802e+001   -5.0849e+001   +5.0849e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -9.7411e-002   +1.0000e-004   FALSE     DY1I11
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0002e+002   +6.0002e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -3.1801e-005   +1.0000e-004   TRUE      DY2I11
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4645e+002   +3.4645e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +1.0699e-004   +1.0000e-004   FALSE     DY3I11
+4    Turbine_Shaft.integrate_Nmech   I    -2.9575e-003   +0.0000e+000   +6.0386e+003   trqNet         0.0000         trqIn          -4.8976e-007   +1.0000e-004   TRUE      DY4I11
+5    Propulsor_Shaft.integrate_Nmech I    -2.7914e+000   +0.0000e+000   +5.5116e+003   trqNet         0.0000         trqIn          -5.0646e-004   +1.0000e-004   FALSE     DY5I11
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.3579         errorMagNorm        = 0.09741        convergenceRatio    = 0.2722         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -4.953202e+000
+ -3.415669e-005
+  9.008435e-005
+ -4.944014e-007
+ -9.853621e-002
+
+
+
+D = 8.467971e+004
+
+Broyden delta-J:
+----------------
+
+  8.426470e-003  1.478883e-002 -3.104758e-009 -1.143529e-004  4.113084e-005
+  5.810793e-008  1.019820e-007 -2.141004e-014 -7.885640e-010  2.836334e-010
+ -1.532530e-007 -2.689657e-007  5.646652e-014  2.079747e-009 -7.480505e-010
+  8.410839e-010  1.476139e-009 -3.098998e-016 -1.141408e-011  4.105455e-012
+  1.676314e-004  2.942005e-004 -6.176430e-011 -2.274872e-006  8.182338e-007
+
+
+
+Updated J:
+----------
+
+ +1.723980e+000 -1.021364e+000 -5.644481e-006 -9.188764e-002 -1.174603e-001
+ +1.345100e-005 -9.651837e-006 -2.526523e-001 -5.441744e-004 -9.303614e-004
+ -6.768416e-005 +2.871534e-005 +1.111996e+000 -1.115000e-003 +8.246197e-004
+ -5.516557e-004 +3.185011e-004 +1.988814e+001 +2.539228e-007 +3.407840e-007
+ +1.172460e-001 -6.678419e-002 +1.381247e-007 +7.780830e-003 +1.353318e-002
+
+
+
+determinant = +1.814752e-007
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -5.0807e+001   +1.1019e+003   -5.0807e+001   
+2    Cable1.ind_Iimag      -9.0642e+001   +8.5949e+002   -9.0642e+001   
+3    Turb.S_map.ind_PRbase +4.2329e-005   +1.0493e-001   +4.2329e-005   
+4    EM1.ind_Vimag         +6.9061e-001   +1.0000e+003   +6.9061e-001   
+5    EM1.ind_Vreal         -2.4637e-001   +1.0000e+003   -2.4637e-001   
+
+
+=========================
+ITERATION #12
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +1.0194e+003   +1.0194e+003   +1.1019e+004   
+2    Cable1.ind_Iimag      Iimag          -1.4051e+003   -1.4051e+003   +8.5949e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +1.5220e+000   +1.5220e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1885e+003   +1.1885e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5769e+001   -5.4040e+001   +5.4040e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -3.1993e-002   +1.0000e-004   FALSE     DY1I12
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0001e+002   +6.0001e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -1.0285e-005   +1.0000e-004   TRUE      DY2I12
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4642e+002   +3.4642e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.4433e-005   +1.0000e-004   TRUE      DY3I12
+4    Turbine_Shaft.integrate_Nmech   I    -1.2890e-003   +0.0000e+000   +6.0437e+003   trqNet         0.0000         trqIn          -2.1328e-007   +1.0000e-004   TRUE      DY4I12
+5    Propulsor_Shaft.integrate_Nmech I    -1.0215e+000   +0.0000e+000   +5.5134e+003   trqNet         0.0000         trqIn          -1.8527e-004   +1.0000e-004   FALSE     DY5I12
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.09741        errorMagNorm        = 0.03199        convergenceRatio    = 0.3284         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.728883e+000
+ -1.104645e-005
+  2.899070e-005
+ -2.154808e-007
+ -3.605777e-002
+
+
+
+D = 1.079791e+004
+
+Broyden delta-J:
+----------------
+
+  8.134902e-003  1.451295e-002 -6.777385e-009 -1.105753e-004  3.944647e-005
+  5.197679e-008  9.272840e-008 -4.330313e-014 -7.065053e-010  2.520375e-010
+ -1.364098e-007 -2.433598e-007  1.136463e-013  1.854178e-009 -6.614565e-010
+  1.013901e-009  1.808834e-009 -8.447054e-016 -1.378166e-011  4.916446e-012
+  1.696624e-004  3.026837e-004 -1.413499e-010 -2.306172e-006  8.227000e-007
+
+
+
+Updated J:
+----------
+
+ +1.732115e+000 -1.006851e+000 -5.651259e-006 -9.199821e-002 -1.174209e-001
+ +1.350298e-005 -9.559109e-006 -2.526523e-001 -5.441751e-004 -9.303611e-004
+ -6.782057e-005 +2.847198e-005 +1.111996e+000 -1.114998e-003 +8.246191e-004
+ -5.516547e-004 +3.185029e-004 +1.988814e+001 +2.539090e-007 +3.407890e-007
+ +1.174157e-001 -6.648150e-002 +1.379834e-007 +7.778524e-003 +1.353401e-002
+
+
+
+determinant = +1.337245e-007
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -2.6388e+001   +1.0993e+003   -2.6388e+001   
+2    Cable1.ind_Iimag      -4.7132e+001   +8.5478e+002   -4.7132e+001   
+3    Turb.S_map.ind_PRbase +2.2853e-005   +1.0493e-001   +2.2853e-005   
+4    EM1.ind_Vimag         +3.5731e-001   +1.0000e+003   +3.5731e-001   
+5    EM1.ind_Vreal         -1.2581e-001   +1.0000e+003   -1.2581e-001   
+
+
+=========================
+ITERATION #13
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +9.9298e+002   +9.9298e+002   +1.0993e+004   
+2    Cable1.ind_Iimag      Iimag          -1.4522e+003   -1.4522e+003   +8.5478e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +1.8793e+000   +1.8793e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1884e+003   +1.1884e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5751e+001   -5.5637e+001   +5.5637e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.0562e-003   +1.0000e-004   FALSE     DY1I13
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -3.3905e-007   +1.0000e-004   TRUE      DY2I13
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +1.1058e-006   +1.0000e-004   TRUE      DY3I13
+4    Turbine_Shaft.integrate_Nmech   I    -1.4817e-004   +0.0000e+000   +6.0464e+003   trqNet         0.0000         trqIn          -2.4505e-008   +1.0000e-004   TRUE      DY4I13
+5    Propulsor_Shaft.integrate_Nmech I    -1.6201e-001   +0.0000e+000   +5.5142e+003   trqNet         0.0000         trqIn          -2.9379e-005   +1.0000e-004   TRUE      DY5I13
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.03199        errorMagNorm        = 0.002056       convergenceRatio    = 0.06428        
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.144007e-001
+ -3.641562e-007
+  9.310264e-007
+ -2.476870e-008
+ -5.718758e-003
+
+
+
+D = 2.917892e+003
+
+Broyden delta-J:
+----------------
+
+  1.034598e-003  1.847876e-003 -8.959860e-010 -1.400897e-005  4.932393e-006
+  3.293298e-009  5.882097e-009 -2.852072e-015 -4.459287e-011  1.570062e-011
+ -8.419869e-009 -1.503857e-008  7.291800e-015  1.140091e-010 -4.014127e-011
+  2.239993e-010  4.000808e-010 -1.939885e-016 -3.033059e-012  1.067905e-012
+  5.171840e-005  9.237323e-005 -4.478932e-011 -7.002924e-007  2.465647e-007
+
+
+
+Updated J:
+----------
+
+ +1.733149e+000 -1.005003e+000 -5.652155e-006 -9.201222e-002 -1.174159e-001
+ +1.350627e-005 -9.553227e-006 -2.526523e-001 -5.441751e-004 -9.303611e-004
+ -6.782899e-005 +2.845694e-005 +1.111996e+000 -1.114998e-003 +8.246190e-004
+ -5.516545e-004 +3.185033e-004 +1.988814e+001 +2.539059e-007 +3.407900e-007
+ +1.174674e-001 -6.638913e-002 +1.379386e-007 +7.777824e-003 +1.353425e-002
+
+
+
+determinant = +8.798623e-008
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -6.3806e-001   +1.0992e+003   -6.3806e-001   
+2    Cable1.ind_Iimag      -1.2146e+000   +8.5466e+002   -1.2146e+000   
+3    Turb.S_map.ind_PRbase +1.7550e-006   +1.0493e-001   +1.7550e-006   
+4    EM1.ind_Vimag         +8.4687e-003   +1.0000e+003   +8.4687e-003   
+5    EM1.ind_Vreal         -2.6119e-003   +1.0000e+003   -2.6119e-003   
+
+
+=========================
+ITERATION #14
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +9.9234e+002   +9.9234e+002   +1.0992e+004   
+2    Cable1.ind_Iimag      Iimag          -1.4534e+003   -1.4534e+003   +8.5466e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +1.8878e+000   +1.8878e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1884e+003   +1.1884e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5751e+001   -5.5676e+001   +5.5676e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -1.3385e-003   +1.0000e-004   FALSE     DY1I14
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -5.1136e-007   +1.0000e-004   TRUE      DY2I14
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +1.7072e-006   +1.0000e-004   TRUE      DY3I14
+4    Turbine_Shaft.integrate_Nmech   I    -6.7158e-005   +0.0000e+000   +6.0466e+003   trqNet         0.0000         trqIn          -1.1107e-008   +1.0000e-004   TRUE      DY4I14
+5    Propulsor_Shaft.integrate_Nmech I    -1.0095e-002   +0.0000e+000   +5.5144e+003   trqNet         0.0000         trqIn          -1.8307e-006   +1.0000e-004   TRUE      DY5I14
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.002056       errorMagNorm        = 0.001339       convergenceRatio    = 0.6509         
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -7.452397e-002
+ -5.492334e-007
+  1.437372e-006
+ -1.122665e-008
+ -3.563581e-004
+
+
+
+D = 1.882568e+000
+
+Broyden delta-J:
+----------------
+
+  2.525843e-002  4.808346e-002 -6.947597e-008 -3.352440e-004  1.033956e-004
+  1.861518e-007  3.543698e-007 -5.120302e-013 -2.470711e-009  7.620144e-010
+ -4.871690e-007 -9.274041e-007  1.340009e-012  6.465978e-009 -1.994231e-009
+  3.805051e-009  7.243524e-009 -1.046619e-014 -5.050276e-011  1.557601e-011
+  1.207806e-004  2.299252e-004 -3.322197e-010 -1.603067e-006  4.944165e-007
+
+
+
+Updated J:
+----------
+
+ +1.758408e+000 -9.569198e-001 -5.721630e-006 -9.234746e-002 -1.173125e-001
+ +1.369242e-005 -9.198857e-006 -2.526523e-001 -5.441776e-004 -9.303603e-004
+ -6.831616e-005 +2.752954e-005 +1.111996e+000 -1.114991e-003 +8.246170e-004
+ -5.516507e-004 +3.185106e-004 +1.988814e+001 +2.538554e-007 +3.408056e-007
+ +1.175882e-001 -6.615921e-002 +1.376064e-007 +7.776221e-003 +1.353475e-002
+
+
+
+determinant = +8.580746e-008
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      +1.1778e+000   +1.0994e+003   +1.1778e+000   
+2    Cable1.ind_Iimag      +2.0872e+000   +8.5487e+002   +2.0872e+000   
+3    Turb.S_map.ind_PRbase -7.5755e-007   +1.0493e-001   -7.5755e-007   
+4    EM1.ind_Vimag         -1.5931e-002   +1.0000e+003   -1.5931e-002   
+5    EM1.ind_Vreal         +5.6304e-003   +1.0000e+003   +5.6304e-003   
+
+
+=========================
+ITERATION #15
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +9.9352e+002   +9.9352e+002   +1.0994e+004   
+2    Cable1.ind_Iimag      Iimag          -1.4513e+003   -1.4513e+003   +8.5487e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +1.8719e+000   +1.8719e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1884e+003   +1.1884e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5752e+001   -5.5606e+001   +5.5606e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.6134e-003   +1.0000e-004   FALSE     DY1I15
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -1.0058e-006   +1.0000e-004   TRUE      DY2I15
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.3591e-006   +1.0000e-004   TRUE      DY3I15
+4    Turbine_Shaft.integrate_Nmech   I    -1.2983e-004   +0.0000e+000   +6.0465e+003   trqNet         0.0000         trqIn          -2.1473e-008   +1.0000e-004   TRUE      DY4I15
+5    Propulsor_Shaft.integrate_Nmech I    -1.7444e-002   +0.0000e+000   +5.5144e+003   trqNet         0.0000         trqIn          -3.1634e-006   +1.0000e-004   TRUE      DY5I15
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.001339       errorMagNorm        = 0.002613       convergenceRatio    = 1.952          
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 1              maxConvergeFailures = 3              
+
+
+
+----------------------------------------
+ BROYDEN UPDATE TO JACOBIAN MATRIX
+ FOR SOLVER 'solver'
+----------------------------------------
+Broyden parameters:
+
+W:
+--
+
+ -1.453191e-001
+ -1.080275e-006
+  2.828108e-006
+ -2.170420e-008
+ -6.157803e-004
+
+
+
+D = 5.744055e+000
+
+Broyden delta-J:
+----------------
+
+ -2.979698e-002 -5.280522e-002  1.916519e-008  4.030508e-004 -1.424431e-004
+ -2.215052e-007 -3.925441e-007  1.424705e-013  2.996204e-009 -1.058895e-009
+  5.798898e-007  1.027662e-006 -3.729808e-013 -7.843918e-009  2.772137e-009
+ -4.450342e-009 -7.886748e-009  2.862426e-015  6.019784e-011 -2.127466e-011
+ -1.262628e-004 -2.237587e-004  8.121127e-011  1.707902e-006 -6.035935e-007
+
+
+
+Updated J:
+----------
+
+ +1.728611e+000 -1.009725e+000 -5.702465e-006 -9.194441e-002 -1.174550e-001
+ +1.347092e-005 -9.591401e-006 -2.526523e-001 -5.441746e-004 -9.303614e-004
+ -6.773627e-005 +2.855720e-005 +1.111996e+000 -1.114999e-003 +8.246198e-004
+ -5.516551e-004 +3.185027e-004 +1.988814e+001 +2.539156e-007 +3.407843e-007
+ +1.174619e-001 -6.638296e-002 +1.376876e-007 +7.777928e-003 +1.353414e-002
+
+
+
+determinant = +1.150275e-007
+
+
+
+INDEPENDENT UPDATES - (unscaled)
+---------------------------
+COL  SHORT-NAME            DX-UNLIM       LIMIT-VAL      DX-LIMITED   
+1    Cable1.ind_Ireal      -2.3953e+000   +1.0991e+003   -2.3953e+000   
+2    Cable1.ind_Iimag      -4.2463e+000   +8.5444e+002   -4.2463e+000   
+3    Turb.S_map.ind_PRbase +1.5619e-006   +1.0493e-001   +1.5619e-006   
+4    EM1.ind_Vimag         +3.2396e-002   +1.0000e+003   +3.2396e-002   
+5    EM1.ind_Vreal         -1.1440e-002   +1.0000e+003   -1.1440e-002   
+
+
+=========================
+ITERATION #16
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME            varName        x              xModel         xRef
+1    Cable1.ind_Ireal      Ireal          +9.9112e+002   +9.9112e+002   +1.0991e+004   
+2    Cable1.ind_Iimag      Iimag          -1.4556e+003   -1.4556e+003   +8.5444e+003   
+3    Turb.S_map.ind_PRbase PRbase         +1.0493e+000   +1.0493e+000   +1.0493e+000   
+4    EM1.ind_Vimag         Vimag          +1.9043e+000   +1.9043e+000   +1.0000e+004   
+5    EM1.ind_Vreal         Vreal          +1.1884e+003   +1.1884e+003   +1.0000e+004   
+
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.5750e+001   -5.5749e+001   +5.5749e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.5174e-005   +1.0000e-004   TRUE      DY1I16
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               -9.0451e-009   +1.0000e-004   TRUE      DY2I16
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +3.0160e-008   +1.0000e-004   TRUE      DY3I16
+4    Turbine_Shaft.integrate_Nmech   I    -1.2680e-006   +0.0000e+000   +6.0467e+003   trqNet         0.0000         trqIn          -2.0970e-010   +1.0000e-004   TRUE      DY4I16
+5    Propulsor_Shaft.integrate_Nmech I    -3.7106e-004   +0.0000e+000   +5.5144e+003   trqNet         0.0000         trqIn          -6.7289e-008   +1.0000e-004   TRUE      DY5I16
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0.002613       errorMagNorm        = 2.517e-005     convergenceRatio    = 0.009633       
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+CASE 0 : SOLVER CONVERGENCE STATISTICS for 'solver'
+======================================================
+   CONVERGED = TRUE
+   solver iterations = 16
+   total model passes = 21
+   discon iterations = 0
+   Jacobians generated = 1
+   Broyden updates = 14
+
+
+START CONTINUOUS MODEL CONVERGENCE:
+=========================
+ITERATION #1
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME              varName        x              xModel         xRef
+1    Cable1.ind_Ireal        Ireal          +9.9112e+002   +9.9112e+002   +1.0991e+004   
+2    Cable1.ind_Iimag        Iimag          -1.4556e+003   -1.4556e+003   +8.5444e+003   
+3    Prop.S_map.ind_RlineMap RlineMap       +1.8658e+000   +1.8658e+000   +1.8658e+000   
+4    Turb.S_map.ind_PRbase   PRbase         +1.0351e+000   +1.0351e+000   +1.0351e+000   
+5    Gen1.ind_trqTemp        trqTemp        +4.5125e+003   +4.5125e+003   +4.5125e+003   
+6    EM1.ind_Vimag           Vimag          -3.6630e+001   -3.6630e+001   +1.0000e+004   
+7    EM1.ind_trqTemp         trqTemp        +4.4387e+003   +4.4387e+003   +4.4387e+003   
+8    EM1.ind_Vreal           Vreal          +1.2015e+003   +1.2015e+003   +1.0000e+004   
+9    Turbine_Shaft.ind_Nmech Nmech          +3.8411e+003   +3.8411e+003   +3.8411e+003   
+10   ind_AtmW                Atm.W          +2.0149e+002   +2.0149e+002   +2.0149e+002   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.7588e+001   +4.5900e+001   +4.5900e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.2547e+000   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +0.0000e+000   +1.0000e-004   TRUE      DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +0.0000e+000   +1.0000e-004   TRUE      DY3I1
+4    Prop.S_map.dep_errWc            D    +2.0149e+002   +2.0149e+002   +2.0149e+002   Wc             WcCalc                        +1.8322e-005   +1.0000e-004   TRUE      DY4I1
+5    Turb.S_map.dep_errWp            D    +4.6904e+001   +4.6886e+001   +4.6886e+001   Wp             WpCalc                        +3.9116e-004   +1.0000e-004   FALSE     DY5I1
+6    Noz.dep_Area                    D    +3.9637e-001   +3.9638e-001   +4.3440e-001   WqAE           WqAEdem        WqAEchoke      -2.2907e-005   +1.0000e-004   TRUE      DY6I1
+7    Gen1.dep_trq_map                D    +4.5125e+003   +5.2978e+003   +5.2978e+003   trqTemp        trq                           -1.4823e-001   +1.0000e-004   FALSE     DY7I1
+8    EM1.dep_trq_map                 D    +4.4387e+003   +4.5844e+003   +4.5844e+003   trqTemp        trq                           -3.1784e-002   +1.0000e-004   FALSE     DY8I1
+9    Turbine_Shaft.integrate_Nmech   I    -7.8896e+002   +0.0000e+000   +4.5088e+003   trqNet         0.0000         trqIn          -1.7498e-001   +1.0000e-004   FALSE     DY9I1
+10   Propulsor_Shaft.integrate_Nmech I    +1.4564e+002   +0.0000e+000   +4.5844e+003   trqNet         0.0000         trqIn          +3.1770e-002   +1.0000e-004   FALSE     DY10I1
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0              errorMagNorm        = 2.267          convergenceRatio    = 0              
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+--------------------------------------------
+JACOBIAN BEING GENERATED FOR SOLVER  'solver'
+--------------------------------------------
+
+BASE POINT FOR MATRIX GENERATION
+--------------------------------------------
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME              varName        x              xModel         xRef
+1    Cable1.ind_Ireal        Ireal          +9.9112e+002   +9.9112e+002   +1.0991e+004   
+2    Cable1.ind_Iimag        Iimag          -1.4556e+003   -1.4556e+003   +8.5444e+003   
+3    Prop.S_map.ind_RlineMap RlineMap       +1.8658e+000   +1.8658e+000   +1.8658e+000   
+4    Turb.S_map.ind_PRbase   PRbase         +1.0351e+000   +1.0351e+000   +1.0351e+000   
+5    Gen1.ind_trqTemp        trqTemp        +4.5125e+003   +4.5125e+003   +4.5125e+003   
+6    EM1.ind_Vimag           Vimag          -3.6630e+001   -3.6630e+001   +1.0000e+004   
+7    EM1.ind_trqTemp         trqTemp        +4.4387e+003   +4.4387e+003   +4.4387e+003   
+8    EM1.ind_Vreal           Vreal          +1.2015e+003   +1.2015e+003   +1.0000e+004   
+9    Turbine_Shaft.ind_Nmech Nmech          +3.8411e+003   +3.8411e+003   +3.8411e+003   
+10   ind_AtmW                Atm.W          +2.0149e+002   +2.0149e+002   +2.0149e+002   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.7588e+001   +4.5900e+001   +4.5900e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.2547e+000   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +0.0000e+000   +1.0000e-004   TRUE      DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +0.0000e+000   +1.0000e-004   TRUE      DY3I1
+4    Prop.S_map.dep_errWc            D    +2.0149e+002   +2.0149e+002   +2.0149e+002   Wc             WcCalc                        +1.8322e-005   +1.0000e-004   TRUE      DY4I1
+5    Turb.S_map.dep_errWp            D    +4.6904e+001   +4.6886e+001   +4.6886e+001   Wp             WpCalc                        +3.9116e-004   +1.0000e-004   FALSE     DY5I1
+6    Noz.dep_Area                    D    +3.9637e-001   +3.9638e-001   +4.3440e-001   WqAE           WqAEdem        WqAEchoke      -2.2907e-005   +1.0000e-004   TRUE      DY6I1
+7    Gen1.dep_trq_map                D    +4.5125e+003   +5.2978e+003   +5.2978e+003   trqTemp        trq                           -1.4823e-001   +1.0000e-004   FALSE     DY7I1
+8    EM1.dep_trq_map                 D    +4.4387e+003   +4.5844e+003   +4.5844e+003   trqTemp        trq                           -3.1784e-002   +1.0000e-004   FALSE     DY8I1
+9    Turbine_Shaft.integrate_Nmech   I    -7.8896e+002   +0.0000e+000   +4.5088e+003   trqNet         0.0000         trqIn          -1.7498e-001   +1.0000e-004   FALSE     DY9I1
+10   Propulsor_Shaft.integrate_Nmech I    +1.4564e+002   +0.0000e+000   +4.5844e+003   trqNet         0.0000         trqIn          +3.1770e-002   +1.0000e-004   FALSE     DY10I1
+
+No Constrained Targets found in Solver 'solver'
+
+
+
+PERTURBATION RESULTS:
+--------------------------------------------
+
+MATRIX COLUMN 1 : Independent 'Cable1.ind_Ireal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10991.1;   PERTURBED X VALUE = 1002.11;   DX = 10.9911;   PX1
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX1PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX1PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX1PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX1PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX1PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX1PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX1PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX1PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX1PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX1PY10
+
+MATRIX COLUMN 2 : Independent 'Cable1.ind_Iimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 8544.42;   PERTURBED X VALUE = -1447.04;   DX = 8.54442;   PX2
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX2PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX2PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX2PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX2PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX2PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX2PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX2PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX2PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX2PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX2PY10
+
+MATRIX COLUMN 3 : Independent 'Prop.S_map.ind_RlineMap'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 1.8658;   PERTURBED X VALUE = 1.86767;   DX = 0.0018658;   PX3
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME              y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX3PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX3PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX3PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0154e+002   +2.0149e+002   -2.3344e-004   +1.8322e-005   -2.5176e-004   -1.3494e-001   PX3PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX3PY5
+6    Noz.dep_Area                     +3.9631e-001   +3.9638e-001   +4.3440e-001   -1.6106e-004   -2.2907e-005   -1.3815e-004   -7.4045e-002   PX3PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX3PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX3PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX3PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4766e+002   +0.0000e+000   +4.5844e+003   +3.2209e-002   +3.1770e-002   +4.3917e-004   +2.3538e-001   PX3PY10
+
+MATRIX COLUMN 4 : Independent 'Turb.S_map.ind_PRbase'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 1.0351;   PERTURBED X VALUE = 1.03614;   DX = 0.0010351;   PX4
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME            y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX4PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX4PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX4PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX4PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6931e+001   +4.6886e+001   -5.6243e-004   +3.9116e-004   -9.5359e-004   -9.2125e-001   PX4PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX4PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX4PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX4PY8
+9    Turbine_Shaft.integrate_Nmech    -6.5891e+002   +0.0000e+000   +4.5088e+003   -1.4614e-001   -1.7498e-001   +2.8842e-002   +2.7864e+001   PX4PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX4PY10
+
+MATRIX COLUMN 5 : Independent 'Gen1.ind_trqTemp'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 4512.5;   PERTURBED X VALUE = 4517.01;   DX = 4.5125;   PX5
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX5PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX5PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX5PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX5PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX5PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX5PY6
+7    Gen1.dep_trq_map                 +4.5170e+003   +5.2978e+003   +5.2978e+003   -1.4737e-001   -1.4823e-001   +8.5177e-004   +1.8876e-004   PX5PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX5PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX5PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX5PY10
+
+MATRIX COLUMN 6 : Independent 'EM1.ind_Vimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = -26.63;   DX = 10;   PX6
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7112e+001   +4.6779e+001   +4.5900e+001   -2.2634e+000   -2.2547e+000   -8.7676e-003   -8.7676e-004   PX6PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX6PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX6PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX6PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX6PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX6PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +3.6185e+003   +5.2978e+003   +1.6875e-001   -1.4823e-001   +3.1697e-001   +3.1697e-002   PX6PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +3.2276e+003   +4.5844e+003   +2.6418e-001   -3.1784e-002   +2.9596e-001   +2.9596e-002   PX6PY8
+9    Turbine_Shaft.integrate_Nmech    +8.9030e+002   +0.0000e+000   +4.5088e+003   +1.9746e-001   -1.7498e-001   +3.7244e-001   +3.7244e-002   PX6PY9
+10   Propulsor_Shaft.integrate_Nmech  -1.2112e+003   +0.0000e+000   +4.5844e+003   -2.6419e-001   +3.1770e-002   -2.9596e-001   -2.9596e-002   PX6PY10
+
+MATRIX COLUMN 7 : Independent 'EM1.ind_trqTemp'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 4438.7;   PERTURBED X VALUE = 4443.14;   DX = 4.4387;   PX7
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX7PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX7PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX7PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX7PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX7PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX7PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX7PY7
+8    EM1.dep_trq_map                  +4.4431e+003   +4.5844e+003   +4.5844e+003   -3.0815e-002   -3.1784e-002   +9.6822e-004   +2.1813e-004   PX7PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX7PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX7PY10
+
+MATRIX COLUMN 8 : Independent 'EM1.ind_Vreal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = 1211.5;   DX = 10;   PX8
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7574e+001   +6.0984e+001   +4.5900e+001   -2.5830e+000   -2.2547e+000   -3.2833e-001   -3.2833e-002   PX8PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX8PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX8PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX8PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX8PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX8PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   -3.9123e+002   +5.2978e+003   +9.2562e-001   -1.4823e-001   +1.0738e+000   +1.0738e-001   PX8PY7
+8    EM1.dep_trq_map                  +4.4387e+003   -1.0722e+003   +4.5844e+003   +1.2021e+000   -3.1784e-002   +1.2339e+000   +1.2339e-001   PX8PY8
+9    Turbine_Shaft.integrate_Nmech    +4.9000e+003   +0.0000e+000   +4.5088e+003   +1.0868e+000   -1.7498e-001   +1.2617e+000   +1.2617e-001   PX8PY9
+10   Propulsor_Shaft.integrate_Nmech  -5.5110e+003   +0.0000e+000   +4.5844e+003   -1.2021e+000   +3.1770e-002   -1.2339e+000   -1.2339e-001   PX8PY10
+
+MATRIX COLUMN 9 : Independent 'Turbine_Shaft.ind_Nmech'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 3841.1;   PERTURBED X VALUE = 3844.94;   DX = 3.8411;   PX9
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME              y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX9PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX9PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX9PY3
+4    Prop.S_map.dep_errWc             +2.0149e+002   +2.0149e+002   +2.0149e+002   +1.8322e-005   +1.8322e-005   +0.0000e+000   +0.0000e+000   PX9PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6877e+001   +4.6886e+001   +5.8629e-004   +3.9116e-004   +1.9513e-004   +5.0801e-005   PX9PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9638e-001   +4.3440e-001   -2.2907e-005   -2.2907e-005   +0.0000e+000   +0.0000e+000   PX9PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2924e+003   +5.2978e+003   -1.4722e-001   -1.4823e-001   +1.0110e-003   +2.6321e-004   PX9PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX9PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8788e+002   +0.0000e+000   +4.5088e+003   -1.7474e-001   -1.7498e-001   +2.3773e-004   +6.1891e-005   PX9PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4564e+002   +0.0000e+000   +4.5844e+003   +3.1770e-002   +3.1770e-002   +0.0000e+000   +0.0000e+000   PX9PY10
+
+MATRIX COLUMN 10 : Independent 'ind_AtmW'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 201.49;   PERTURBED X VALUE = 201.691;   DX = 0.20149;   PX10
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX10PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX10PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX10PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.8322e-005   +1.0000e-003   +4.9631e-003   PX10PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX10PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -2.2907e-005   -9.1246e-004   -4.5286e-003   PX10PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX10PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX10PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX10PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.1770e-002   -9.6823e-004   -4.8054e-003   PX10PY10
+
+START CONTINUOUS MODEL CONVERGENCE:
+=========================
+ITERATION #1
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME              varName        x              xModel         xRef
+1    Cable1.ind_Ireal        Ireal          +9.9112e+002   +9.9112e+002   +1.0991e+004   
+2    Cable1.ind_Iimag        Iimag          -1.4556e+003   -1.4556e+003   +8.5444e+003   
+3    Prop.S_map.ind_RlineMap RlineMap       +1.8658e+000   +1.8658e+000   +1.8658e+000   
+4    Turb.S_map.ind_PRbase   PRbase         +1.0351e+000   +1.0351e+000   +1.0351e+000   
+5    Gen1.ind_trqTemp        trqTemp        +4.5125e+003   +4.5125e+003   +4.5125e+003   
+6    EM1.ind_Vimag           Vimag          -3.6630e+001   -3.6630e+001   +1.0000e+004   
+7    EM1.ind_trqTemp         trqTemp        +4.4387e+003   +4.4387e+003   +4.4387e+003   
+8    EM1.ind_Vreal           Vreal          +1.2015e+003   +1.2015e+003   +1.0000e+004   
+9    Turbine_Shaft.ind_Nmech Nmech          +3.8411e+003   +3.8411e+003   +3.8411e+003   
+10   ind_AtmW                Atm.W          +2.0169e+002   +2.0169e+002   +2.0169e+002   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.7588e+001   +4.5900e+001   +4.5900e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.2547e+000   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +0.0000e+000   +1.0000e-004   TRUE      DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +0.0000e+000   +1.0000e-004   TRUE      DY3I1
+4    Prop.S_map.dep_errWc            D    +2.0169e+002   +2.0149e+002   +2.0149e+002   Wc             WcCalc                        +1.0183e-003   +1.0000e-004   FALSE     DY4I1
+5    Turb.S_map.dep_errWp            D    +4.6904e+001   +4.6886e+001   +4.6886e+001   Wp             WpCalc                        +3.9116e-004   +1.0000e-004   FALSE     DY5I1
+6    Noz.dep_Area                    D    +3.9637e-001   +3.9677e-001   +4.3440e-001   WqAE           WqAEdem        WqAEchoke      -9.3537e-004   +1.0000e-004   FALSE     DY6I1
+7    Gen1.dep_trq_map                D    +4.5125e+003   +5.2978e+003   +5.2978e+003   trqTemp        trq                           -1.4823e-001   +1.0000e-004   FALSE     DY7I1
+8    EM1.dep_trq_map                 D    +4.4387e+003   +4.5844e+003   +4.5844e+003   trqTemp        trq                           -3.1784e-002   +1.0000e-004   FALSE     DY8I1
+9    Turbine_Shaft.integrate_Nmech   I    -7.8896e+002   +0.0000e+000   +4.5088e+003   trqNet         0.0000         trqIn          -1.7498e-001   +1.0000e-004   FALSE     DY9I1
+10   Propulsor_Shaft.integrate_Nmech I    +1.4121e+002   +0.0000e+000   +4.5844e+003   trqNet         0.0000         trqIn          +3.0801e-002   +1.0000e-004   FALSE     DY10I1
+
+No Auxiliary Dependents found in Solver 'solver'
+
+
+CONVERGENCE RATE INFO
+-------------------------
+errorMagNormPrev    = 0              errorMagNorm        = 2.267          convergenceRatio    = 0              
+
+broydenLimit        = 0              divergenceLimit     = 2              convergenceLimit    = 1              
+numConvergeFailures = 0              maxConvergeFailures = 3              
+
+
+
+--------------------------------------------
+JACOBIAN BEING GENERATED FOR SOLVER  'solver'
+--------------------------------------------
+
+BASE POINT FOR MATRIX GENERATION
+--------------------------------------------
+
+INDEPENDENTS
+----------------
+COL  SHORT-NAME              varName        x              xModel         xRef
+1    Cable1.ind_Ireal        Ireal          +9.9112e+002   +9.9112e+002   +1.0991e+004   
+2    Cable1.ind_Iimag        Iimag          -1.4556e+003   -1.4556e+003   +8.5444e+003   
+3    Prop.S_map.ind_RlineMap RlineMap       +1.8658e+000   +1.8658e+000   +1.8658e+000   
+4    Turb.S_map.ind_PRbase   PRbase         +1.0351e+000   +1.0351e+000   +1.0351e+000   
+5    Gen1.ind_trqTemp        trqTemp        +4.5125e+003   +4.5125e+003   +4.5125e+003   
+6    EM1.ind_Vimag           Vimag          -3.6630e+001   -3.6630e+001   +1.0000e+004   
+7    EM1.ind_trqTemp         trqTemp        +4.4387e+003   +4.4387e+003   +4.4387e+003   
+8    EM1.ind_Vreal           Vreal          +1.2015e+003   +1.2015e+003   +1.0000e+004   
+9    Turbine_Shaft.ind_Nmech Nmech          +3.8411e+003   +3.8411e+003   +3.8411e+003   
+10   ind_AtmW                Atm.W          +2.0169e+002   +2.0169e+002   +2.0169e+002   
+
+
+DEPENDENT ERRORS
+----------------------
+ROW  SHORT-NAME                      TYPE y1             y2             yRef           eq_lhs         eq_rhs         eq_ref         errorCon       tolerance      isConverged
+1    MotorAngle                      D    -5.7588e+001   +4.5900e+001   +4.5900e+001   EM1.CurrentAngle_DemandEM1.EP_I.I.phaseDeg               -2.2547e+000   +1.0000e-004   FALSE     DY1I1
+2    Cable1.dep_Vreal_err            D    +6.0000e+002   +6.0000e+002   +6.0000e+002   EP_I.VLN.r     EP_O.VLN.r+Vreal_drop               +0.0000e+000   +1.0000e-004   TRUE      DY2I1
+3    Cable1.dep_Vimag_err            D    -3.4641e+002   -3.4641e+002   +3.4641e+002   EP_I.VLN.j     EP_O.VLN.j+Vimag_drop               +0.0000e+000   +1.0000e-004   TRUE      DY3I1
+4    Prop.S_map.dep_errWc            D    +2.0169e+002   +2.0149e+002   +2.0149e+002   Wc             WcCalc                        +1.0183e-003   +1.0000e-004   FALSE     DY4I1
+5    Turb.S_map.dep_errWp            D    +4.6904e+001   +4.6886e+001   +4.6886e+001   Wp             WpCalc                        +3.9116e-004   +1.0000e-004   FALSE     DY5I1
+6    Noz.dep_Area                    D    +3.9637e-001   +3.9677e-001   +4.3440e-001   WqAE           WqAEdem        WqAEchoke      -9.3537e-004   +1.0000e-004   FALSE     DY6I1
+7    Gen1.dep_trq_map                D    +4.5125e+003   +5.2978e+003   +5.2978e+003   trqTemp        trq                           -1.4823e-001   +1.0000e-004   FALSE     DY7I1
+8    EM1.dep_trq_map                 D    +4.4387e+003   +4.5844e+003   +4.5844e+003   trqTemp        trq                           -3.1784e-002   +1.0000e-004   FALSE     DY8I1
+9    Turbine_Shaft.integrate_Nmech   I    -7.8896e+002   +0.0000e+000   +4.5088e+003   trqNet         0.0000         trqIn          -1.7498e-001   +1.0000e-004   FALSE     DY9I1
+10   Propulsor_Shaft.integrate_Nmech I    +1.4121e+002   +0.0000e+000   +4.5844e+003   trqNet         0.0000         trqIn          +3.0801e-002   +1.0000e-004   FALSE     DY10I1
+
+No Constrained Targets found in Solver 'solver'
+
+
+
+PERTURBATION RESULTS:
+--------------------------------------------
+
+MATRIX COLUMN 1 : Independent 'Cable1.ind_Ireal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10991.1;   PERTURBED X VALUE = 1002.11;   DX = 10.9911;   PX1
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX1PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX1PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX1PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX1PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX1PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX1PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX1PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX1PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX1PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX1PY10
+
+MATRIX COLUMN 2 : Independent 'Cable1.ind_Iimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 8544.42;   PERTURBED X VALUE = -1447.04;   DX = 8.54442;   PX2
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX2PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX2PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX2PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX2PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX2PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX2PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX2PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX2PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX2PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX2PY10
+
+MATRIX COLUMN 3 : Independent 'Prop.S_map.ind_RlineMap'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 1.8658;   PERTURBED X VALUE = 1.86767;   DX = 0.0018658;   PX3
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME              y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX3PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX3PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX3PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0154e+002   +2.0149e+002   +7.6658e-004   +1.0183e-003   -2.5176e-004   -1.3494e-001   PX3PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX3PY5
+6    Noz.dep_Area                     +3.9631e-001   +3.9677e-001   +4.3440e-001   -1.0735e-003   -9.3537e-004   -1.3815e-004   -7.4045e-002   PX3PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX3PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX3PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX3PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4322e+002   +0.0000e+000   +4.5844e+003   +3.1241e-002   +3.0801e-002   +4.3961e-004   +2.3561e-001   PX3PY10
+
+MATRIX COLUMN 4 : Independent 'Turb.S_map.ind_PRbase'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 1.0351;   PERTURBED X VALUE = 1.03614;   DX = 0.0010351;   PX4
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME            y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX4PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX4PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX4PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX4PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6931e+001   +4.6886e+001   -5.6243e-004   +3.9116e-004   -9.5359e-004   -9.2125e-001   PX4PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX4PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX4PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX4PY8
+9    Turbine_Shaft.integrate_Nmech    -6.5891e+002   +0.0000e+000   +4.5088e+003   -1.4614e-001   -1.7498e-001   +2.8842e-002   +2.7864e+001   PX4PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX4PY10
+
+MATRIX COLUMN 5 : Independent 'Gen1.ind_trqTemp'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 4512.5;   PERTURBED X VALUE = 4517.01;   DX = 4.5125;   PX5
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME       y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX5PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX5PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX5PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX5PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX5PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX5PY6
+7    Gen1.dep_trq_map                 +4.5170e+003   +5.2978e+003   +5.2978e+003   -1.4737e-001   -1.4823e-001   +8.5177e-004   +1.8876e-004   PX5PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX5PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX5PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX5PY10
+
+MATRIX COLUMN 6 : Independent 'EM1.ind_Vimag'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = -26.63;   DX = 10;   PX6
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7112e+001   +4.6779e+001   +4.5900e+001   -2.2634e+000   -2.2547e+000   -8.7676e-003   -8.7676e-004   PX6PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX6PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX6PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX6PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX6PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX6PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +3.6185e+003   +5.2978e+003   +1.6875e-001   -1.4823e-001   +3.1697e-001   +3.1697e-002   PX6PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +3.2276e+003   +4.5844e+003   +2.6418e-001   -3.1784e-002   +2.9596e-001   +2.9596e-002   PX6PY8
+9    Turbine_Shaft.integrate_Nmech    +8.9030e+002   +0.0000e+000   +4.5088e+003   +1.9746e-001   -1.7498e-001   +3.7244e-001   +3.7244e-002   PX6PY9
+10   Propulsor_Shaft.integrate_Nmech  -1.2156e+003   +0.0000e+000   +4.5844e+003   -2.6516e-001   +3.0801e-002   -2.9596e-001   -2.9596e-002   PX6PY10
+
+MATRIX COLUMN 7 : Independent 'EM1.ind_trqTemp'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 4438.7;   PERTURBED X VALUE = 4443.14;   DX = 4.4387;   PX7
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX7PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX7PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX7PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX7PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX7PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX7PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX7PY7
+8    EM1.dep_trq_map                  +4.4431e+003   +4.5844e+003   +4.5844e+003   -3.0815e-002   -3.1784e-002   +9.6822e-004   +2.1813e-004   PX7PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX7PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX7PY10
+
+MATRIX COLUMN 8 : Independent 'EM1.ind_Vreal'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 10000;   PERTURBED X VALUE = 1211.5;   DX = 10;   PX8
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7574e+001   +6.0984e+001   +4.5900e+001   -2.5830e+000   -2.2547e+000   -3.2833e-001   -3.2833e-002   PX8PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX8PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX8PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX8PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX8PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX8PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   -3.9123e+002   +5.2978e+003   +9.2562e-001   -1.4823e-001   +1.0738e+000   +1.0738e-001   PX8PY7
+8    EM1.dep_trq_map                  +4.4387e+003   -1.0722e+003   +4.5844e+003   +1.2021e+000   -3.1784e-002   +1.2339e+000   +1.2339e-001   PX8PY8
+9    Turbine_Shaft.integrate_Nmech    +4.9000e+003   +0.0000e+000   +4.5088e+003   +1.0868e+000   -1.7498e-001   +1.2617e+000   +1.2617e-001   PX8PY9
+10   Propulsor_Shaft.integrate_Nmech  -5.5154e+003   +0.0000e+000   +4.5844e+003   -1.2031e+000   +3.0801e-002   -1.2339e+000   -1.2339e-001   PX8PY10
+
+MATRIX COLUMN 9 : Independent 'Turbine_Shaft.ind_Nmech'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 3841.1;   PERTURBED X VALUE = 3844.94;   DX = 3.8411;   PX9
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME              y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX9PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX9PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX9PY3
+4    Prop.S_map.dep_errWc             +2.0169e+002   +2.0149e+002   +2.0149e+002   +1.0183e-003   +1.0183e-003   +0.0000e+000   +0.0000e+000   PX9PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6877e+001   +4.6886e+001   +5.8629e-004   +3.9116e-004   +1.9513e-004   +5.0801e-005   PX9PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9677e-001   +4.3440e-001   -9.3537e-004   -9.3537e-004   +0.0000e+000   +0.0000e+000   PX9PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2924e+003   +5.2978e+003   -1.4722e-001   -1.4823e-001   +1.0110e-003   +2.6321e-004   PX9PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX9PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8788e+002   +0.0000e+000   +4.5088e+003   -1.7474e-001   -1.7498e-001   +2.3773e-004   +6.1891e-005   PX9PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.4121e+002   +0.0000e+000   +4.5844e+003   +3.0801e-002   +3.0801e-002   +0.0000e+000   +0.0000e+000   PX9PY10
+
+MATRIX COLUMN 10 : Independent 'ind_AtmW'
+   PERTURB SIZE/TYPE = 0.001 / FRACTIONAL;   XREF = 201.691;   PERTURBED X VALUE = 201.893;   DX = 0.201691;   PX10
+
+DEPENDENT RESPONSE:
+ROW  SHORT-NAME     y1             y2             yRef           ERROR          BASE-ERROR     DELTA-ERROR    DERR/DX
+1    MotorAngle                       -5.7588e+001   +4.5900e+001   +4.5900e+001   -2.2547e+000   -2.2547e+000   +0.0000e+000   +0.0000e+000   PX10PY1
+2    Cable1.dep_Vreal_err             +6.0000e+002   +6.0000e+002   +6.0000e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX10PY2
+3    Cable1.dep_Vimag_err             -3.4641e+002   -3.4641e+002   +3.4641e+002   +0.0000e+000   +0.0000e+000   +0.0000e+000   +0.0000e+000   PX10PY3
+4    Prop.S_map.dep_errWc             +2.0189e+002   +2.0149e+002   +2.0149e+002   +2.0194e-003   +1.0183e-003   +1.0010e-003   +4.9631e-003   PX10PY4
+5    Turb.S_map.dep_errWp             +4.6904e+001   +4.6886e+001   +4.6886e+001   +3.9116e-004   +3.9116e-004   +0.0000e+000   +0.0000e+000   PX10PY5
+6    Noz.dep_Area                     +3.9637e-001   +3.9717e-001   +4.3440e-001   -1.8487e-003   -9.3537e-004   -9.1337e-004   -4.5286e-003   PX10PY6
+7    Gen1.dep_trq_map                 +4.5125e+003   +5.2978e+003   +5.2978e+003   -1.4823e-001   -1.4823e-001   +0.0000e+000   +0.0000e+000   PX10PY7
+8    EM1.dep_trq_map                  +4.4387e+003   +4.5844e+003   +4.5844e+003   -3.1784e-002   -3.1784e-002   +0.0000e+000   +0.0000e+000   PX10PY8
+9    Turbine_Shaft.integrate_Nmech    -7.8896e+002   +0.0000e+000   +4.5088e+003   -1.7498e-001   -1.7498e-001   +0.0000e+000   +0.0000e+000   PX10PY9
+10   Propulsor_Shaft.integrate_Nmech  +1.3676e+002   +0.0000e+000   +4.5844e+003   +2.9832e-002   +3.0801e-002   -9.6920e-004   -4.8054e-003   PX10PY10

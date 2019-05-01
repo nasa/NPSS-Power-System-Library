@@ -84,6 +84,9 @@ solver.addIndependent( "ind_AtmW" );
 solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
 Propulsor_Shaft.Nmech*=.9;
 
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
 run();
 
 page.display();  // output data to out file

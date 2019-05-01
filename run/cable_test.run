@@ -25,18 +25,57 @@ fine, imprisonment, or both.
 //include viewers
 #include "npssel.view"
 #include "npssel_runtime.view"
-
-string listy[] = {"hi", "bro"};
-cout << listy << endl;
+#include "print_macros.fnc"
 
 // select model
 #include "cable_test.mdl"
-ACCable.calculate();
-//ACCable.ac_cable_metrics();
-quit();
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+solverSequence = { "DCCable", "DCS" };
+setOption("switchDes","DESIGN"); 
 
+DCCable.ind_Iimag.autoSetup = FALSE;
+DCCable.dep_Vimag_err.autoSetup = FALSE;
+					
 autoSolverSetup();
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
+run();
+
+cout << "dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.Vimag_drop;
+cout << "   \t\t   dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
+cout << "   \t\t   dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << "   \t\t   I =" << ACCable.Ireal;
+cout << "+j" << ACCable.Iimag << endl;
+
+cout << "dV_calc =" << DCCable.Vreal_drop;
+cout << "+j" << DCCable.Vimag_drop;
+cout << "   \t\t   dV_meas =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j);
+cout << "   \t\t   dV_error =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r+DCCable.Vreal_drop);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j+DCCable.Vimag_drop);
+cout << "   \t\t   I =" << DCCable.Ireal;
+cout << "+j" << DCCable.Iimag << endl;
+
+printData(DCCable.list("Variable",FALSE));
+page.display();  // output data to out file
+/*
+page_runtime.display(); // output data to cmd window
+solver.clear();
+run();
+run();
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
+run();
+run();
+run();
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
+*/
 /*
 //---------------------------------------------------------
 // just like a rocket engine, volumes last
