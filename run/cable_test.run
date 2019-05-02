@@ -19,7 +19,7 @@ fine, imprisonment, or both.
 *******************************************************************************/
 
 /*******************************************************************************
-This example is intended to test the cable sizing code. It has two subsystems,
+This example is intended to test the aero cable sizing code. It has 2 subsystems,
 an AC one and a DC one. Both subsystems include a cable, with some voltage across
 them. The input side of the cables see a constant voltage, and the output side
 voltages are independents intended to be varied to achieve a constant power

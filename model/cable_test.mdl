@@ -55,7 +55,7 @@ Source ACS{
 		EP_I.setIVRMS( 0, 0., Vreal, Vimag );
 	}
 }
-Element Cable ACCable {
+Element AeroCable ACCable {
 	length=30;
 }
 ACS.EP_O.setOption("ElectricPowerType","AC3");
@@ -73,7 +73,7 @@ Source DCS{
 		EP_I.setIVRMS( 0, 0., Vreal, 0. );
 	}
 }
-Element Cable DCCable {
+Element AeroCable DCCable {
 	length=30;
 }
 DCS.EP_O.setOption("ElectricPowerType","DC");
