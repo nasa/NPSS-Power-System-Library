@@ -2,8 +2,8 @@
 //
 //   File Name:     cable_test.mdl
 //   Date(s):       February 1, 2019
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
+//   Author:        George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
+//                  NASA Glenn Research Center
 //
 //   Description:   Run the cable element on- and off-design.
 //
@@ -11,21 +11,52 @@
 
 
 class Source extends Element{
-  ElectricOutputPort EP_O;
-  ElectricInputPort EP_I;
+	ElectricOutputPort EP_O;
+	ElectricInputPort EP_I;
+	real Vreal = 500.;
+	real Vimag = 0.;
+	real Pdes = 1000.;
+	real PFdes = 0.95;
+	
+	Independent ind_Vreal { 
+		varName = "Vreal"; 
+		autoSetup = TRUE;
+		a = 10000.;
+	}
+	
+	Independent ind_Vimag { 
+		varName = "Vimag"; 
+		autoSetup = TRUE;
+		a = 10000.;
+	}
+	
+	Dependent dep_Power{
+		eq_rhs="EP_O.S.rRMS";
+		eq_lhs="Pdes";
+		autoSetup=TRUE;
+	}
+	
+	Dependent dep_PF{
+		eq_rhs="cos(EP_O.S.phase)";
+		eq_lhs="PFdes";
+		autoSetup=TRUE;
+	}
 }
 
 real defaultFrequency = 400.;
 
 Source ACS{
-  void prePass(){
-    //EP_O.setIVRMS( 0, 0., 15., 8.66025403784438); // This is the VLL representation of VLN = 10+j0
-    EP_O.setIVRMS( 0, 0., 2000., 0.);
-    EP_I.setIVRMS( 0, 0., 1990, 0. );
-  }
+	// Set up frequency
+	EP_O.frequency = defaultFrequency;
+	EP_I.frequency = defaultFrequency;
+	void prePass(){
+		//EP_O.setIVRMS( 0, 0., 15., 8.66025403784438); // This is the VLL representation of VLN = 10+j0
+		EP_O.setIVRMS( 0, 0., 1000., 0.);
+		EP_I.setIVRMS( 0, 0., Vreal, Vimag );
+	}
 }
 Element Cable ACCable {
-	length=28.3464; 	
+	length=30;
 }
 ACS.EP_O.setOption("ElectricPowerType","AC3");
 ACS.EP_I.setOption("ElectricPowerType","AC3");
@@ -34,13 +65,16 @@ ACCable.EP_I.setOption("ElectricPowerType","AC3");
 
 
 Source DCS{
-  void postexecute(){
-    EP_O.setIVRMS( 0, 0., 2000., 0.);
-    EP_I.setIVRMS( 0, 0., 1990, 0. );
-  }
+	// No imaginary stuff for a DC source
+	ind_Vimag.autoSetup = FALSE;
+	dep_PF.autoSetup = FALSE;
+	void postexecute(){
+		EP_O.setIVRMS( 0, 0., 1000., 0.);
+		EP_I.setIVRMS( 0, 0., Vreal, 0. );
+	}
 }
 Element Cable DCCable {
-	length=28.3464; 	
+	length=30;
 }
 DCS.EP_O.setOption("ElectricPowerType","DC");
 DCS.EP_I.setOption("ElectricPowerType","DC");

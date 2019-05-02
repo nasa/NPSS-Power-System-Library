@@ -96,7 +96,7 @@ GroupBlock Electrical {
 		titleBody = "\n Inverters"; 
 		compType = "Inverter"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
    }
 
@@ -104,7 +104,7 @@ GroupBlock Electrical {
 		titleBody = "\n Rectifiers"; 
 		compType = "Rectifier"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
    }
       

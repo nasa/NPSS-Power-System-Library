@@ -70,6 +70,17 @@ class Rectifier extends Element {
 		description = "Rectifier Voltage (real)";
 	}
 	
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=KW/KG;
+		description = "Power to Weight ratio for the component";
+	}
+
+	real Mass {
+		value=1.; IOstatus="output"; units="kg";
+		description = "Component mass";
+	}
+
+	
 	//------------------------------------------------------------
     //   ******* OPTION VARIABLE SETUP *******
     //------------------------------------------------------------
@@ -174,11 +185,15 @@ class Rectifier extends Element {
 			/****************************
 			On-design
 			****************************/
-			// Handle case guessed design power is zero.
+			// Handle case where guessed design power is zero.
 			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
 			pwrDes = pwrOut;
 			
-		}	
+			// Compute mass based on assumed specific power.  Both Mass
+			// and loses are based on output power (Power Sent)
+			Mass = pwrOut / SpecificPower;
+			
+		}
 		else{
 			//*****************************
 			// Off-Design

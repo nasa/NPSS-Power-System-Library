@@ -64,7 +64,7 @@ class Cable extends Element {
     }
     
     real Ireal {
-        value = 10; IOstatus="input"; //units=amps;
+        value = 100; IOstatus="input"; //units=amps;
         description = "Guess value for real current component in cable";
     }
     real Iimag {
@@ -86,11 +86,11 @@ class Cable extends Element {
     
     int n_phases {
         value = 3; IOstatus="input"; //units=none;
-        description = "Number of electrical phase current carried by this cable (cable assembly)";
+        description = "Number of electrical phase currents carried by this cable (cable assembly)";
     }
     
     int n_parallel {
-        value = 30; IOstatus="input"; //units=none;
+        value = 6; IOstatus="input"; //units=none;
         description = "Constraint: max allowed number of parallel wires to make the cable";
     }
     
@@ -128,7 +128,7 @@ class Cable extends Element {
         allowedValues = { "DESIGN", "OFFDESIGN" } ;
         description = "Determines if the element is in design or off-design mode";
         rewritableValues = FALSE;
-        trigger=FALSE;
+        trigger=TRUE;
     }
     
     //------------------------------------------------------------
@@ -195,20 +195,22 @@ class Cable extends Element {
 
     void variableChanged( string name, any oldVal ) {
         if (name =="switchDes") {
-            if (switchDes == DESIGN) {
+            if (switchDes == "DESIGN") {
                 ind_Ireal.autoSetup = TRUE;
                 dep_Vreal_err.autoSetup = TRUE;
-                if ((EP_I.ElectricPowerType != "DC") || (EP_O.ElectricPowerType != "DC"))
+				ind_Iimag.autoSetup = TRUE;
+				dep_Vimag_err.autoSetup = TRUE;
+                if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC"))
                 {
-                    ind_Iimag.autoSetup = TRUE;
-                    dep_Vimag_err.autoSetup = TRUE;
+                    ind_Iimag.autoSetup = FALSE;
+                    dep_Vimag_err.autoSetup = FALSE;
                 }
-                R.IOstatus = INPUT;
-                L.IOstatus = INPUT;
-                length.IOstatus = INPUT;
-                SpecificAmperage.IOstatus = INPUT;
+                R.IOstatus = "input";
+                L.IOstatus = "input";
+                length.IOstatus = "input";
+                SpecificAmperage.IOstatus = "input";
             }
-            else if (switchDes == OFFDESIGN) {
+            else if (switchDes == "OFFDESIGN") {
                 ind_Ireal.autoSetup = FALSE;
                 dep_Vreal_err.autoSetup = FALSE;
                 if ((EP_I.ElectricPowerType != "DC") || (EP_O.ElectricPowerType != "DC"))
@@ -216,10 +218,10 @@ class Cable extends Element {
                     ind_Iimag.autoSetup = FALSE;
                     dep_Vimag_err.autoSetup = FALSE;
                 }
-                R.IOstatus = OUTPUT;
-                L.IOstatus = OUTPUT;
-                length.IOstatus = OUTPUT;
-                SpecificAmperage.IOstatus = OUTPUT;
+                R.IOstatus = "output";
+                L.IOstatus = "output";
+                length.IOstatus = "output";
+                SpecificAmperage.IOstatus = "output";
             }
         }
     } // end variableChanged()
@@ -404,7 +406,7 @@ class Cable extends Element {
             }
         }
         
-        if (optimal_wire != 0) {
+        if (optimal_wire >= 0) {
             // Initialize rest of output
             cable_size = cable_sizes[optimal_wire];
             
@@ -546,7 +548,10 @@ class Cable extends Element {
     
     void calculate() {
         
-        
+		// Get frequency from input port, propagate through to output port.
+		frequency = EP_I.frequency;
+        EP_O.frequency=EP_I.frequency;
+		
         if (switchDes=="DESIGN"){
             // We don't know R/L yet, so need to guess something.
             // Solver should be set up to guess current so that the
@@ -555,7 +560,6 @@ class Cable extends Element {
 			if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC"))
 			{
 				dc_cable_metrics();
-				cout << "Im a DC cable" << endl;
 			}
 			else
 			{
@@ -592,13 +596,14 @@ class Cable extends Element {
         //----------------------------------------------------------
         // set the conditions in the ports
         //-----------------------------------------------------------
-        EP_O.frequency=EP_I.frequency;
         EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS );
         EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS );
         
         Loss_r = EP_I.S.r - EP_O.S.r;
         Loss_j = EP_I.S.j - EP_O.S.j;
+		
+		// TODO: Run this calculation past Dave
+		SpecificAmperage = ampacity*length/Mass;
         
-        //Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
     }
 }

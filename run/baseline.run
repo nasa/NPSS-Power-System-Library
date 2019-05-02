@@ -51,6 +51,7 @@ solver.diagnosticFile = "no_rect_inv_mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 
 solver.maxIterations=300;
+solver.maxJacobians=300;
 
 run();
 
@@ -63,16 +64,16 @@ cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.F
 /************************
 Off design
 ************************/
-
+/* No longer need these solver ICs
 Prop.S_map.RlineMap = 1.8658e+000;
 Turb.PRbase = 1.0351e+000;
 Gen1.trqTemp = 4.5125e+003;
 EM1.Vimag = -3.6630e+001;
 EM1.trqTemp = 4.4387e+003;
-EM1.Vreal = 1.2015e+003;
+EM1.Vreal = 1.20e+003;
 Turbine_Shaft.Nmech = 3.8411e+003;
 Atm.W = 2.0149e+002;
-
+*/
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
@@ -82,6 +83,20 @@ Independent ind_AtmW{
 solver.addIndependent( "ind_AtmW" );
 
 solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
+
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+run();
+
+page.display();  // output data to out file
+run();
+
+page.display();  // output data to out file
+page_runtime.display(); // output data to cmd window
+
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+
 Propulsor_Shaft.Nmech*=.9;
 
 cout << solverSequence << endl;
@@ -97,3 +112,7 @@ page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+
+#include "print_macros.fnc"
+printData(Cable1.list("Variable",FALSE));
+quit();
