@@ -44,7 +44,7 @@ setOption("switchDes","DESIGN");
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "solver.bad";
+solver.diagnosticFile = "output/solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
 real TurbPowDesired = 3000/0.746/0.8;
@@ -67,7 +67,7 @@ prop_pwr.a 		   = bias_value;
 //solver.solutionMode = "ONE_PASS";
 solver.addIndependent("prop_pwr");
 solver.addDependent("target_pwr");
-solver.diagnosticFile = "mySolverOutput";
+solver.diagnosticFile = "output/mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 //solver.clear();
 

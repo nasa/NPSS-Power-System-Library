@@ -41,7 +41,7 @@ autoSolverSetup();
 //solverSequence = { "Bat", "R1", "C1", "L1", "C2","E1","E2" }
 //solverSequence = { "Bat", "R1", "C1", "L1", "C2" }
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "Solver.bad";
+solver.diagnosticFile = "output/Solver.bad";
 
 
 solver.maxIterations = 5000;

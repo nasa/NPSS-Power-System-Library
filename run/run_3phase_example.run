@@ -35,7 +35,7 @@ autoSolverSetup();
 // just like a rocket engine, volumes last
 //---------------------------------------------------------
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "Solver.bad";
+solver.diagnosticFile = "output/Solver.bad";
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;
@@ -43,7 +43,7 @@ solver.maxJacobians = 1000;
 setOption( "ElectricPowerType", "AC3" );
 
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "solver.bad";
+solver.diagnosticFile = "output/solver.bad";
  
 run();
 

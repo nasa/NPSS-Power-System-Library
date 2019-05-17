@@ -45,9 +45,9 @@ setOption("switchDes","DESIGN");
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "solver.bad";
+solver.diagnosticFile = "output/solver.bad";
 
-solver.diagnosticFile = "no_rect_inv_mySolverOutput";
+solver.diagnosticFile = "output/no_rect_inv_SolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 
 solver.maxIterations=300;
@@ -113,6 +113,4 @@ page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
 
-#include "print_macros.fnc"
-printData(Cable1.list("Variable",FALSE));
 quit();

@@ -35,7 +35,6 @@ increased power to see how variables change
 //include viewers
 #include "npssel.view"
 #include "npssel_runtime.view"
-#include "print_macros.fnc"
 
 // select model
 #include "cable_test.mdl"
