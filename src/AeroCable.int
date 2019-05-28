@@ -213,11 +213,8 @@ class AeroCable extends Element {
             else if (switchDes == "OFFDESIGN") {
                 ind_Ireal.autoSetup = FALSE;
                 dep_Vreal_err.autoSetup = FALSE;
-                if ((EP_I.ElectricPowerType != "DC") || (EP_O.ElectricPowerType != "DC"))
-                {
-                    ind_Iimag.autoSetup = FALSE;
-                    dep_Vimag_err.autoSetup = FALSE;
-                }
+				ind_Iimag.autoSetup = FALSE;
+				dep_Vimag_err.autoSetup = FALSE;
                 R.IOstatus = "output";
                 L.IOstatus = "output";
                 length.IOstatus = "output";
@@ -293,7 +290,10 @@ class AeroCable extends Element {
         if (frequency != 400) {
             if (frequency != 680) {
                 if (frequency != 800) {
-                    cerr << "Incompatible frequency";
+                    cerr << "Incompatible frequency = ";
+                    cerr << frequency<< endl;
+                    cerr << "Voltage in = " << EP_I.V.mag << endl;
+                    cerr << "Voltage out = " << EP_O.V.mag << endl;
                 }
             }
         }

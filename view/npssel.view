@@ -72,7 +72,7 @@ GroupBlock Electrical {
 		titleBody = "\n"; 
 		compType = "AeroCable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
    } 
     
 	DColTBlock threephasecable { 
