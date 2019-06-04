@@ -28,12 +28,8 @@ Element Generator Gen1 {
 	#include <STARCABLmotorGenerator.map>
 }
 
-Element Cable Cable1 {
-	length=28.3464; 	
-	R=4.3245e-6;
-	L=9.84e-5*length/60./2./PI;
-	//R=.010763 * length * 3.28; //3.28 converts length in m to length in ft.
-	L=.0000796 * (length * 3.28)/60./2./PI; //3.28 converts length in m to length in ft.
+Element AeroCable Cable1 {
+	length=28.3464;
 }
 
 Element Motor EM1 {

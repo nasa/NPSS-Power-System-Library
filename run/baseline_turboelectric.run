@@ -35,6 +35,7 @@ fine, imprisonment, or both.
 //model file
 #include "baseline_turboelectric.mdl"
 
+
 /************************
 On design
 ************************/
@@ -43,7 +44,7 @@ setOption("switchDes","DESIGN");
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "solver.bad";
+solver.diagnosticFile = "output/solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
 real TurbPowDesired = 3000/0.746/0.8;
@@ -66,7 +67,7 @@ prop_pwr.a 		   = bias_value;
 //solver.solutionMode = "ONE_PASS";
 solver.addIndependent("prop_pwr");
 solver.addDependent("target_pwr");
-solver.diagnosticFile = "mySolverOutput";
+solver.diagnosticFile = "output/mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 //solver.clear();
 
@@ -83,6 +84,11 @@ EM1.Vimag    = 0;
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run();
+
+#include "print_macros.fnc"
+printData(Cable1.list("Variable",FALSE));
+printData(Cable2.list("Variable",FALSE));
+printData(Cable3.list("Variable",FALSE));
 
 cout << "Rect1.S_map.pwrMap = "  <<  Rect1.S_map.pwrMap  << endl;
 cout << "Inv1.S_map.pwrMap = "  <<  Inv1.S_map.pwrMap  << endl;
@@ -151,5 +157,5 @@ for (CASE = 1 ; CASE < 12; CASE++)
 }
 
 //page_runtime.display(); // output data to cmd window
-
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 

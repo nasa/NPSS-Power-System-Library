@@ -40,7 +40,7 @@ autoSolverSetup();
 // just like a rocket engine, volumes last
 //---------------------------------------------------------
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "Solver.bad";
+solver.diagnosticFile = "output/Solver.bad";
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;

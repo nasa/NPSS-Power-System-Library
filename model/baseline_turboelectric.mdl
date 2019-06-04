@@ -28,11 +28,8 @@ Element Generator Gen1 {
 	#include <STARCABLmotorGenerator.map>
 }
 
-Element Cable Cable3 {
-	length=28.3464; 	
-	//R=4.3245e-6;
-	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
-	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
+Element AeroCable Cable3 {
+	length=28.3464;
 }
 
 Element Rectifier Rect1 {
@@ -43,11 +40,8 @@ Element Rectifier Rect1 {
 }
 
 
-Element Cable Cable1 {
-	length=28.3464; 	
-	//R=4.3245e-6;
-	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
-	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
+Element AeroCable Cable1 {
+	length=28.3464;
 }
 
 Element Inverter Inv1 {
@@ -57,13 +51,8 @@ Element Inverter Inv1 {
 	frequency=400;
 }
 
-Element Cable Cable2 {
-	length=28.3464; 
-	//R=4.3245e-6;	
-	R=.010763 * length * 3.28 / 1000.; //3.28 converts length in m to length in ft.  Overall units are ohms
-	L=.0000796 * (length * 3.28)/60./2./PI / 1000.; //3.28 converts length in m to length in ft. Overall units are H.
-	void postexecute() {
-	}
+Element AeroCable Cable2 {
+	length=28.3464;
 }
 
 Element Motor EM1 {

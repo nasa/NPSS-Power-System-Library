@@ -43,7 +43,7 @@ setOption("switchDes","DESIGN");
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "solver.bad";
+solver.diagnosticFile = "output/solver.bad";
 
 solver.maxIterations=500;
 //solver.clear();

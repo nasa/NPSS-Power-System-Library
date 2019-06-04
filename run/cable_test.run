@@ -1,0 +1,168 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+/*******************************************************************************
+This example is intended to test the aero cable sizing code. It has 2 subsystems,
+an AC one and a DC one. Both subsystems include a cable, with some voltage across
+them. The input side of the cables see a constant voltage, and the output side
+voltages are independents intended to be varied to achieve a constant power
+through the cable and desired power factor as well. The system is run to design
+the cables, and then run off design at the same point, as well as a point with
+increased power to see how variables change
+*******************************************************************************/
+
+// add in electric port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// select model
+#include "cable_test.mdl"
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+solverSequence = { "ACS", "DCS", "ACCable", "DCCable" };
+setOption("switchDes","DESIGN");
+					
+autoSolverSetup();
+
+cout << "--- On Design ---" << endl;
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+// Initial guesses
+ACCable.Ireal = 1100;
+ACCable.Iimag = 0;
+DCCable.Ireal = 1100;
+DCCable.Iimag = 0;
+
+cout << "CASE #" << CASE++ << endl;
+run();
+cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
+cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
+cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
+cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
+cout << "DC R = " << DCCable.R;
+cout << " \t\t\t  DCVout = " << DCS.Vreal;
+cout << " \t\t DCPin = " << DCS.EP_O.S.r;
+cout << " \t\t\t DCPout = " << DCS.EP_I.S.r << endl;
+
+cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.Vimag_drop;
+cout << "\t  dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
+cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << " \t\t\t I =" << ACCable.EP_O.I.r;
+cout << "+j" << ACCable.EP_O.I.j  << endl;
+
+cout << "DC: dV_calc =" << DCCable.Vreal_drop;
+cout << "+j" << DCCable.Vimag_drop;
+cout << "   \t\t  dV_meas =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j);
+cout << "   \t dV_error =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r+DCCable.Vreal_drop);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j+DCCable.Vimag_drop);
+cout << " \t\t\t I =" << DCCable.EP_O.I.r;
+cout << "+j" << DCCable.EP_O.I.j  << endl << endl;
+
+cout << "--- Off Design ---" << endl;
+setOption("switchDes","OFFDESIGN");
+// For off design, stop varying the source.
+ACS.ind_Vimag.autoSetup = FALSE;
+ACS.dep_PF.autoSetup    = FALSE;
+ACS.ind_Vreal.autoSetup = FALSE;
+ACS.dep_Power.autoSetup = FALSE;
+DCS.ind_Vreal.autoSetup = FALSE;
+DCS.dep_Power.autoSetup = FALSE;
+autoSolverSetup();
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+// Run off-design, same inputs
+cout << "CASE #" << CASE++ << endl;
+run();
+cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
+cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
+cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
+cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
+cout << "DC R = " << DCCable.R;
+cout << " \t\t\t  DCVout = " << DCS.Vreal;
+cout << " \t\t DCPin = " << DCS.EP_O.S.r;
+cout << " \t\t\t DCPout = " << DCS.EP_I.S.r << endl;
+
+cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.Vimag_drop;
+cout << "   dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
+cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << " \t\t\t I =" << ACCable.EP_O.I.r;
+cout << "+j" << ACCable.EP_O.I.j  << endl;
+
+cout << "DC: dV_calc =" << DCCable.Vreal_drop;
+cout << "+j" << DCCable.Vimag_drop;
+cout << "   \t  dV_meas =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j);
+cout << "   \t dV_error =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r+DCCable.Vreal_drop);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j+DCCable.Vimag_drop);
+cout << " \t\t\t I =" << DCCable.EP_O.I.r;
+cout << "+j" << DCCable.EP_O.I.j  << endl << endl;
+
+
+// Run off-design, increase power by increasing voltage drop (decrease voltage on output side of cable.
+ACS.Vreal *= 0.9999;
+ACS.Vimag /= 0.9;
+DCS.Vreal *= 0.99945;
+cout << "CASE #" << CASE++ << " -- increased power" << endl;
+run();
+cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
+cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
+cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
+cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
+cout << "DC R = " << DCCable.R;
+cout << " \t\t\t  DCVout = " << DCS.Vreal;
+cout << " \t\t DCPin = " << DCS.EP_O.S.r;
+cout << " \t\t\t DCPout = " << DCS.EP_I.S.r << endl;
+
+cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.Vimag_drop;
+cout << "\t  dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
+cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << " \t\t\t I =" << ACCable.EP_O.I.r;
+cout << "+j" << ACCable.EP_O.I.j  << endl;
+
+cout << "DC: dV_calc =" << DCCable.Vreal_drop;
+cout << "+j" << DCCable.Vimag_drop;
+cout << "   \t  dV_meas =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j);
+cout << "   \t dV_error =" << DCCable.EP_I.VLN.r - (DCCable.EP_O.VLN.r+DCCable.Vreal_drop);
+cout << "+j" << DCCable.EP_I.VLN.j - (DCCable.EP_O.VLN.j+DCCable.Vimag_drop);
+cout << " \t\t\t I =" << DCCable.EP_O.I.r;
+cout << "+j" << DCCable.EP_O.I.j  << endl << endl;
+
+
+

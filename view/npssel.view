@@ -2,7 +2,7 @@
 //         General Output DataViewer Specification
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-OutFileStream pageStream { filename = "engine.viewOut"; } 
+OutFileStream pageStream { filename = "output/engine.viewOut"; } 
 
 DataViewer PageViewer page { 
 
@@ -67,6 +67,13 @@ GroupBlock Electrical {
 		compTypeFormat = "????????????"; 
 		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
    } 
+      
+   DColTBlock aerocable { 
+		titleBody = "\n"; 
+		compType = "AeroCable"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
+   } 
     
 	DColTBlock threephasecable { 
 		titleBody = "\n 3 Phase Cable"; 
@@ -96,7 +103,7 @@ GroupBlock Electrical {
 		titleBody = "\n Inverters"; 
 		compType = "Inverter"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
    }
 
@@ -104,13 +111,14 @@ GroupBlock Electrical {
 		titleBody = "\n Rectifiers"; 
 		compType = "Rectifier"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Eff","effBase","effDes"}; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
    }
       
    anchor = "motor"; 
    motor.bottom = "cable"; 
-   cable.bottom =  "threephasecable";
+   cable.bottom =  "aerocable";
+   aerocable.bottom =  "threephasecable";
    threephasecable.bottom =  "generator";
    generator.bottom = "threephaseyload";
    threephaseyload.bottom = "rectifier";

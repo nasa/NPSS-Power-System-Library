@@ -1,0 +1,609 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
+// * April 26, 2018
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class AeroCable extends Element {
+    
+    //------------------------------------------------------------
+    //     ******* DOCUMENTATION *******
+    //------------------------------------------------------------
+    
+    title = "";
+    
+    description = isA() + " Determines power for the cable";
+    
+    usageNotes = isA() + "- NOTE TO USERS: This file....";
+    
+    background = "";
+    
+    //------------------------------------------------------------
+    //     ******* SETUP VARIABLES ********
+    //------------------------------------------------------------
+    
+    real R{
+        value = .01;  IOstatus = "input";  //units = OHM;
+    }
+    
+    real L{
+        value = .0000796;  IOstatus = "input";  //units = H;
+    }
+    
+    real length{
+        value = 1.;  IOstatus = "input";  //units = M;
+    }
+
+    // Will add losses in future releases.
+    real Loss_j {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Cable Loss";
+    }
+
+    real Loss_r {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Cable Loss";
+    }
+
+    real Mass {
+        value=0; IOstatus="output"; //units=KG;
+        description = "Mass output of the cable";
+    }
+    
+    real SpecificAmperage {
+        value = 170.; IOstatus="input"; //units=amp * m / kg;
+        description = "Amps to Weight/length ratio for the cable";
+    }
+
+    real frequency {
+        value = 400; IOstatus="input"; //units=HZ;
+        description = "Frequency of AC current in cable";
+    }
+    
+    real Ireal {
+        value = 100; IOstatus="input"; //units=amps;
+        description = "Guess value for real current component in cable";
+    }
+    real Iimag {
+        value = 0; IOstatus="input"; //units=amps;
+        description = "Guess value for imaginary current component in cable";
+    }
+    real Vreal_drop {
+        value = 0; IOstatus="output"; //units=amps;
+        description = "Voltage dropped across cable given operating current";
+    }
+    real Vimag_drop {
+        value = 0; IOstatus="output"; //units=amps;
+        description = "Imaginary component of voltage dropped across cable, given operating current";
+    }
+    
+    ComplexNumber dV;
+    ComplexNumber Z;
+    ComplexNumber I;
+    
+    int n_phases {
+        value = 3; IOstatus="input"; //units=none;
+        description = "Number of electrical phase currents carried by this cable (cable assembly)";
+    }
+    
+    int n_parallel {
+        value = 6; IOstatus="input"; //units=none;
+        description = "Constraint: max allowed number of parallel wires to make the cable";
+    }
+    
+    real drop_tolerance {
+        value = 5.; IOstatus="input"; //units=none;
+        description = "Constraint: max voltage allowed to drop across cable, as a percentage of input voltage";
+    }
+    
+    string cable_size {
+        value = ""; IOstatus="output";
+        description = "Cable size in AWG or kcmil";
+    }
+    
+    real paralleled {
+        value = 1.; IOstatus="output"; //units=none;
+        description = "Number of wires paralleled to make this cable";
+    }
+    
+    real ampacity {
+        value = 1000.; IOstatus="output"; //units=amp;
+        description = "Current carrying capacity for this cable solution";
+    }
+    
+    int params_test {
+        value = 0; IOstatus="output"; //units=none;
+        description = "Error flag for the sizing tool";
+    }
+    
+    
+    //------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        description = "Determines if the element is in design or off-design mode";
+        rewritableValues = FALSE;
+        trigger=TRUE;
+    }
+    
+    //------------------------------------------------------------
+    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+    //------------------------------------------------------------  
+    // FLUID PORTS
+
+    // FUEL PORTS
+
+    // BLEED PORTS
+
+    // THERMAL PORTS
+
+    //  ELECTRICAL PORTS
+
+    ElectricOutputPort EP_O {
+        description = "Electric port";
+    }
+    string EPortRef;
+    
+    ElectricInputPort EP_I {
+        description = "Electric Port";
+    }
+
+    //MECHANICAL PORTS
+
+    // FLOW STATIONS 
+
+    // SOCKETS
+
+    // TABLES
+
+    //------------------------------------------------------------
+    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+    //------------------------------------------------------------
+    Independent ind_Ireal { 
+        varName = "Ireal"; 
+        autoSetup = TRUE;   // Only set up for on-design to help size cable.
+        a = 10000;          // Bias to help with solver variable crossing zero.
+        description = "Varies the real component of cable current";
+    }
+    
+    Independent ind_Iimag { 
+        varName = "Iimag"; 
+        autoSetup = TRUE;   // Only set up for on-design to help size cable.
+        a = 10000;          // Bias to help with solver variable crossing zero.
+        description = "Varies the imaginary component of cable current";
+    }
+
+    Dependent dep_Vreal_err {
+        eq_lhs = "EP_I.VLN.r";
+        eq_rhs = "EP_O.VLN.r+Vreal_drop";
+        autoSetup = TRUE;   // Only set up for on-design to help size cable.
+    }
+    Dependent dep_Vimag_err {
+        eq_lhs = "EP_I.VLN.j";
+        eq_rhs = "EP_O.VLN.j+Vimag_drop";
+        autoSetup = TRUE;   // Only set up for on-design to help size cable.
+    }
+    
+    //------------------------------------------------------------
+    // ******* VARIABLE CHANGED METHODOLOGY *******
+    //------------------------------------------------------------
+
+    void variableChanged( string name, any oldVal ) {
+        if (name =="switchDes") {
+            if (switchDes == "DESIGN") {
+                ind_Ireal.autoSetup = TRUE;
+                dep_Vreal_err.autoSetup = TRUE;
+				ind_Iimag.autoSetup = TRUE;
+				dep_Vimag_err.autoSetup = TRUE;
+                if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC"))
+                {
+                    ind_Iimag.autoSetup = FALSE;
+                    dep_Vimag_err.autoSetup = FALSE;
+                }
+                R.IOstatus = "input";
+                L.IOstatus = "input";
+                length.IOstatus = "input";
+                SpecificAmperage.IOstatus = "input";
+            }
+            else if (switchDes == "OFFDESIGN") {
+                ind_Ireal.autoSetup = FALSE;
+                dep_Vreal_err.autoSetup = FALSE;
+				ind_Iimag.autoSetup = FALSE;
+				dep_Vimag_err.autoSetup = FALSE;
+                R.IOstatus = "output";
+                L.IOstatus = "output";
+                length.IOstatus = "output";
+                SpecificAmperage.IOstatus = "output";
+            }
+        }
+    } // end variableChanged()
+    
+    //------------------------------------------------------------
+    //   ******* CABLE SIZING CALCULATIONS *******
+    //------------------------------------------------------------
+    
+    //---------------------------------
+    // AC Cable metrics function
+    //---------------------------------
+    void ac_cable_metrics()
+    {
+        // Set cable parameters 
+        // Cable sizes available
+        string cable_sizes[] = {"18 Gauge","16 Gauge","14 Gauge","12 Gauge","10 Gauge",
+            "8 Gauge","6 Gauge","4 Gauge","2 Gauge","1 Gauge","1/0","2/0","3/0",
+            "4/0","262 kcmil","313 kcmil","373 kcmil","444 kcmil","535 kcmil",
+            "646 kcmil","777 kcmil","1111 kcmil"};
+        // Cable Mass [kg/m]
+        real cable_mass[] = {0.047621, 0.050598, 0.065479, 0.078873, 0.101195, 0.142864,
+                             0.193461, 0.312514, 0.467283, 0.584848, 0.721759, 0.886945,
+                             1.055107, 1.244104, 1.510485, 1.753056, 2.083428, 2.461421,
+                             2.983766, 3.494206, 4.031433, 5.900565};
+        // Cable reactance [ohms/m]
+        real cable_reactances[] = {0.000213, 0.000203, 0.000187, 0.000174, 0.000164,
+                                   0.000157, 0.000148, 0.000128, 0.000121, 0.000118,
+                                   0.000115, 0.000112, 0.000112, 0.000108, 0.000112,
+                                   0.000108, 0.000105, 0.000102, 0.000102, 0.000102,
+                                   0.000098, 0.000098};
+        // 400 Hz characteristics -> Resistance [ohms/m]
+        real cable_ampacities_400[] = {17, 25, 40, 48, 62, 77, 103,136,179,204,236,
+                                       268,299,337,377,406,443,485,522,557,614,698};
+        real cable_resistivities_400[] = {0.023617, 0.014807, 0.009336, 0.005866,
+                                          0.003704, 0.002278, 0.001433, 0.000975,
+                                          0.000606, 0.000490, 0.000402, 0.000333,
+                                          0.000280, 0.000241, 0.000216, 0.000195,
+                                          0.000177, 0.000167, 0.000156, 0.000143,
+                                          0.000129, 0.000108};
+        // 680 Hz characteristics
+        real cable_ampacities_680[] = {17, 25, 40, 48, 62, 77, 102,135,175,198,225,
+                                       252,276,306,340,363,395,432,466,498,550,627};
+        real cable_resistivities_680[] = {0.023617, 0.014808, 0.009338, 0.005867,
+                                          0.003708, 0.002283, 0.001444, 0.000991,
+                                          0.000631, 0.000522, 0.000438, 0.000376,
+                                          0.000328, 0.000292, 0.000266, 0.000244,
+                                          0.000223, 0.000211, 0.000196, 0.000179,
+                                          0.000161, 0.000134};
+        // 800 Hz characteristics
+        real cable_ampacities_800[] = {17, 25, 40, 48, 62, 77, 102,135,173,195,221,
+                                       246,268,296,328,350,381,418,451,482,532,606};
+        real cable_resistivities_800[] = {0.023617, 0.014809, 0.009339, 0.005868,
+                                          0.003710, 0.002288, 0.001449, 0.000999,
+                                          0.000645, 0.000538, 0.000457, 0.000396,
+                                          0.000347, 0.000312, 0.000285, 0.000262,
+                                          0.000239, 0.000225, 0.000209, 0.000192,
+                                          0.000173, 0.000143};
+        
+        // Combined characteristics
+        real cable_ampacities[][];
+        cable_ampacities.append(cable_ampacities_400);
+        cable_ampacities.append(cable_ampacities_680);
+        cable_ampacities.append(cable_ampacities_800);
+        real cable_resistivities[][];
+        cable_resistivities.append(cable_resistivities_400);
+        cable_resistivities.append(cable_resistivities_680);
+        cable_resistivities.append(cable_resistivities_800);
+        // Perform error check on input data
+        if (frequency != 400) {
+            if (frequency != 680) {
+                if (frequency != 800) {
+                    cerr << "Incompatible frequency = ";
+                    cerr << frequency<< endl;
+                    cerr << "Voltage in = " << EP_I.V.mag << endl;
+                    cerr << "Voltage out = " << EP_O.V.mag << endl;
+                }
+            }
+        }
+        // Determine number of lines
+        real lines;
+        if (n_phases == 1) {
+            lines = 2;
+        }
+        else if (n_phases == 3) {
+            lines = 3;
+        }
+        else if (n_phases == 9) {
+            lines = 9;
+        }
+        
+        // Loop through searching for the cable
+        params_test = 0;    // Error check (ie. no cable is found)
+        cable_size = "";
+        paralleled = 0;
+        Mass = inf;
+        int found;
+        int optimal_wire = -1;
+        int conductors = 1;
+        real temp_current = 0;   // Temporary test current
+        int search_stop = 0;
+        int index = 0;
+        int row;
+
+        real percent;
+        real resistance; // [ohms/m]
+        real reactance; // [ohms/m]
+        ComplexNumber impedance;   // [ohms]
+        ComplexNumber voltage_drop;
+        ComplexNumber voltage;
+        ComplexNumber current;
+        voltage.copy("EP_I.VLN");
+        
+        if (frequency == 400) {
+            row = 0;
+        }
+        else if (frequency == 680) {
+            row = 1;
+        }
+        else if (frequency == 800) {
+            row = 2;
+        }
+        
+        while (search_stop == 0) {
+            found = 0;
+            while (found==0) {
+                if (conductors > n_parallel) {
+                    search_stop = 1;
+                    found = 1;
+                    if (optimal_wire < 0) {
+                        params_test = 1;
+                        Mass = 0;
+                        impedance.setrj(0, 0);
+                        voltage_drop.setrj(0, 0);
+                        ampacity = 0;
+                        cable_size = "";
+                        cerr << endl << "No cables were found for these settings";
+                        cerr << endl << "          LL voltage            : " << voltage.mag;
+                        cerr << endl << "          Current               : " << current.mag;
+                        cerr << endl << "          parallelled conductors: " << n_parallel;
+                        cerr << endl << "          voltage drop tolerance: " << drop_tolerance << endl;
+                    } 
+                }
+                else if (index > cable_sizes.entries()-1) {
+                    // Increase the conductors and start searching again
+                    conductors = conductors + 1;
+                    index = 1;
+                }
+                else {
+                    temp_current = cable_ampacities[row][index]*conductors;
+                    
+                    // Exit loop once compatible cable setup is found
+                    found=1;
+
+                    resistance = cable_resistivities[row][index]; // [ohms/m]
+                    reactance = (frequency/60)*cable_reactances[index]; // [ohms/m]
+                    impedance.setrj(resistance, reactance);
+                    impedance.setMagPhase( impedance.mag*length/conductors, impedance.phase );   // [ohms]
+                    current.setrj(Ireal, Iimag);
+                    
+                    percent = 100.*voltage_drop.mag/voltage.mag;
+                        
+                    if (temp_current > current.mag) {
+                        // Check to see if cable setup is optimal
+                        // This is an AC bus, so there may or may not be send & return lines multiplied
+                        // by the number of paralleled conductors
+                        //if (percent > drop_tolerance) {
+                        //  index = index + 1;
+                        //}
+                        if ((lines*cable_mass[index]*conductors*length) < Mass) {
+                            // If optimal weight, then re-initialize weight, index, and
+                            // number of paralleled conductors
+                            Mass = lines*cable_mass[index]*conductors*length; // [lbs]
+                            optimal_wire = index;
+                            paralleled = conductors;
+                            index = cable_sizes.entries();  // Terminate loop
+                        }
+                        else {
+                            index = cable_sizes.entries();  // Terminate loop
+                        }
+                    }
+                    else {
+                        index = index+1;  // Terminate loop
+                    }
+                }
+            }
+        }
+        
+        if (optimal_wire >= 0) {
+            // Initialize rest of output
+            cable_size = cable_sizes[optimal_wire];
+            
+            // Single wire resistance and reactance
+            resistance = cable_resistivities[row][optimal_wire]; // [ohms/m]
+            reactance = (frequency/60)*cable_reactances[optimal_wire]; // [ohms/m]
+            
+            // Bundled impedance
+            impedance.setrj(resistance, reactance);
+            impedance.setMagPhase( impedance.mag*length/paralleled, impedance.phase );   // [ohms]
+            voltage_drop.copy("current");
+            voltage_drop.times("impedance");
+            Mass = lines*cable_mass[optimal_wire]*length*paralleled;
+            ampacity = cable_ampacities[row][optimal_wire]*paralleled;
+            
+            R = resistance;
+            L = reactance / (2*PI*frequency);
+        }
+    }
+    
+    //---------------------------------
+    // DC Cable metrics function
+    //---------------------------------
+    void dc_cable_metrics()
+    {
+        // Set cable parameters 
+        // Cable sizes available
+        string cable_sizes[] = {"18 Gauge","16 Gauge","14 Gauge","12 Gauge","10 Gauge",
+            "8 Gauge","6 Gauge","4 Gauge","2 Gauge","1 Gauge","1/0","2/0","3/0",
+            "4/0","262 kcmil","313 kcmil","373 kcmil","444 kcmil","535 kcmil",
+            "646 kcmil","777 kcmil","1111 kcmil"};
+            
+        // Cable resistance [ohms/m]
+        real cable_resistivities[] = {0.023617, 0.014807, 0.009335, 0.005864, 0.003701,
+                                      0.002274, 0.001427, 0.000965, 0.000590, 0.000472,
+									  0.000377, 0.000302, 0.000242, 0.000194, 0.000162,
+									  0.000135, 0.000114, 0.000099, 0.000085, 0.000073,
+									  0.000063, 0.000044};
+        // Cable Mass [kg/m]
+        real cable_mass[] = {0.047621, 0.050598, 0.065479, 0.078873, 0.101195, 0.142864,
+                             0.193461, 0.312514, 0.467283, 0.584848, 0.721759, 0.886945,
+                             1.055107, 1.244104, 1.510485, 1.753056, 2.083428, 2.461421,
+                             2.983766, 3.494206, 4.031433, 5.900565};
+        // Cable ampacity [A]
+        real cable_ampacities[] = {17, 25, 40, 48, 62, 77, 103,137,181,208,243,
+                                   281,321,376,436,487,553,630,709,783,881,1098};
+        
+		
+        // Loop through searching for the cable
+        params_test = 0;    // Error check (ie. no cable is found)
+        Mass = inf;
+        real resistance = 0;
+        real voltage_drop = 0;
+        cable_size = "";
+        int optimal_wire = 0;
+        paralleled = 0;
+        int conductors = 1;
+        real temp_current = 0;   // Temporary test current
+        int search_stop = 0;
+		int found;
+        int index = 1;
+		
+		real voltage = EP_I.V.r;
+		real current = Ireal;
+		real percent;
+					
+        while (search_stop == 0) {
+            found = 0;
+            while (found==0) {
+                if (conductors > n_parallel) {
+                    search_stop = 1;
+                    found = 1;
+                    if (optimal_wire == 0) {
+                        params_test = 1;
+                        Mass = 0;
+                        resistance = 0;
+                        cable_size = "";
+                        cerr << endl << "No cables were found for these settings";
+                        cerr << endl << "          voltage                " << voltage;
+                        cerr << endl << "          current                " << current*1000;
+                        cerr << endl << "          parallelled conductors " << n_parallel;
+                        cerr << endl << "          voltage drop tolerance " << drop_tolerance;
+                        cerr << endl;
+                    }
+				}
+                else if (index > cable_sizes.entries()) {
+                    // Increase the conductors and start searching again
+                    conductors = conductors + 1;
+                    index = 1;
+				}
+                else {
+                    temp_current = cable_ampacities[index-1]*conductors;
+                    if (temp_current > current) {
+                        // Exit loop once compatible cable setup is found
+                        found=1;
+                        
+                        // Check to see if cable setup is optimal
+                        // This is a DC bus, so there will be send & return lines multiplied
+                        // by the number of paralleled conductors
+                        voltage_drop = current*(2*cable_resistivities[index-1]*length/conductors); // ohms
+                         
+                        percent = 100*voltage_drop/voltage;
+                        
+                        if (percent > drop_tolerance) {
+                            index = index + 1;
+						}
+                        else if ((cable_mass[index-1]*conductors*2) < Mass) {
+                            // If optimal weight, then re-initialize weight, index, and
+                            // number of paralleled conductors
+                            Mass = cable_mass[index-1]*conductors*2;
+                            optimal_wire = index;
+                            paralleled = conductors;
+                            index = cable_sizes.entries()+1;  // Terminate loop
+						}
+                        else {
+                            index = cable_sizes.entries()+1;  // Terminate loop
+                        }
+					}
+                    else {
+                        index = index+1;  // Terminate loop
+					}
+				}
+			}
+		}
+        // Initialize rest of output
+        if (optimal_wire != 0) {
+            resistance = 2*cable_resistivities[optimal_wire-1]*length/paralleled;    // [ohms]
+            cable_size = cable_sizes[optimal_wire-1];
+            voltage_drop = current*(2*cable_resistivities[optimal_wire-1]*length/paralleled); // ohms
+            Mass = 2*cable_mass[optimal_wire-1]*length*paralleled;
+			
+            R = resistance;
+        }   
+    }
+
+    //------------------------------------------------------------
+    //   ******* PERFORM ENGINEERING CALCULATIONS *******
+    //------------------------------------------------------------
+    
+    void calculate() {
+        
+		// Get frequency from input port, propagate through to output port.
+		frequency = EP_I.frequency;
+        EP_O.frequency=EP_I.frequency;
+		
+        if (switchDes=="DESIGN"){
+            // We don't know R/L yet, so need to guess something.
+            // Solver should be set up to guess current so that the
+            // observed output voltage matches input, minus the drop
+			
+			if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC"))
+			{
+				dc_cable_metrics();
+			}
+			else
+			{
+				ac_cable_metrics();
+			}
+            
+            I.setrj(Ireal, Iimag);
+            Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+            
+            // Calculate voltage drop = dV = IZ
+            dV.copy( "I" );
+            dV.times( "Z" );
+        }
+        else { // --- Off-Design ---
+                
+            // Get voltage across cable
+            dV.copy( "EP_I.VLN" );
+            dV.minus( "EP_O.VLN" );
+        
+            //-------------------------------------------------------
+            // calculate current from voltage drop
+            //-------------------------------------------------------
+            
+            Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+            
+            I.copy( "dV" );
+            I.div( "Z" );
+        }
+        
+        // Calculate voltage drop that may be used in solver during on-design.
+        Vreal_drop = dV.r;
+        Vimag_drop = dV.j;
+        
+        //----------------------------------------------------------
+        // set the conditions in the ports
+        //-----------------------------------------------------------
+        EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS );
+        EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS );
+        
+        Loss_r = EP_I.S.r - EP_O.S.r;
+        Loss_j = EP_I.S.j - EP_O.S.j;
+		
+		// TODO: Run this calculation past Dave
+		SpecificAmperage = ampacity*length/Mass;
+        
+    }
+}
