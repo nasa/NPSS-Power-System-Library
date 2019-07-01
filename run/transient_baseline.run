@@ -1,0 +1,188 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+// Make GasTbl the default thermopackage
+#ifndef THERMO
+#define THERMO GasTbl
+#endif
+
+//include the power train components 
+//#include "PTE_Viewer.view"
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// add in electric port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+// Transient data out to a CSV file for plotting
+OutFileStream transientCSVStream { filename = "output/transient.csv"; } 
+
+//model file
+#include "baseline.mdl"
+Turb.PRbase = 1.0488e+000;
+EM1.Vimag = -1.3413e+002;
+EM1.Vreal = 1.1947e+003;
+
+/************************
+On design
+************************/
+setOption("switchDes","DESIGN"); 
+autoSolverSetup();
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "output/solver.bad";
+
+solver.diagnosticFile = "output/no_rect_inv_SolverOutput";
+solver.debugLevel = "ITERATION_DETAILS";
+
+solver.maxIterations=300;
+solver.maxJacobians=300;
+
+run();
+
+page.display();  // output data to out file
+
+page_runtime.display(); // output data to cmd window
+
+cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+
+/************************
+Off design
+************************/
+/* No longer need these solver ICs
+Prop.S_map.RlineMap = 1.8658e+000;
+Turb.PRbase = 1.0351e+000;
+Gen1.trqTemp = 4.5125e+003;
+EM1.Vimag = -3.6630e+001;
+EM1.trqTemp = 4.4387e+003;
+EM1.Vreal = 1.20e+003;
+Turbine_Shaft.Nmech = 3.8411e+003;
+Atm.W = 2.0149e+002;
+*/
+solver.defaultDxLimit = 0.001;
+solver.maxIterations=3000;
+solver.maxJacobians=3000;
+setOption("switchDes","OFFDESIGN"); 
+
+setOption( "solutionMode", "TRANSIENT");
+transient.stopTime = 15;
+transient.baseTimeStep = .01;
+transient.setup();
+initializeHistory();
+autoSolverSetup();
+
+
+Independent ind_AtmW{
+  varName = "Atm.W";
+}
+solver.addIndependent( "ind_AtmW" );
+
+
+real motor_trq_frac = 0.46;
+Dependent dep_motor_torque_frac { 
+  eq_lhs = "EM1.S_map.trqMap";
+  eq_rhs = "motor_trq_frac";
+}
+solver.addDependent( "dep_motor_torque_frac" );
+
+// inertias
+Propulsor_Shaft.inertia = 10;
+Turbine_Shaft.inertia = 0.5;
+
+// Write the CSV headers
+transientCSVStream << "Gen1Speed,";
+transientCSVStream << "Gen1S_mapNmap,";
+transientCSVStream << "Gen1S_maptrqMap,";
+transientCSVStream << "EM1Speed,";
+transientCSVStream << "EM1S_mapNmap,";
+transientCSVStream << "EM1S_maptrqMap,";
+transientCSVStream << "NozFg,";
+transientCSVStream << "CASE,";
+transientCSVStream << "time" << endl;
+
+void csvTransientPrint()
+{
+    transientCSVStream << Gen1.Speed << ", ";
+    transientCSVStream << Gen1.S_map.Nmap << ", ";
+    transientCSVStream << Gen1.S_map.trqMap << ", ";
+    transientCSVStream << EM1.Speed << ", ";
+    transientCSVStream << EM1.S_map.Nmap << ", ";
+    transientCSVStream << EM1.S_map.trqMap << ", ";
+    transientCSVStream << Noz.Fg << ", ";
+    transientCSVStream << CASE << ", ";
+    transientCSVStream << time << endl;
+
+    cout << "Gen1.Speed, "        << Gen1.Speed << ", ";
+    cout << "Gen1.S_map.Nmap, "   << Gen1.S_map.Nmap << ", ";
+    cout << "Gen1.S_map.trqMap, " << Gen1.S_map.trqMap << ", ";
+    cout << "EM1.Speed, "         << EM1.Speed << ", ";
+    cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
+    cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
+    cout << "CASE, "              << CASE << ", ";
+    cout << "time, "              << time << endl;
+}
+
+postsolverSequence = { "csvTransientPrint" };
+
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+cout << "--------------------------------" << endl;
+cout << "--------------------------------" << endl;
+motor_trq_frac = 0.445;
+time = 0;
+CASE++; run();
+
+
+cout << "--------------------------------" << endl;
+cout << "--------------------------------" << endl;
+motor_trq_frac = 0.488;
+time = 0;
+CASE++; run();
+
+real frac_speed_setpoint = 0.5;
+real eIntegral = 0;
+real Ki = 0.00025, Kp = 0.02;
+void PI_prop_speed_controller()
+{
+    real e, y;
+    e = frac_speed_setpoint - EM1.S_map.Nmap;
+    eIntegral += e*transient.baseTimeStep;
+    motor_trq_frac += Kp*e + Ki*eIntegral;
+}
+
+postsolverSequence = { "csvTransientPrint", "PI_prop_speed_controller" };
+
+cout << "--------------------------------" << endl;
+cout << "--------------------------------" << endl;
+frac_speed_setpoint = 0.476186;
+time = 0;
+CASE++; run();
+
+
+cout << "--------------------------------" << endl;
+cout << "--------------------------------" << endl;
+eIntegral = 0;
+frac_speed_setpoint = 0.5;
+time = 0;
+CASE++; run();
+
+

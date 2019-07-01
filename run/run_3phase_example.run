@@ -57,11 +57,15 @@ cout<< " Current A1 (in) : " << A1.EP_I.I.rRMS << "  + j" << A1.EP_I.I.jRMS << "
 
 cout<< " Voltage Source  : " << Source.EP_Oa.V.rRMS << "  + j" << Source.EP_Oa.V.jRMS << endl;
 cout<< " Voltage A1 (out): " << A1.EP_O.V.rRMS << "  + j" << A1.EP_O.V.jRMS << endl;
+cout<< " Voltage line drop (out): " << Source.EP_Oa.VLN.rRMS-A1.EP_O.VLN.rRMS << "  + j" << Source.EP_Oa.VLN.jRMS-A1.EP_O.VLN.jRMS << endl;
+cout<< " Voltage A1 LN (out): " << A1.EP_O.VLN.rRMS << "  + j" << A1.EP_O.VLN.jRMS << "\n" << endl;
 cout<< " Voltage A2 (out): " << A2.EP_O.V.rRMS << "  + j" << A2.EP_O.V.jRMS << "\n" << endl;
 
 cout<< " Power Source  : " << Source.EP_Oa.S.rRMS << "  + j" << Source.EP_Oa.S.jRMS << endl;
 cout<< " Power A1 (out): " << A1.EP_O.S.rRMS << "  + j" << A1.EP_O.S.jRMS << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.rRMS << "  + j" << A2.EP_O.S.jRMS << "\n" << endl;
+cout<< " Load PF (out): " << cos(A1.EP_O.S.phase) << "\n" << endl;
+cout<< " Load impedance (out): " << A2.Z.r << "  + j" << A2.Z.j/(2*3.14*60) << "\n" << endl;
 
 
 cout<<" \n ===============================================" << endl;
@@ -76,3 +80,5 @@ cout<< " Power Source  : " << Source.EP_Oa.S.mag << " /_  " << Source.EP_Oa.S.ph
 cout<< " Power A1 (out): " << A1.EP_O.S.mag << " /_  " << A1.EP_O.S.phaseDeg << endl;
 cout<< " Power A2 (out): " << A2.EP_O.S.mag << " /_  " << A2.EP_O.S.phaseDeg << "\n" << endl;
 cout<<" =============================================== \n" << endl;
+
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;

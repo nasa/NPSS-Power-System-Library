@@ -35,6 +35,7 @@ fine, imprisonment, or both.
 //model file
 #include "baseline_turboelectric.mdl"
 
+OutFileStream csvStream { filename = "output/out.csv"; } 
 
 /************************
 On design
@@ -90,18 +91,21 @@ printData(Cable1.list("Variable",FALSE));
 printData(Cable2.list("Variable",FALSE));
 printData(Cable3.list("Variable",FALSE));
 
+csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
+csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
 cout << "Rect1.S_map.pwrMap = "  <<  Rect1.S_map.pwrMap  << endl;
 cout << "Inv1.S_map.pwrMap = "  <<  Inv1.S_map.pwrMap  << endl;
-cout << "Propulsor_Shaft.pwrIn = "  <<  Propulsor_Shaft.pwrIn/0.746 << endl;
-cout << "Propulsor_Shaft.pwrOut = " <<  Propulsor_Shaft.pwrOut/0.746 << endl;
-cout << "Propulsor_Shaft.pwrNet = " <<  Propulsor_Shaft.pwrNet/0.746 << endl;
-cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn/0.746 << endl;
-cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut/0.746 << endl;
-cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet/0.746 << endl;
+cout << "Propulsor_Shaft.pwrIn = "  <<  Propulsor_Shaft.pwrIn*0.746 << endl;
+cout << "Propulsor_Shaft.pwrOut = " <<  Propulsor_Shaft.pwrOut*0.746 << endl;
+cout << "Propulsor_Shaft.pwrNet = " <<  Propulsor_Shaft.pwrNet*0.746 << endl;
+cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn*0.746 << endl;
+cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut*0.746 << endl;
+cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet*0.746 << endl;
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
 cout << endl;
 
 
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 page.display();  // output data to out file
 
 //page_runtime.display(); // output data to cmd window
@@ -135,25 +139,26 @@ solver.maxIterations = 10000;
 
 // Run something like a power hook, start at design power, then drop it down to
 // a little less than half power and see how efficiencies, P_out/P_in change
-for (CASE = 1 ; CASE < 12; CASE++)
+for (CASE = 1 ; CASE < 13; CASE++)
 {
 	run();
 
+	csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
 	cout << "Rect1.S_map.pwrMap = "  <<  Rect1.S_map.pwrMap  << endl;
 	cout << "Inv1.S_map.pwrMap = "   <<  Inv1.S_map.pwrMap  << endl;
 	cout << "Rect1.S_map.effMap = "  <<  Rect1.S_map.effMap  << endl;
 	cout << "Inv1.S_map.effMap = "   <<  Inv1.S_map.effMap  << endl;
-	cout << "Propulsor_Shaft.pwrIn = "  <<  Propulsor_Shaft.pwrIn/0.746 << endl;
-	cout << "Propulsor_Shaft.pwrOut = " <<  Propulsor_Shaft.pwrOut/0.746 << endl;
-	cout << "Propulsor_Shaft.pwrNet = " <<  Propulsor_Shaft.pwrNet/0.746 << endl;
-	cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn/0.746 << endl;
-	cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut/0.746 << endl;
-	cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet/0.746 << endl;
+	cout << "Propulsor_Shaft.pwrIn = "  <<  Propulsor_Shaft.pwrIn*0.746 << endl;
+	cout << "Propulsor_Shaft.pwrOut = " <<  Propulsor_Shaft.pwrOut*0.746 << endl;
+	cout << "Propulsor_Shaft.pwrNet = " <<  Propulsor_Shaft.pwrNet*0.746 << endl;
+	cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn*0.746 << endl;
+	cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut*0.746 << endl;
+	cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet*0.746 << endl;
 	cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
 	cout << endl;
 	page.display();  // output data to out file
 
-	Prop.pwr *= 0.95;
+	Prop.pwr *= 0.90000001;
 }
 
 //page_runtime.display(); // output data to cmd window

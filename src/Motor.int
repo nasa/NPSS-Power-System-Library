@@ -28,7 +28,7 @@ class Motor extends Element {
 	//------------------------------------------------------------
 	
 	real Current {
-		value = 1.; IOstatus="input"; units=AMP;
+		value = 1.; IOstatus="input"; //units=AMP;
 		description = "Current";
 	} 
 
@@ -59,7 +59,7 @@ class Motor extends Element {
 	}
 	
 	real Loss_j {
-		value = 0; //IOstatus=OUTPUT; units="kW";
+		value = 0; //IOstatus=OUTPUT; //units="kW";
 		description = "Motor Loss";
 	}
 
@@ -104,22 +104,22 @@ class Motor extends Element {
 	}
 	
 	real Speed{
-		value=1.; IOstatus="input"; units=RPM;
+		value=1.; IOstatus="input"; //units=RPM;
 		description = "Propulsor Speed";
 	}
 
 	real trq{
-		value=1.; IOstatus="output"; units=FT_LBF;
+		value=1.; IOstatus="output"; //units=FT_LBF;
 		description = "Propulsor Torque";
 	}
 
 	real trqDes{
-		value = 1.;  IOstatus = "output";  units = FT_LBF;
+		value = 1.;  IOstatus = "output";  //units = FT_LBF;
 		description = "Torque at design";
 	}
 
 	real trqTemp{
-		value = 1.;  IOstatus = "output";  units = FT_LBF;
+		value = 1.;  IOstatus = "output";  //units = FT_LBF;
 		description = "Temporary torque which the solver drives to match actual torque";
 	}
 

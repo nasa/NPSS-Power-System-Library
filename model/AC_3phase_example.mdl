@@ -27,9 +27,9 @@ Source Source{
 }
 
 Element Cable A1{
-	length = 10;
-	R = 0.017449748;
-	L = 0.001325483;
+	length = 1;
+	R = 0.01745;//0.052264;
+	L = 1.325e-3;//0.49726;
 }
 
 Element BasicLoad A2{
