@@ -62,7 +62,7 @@ GroupBlock Electrical {
    }
       
    DColTBlock cable { 
-		titleBody = "\n"; 
+		titleBody = "Cables \n"; 
 		compType = "Cable"; 
 		compTypeFormat = "????????????"; 
 		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
@@ -71,6 +71,13 @@ GroupBlock Electrical {
    DColTBlock aerocable { 
 		titleBody = "\n"; 
 		compType = "AeroCable"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
+   } 
+      
+   DColTBlock breaker { 
+		titleBody = "Breakers \n"; 
+		compType = "Breaker"; 
 		compTypeFormat = "????????????"; 
 		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
    } 
@@ -118,7 +125,8 @@ GroupBlock Electrical {
    anchor = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "aerocable";
-   aerocable.bottom =  "threephasecable";
+   aerocable.bottom =  "breaker";
+   breaker.bottom =  "threephasecable";
    threephasecable.bottom =  "generator";
    generator.bottom = "threephaseyload";
    threephaseyload.bottom = "rectifier";

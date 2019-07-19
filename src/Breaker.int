@@ -1,0 +1,293 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
+// * April 26, 2018
+// ****************************************************************************
+
+//#include <InterpIncludes.ncp>
+class Breaker extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " Represents the performance (losses) of a circuit breaker. On-design, the breaker runs at the design efficiency and computes its impedance. Off-design, it runs with the impedance. Supports DC, 1-, and 3-phase";
+	
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	
+	real R{
+		value = .01;  IOstatus = "input";  //units = OHM;
+	}
+    
+	real L{
+		value = .0000796;  IOstatus = "input";  //units = H_PER_FT;
+	}
+	
+	real Eff {
+		value = 1.;  IOstatus = "input";  units = NONE;
+		description = "Efficiency at current point.";
+	}
+	
+	real effDes {
+		value = 1.;  IOstatus = "input";  units = NONE;
+		description = "Efficiency at design point.";
+	}
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=KW/KG;
+		description = "Power to Weight ratio for the component";
+	}
+	
+	real Loss_j {
+		value = 0; IOstatus="output"; //units=W;
+		description = "Cable Loss";
+	}
+
+	real Loss_r {
+		value = 0; IOstatus="output"; //units=W;
+		description = "Cable Loss";
+	}
+
+	real Mass {
+		value=1.; IOstatus="output"; units="kg";
+		description = "Component mass";
+	}
+	
+    
+    real Ireal {
+        value = 100; IOstatus="input"; //units=amps;
+        description = "Guess value for real current component in cable";
+    }
+    real Iimag {
+        value = 0; IOstatus="input"; //units=amps;
+        description = "Guess value for imaginary current component in cable";
+    }
+    real Vreal_drop {
+        value = 0; IOstatus="output"; //units=amps;
+        description = "Voltage dropped across cable given operating current";
+    }
+    real Vimag_drop {
+        value = 0; IOstatus="output"; //units=amps;
+        description = "Imaginary component of voltage dropped across cable, given operating current";
+    }
+	
+	ComplexNumber dV;
+	ComplexNumber V;
+	ComplexNumber Z;
+	ComplexNumber I;
+	ComplexNumber S;
+
+	//------------------------------------------------------------
+	//   ******* OPTION VARIABLE SETUP *******
+	//------------------------------------------------------------
+
+	Option switchDes {
+		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		description = "Determines if the element is in design or off-design mode";
+		rewritableValues = FALSE;
+		trigger=TRUE;
+	}
+	
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------	
+	// FLUID PORTS
+
+	// FUEL PORTS
+
+	// BLEED PORTS
+
+	// THERMAL PORTS
+
+	// 	ELECTRICAL PORTS
+
+	ElectricOutputPort EP_O {
+		description = "Electric port";
+	}
+	string EPortRef;
+	
+	ElectricInputPort EP_I {
+		description = "Electric Port";
+	}
+
+	//MECHANICAL PORTS
+
+	// FLOW STATIONS 
+
+	// SOCKETS
+
+	// TABLES
+	
+    //------------------------------------------------------------
+    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+    //------------------------------------------------------------
+    Independent ind_Ireal { 
+        varName = "Ireal"; 
+        autoSetup = TRUE;   // Only set up for on-design to help size breaker.
+        a = 10000;          // Bias to help with solver variable crossing zero.
+        description = "Varies the real component of breaker current";
+    }
+    
+    Independent ind_Iimag { 
+        varName = "Iimag"; 
+        autoSetup = TRUE;   // Only set up for on-design.
+        a = 10000;          // Bias to help with solver variable crossing zero.
+        description = "Varies the imaginary component of breaker current";
+    }
+
+    Dependent dep_Vreal_err {
+        eq_lhs = "EP_I.VLN.r";
+        eq_rhs = "EP_O.VLN.r+Vreal_drop";
+        autoSetup = TRUE;   // Only set up for on-design.
+    }
+    Dependent dep_Vimag_err {
+        eq_lhs = "EP_I.VLN.j";
+        eq_rhs = "EP_O.VLN.j+Vimag_drop";
+        autoSetup = TRUE;   // Only set up for on-design.
+    }
+	
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+
+    void variableChanged( string name, any oldVal ) {
+        if (name =="switchDes") {
+            if (switchDes == "DESIGN") {
+                ind_Ireal.autoSetup = TRUE;
+                dep_Vreal_err.autoSetup = TRUE;
+				ind_Iimag.autoSetup = TRUE;
+				dep_Vimag_err.autoSetup = TRUE;
+                if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC"))
+                {
+                    ind_Iimag.autoSetup = FALSE;
+                    dep_Vimag_err.autoSetup = FALSE;
+                }
+                R.IOstatus = "input";
+                L.IOstatus = "input";
+            }
+            else if (switchDes == "OFFDESIGN") {
+                ind_Ireal.autoSetup = FALSE;
+                dep_Vreal_err.autoSetup = FALSE;
+				ind_Iimag.autoSetup = FALSE;
+				dep_Vimag_err.autoSetup = FALSE;
+                R.IOstatus = "output";
+                L.IOstatus = "output";
+            }
+        }
+    } // end variableChanged()
+
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	
+	void calculate() {
+		
+		if (switchDes=="DESIGN"){
+			/***************************
+			On-Design
+			In on design, calculate the mass and impedance of breaker
+			***************************/
+			// Current is guessed on-design.
+            I.setrj(Ireal, Iimag);
+			EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS );
+			EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS );
+			S.copy( "EP_I.S" );	
+			
+			// Do the component performance/design calculations.
+            if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
+
+				// Calculate this component load power
+				real dc_efficiency = effDes;//2.*effDes - 1.;
+				S.setrj( EP_I.S.r * dc_efficiency,  0. );
+				
+				// Calculate mass
+				Mass=2.*EP_I.S.mag/SpecificPower;
+				
+				// Calculate this component load side voltage
+				V.setrj( 1000.*S.r/EP_I.I.r,  0 );
+				
+				// Calculate voltage drop = dV = Vin(port) - Vout(calc).
+				dV.copy( "EP_I.VLN" );
+				dV.minus( "V" );
+				
+				// Calculate this component impedance
+				R = (dV.r) / (EP_I.I.r);
+				L = 0;
+				Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+
+			}
+            else if ( ((EP_I.ElectricPowerType == "AC")  && (EP_O.ElectricPowerType == "AC")) || 
+                      ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) ) {
+				
+				// Calculate this component load power
+				S.setrj( EP_I.S.r * effDes,  EP_I.S.j * effDes );
+				
+				// Calculate this component mass
+				Mass=EP_I.S.mag/SpecificPower;
+				
+				// Start calculating the denominator of the voltage drop (V = S/I*)
+				I.copy( "EP_I.I" );
+				I.conjugate();
+                if (EP_I.ElectricPowerType == "AC") {
+				}
+                else if (EP_I.ElectricPowerType == "AC3") {
+					I.scale( 3. );
+                }
+				
+				// Calculate this component load side voltage
+				V.copy( "S" );
+				V.scale( 1000. );
+				V.div( "I" ); // After this calculation, V will store the line-to-neutral voltage at the output of the breaker
+				
+				// Get calculated voltage drop based on design efficiency (grab input side voltage and subtract off the calculated output voltage).
+				dV.copy( "EP_I.VLN" );
+				dV.minus( "V" );
+				
+				// Compute Z = dV / I (I = Iin / 3 if 3-phase)
+				Z.copy("dV");
+				Z.div("I");
+				
+				// Calculate this component impedance
+				R = Z.r;
+				L = Z.j / (2*PI*EP_I.frequency);
+			}
+		}
+		else {
+			/***************************
+			Off-Design
+		    Calculate current from voltage drop
+			***************************/
+			Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+			
+			dV.copy( "EP_I.VLN" );
+			dV.minus( "EP_O.VLN" );	
+			I.copy( "dV" );
+			I.div( "Z" );
+		}
+        
+        // Calculate voltage drop that may be used in solver during on-design.
+        Vreal_drop = dV.r;
+        Vimag_drop = dV.j;
+
+	    //----------------------------------------------------------
+	    // set the conditions in the port
+	    //-----------------------------------------------------------
+		EP_O.frequency=EP_I.frequency;
+		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
+		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
+        Eff = EP_O.S.r/EP_I.S.r;	
+		
+		Loss_r = EP_I.S.r - EP_O.S.r;
+		Loss_j = EP_I.S.j - EP_O.S.j;
+			
+	}
+}

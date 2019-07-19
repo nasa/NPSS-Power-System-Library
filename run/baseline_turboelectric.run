@@ -75,11 +75,15 @@ solver.debugLevel = "ITERATION_DETAILS";
 // <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
 // Looks like the only thing that botches this up now is guessing them such that you get currents
 // with the wrong sign...
-Rect1.Vreal  = 990;
-Rect1.Vimag  = 0;
-Inv1.Vreal   = 980;
+E1.VrealRMS    = 999;
+E1.VimagRMS    = 0;
+Rect1.Vreal    = 998;
+Rect1.Vimag    = 0;
+E2.VrealRMS   = 1390;
+E2.VimagRMS   = 0;
+Inv1.Vreal   = 997;
 Inv1.Vimag   = 0;
-EM1.Vreal    = 970;
+EM1.Vreal    = 996;
 EM1.Vimag    = 0;
 
 //cout << solverSequence << endl;
@@ -87,9 +91,10 @@ EM1.Vimag    = 0;
 run();
 
 #include "print_macros.fnc"
-printData(Cable1.list("Variable",FALSE));
-printData(Cable2.list("Variable",FALSE));
-printData(Cable3.list("Variable",FALSE));
+// printData(Cable1.list("Variable",FALSE));
+// printData(Cable2.list("Variable",FALSE));
+// printData(Cable3.list("Variable",FALSE));
+printData(Breaker1.list("Variable",FALSE));
 
 csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
 csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
@@ -115,6 +120,7 @@ real Turb_speed = Turb.Np;
 Off design
 ************************/
 
+//solver.solutionMode = "ONE_PASS";
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
@@ -158,7 +164,7 @@ for (CASE = 1 ; CASE < 13; CASE++)
 	cout << endl;
 	page.display();  // output data to out file
 
-	Prop.pwr *= 0.90000001;
+	Prop.pwr *= 0.9;
 }
 
 //page_runtime.display(); // output data to cmd window
