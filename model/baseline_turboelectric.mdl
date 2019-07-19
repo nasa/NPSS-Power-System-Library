@@ -28,7 +28,18 @@ Element Generator Gen1 {
 	#include <STARCABLmotorGenerator.map>
 }
 
-Element AeroCable Cable3 {
+Element Breaker Breaker1 {
+	effDes=0.995;
+	SpecificPower=250.0; 
+}
+
+Element Enode E1{
+	ElectricInputPort EP_I;
+	ElectricOutputPort EP_O;
+	frequency = 400.;
+}
+
+Element AeroCable Cable1 {
 	length=28.3464;
 }
 
@@ -39,8 +50,17 @@ Element Rectifier Rect1 {
 	frequency = 400.;
 }
 
+Element Breaker Breaker2 {
+	effDes=0.995;
+	SpecificPower=250.0; 
+}
 
-Element AeroCable Cable1 {
+Element Enode E2{
+	ElectricInputPort EP_I;
+	ElectricOutputPort EP_O;
+}
+
+Element AeroCable Cable2 {
 	length=28.3464;
 }
 
@@ -51,7 +71,7 @@ Element Inverter Inv1 {
 	frequency=400;
 }
 
-Element AeroCable Cable2 {
+Element AeroCable Cable3 {
 	length=28.3464;
 }
 
@@ -143,21 +163,31 @@ Element Shaft Turbine_Shaft {
 
 setOption("ElectricPowerType","AC3");
 Rect1.EP_O.setOption("ElectricPowerType","DC");
+Breaker2.EP_O.setOption("ElectricPowerType","DC");
+Breaker2.EP_I.setOption("ElectricPowerType","DC");
+E2.EP_O.setOption("ElectricPowerType","DC");
+E2.EP_I.setOption("ElectricPowerType","DC");
+E2.ind_Vimag.autoSetup = FALSE;
+E2.dep_Iimag.autoSetup = FALSE;
+Cable2.EP_O.setOption("ElectricPowerType","DC");
+Cable2.EP_I.setOption("ElectricPowerType","DC");
 Inv1.EP_I.setOption("ElectricPowerType","DC");
-Cable1.EP_O.setOption("ElectricPowerType","DC");
-Cable1.EP_I.setOption("ElectricPowerType","DC");
 
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortI( "Gen1.EP_O", "Cable3.EP_I");
-linkPortI( "Cable3.EP_O", "Rect1.EP_I");
-linkPortI( "Rect1.EP_O", "Cable1.EP_I");
-linkPortI( "Cable1.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Cable2.EP_I" );
-linkPortI( "Cable2.EP_O", "EM1.EP_I" );
+linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
+linkPortI( "Breaker1.EP_O", "E1.EP_I");
+linkPortI( "E1.EP_O", "Cable1.EP_I");
+linkPortI( "Cable1.EP_O", "Rect1.EP_I");
+linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
+linkPortI( "Breaker2.EP_O", "E2.EP_I");
+linkPortI( "E2.EP_O","Cable2.EP_I");
+linkPortI( "Cable2.EP_O", "Inv1.EP_I");
+linkPortI( "Inv1.EP_O", "Cable3.EP_I" );
+linkPortI( "Cable3.EP_O", "EM1.EP_I" );
 
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
@@ -174,6 +204,8 @@ linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
 solverSequence.remove( "Gen1" );
 solverSequence.remove( "EM1" );
+solverSequence.remove( "E1" );
+solverSequence.remove( "E2" );
 solverSequence.remove( "Turbine_Shaft" );
 solverSequence.remove( "Propulsor_Shaft" );
 solverSequence.remove( "Rect1" );
@@ -181,6 +213,8 @@ solverSequence.remove( "Inv1" );
 
 solverSequence.append( "Gen1" );
 solverSequence.append( "EM1" );
+solverSequence.append( "E1" );
+solverSequence.append( "E2" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
 solverSequence.append( "Rect1" );
