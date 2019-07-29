@@ -129,6 +129,12 @@ class Generator extends Element {
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
 	}
+    Option switchThermPort {
+    	allowedValues = { "TRUE", "FALSE" };
+        value = "FALSE";
+    	description = "Determines if component needs thermal port";
+    	rewritableValues = FALSE;  // Enables converter optimization.
+    }
 	
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
@@ -190,6 +196,11 @@ class Generator extends Element {
 	//------------------------------------------------------------
 
 	void variableChanged( string name, any oldVal ) {
+		if ( name == "switchThermPort" ){ 
+			if ( switchThermPort == "TRUE" ){
+				create("", "ThermalOutputPort", "Q_O" );
+			}
+		}
 		if (name =="switchDes") {
 			if (switchDes == DESIGN) {
 				ind_trqTemp.autoSetup = FALSE;
@@ -267,7 +278,13 @@ class Generator extends Element {
 		
 		// Generator / Turbine Engine shaft connection
 		trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
-		Sh_O.trq = -trq;	
+		Sh_O.trq = -trq;
+
+        if (switchThermPort=="TRUE"){
+            real KW_PER_BTU_PER_SEC = 1.05505585;
+            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+        }
 	}
 	void prePass(){
 		
