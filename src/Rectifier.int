@@ -80,6 +80,16 @@ class Rectifier extends Element {
 		description = "Component mass";
 	}
 
+	real Loss_j {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Generator Loss";
+	}
+
+	real Loss_r {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Generator Loss";
+	}
+
 	
 	//------------------------------------------------------------
     //   ******* OPTION VARIABLE SETUP *******
@@ -90,6 +100,12 @@ class Rectifier extends Element {
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
 	}
+    Option switchThermPort {
+    	allowedValues = { "TRUE", "FALSE" };
+        value = "FALSE";
+    	description = "Determines if component needs thermal port";
+    	rewritableValues = FALSE;  // Enables converter optimization.
+    }
 
 	
 
@@ -166,6 +182,11 @@ class Rectifier extends Element {
 	//------------------------------------------------------------
 
 	void variableChanged(string name, any oldVal){
+		if ( name == "switchThermPort" ){ 
+			if ( switchThermPort == "TRUE" ){
+				create("", "ThermalOutputPort", "Q_O" );
+			}
+		}
 		if(name == "switchDes"){
 			if(switchDes == OFFDESIGN){
 				effDes.IOstatus = "output";
@@ -208,6 +229,15 @@ class Rectifier extends Element {
 			effBase = effDes;
 		}
 		Eff = effBase;
+		
+        Loss_r = EP_I.S.r - EP_O.S.r;
+        Loss_j = EP_I.S.j - EP_O.S.j;
+
+        if (switchThermPort=="TRUE"){
+            real KW_PER_BTU_PER_SEC = 1.05505585;
+            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+        }
 	}
 	
 	//------------------------------------------------------------
