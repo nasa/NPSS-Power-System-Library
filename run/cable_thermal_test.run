@@ -48,7 +48,7 @@ ACCable {
 
     // Subelement 
     Subelement EThermalMass S_eThermMass {
-        Cp = 1.0;
+        Cp = 1.0e-2;
     }
 }
 setOption("switchThermPort", "TRUE");
@@ -61,7 +61,7 @@ Element TMS{
     real T_cool = 518.67, Q_cool;
 
     void calculate() {
-        Q_cool = 5*(Q_O.MassTemp-T_cool);
+        Q_cool = 1*(Q_O.MassTemp-T_cool);
         Q_O.HeatTransferRate = Q_cool;
     }
 }
@@ -131,30 +131,75 @@ cout << "+j" << ACCable.EP_O.I.j  << endl;
         cout << "TMS.Q_O.MassTemp = " << TMS.Q_O.MassTemp << endl;
 
 
+// Set up transient run
+solver.defaultDxLimit = 0.001;
+solver.maxIterations=3000;
+solver.maxJacobians=3000;
+setOption("switchDes","OFFDESIGN"); 
 
-// Run off-design, increase power by increasing voltage drop (decrease voltage on output side of cable.
+setOption( "solutionMode", "TRANSIENT");
+transient.stopTime = 15;
+transient.baseTimeStep = .01;
+transient.setup();
+initializeHistory();
+autoSolverSetup();
+
+// Run off-design, increase power by increasing voltage drop (decrease voltage on output side of cable).
 ACS.Vreal *= 0.9999;
 ACS.Vimag /= 0.9;
 
-cout << "CASE #" << CASE++ << " -- increased power" << endl;
+// Transient data out to a CSV file for plotting
+OutFileStream transientCSVStream { filename = "output/T_transient.csv"; } 
+
+// Write the CSV headers
+transientCSVStream << "Q_loss,";
+transientCSVStream << "HeatTransferRate,";
+transientCSVStream << "MassTemp,";
+transientCSVStream << "CASE,";
+transientCSVStream << "time" << endl;
+
+void csvTransientPrint()
+{
+    transientCSVStream << ACCable.Q_loss << ", ";
+    transientCSVStream << TMS.Q_O.HeatTransferRate << ", ";
+    transientCSVStream << TMS.Q_O.MassTemp-458.67 << ", ";
+    transientCSVStream << CASE << ", ";
+    transientCSVStream << time << endl;
+
+    cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_loss << ", ";
+    cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
+    cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
+    cout << "CASE, "              << CASE << ", ";
+    cout << "time, "              << time << endl;
+}
+
+postsolverSequence = { "csvTransientPrint" };
+
+
+
+//cout << "CASE #" << CASE++ << " -- increased power" << endl;
 run();
-cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
-cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
-cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
-cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
-cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
+//cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
+//cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+//cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
+//cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
+//cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
+//
+//cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+//cout << "+j" << ACCable.Vimag_drop;
+//cout << "\t  dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
+//cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
+//cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+//cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+//cout << " \t\t\t I =" << ACCable.EP_O.I.r;
+//cout << "+j" << ACCable.EP_O.I.j  << endl;
+//        cout << "TMS.Q_O.HeatTransferRate = " << TMS.Q_O.HeatTransferRate << ", ";
+//        cout << "TMS.Q_O.MassTemp = " << TMS.Q_O.MassTemp << endl;
 
-cout << "AC: dV_calc =" << ACCable.Vreal_drop;
-cout << "+j" << ACCable.Vimag_drop;
-cout << "\t  dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
-cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
-cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
-cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
-cout << " \t\t\t I =" << ACCable.EP_O.I.r;
-cout << "+j" << ACCable.EP_O.I.j  << endl;
-        cout << "TMS.Q_O.HeatTransferRate = " << TMS.Q_O.HeatTransferRate << ", ";
-        cout << "TMS.Q_O.MassTemp = " << TMS.Q_O.MassTemp << endl;
 
-
-
+// Run back to the original operating point.
+ACS.Vreal /= 0.9999;
+ACS.Vimag *= 0.9;
+transient.stopTime = 30;
+run();
 
