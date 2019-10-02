@@ -1,0 +1,232 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __THERMAL_VOLUME__
+#define __THERMAL_VOLUME__
+
+#include <InterpIncludes.ncp>
+
+class ThermalVolume extends Subelement {
+
+extern real Q_O.HeatTransferRate;
+extern real Q_O.MassTemp;
+extern real Q_dmd;
+extern real Volume;
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+  title = "";
+
+  description = "The "+isA()+" subelement performs a simple set of calculations
+to represent the thermal mass (temperature dynamics) of an electrical component.
+This subelement is intended to be incorporated in an appropriate socket within
+the electrical component and interfaces the component to a thermal management
+system via a thermal port that must live within the electrical component.";
+
+  usageNotes = isA() +
+  "
+
+- Parent component must have a thermal port.
+
+- Parent component must also have a Q_loss variable that contains the
+heat generated within the component at the given timestep.
+
+- The component temperature is calculated with a solver independent
+integrator pair.
+
+";
+
+background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+  FlowStation Fl_vol;
+
+  real dTqdt {
+    value = 0;  IOstatus = OUTPUT;  units = PER_SEC;
+    description = "Temperature time derivative";
+  }
+  real eff{
+    value = 1.0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Net transfer effectivness";
+  }
+  real T_fluid{
+    value = 0;  IOstatus = INPUT;  units = RANKINE;
+    description = "Input temperature of fluid";
+  }
+  real T_s{
+    value = 0;  IOstatus = INPUT;  units = RANKINE;
+    description = "Surface temperature of surface";
+  }
+  real W_fluid{
+    value = 0;  IOstatus = INPUT;  units = LBM_PER_SEC;
+    description = "Mass flow of fluid";
+  }
+  real Cp_fluid {
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_LBM_R;
+    description = "Fluid Cp (specific heat)";
+  }
+  real Q_net {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Net heat into flow";
+  }
+  real Q_max {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Maximum heat into flow";
+  }
+  real Q_real {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Real heat into flow";
+  }
+  real T {
+    value = 518.67;  IOstatus = INPUT; units = RANKINE;
+    description = "Temperature";
+    trigger = 1;
+  }
+  // real Q_dmd {
+  //   value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+  //   description = "Net heat flow into flow";
+  // }
+  // real dTqdt {
+  //   value = 0;  IOstatus = OUTPUT;  units = PER_SEC;
+  //   description = "Temperature time derivative";
+  // }
+  // real T {
+  //   value = 518.67;  IOstatus = INPUT; units = RANKINE;
+  //   description = "Temperature";
+  //   trigger = 1;
+  // }
+
+//------------------------------------------------------------
+// ******* INTERNAL SOLVER SETUP *******
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+//------------------------------------------------------------
+
+Independent ind_T {
+  varName = "T";
+  autoSetup = TRUE;
+  description = "Varies the material temperature";
+}
+
+Integrator integ_T {
+  stateName = "T";
+  derivativeName = "dTqdt";
+  eq_lhs = "Q_net";
+  eq_rhs = "0.00";
+  tolerance = 0.001;
+  autoSetup = TRUE;
+  description = "Balances the heat flows";
+}
+
+//------------------------------------------------------------
+// ******* VARIABLE CHANGED METHODOLOGY *******
+//------------------------------------------------------------
+void variableChanged( string name, any oldVal )
+{
+  //------------------------------------------------------------
+  // if the heat transfer rate is being set, push it to the port
+  //------------------------------------------------------------
+  if ( name == "Q_dmd" ) {
+    Q_O.HeatTransferRate = Q_dmd;
+  }
+}
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+  // default value is the first variable in the allowedValues list
+
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+
+  // SOCKETS
+
+  // TABLES
+
+  //------------------------------------------------------------
+  //   ******* PERFORM ENGINEERING CALCULATIONS *******
+  //------------------------------------------------------------
+  void calculate() {
+    //------------------------------------------------------------
+    // Get input parameters
+    //------------------------------------------------------------
+    Fl_vol.copyFlow("Fl_I");
+    Fl_vol.setTotalTP(T,Fl_I.Pt);
+    T_fluid  = Fl_I.Tt;
+    Cp_fluid = Fl_I.Cpt;
+    W_fluid = Fl_I.W;
+    T_s = Q_O.MassTemp;
+    cout << "T_fluid = " << T_fluid <<endl;
+    // cout << "T_s = " << T_s <<endl;
+    //cout << "Q_I.HeatTransferRate = " << Q_I.HeatTransferRate << ", ";
+
+    //------------------------------------------------------------
+    // Determine the max heat flow
+    //------------------------------------------------------------
+    Q_max = W_fluid* Cp_fluid *(T_s - T_fluid);
+    //------------------------------------------------------------
+    // Determine the actual heat flow
+    //------------------------------------------------------------
+    Q_real = eff * Q_max;
+    Q_O.HeatTransferRate = Q_real;
+            //cout << "Mass = " << Mass << ", ";
+
+    //------------------------------------------------------------
+    // Determine the temperature derivative
+    //------------------------------------------------------------
+
+    Q_dmd = Fl_I.W * (Fl_vol.ht - Fl_I.ht);
+    cout<< "Q_real is : "<<Q_real<<"Q_dmd is "<< Q_dmd<<endl;
+    Q_net = Q_real + Fl_I.W * (Fl_I.ht - Fl_vol.ht);
+
+    //------------------------------------------------------------
+    // Determine the temperature derivative
+    //------------------------------------------------------------
+    dTqdt = Q_net /(Volume*Fl_vol.rhot*Fl_vol.Cpt );
+        //cout << "dTqdt = " << dTqdt << ", ";
+        //cout << "Q_I.MassTemp = " << Q_I.MassTemp << ", ";
+        //cout << "T = " << T << ", ";
+        //cout << "Cp = " << Cp << endl;
+  }
+}
+
+#endif

@@ -1,0 +1,287 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __THERMALDUCT__
+#define __THERMALDUCT__
+
+#include <InterpIncludes.ncp>
+class ThermalDuct extends Element {
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+  title = "";
+
+  description = "The "+isA()+" element performs a simple adiabatic pressureloss
+calculation.  The pressure loss is calculated by the S_dP socket (or input by the
+user if this socket is empty).  The duct maintains a constant enthalpy
+while the pressure loss is applied.";
+
+  usageNotes = isA() +
+  "
+
+- The duct element calculates an pressure drop.
+
+- The pressure drop can either be input or calculated from a
+subelement.
+
+- The heat loss can either be input or calculated from a
+subelement.
+
+- There are two option switches that determine where the dP
+and Q are calculated.
+
+";
+
+background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+
+  real dP {
+    value = 0;  IOstatus = OUTPUT;  units = PSIA;
+    description = "Actual pressure drop";
+  }
+  real dPqP {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Normalized pressure drop (delta P/P)";
+  }
+  real dPqP_in {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "User input value of dPqP";
+  }
+  real dPqP_dmd {
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Subelement calculated dPqP";
+  }
+  real Q{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Heat flow into the fluid";
+  }
+  real Q_dmd{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Subelement calculated Q";
+  }
+  real Q_in{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Input Q";
+  }
+  real Volume{
+    value = 0;  IOstatus = OUTPUT;
+    description = "Volume";
+  }
+
+
+
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+  void variableChanged( string name, any oldVal ) {
+
+
+  }
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+  // default value is the first variable in the allowedValues list
+
+
+  Option switchDP {
+    allowedValues = { "CALCULATE", "OFF", "INPUT", "CUSTOM" }
+    description = "CALCULATE - Supplier-provided calculation (default) in socket S_dP which sets dPqP_dmd\n
+OFF - no pressure loss\n
+INPUT - Pressure loss, dPqP_in is input\n
+CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
+";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+
+  Option switchQ {
+    allowedValues = { "OFF", "INPUT", "CALCULATE", "CUSTOM" }
+    description = "OFF - No heat load (default)\n
+INPUT - Heat load is input\n
+CALCULATE - Supplier provided calculation in socket S_Q which sets Q_dmd\n
+CUSTOM - Customer hook function in socket S_customQ which sets Q_dmd";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+
+  Option switchThermPort {
+    allowedValues = { "TRUE", "FALSE" };
+      //value = "FALSE";
+    description = "Determines if component needs thermal port";
+    rewritableValues = FALSE;  // Enables converter optimization.
+      trigger=TRUE;
+  }
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  FluidInputPort Fl_I {
+    description = "Inlet fluid port";
+  }
+
+  FluidOutputPort Fl_O {
+    description = "Outlet fluid port";
+  }
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+
+  FlowStation Fl_dP {
+    description = "Flow station for pressure loss calculation";
+  }
+
+  // SOCKETS
+
+  Socket S_customDP {
+    allowedValues = { "dPqP_dmd" };
+    description = "Pressure loss socket (customer)";
+  }
+
+ Socket S_customQ {
+    allowedValues = { "Q_dmd" };
+    description = "Thermal load socket (customer)";
+  }
+
+  Socket S_dP {
+    allowedValues = { "dPqP_dmd" };
+    description = "Pressure loss socket";
+  }
+
+ Socket S_Q {
+    allowedValues = {"Volume", "Q_dmd" };
+    description = "Thermal load socket";
+  }
+  // TABLES
+
+
+  //------------------------------------------------------------
+  // ******* INTERNAL SOLVER SETUP *******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+
+  void variableChanged( string name, any oldVal ) {
+  // if the value of switchDes or switchAud change...
+  if ( name == "switchThermPort" ){
+    if ( switchThermPort == "TRUE" ){
+      create("", "ThermalOutputPort", "Q_O" );
+    }
+  }
+  } // end variableChanged()
+
+  //------------------------------------------------------------
+  //   ******* PERFORM ENGINEERING CALCULATIONS *******
+  //------------------------------------------------------------
+  void calculate() {
+    //------------------------------------------------------------
+    // Determine which method is to be used to determine pressure
+    // drop
+    //------------------------------------------------------------
+    if( switchDP == "CALCULATE" ){
+      if(!S_dP.isEmpty()) {
+        Fl_dP.copyFlow( "Fl_I" );
+        if ( Fl_I.Aphy > 0.0 ) {
+          Fl_dP.copyFlowStatic( "Fl_I" );
+        }
+        Fl_dP.Cd = Fl_I.Cd;
+        S_dP.execute();
+      }
+      dPqP = dPqP_dmd;
+    }
+    if ( switchDP == "CUSTOM" ){
+        if(!S_customDP.isEmpty()) {
+          S_customDP.execute();
+        }
+      dPqP = dPqP_dmd;
+    }
+   if ( switchDP == "INPUT" ){
+      dPqP = dPqP_in;
+    }
+
+   if ( switchDP == "OFF" ){
+      dPqP = 0.;
+   }
+
+    //------------------------------------------------------------
+    // Determine which method is to be used to determine Q
+    //------------------------------------------------------------
+    if ( switchQ == "CALCULATE" ){
+        if(!S_Q.isEmpty()) {
+          S_Q.execute();
+        }
+      Q = Q_dmd;
+    }
+    if ( switchQ == "CUSTOM" ){
+        if(!S_customQ.isEmpty()) {
+          S_customQ.execute();
+        }
+      Q = Q_dmd;
+    }
+   if ( switchQ == "INPUT" ){
+      Q = Q_in;
+    }
+
+   if ( switchQ == "OFF" ){
+      Q = 0.;
+   }
+
+    //------------------------------------------------------------
+    // Set the duct exit conditions.  The enthalpy is the same
+    // as the entrance enthalpy and exit pressure is determined
+    // from the pressure drop
+    //------------------------------------------------------------
+    dP = dPqP * Fl_I.Pt;
+    real PtOut = Fl_I.Pt - dP;
+
+    //------------------------------------------------------------
+    // Pass the flow information from the inlet to the outlet
+    //------------------------------------------------------------
+    Fl_O.copyFlow( "Fl_I" );
+    Fl_O.setTotal_hP( Fl_I.ht + Q/Fl_I.W, PtOut );
+    cout<<"T_air_out = "<<Fl_O.Tt<<endl;
+
+  }
+
+}
+
+#endif
