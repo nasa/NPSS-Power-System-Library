@@ -96,6 +96,7 @@ autoSolverSetup();
 cout << "--- On Design ---" << endl;
 cout << solverSequence << endl;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout<< TMS.Q_O.list("Variable",TRUE)<<endl;
 
 cout << "CASE #" << CASE++ << endl;
 run();
