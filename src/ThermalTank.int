@@ -4,7 +4,7 @@ the National Aeronautics and Space Administration (NASA). All rights reserved.
 Includes content licensed from the U.S. Government, National Aeronautics and
 Space Administration under United States Copyright Registration Numbers
 V3503D364 and V3482D344.
-© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
 *******************************************************************************/
 
 /*******************************************************************************
@@ -21,11 +21,11 @@ fine, imprisonment, or both.
 // For further information contact support@wolverine-ventures.com
 //
 
-#ifndef __THERMALDUCT__
-#define __THERMALDUCT__
+#ifndef __THERMALTANK__
+#define __THERMALTANK__
 
 #include <InterpIncludes.ncp>
-class ThermalDuct extends Element {
+class ThermalTank extends Element {
 
 //------------------------------------------------------------
 //     ******* DOCUMENTATION *******
@@ -58,11 +58,8 @@ background = "";
 //------------------------------------------------------------
 //     ******* SETUP VARIABLES ********
 //------------------------------------------------------------
+  FlowStation Fl_vol;
 
-  real eff{
-    value = 1.0;  IOstatus = OUTPUT;  units = NONE;
-    description = "Net transfer effectivness";
-  }
   real dP {
     value = 0;  IOstatus = OUTPUT;  units = PSIA;
     description = "Actual pressure drop";
@@ -79,40 +76,83 @@ background = "";
     value = 0;  IOstatus = INPUT;  units = NONE;
     description = "Subelement calculated dPqP";
   }
-  real Q{
-    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
-    description = "Heat flow into the fluid";
+  real dTqdt {
+    value = 0;  IOstatus = OUTPUT;  units = RANKINE_PER_SEC;
+    description = "Temperature time derivative";
   }
-  real Q_max {
-    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
-    description = "Maximum heat into flow";
+  real dVqdt {
+    value = 0;  IOstatus = OUTPUT;  units = LBM_PER_SEC;
+    description = "Volume time derivative";
   }
-  real T_s{
-    value = 0;  IOstatus = INPUT;  units = RANKINE;
-    description = "Surface temperature of surface";
+  real T_mass {
+    value = 518;  IOstatus = INPUT; units = RANKINE;
+    description = "Temperature";
+  }
+  real T_current {
+    value = 518;  IOstatus = OUTPUT; units = RANKINE;
+    description = "Current Temperature state";
+  }
+  real time_current {
+    value = 0;  IOstatus = OUTPUT; units = SEC;
+    description = "Current time";
+  }
+  real mass {
+    value = 0;  IOstatus = INPUT; units = LBM;
+    description = "Volume mass";
+  }
+  real mass_current {
+    value = 0;  IOstatus = OUTPUT; units = LBM;
+    description = "Current volume mass state";
+  }
+  real W_dmd {
+    value = 0;  IOstatus = INPUT; units = LBM_PER_SEC;
+    description = "exit mass flow";
+  }
+  real W_out {
+    value = 0;  IOstatus = INPUT; units= LBM_PER_SEC;
+    description = "specified output mass flow";
   }
 
   //------------------------------------------------------------
   // ******* VARIABLE CHANGED METHODOLOGY *******
   //------------------------------------------------------------
   void variableChanged( string name, any oldVal ) {
-
-
+    // if ( name == "solutionMode" ){
+    //   if ( solutionMode == "TRANSIENT") {
+    //     integ_Vol.autoSetup = TRUE;
+    //     ind_W.autoSetup = TRUE;
+    //     initializeHistory();
+    //   }
+    //   else {
+    //     integ_Vol.autoSetup = FALSE;
+    //     ind_W.autoSetup = FALSE;
+    //   }
+    // }
   }
 
   //------------------------------------------------------------
   //   ******* OPTION VARIABLE SETUP *******
   //------------------------------------------------------------
   // default value is the first variable in the allowedValues list
-
-
+  Option solutionMode {
+      allowedValues = { STEADY_STATE, ONE_PASS, TRANSIENT } ;
+      description = "Solver solution switch";
+      rewritableValues = FALSE;  // Enables converter optimization.
+    }
   Option switchDP {
     allowedValues = { "CALCULATE", "OFF", "INPUT", "CUSTOM" }
     description = "CALCULATE - Supplier-provided calculation (default) in socket S_dP which sets dPqP_dmd\n
-OFF - no pressure loss\n
-INPUT - Pressure loss, dPqP_in is input\n
-CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
-";
+    OFF - no pressure loss\n
+    INPUT - Pressure loss, dPqP_in is input\n
+    CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
+    ";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+  Option switchMass {
+    allowedValues = { "OFF", "INPUT"}
+    description = "OFF - flow out  = flow in \n
+    INPUT - Manual output flow\n
+    ";
     rewritableValues = FALSE;  // Enables converter optimization.
   }
 
@@ -135,9 +175,6 @@ CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
   // BLEED PORTS
 
   // THERMAL PORTS
-  ThermalOutputPort Q_O {
-    description = "Input temperature, output Q";
-  }
 
   // MECHANICAL PORTS
 
@@ -171,13 +208,10 @@ CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
   //------------------------------------------------------------
 
   //------------------------------------------------------------
-  // ******* VARIABLE CHANGED METHODOLOGY *******
-  //------------------------------------------------------------
-
-  //------------------------------------------------------------
   //   ******* PERFORM ENGINEERING CALCULATIONS *******
   //------------------------------------------------------------
   void calculate() {
+
     //------------------------------------------------------------
     // Determine which method is to be used to determine pressure
     // drop
@@ -199,46 +233,80 @@ CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
         }
       dPqP = dPqP_dmd;
     }
-   if ( switchDP == "INPUT" ){
+
+    if ( switchDP == "INPUT" ){
       dPqP = dPqP_in;
     }
 
-   if ( switchDP == "OFF" ){
+    if ( switchDP == "OFF" ){
       dPqP = 0.;
-   }
+    }
 
-    //------------------------------------------------------------
-    // Get temperature from thermal port
-    //------------------------------------------------------------
-    T_s = Q_O.MassTemp;
-    //------------------------------------------------------------
-    // Determine the max heat flow
-    //------------------------------------------------------------
-    Q_max = Fl_I.W* Fl_I.Cpt *(T_s - Fl_I.Tt);
-    // cout<< "Cp_fluid = "<<Cp_fluid<<endl;
-    //------------------------------------------------------------
-    // Determine the actual heat flow
-    //------------------------------------------------------------
-    Q = eff * Q_max;
-    Q_O.HeatTransferRate = Q;
+    if ( switchMass == "OFF" ){
+      W_dmd = Fl_I.W;
+    }
+    if ( switchMass == "INPUT" ){
+      W_dmd = W_out;
+    }
 
     //------------------------------------------------------------
     // Set the duct exit conditions.  The enthalpy is the same
     // as the entrance enthalpy and exit pressure is determined
     // from the pressure drop
     //------------------------------------------------------------
+
     dP = dPqP * Fl_I.Pt;
     real PtOut = Fl_I.Pt - dP;
 
     //------------------------------------------------------------
     // Pass the flow information from the inlet to the outlet
     //------------------------------------------------------------
-    Fl_O.copyFlow( "Fl_I" );
-    Fl_O.setTotal_hP( Fl_I.ht + Q/Fl_I.W, PtOut );
-    // cout<<"T_air_out = "<<Fl_O.Tt<<endl;
+    if ( solutionMode=="STEADY_STATE" || solutionMode=="ONE_PASS"  ){
+      Fl_vol.copyFlow( "Fl_I" );
+      Fl_vol.setTotalTP( T_mass, PtOut );
+      Fl_vol.W = W_dmd;
+      // cout<< "-----------------------T_state = "<< T_mass<<endl;
+      T_mass = Fl_I.Tt;
+      mass = mass;
+    }
 
+    if ( solutionMode == "TRANSIENT" ){
+      if ( time > time_current ){
+        Fl_vol.copyFlow( "Fl_I" );
+        Fl_vol.setTotalTP( T_mass, PtOut );
+        Fl_vol.W = W_dmd;
+        time_current = time;
+        mass_current = mass;
+        T_current = T_mass;
+        // cout<< "RUNNING TRANSIENT STEP-------Time : "<<time<<"timeStep : "<<timeStep<<"time_current : "<<time_current <<endl;
+      }
+
+    //------------------------------------------------------------
+    // If running transiently update mass
+    //------------------------------------------------------------
+      if (switchMass == "INPUT"){
+        dVqdt = (Fl_I.W - Fl_vol.W);
+        mass = mass_current + dVqdt * timeStep;
+      }
+      else{
+        mass = mass_current;
+      }
+
+    //------------------------------------------------------------
+    // Determine the temperature derivative
+    //------------------------------------------------------------
+        if (mass_current == 0){
+          T_mass = Fl_I.Tt;
+        }
+        else{
+          T_mass = (T_current*mass_current +(Fl_I.W*Fl_I.Tt - Fl_vol.W*T_current)*timeStep)/mass;
+        }
+    }
+    Fl_O.copyFlow("Fl_I");
+    Fl_O.setTotalTP( T_mass, PtOut );
+    Fl_O.W = W_dmd;
+    // cout<<"T is "<<T<< " T_current is "<<T_current<< " T_Fl is "<<Fl_I.Tt<< " T_Fl out is "<<Fl_O.Tt<<endl;
   }
-
 }
 
 #endif

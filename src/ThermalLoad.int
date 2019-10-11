@@ -90,7 +90,11 @@ background = "";
   //------------------------------------------------------------
   //   ******* OPTION VARIABLE SETUP *******
   //------------------------------------------------------------
-
+  Option solutionMode {
+    allowedValues = { STEADY_STATE, ONE_PASS, TRANSIENT } ;
+    description = "Solver solution switch";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
   //------------------------------------------------------------
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
   //------------------------------------------------------------
@@ -153,10 +157,10 @@ background = "";
   //   ******* PERFORM ENGINEERING CALCULATIONS *******
   //------------------------------------------------------------
   void calculate() {
-    cout << "running Load"<<endl;
+    // cout << "running Load"<<endl;
     Q_out = Q_I.HeatTransferRate;
     Q_net = Q_in - Q_out;
-    cout<<"Q_net = Q_in - Q_out => "<<Q_net<< " = "<<Q_in<<"  - "<<Q_out<<endl;
+    // cout<<"Q_net = Q_in - Q_out => "<<Q_net<< " = "<<Q_in<<"  - "<<Q_out<<endl;
 
   }
 

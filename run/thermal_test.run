@@ -1,90 +1,67 @@
 MODELNAME = "Thermal Duct Tester";
-// setThermoPackage("FPT");
-setThermoPackage("GasTbl");
+setThermoPackage("FPT");
+// setThermoPackage("GasTbl");
 #include "ThermalDuct.int"
-#include "InterpretedPort.int"
+#include "ThermalLoad.int"
+#include "ThermalTank.int"
 
-solver.maxIterations = 20;
-solver.maxJacobians = 20;
+solver.maxIterations = 100;
+solver.maxJacobians = 100;
 
-Independent ind_T {
-  varName = "Load.T";
+Independent ind_Tbal{
+  varName = "fs_coolant.Tt";
 }
 
-Dependent dep_T {
-  eq_lhs = "Load.Q_in";
-  eq_rhs = "TD.Q_dmd";
+Dependent dep_Tbal{
+  eq_lhs = "fs_coolant.Fl_O.Tt";
+  eq_rhs = "fe_coolant.Fl_I.Tt";
+}
+
+Element FlowStart fs_air{
+ Fl_O.comp = "CEAT";
+ Tt = 518.0;
+ Pt = 14.504;
+ W = 1.0;
 }
 
 Element FlowStart fs_coolant{
- // Fl_O.comp = "Oil";
- Tt = 518.0;
+ Fl_O.comp = "H2O";
+ Tt = 550.0;
  Pt = 14.504;
- W=1.0;
+ W = 0.5;
 }
-
-// Element Load{
-//     ThermalInputPort Q_I;
-//     // create("", "ThermalInputPort", "Q_I" );
-//     // Assume cold side of TMS is ISA temperature
-//     real Q_loss = 20, Q_in, Q_net, Q_out=30, Mass = 1, Cp = 1;
-//     real T {
-//       value = 500;  IOstatus = INPUT; units = RANKINE;
-//       description = "Temperature";
-//       trigger = 1;
-//     }
-//     real dTqdt {
-//       value = 0;  IOstatus = OUTPUT;  units = PER_SEC;
-//       description = "Temperature time derivative";
-//     }
-//
-//     Independent ind_T {
-//       varName = "T";
-//       autoSetup = TRUE;
-//       description = "Varies the material temperature";
-//     }
-//
-//     Integrator integ_T {
-//       stateName = "T";
-//       derivativeName = "dTqdt";
-//       eq_lhs = "Q_in";
-//       eq_rhs = "Q_out";
-//       tolerance = 0.01;
-//       autoSetup = TRUE;
-//       description = "Balances the heat flows";
-//     }
-//     void variableChanged( string name, any oldVal )
-//     {
-//       if ( name == "T" ) {
-//         Q_I.MassTemp = T;
-//       }
-//     }
-//     void calculate() {
-//       Q_in  = Q_loss;
-//       Q_out = Q_I.HeatTransferRate;
-//       Q_net = Q_in - Q_out;
-//       dTqdt = Q_net /( Mass*Cp );
-//       cout<<"-----run Load -----------"<<endl;
-//       cout<<"Q_net = Q_in - Q_out => "<<Q_net<< " = "<<Q_in<<"  - "<<Q_out<<endl;
-//       // cout<<"dTqdt = "<<dTqdt<<" and T_load = "<<T<<endl;
-//       cout<< "T_load = "<<T<<endl;
-//     }
-// }
 
 Element ThermalLoad Load{
-  Q_in = 20;
+  Q_in = 10;
+  // void preexecute(){
+  //   Q_in = TB_Q( time );
+  //   // cout<<Q_in<<endl;
+  // }
 }
 
-Element ThermalDuct TD{
-  switchQ = "CALCULATE";
-  // switchDP = "INPUT";
+Element ThermalDuct thermal_duct{
   dPqP_dmd = 0.01;
-  Subelement ThermalQcalc S_Q {
-      eff = 0.8;
-      Volume = 100;
-  }
+  eff = 0.8;
 }
-setOption("switchThermPort", "TRUE");
+
+Element ThermalTank volume{
+  switchMass = "INPUT";
+  W_out = 0.4;
+  dPqP_dmd = 0.01;
+  T_mass = 518;
+  mass = 0.5;
+}
+
+Element HeatExchanger HEX{
+  switchQcalc = "EFFECT";
+  effect = 0.8;
+}
+
+Element FlowEnd fe_air{
+	void postexecute(){
+	  //cerr << "comp is " << Fl_I.comp << endl;
+	}
+}
 
 Element FlowEnd fe_coolant{
 	void postexecute(){
@@ -92,52 +69,118 @@ Element FlowEnd fe_coolant{
 	}
 }
 
-linkPorts("fs_coolant.Fl_O","TD.Fl_I", "FC1");
-linkPorts("TD.Fl_O","fe_coolant.Fl_I", "FC2");
-linkPorts("TD.Q_O", "Load.Q_I", "Q1");
+// setOption("switchThermPort", "TRUE");
 
-solverSequence = { "fs_coolant","TD", "Load" , "fe_coolant" };
+/////////////////////////////////////////////////////
+//
+//               Steady-State Runs
+//
+////////////////////////////////////////////////////
+
+linkPorts("fs_coolant.Fl_O","thermal_duct.Fl_I", "FC1");
+linkPorts("thermal_duct.Fl_O","volume.Fl_I", "FC2");
+linkPorts("volume.Fl_O","HEX.Fl_I1", "FC3");
+linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC4");
+
+linkPorts("fs_air.Fl_O","HEX.Fl_I2", "FC11");
+linkPorts("HEX.Fl_O2","fe_air.Fl_I", "FC12");
+
+linkPorts("thermal_duct.Q_O", "Load.Q_I", "Q1");
+
+solverSequence = { "fs_air", "fs_coolant", "thermal_duct", "Load" , "volume", "HEX", "fs_air", "fe_coolant" };
 autoSolverSetup();
+solver.addIndependent("ind_Tbal");
+solver.addDependent("dep_Tbal");
 setOption("switchDes", "DESIGN");
+
+Table TB_Q( real time ){
+    time = { 0.,9.99, 10, 15 }
+    Q = { 0, 0, 10, 10 }
+}
 
 // solver.addIndependent( "ind_T" );
 // solver.addDependent( "dep_T" );
 cout << solverSequence << endl;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
-cout<< TD.Q_O.list("Variable",TRUE)<<endl;
+// cout<< thermal_duct.Q_O.list("Variable",TRUE)<<endl;
 
+cout<<"---------Run Design--------------"<<endl;
 run();
 
-// Element AdvHeatExchanger HEx1{
-//     HExTypeSide1="SFS";
-//     HExTypeSide2="SFPFS";
-//     width=0.32808399;
-//     height=0.164041995;
-//     length=0.32808399;
-//     switchQ="CALCULATE";
-//     switchQcalc="EFFECT";
-//     stream2PhysProps="AIR";
-//     stream1PhysProps="OIL";
-// }
-
-
-
-
-// linkPorts("hotOilIn.Fl_O","HEx1.Fl_I1", "FC1");
-// linkPorts("HEx1.Fl_O1","hotOilOut.Fl_I","FC2");
-// linkPorts("coldAirIn2.Fl_O","HEx1.Fl_I2","FH1");
-// linkPorts("HEx1.Fl_O2","coldAirOut2.Fl_I","FH2");
-
-
-//-----------------------------------
-//AIR Tester
-//-----------------------------------
-
 cout << "FS_T_coolant = " << (fs_coolant.Fl_O.Tt) << endl;
-cout << "FS_h_coolant = " << (fs_coolant.Fl_O.ht) << endl;
+cout << "thermal_duct_T_coolant_out = " << (thermal_duct.Fl_O.Tt) << endl;
+cout << "volume_T_coolant_out = " << (volume.Fl_O.Tt) << endl;
+cout << "HEX_T_coolant_out = " << (HEX.Fl_O1.Tt) << endl;
+
 cout << "FS_P_coolant = " << (fs_coolant.Fl_O.Pt) << endl;
-cout << "TD_T_coolant_out = " << (TD.Fl_O.Tt) << endl;
-cout << "TD_P_coolant_out = " << (TD.Fl_O.Pt) << endl;
+cout << "volume_P_coolant_out = " << (volume.Fl_I.Pt) << endl;
+
+cout << "volume_Vol_coolant = " << (volume.mass) << endl;
+
+cout << "thermal_duct_W_coolant = " << (thermal_duct.Fl_O.W) << endl;
+cout << "volume_W_coolant = " << (volume.Fl_O.W) << endl;
+cout << "HEX_W_coolant = " << (HEX.Fl_O1.W) << endl;
+
+
 cout << "Q_net = " << (Load.Q_net) << endl;
-// cout << "rho2_out = " << (HEx2.Fl_O2.rhot)<< endl;
-//cout <<"Wt = "<< HEx2.HExWeight << endl;
+
+/////////////////////////////////////////////////////
+//
+//               Transient Runs
+//
+////////////////////////////////////////////////////
+
+int trans_enable = TRUE;
+
+if (trans_enable==TRUE){
+  solver.defaultDxLimit = 0.001;
+  solver.maxIterations=300;
+  solver.maxJacobians=300;
+  setOption("switchDes","OFFDESIGN");
+
+  setOption( "solutionMode", "TRANSIENT");
+  cout<< Load.solutionMode<<endl;
+  transient.stopTime = 15;
+  transient.baseTimeStep = 0.1;
+  transient.setup();
+  Load.Q_in = 20;
+  // volume.S_Q.T = 540;
+  autoSolverSetup();
+  solver.addIndependent("ind_Tbal");
+  solver.addDependent("dep_Tbal");
+
+  cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+  // Transient data out to a CSV file for plotting
+  OutFileStream transientCSVStream { filename = "Thermal_transient.csv"; }
+
+  // Write the CSV headers
+  transientCSVStream << "time,";
+  transientCSVStream << "T_coolant in,";
+  transientCSVStream << "T_Load out,";
+  transientCSVStream << "T_volume out,";
+  transientCSVStream << "T_HEX out,"<< endl;;
+
+
+  void csvTransientPrint()
+  {
+      transientCSVStream << time << ", ";
+      transientCSVStream << fs_coolant.Fl_O.Tt << ", ";
+      transientCSVStream << thermal_duct.Fl_O.Tt << ", ";
+      transientCSVStream << volume.Fl_O.Tt << ", ";
+      transientCSVStream << HEX.Fl_O1.Tt << endl;
+
+
+      cout << "time, "  << time<< ", ";
+      cout << "T_in, "  << fs_coolant.Fl_O.Tt << ", ";
+      cout << "T_load, "<< thermal_duct.Fl_O.Tt << ", ";
+      cout << "T_vol, " << volume.Fl_O.Tt << ", ";
+      cout << "T_HEX, " << HEX.Fl_O1.Tt << ", ";
+      cout << "Vol_Tank, " << volume.mass << endl;
+
+  }
+
+  postsolverSequence = { "csvTransientPrint" };
+  run();
+
+}

@@ -1,0 +1,64 @@
+//fluid property table															
+description = "Methane tables from Justin Gray";															
+
+//specific heat at constant pressure, BTU/lbm-R															
+//indeps = {"Tt","Pt","",""}															
+//Table R(real Tt, real Pt) {																					
+//}															
+
+//Table gam(real Tt, real Pt) {																							
+//}															
+real Cp( real Tt, real Pt ) {									  return 1.;						
+  return 1.;
+
+}												
+
+indeps = {"Tt","Pt","",""}															
+real rho( real Tt, real Pt ) {		
+  return 62.37;
+}															
+//Enthalpy as a function of Temp., Enthalpy in BTU/lbm															
+hTindeps = {"Tt","Pt","",""}															
+real h_T( real Tt, real Pt ) {
+  return Tt;
+}															
+//Temp. as a function of Enthalpy, Enthalpy in BTU/lbm															
+ThIndeps = { "ht", "Pt", "", "" } 															
+real T_h( real ht, real Pt ) {								  return ht;				   
+  return ht;
+}															
+//Entropy as a function of Temp., Enthalpy in BTU/lbm															
+//hTindeps = {"Tt","Pt","",""}															
+real s( real Tt, real Pt ) {
+
+  if ( isNaN( Tt ) ){ 
+    //cerr << Tt << " " << Pt << endl;
+  return NaN; }
+  real s = 0.;
+  real Tstep = 200.;
+  do {                                                                                        
+    s = s + Cp(Tstep,Pt)/ Tstep;
+    Tstep = Tstep + 1;
+  } while ( Tstep < Tt*5./9. );															
+  s = s + Cp(Tt*5./9., Pt )/Tt*( Tt*5./9. - Tstep + 1 );								
+   cout << "s is " << s << " " << Tt << " " << Pt << endl;
+  return s;														
+}															
+//Thermal Conductivity as a function of Temp.,  BTU/(ft*s*R)															
+//hTindeps = {"Tt","Pt","",""}															
+real k( real Tt, real Pt ) {
+  return NAN;  
+}															
+//Viscosity as a function of Temp&Pressure,  lbm/(ft*s)															
+//hTindeps = {"Tt","Pt","",""}															
+real mu( real Tt, real Pt ) {									
+  
+  return NAN;
+
+}
+
+real gam( real Tt, real Pt ) {									
+  
+  return 1.11;
+
+}
