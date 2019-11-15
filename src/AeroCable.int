@@ -211,10 +211,9 @@ class AeroCable extends Element {
     //------------------------------------------------------------
 
     void variableChanged( string name, any oldVal ) {
-		// if the value of switchDes or switchAud change...
+		// if the value of switchDes or switchThermPort change...
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				//create("", "ThermalOutputPort", "Q_O" );
 				create("", "ThermalInputPort", "Q_I" );
 			}
 		}

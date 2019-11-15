@@ -1,0 +1,91 @@
+
+
+setThermoPackage("FPT");
+
+#include "ThermalDuct.int"
+#include "ThermalLoad.int"
+#include "ThermalTank.int"
+
+Assembly MotorTMS {
+
+    setThermoPackage("FPT");
+
+    Independent ind_Tbal{
+      varName = "fs_coolant.Tt";
+    }
+
+    Dependent dep_Tbal{
+      eq_lhs = "fs_coolant.Fl_O.Tt";
+      eq_rhs = "fe_coolant.Fl_I.Tt";
+    }
+
+    Element FlowStart fs_air{
+     Fl_O.comp = "CEAT";
+     Tt = 518.0;
+     Pt = 14.504;
+     W = 5.0;
+    }
+
+    Element FlowStart fs_coolant{
+     Fl_O.comp = "H2O";
+     Tt = 550.0;
+     Pt = 14.504;
+     W = 1.5;
+    }
+
+    Element ThermalDuct thermal_duct{
+      dPqP_dmd = 0.01;
+      eff = 0.8;
+    }
+
+    /*
+    Element ThermalTank volume{
+      switchMass = "INPUT";
+      W_out = 0.4;
+      dPqP_dmd = 0.01;
+      T_mass = 518;
+      mass = 0.5;
+    }
+    */
+
+    Element HeatExchanger HEX{
+      switchQcalc = "EFFECT";
+      effect = 0.8;
+    }
+
+    Element FlowEnd fe_air{
+        void postexecute(){
+          //cerr << "comp is " << Fl_I.comp << endl;
+        }
+    }
+
+    Element FlowEnd fe_coolant{
+        void postexecute(){
+          //cerr << "comp is " << Fl_I.comp << endl;
+        }
+    }
+    linkPorts("fs_coolant.Fl_O","thermal_duct.Fl_I", "FC1");
+    linkPorts("thermal_duct.Fl_O","HEX.Fl_I1", "FC2");
+    linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC3");
+
+    linkPorts("fs_air.Fl_O","HEX.Fl_I2", "FC11");
+    linkPorts("HEX.Fl_O2","fe_air.Fl_I", "FC12");
+
+    promotePort("thermal_duct.Q_O", "Q_O");
+}
+//copy("MotorTMS","GeneratorTMS")
+
+//linkPorts("fs_coolant.Fl_O","thermal_duct.Fl_I", "FC1");
+//linkPorts("thermal_duct.Fl_O","volume.Fl_I", "FC2");
+//linkPorts("volume.Fl_O","HEX.Fl_I1", "FC3");
+//linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC4");
+
+//linkPorts("MotorTMS.fs_coolant.Fl_O","MotorTMS.thermal_duct.Fl_I", "FC1");
+//linkPorts("MotorTMS.thermal_duct.Fl_O","MotorTMS.HEX.Fl_I1", "FC2");
+//linkPorts("MotorTMS.HEX.Fl_O1","MotorTMS.fe_coolant.Fl_I", "FC3");
+
+//linkPorts("MotorTMS.fs_air.Fl_O","MotorTMS.HEX.Fl_I2", "FC11");
+//linkPorts("MotorTMS.HEX.Fl_O2","MotorTMS.fe_air.Fl_I", "FC12");
+
+//solver.addIndependent("ind_Tbal");
+//solver.addDependent("dep_Tbal");

@@ -58,7 +58,7 @@ GroupBlock Electrical {
 		titleBody = "                          ELECTRICAL POWER SYSTEM"; 
 		compType = "Motor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","Eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","Eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j","S_eThermMass.T","S_eThermMass.Q_in"};
    }
       
    DColTBlock cable { 
