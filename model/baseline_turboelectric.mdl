@@ -45,9 +45,10 @@ Element AeroCable Cable1 {
 
 Element Rectifier Rect1 {
 	effDes = .95;
-	pwrDes = 12000.;
+	pwrDes = 4000.;
 	#include <modelInverterRectifier.map>
 	frequency = 400.;
+    S_map.pwrMapDes = 0.5;
 }
 
 Element Breaker Breaker2 {
@@ -66,9 +67,10 @@ Element AeroCable Cable2 {
 
 Element Inverter Inv1 {
 	effDes = .95;
-	pwrDes = 12000.;
+	pwrDes = 4000.;
 	#include <modelInverterRectifier.map>
 	frequency=400;
+    S_map.pwrMapDes = 0.5;
 }
 
 Element AeroCable Cable3 {
@@ -79,7 +81,7 @@ Element Motor EM1 {
 	 effDes=0.96;
 	 powerfactor=1.0;
 	 SpecificPower=13.0; 
-	 trqDes=55144.0; 
+	 trqDes=3500.0; 
 	 frequency = 400.;
 	 //Vreal = 1000.;
 	 #include <STARCABLmotorGenerator.map>
@@ -123,7 +125,7 @@ Element Shaft Propulsor_Shaft {
 Element FlowStart TurbineAtm{
 	Pt=500;
 	Tt=2200;
-	W=500;
+	W=30;
 	FAR = .02;
 }
 

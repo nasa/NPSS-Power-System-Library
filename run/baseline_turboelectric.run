@@ -33,9 +33,54 @@ fine, imprisonment, or both.
 #include "InterpretedPort.int"
 
 //model file
+
+// Tell the TMS model that we have power electronics we need to cool using
+// a define statement
+#define POWER_ELECTRONICS
+#include "baseline_TMS.mdl"
+setThermoPackage("GasTbl");
 #include "baseline_turboelectric.mdl"
 
 OutFileStream csvStream { filename = "output/out.csv"; } 
+
+
+Gen1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.0923; // specific heat of copper
+        T = 490;
+    }
+}
+Rect1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.215; // specific heat of copper
+        T = 495;
+    }
+}
+Inv1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.215; // specific heat of aluminum
+        T = 500;
+    }
+}
+EM1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.0923; // specific heat of copper
+        T = 505;
+    }
+}
+linkPorts("generator_cooler.Q_O", "Gen1.Q_I", "Q1");
+linkPorts("rectifier_cooler.Q_O", "Rect1.Q_I", "Q2");
+linkPorts("inverter_cooler.Q_O", "Inv1.Q_I", "Q3");
+linkPorts("motor_cooler.Q_O", "EM1.Q_I", "Q4");
+
 
 /************************
 On design
@@ -48,7 +93,7 @@ solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
-real TurbPowDesired = 3000/0.746/0.8;
+real TurbPowDesired = 1500/0.746/0.8;
 Independent prop_pwr{varName = "Prop.pwr";}
 Dependent target_pwr{
   eq_lhs = "TurbPowDesired";
@@ -56,7 +101,7 @@ Dependent target_pwr{
 }
 // <GLT> Add biases to solver variables so that if you guess the wrong sign,
 // or solver independents otherwise need to cross zero, you won't die by div/0.
-real bias_value = 10*Gen1.Vbus_LL;
+real bias_value = 2*Gen1.Vbus_LL;
 Rect1.ind_Vimag.a  = bias_value;
 Rect1.ind_Vimag.a  = bias_value;
 Inv1.ind_Vreal.a   = bias_value;
@@ -107,6 +152,7 @@ cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn*0.746 << endl;
 cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut*0.746 << endl;
 cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet*0.746 << endl;
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+cout << "Turbine PR " << Turb.PR << " Nozzle Thrust " << Noz.Fg << endl;
 cout << endl;
 
 
@@ -130,7 +176,7 @@ Independent ind_AtmW{
 
 Dependent corr_speed{
   //eq_lhs = "Turb_speed";
-  eq_lhs = "84.";
+  eq_lhs = "82.";
   eq_rhs = "Turb.Np";
 }
 
@@ -145,7 +191,7 @@ solver.maxIterations = 10000;
 
 // Run something like a power hook, start at design power, then drop it down to
 // a little less than half power and see how efficiencies, P_out/P_in change
-for (CASE = 1 ; CASE < 13; CASE++)
+for (CASE = 1 ; CASE < 10; CASE++)
 {
 	run();
 

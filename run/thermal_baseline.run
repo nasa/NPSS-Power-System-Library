@@ -52,9 +52,19 @@ EM1 {
     // Subelement 
     Subelement EThermalMass S_eThermMass {
         Cp = 0.0923; // specific heat of copper
+        T = 500;
     }
 }
-linkPorts("MotorTMS.Q_O", "EM1.Q_I", "Q1");
+Gen1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.0923; // specific heat of copper
+        T = 500;
+    }
+}
+linkPorts("motor_cooler.Q_O", "EM1.Q_I", "Q1");
+linkPorts("generator_cooler.Q_O", "Gen1.Q_I", "Q2");
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;
@@ -76,8 +86,8 @@ On design
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
-solver.addIndependent("MotorTMS.ind_Tbal");
-solver.addDependent("MotorTMS.dep_Tbal");
+solver.addIndependent("ind_Tbal");
+solver.addDependent("dep_Tbal");
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 
@@ -115,8 +125,8 @@ setOption("switchDes","OFFDESIGN");
 //transient.setup();
 //initializeHistory();
 autoSolverSetup();
-solver.addIndependent("MotorTMS.ind_Tbal");
-solver.addDependent("MotorTMS.dep_Tbal");
+solver.addIndependent("ind_Tbal");
+solver.addDependent("dep_Tbal");
 
 
 Independent ind_AtmW{
@@ -164,8 +174,8 @@ void csvPowerHookPrint()
     PowerHookCSVStream << EM1.S_map.trqMap << ", ";
     PowerHookCSVStream << Noz.Fg << ", ";
     PowerHookCSVStream << EM1.Q_loss << ", ";
-    PowerHookCSVStream << MotorTMS.Q_O.HeatTransferRate << ", ";
-    PowerHookCSVStream << MotorTMS.Q_O.MassTemp-458.67 << ", ";
+    PowerHookCSVStream << motor_cooler.Q_O.HeatTransferRate << ", ";
+    PowerHookCSVStream << motor_cooler.Q_O.MassTemp-458.67 << ", ";
     PowerHookCSVStream << CASE << ", ";
     PowerHookCSVStream << time << endl;
 
@@ -176,8 +186,8 @@ void csvPowerHookPrint()
     cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
     cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
     cout << "MotorPowerDissipated (BTU/s), "  << EM1.Q_loss << ", ";
-    cout << "HeatTransferRate (BTU/s), "  << MotorTMS.Q_O.HeatTransferRate << ", ";
-    cout << "MassTemp (deg F), "          << MotorTMS.Q_O.MassTemp-458.67 << ", ";
+    cout << "HeatTransferRate (BTU/s), "  << motor_cooler.Q_O.HeatTransferRate << ", ";
+    cout << "MassTemp (deg F), "          << motor_cooler.Q_O.MassTemp-458.67 << ", ";
     cout << "CASE, "              << CASE << ", ";
     cout << "time, "              << time << endl;
 }
