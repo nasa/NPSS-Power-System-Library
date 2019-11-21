@@ -57,11 +57,15 @@ class Breaker extends Element {
 		description = "Cable Loss";
 	}
 
+    real Q_loss {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation at current time";
+    }
+
 	real Mass {
 		value=1.; IOstatus="output"; units="kg";
 		description = "Component mass";
 	}
-	
     
     real Ireal {
         value = 100; IOstatus="input"; //units=amps;
@@ -98,9 +102,10 @@ class Breaker extends Element {
 	}
     Option switchThermPort {
     	allowedValues = { "TRUE", "FALSE" };
-        value = "FALSE";
+        //value = "FALSE";
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
     }
 	
 	//------------------------------------------------------------
@@ -130,6 +135,12 @@ class Breaker extends Element {
 	// FLOW STATIONS 
 
 	// SOCKETS
+
+    Socket S_eThermMass {
+		allowedValues = { "Q_loss", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
 
 	// TABLES
 	
@@ -168,7 +179,7 @@ class Breaker extends Element {
     void variableChanged( string name, any oldVal ) {
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalOutputPort", "Q_O" );
+				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
         if (name =="switchDes") {
@@ -302,8 +313,14 @@ class Breaker extends Element {
 
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+            Q_loss = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_loss /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
         }
 			
 	}
