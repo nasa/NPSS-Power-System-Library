@@ -32,24 +32,23 @@ class ThermalTank extends Element {
 //------------------------------------------------------------
   title = "";
 
-  description = "The "+isA()+" element performs a simple adiabatic pressureloss
-calculation.  The pressure loss is calculated by the S_dP socket (or input by the
-user if this socket is empty).  The duct maintains a constant enthalpy
-while the pressure loss is applied.";
+  description = "The "+isA()+" element estimates the performance of a simple tank.
+This tank contains a mass and temperature state during transient operation. For
+steady-state operation temperature is passed through and mass is kept constant.
+The pressure loss is calculated by the S_dP socket (or input by the
+user if this socket is empty).";
 
   usageNotes = isA() +
   "
 
-- The duct element calculates an pressure drop.
+- The thermal tank element calculates a pressure drop.
 
 - The pressure drop can either be input or calculated from a
 subelement.
 
-- The heat loss can either be input or calculated from a
-subelement.
+- Mass and temperature are tracked by states during transient operation
 
-- There are two option switches that determine where the dP
-and Q are calculated.
+- Flow can either be input as a value or passed through from Fl_I.
 
 ";
 
@@ -261,10 +260,11 @@ background = "";
     //------------------------------------------------------------
     // Pass the flow information from the inlet to the outlet
     //------------------------------------------------------------
+    Fl_vol.copyFlow( "Fl_I" );
+    Fl_vol.setTotalTP( T_mass, PtOut );
+    Fl_vol.W = W_dmd;
+
     if ( solutionMode=="STEADY_STATE" || solutionMode=="ONE_PASS"  ){
-      Fl_vol.copyFlow( "Fl_I" );
-      Fl_vol.setTotalTP( T_mass, PtOut );
-      Fl_vol.W = W_dmd;
       // cout<< "-----------------------T_state = "<< T_mass<<endl;
       T_mass = Fl_I.Tt;
       mass = mass;
@@ -272,9 +272,6 @@ background = "";
 
     if ( solutionMode == "TRANSIENT" ){
       if ( time > time_current ){
-        Fl_vol.copyFlow( "Fl_I" );
-        Fl_vol.setTotalTP( T_mass, PtOut );
-        Fl_vol.W = W_dmd;
         time_current = time;
         mass_current = mass;
         T_current = T_mass;
@@ -299,6 +296,9 @@ background = "";
           T_mass = Fl_I.Tt;
         }
         else{
+          // cout<<"T_current : "<<T_current<< " T in : "<< Fl_I.Tt<<endl;
+          // cout<<"W in : "<<Fl_I.W<< " W out : "<< Fl_vol.W<<endl;
+          // cout<<"mass current : "<<mass_current<< " mass : "<< mass<<endl;
           T_mass = (T_current*mass_current +(Fl_I.W*Fl_I.Tt - Fl_vol.W*T_current)*timeStep)/mass;
         }
     }

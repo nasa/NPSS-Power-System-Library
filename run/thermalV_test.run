@@ -1,4 +1,4 @@
-MODELNAME = "Thermal Duct Tester";
+MODELNAME = "Thermal thernal tank test";
 setThermoPackage("FPT");
 // setThermoPackage("GasTbl");
 #include "ThermalDuct.int"
