@@ -145,6 +145,10 @@ W. M. Kays and A. L. London, The National Press, 1984.
     value = 0;  IOstatus = OUTPUT;  units = NONE;
     description = "Heat transfer effectiveness";
   }
+  real effect_dmd{
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Heat transfer effectiveness(used to temporarily store values returned from the AU sockets)";
+  }
   real NTU{
     value = 0;  IOstatus = OUTPUT;  units = NONE;
     description = "transfer units";
@@ -217,16 +221,20 @@ W. M. Kays and A. L. London, The National Press, 1984.
 
   Socket S_dPqP1 {
     description = "Stream 1 pressure loss calculation";
-    allowedValues = { "dPqP_dmd" }
+    allowedValues = { "dPqP_dmd" };
     socketType = ADIAB_DPNORM;
   }
 
   Socket S_dPqP2 {
     description = "Stream 2 pressure loss calculation";
-    allowedValues = { "dPqP_dmd" }
+    allowedValues = { "dPqP_dmd" };
     socketType = ADIAB_DPNORM ;
   }
-
+  Socket S_EFFECT {
+    description = "Effectiveness calculation";
+    allowedValues = { "effect_dmd"};
+    socketType = "ThermalEff" ;
+  }
 
   //------------------------------------------------------------
   // ******* SOLVER SETUP *******
@@ -287,30 +295,10 @@ W. M. Kays and A. L. London, The National Press, 1984.
       S_dPqP2.execute();
       dPqP2 = dPqP_dmd;
     }
-
-
-    //------------------------------------------------------------------
-    // Calculate the Q or the effectiveness
-    //------------------------------------------------------------------
-
-    real term;
-
-    AU = TB_AU(Fl_O1.W, Fl_O2.W);
-    NTU = AU/capMin;
-    term = (1/CR) * NTU**0.22 * (exp(-CR * NTU**0.78)-1);
-    effect = 1 - exp(term);
-
-    //------------------------------------------------------------------
-    // Calculate the heat transfer
-    //------------------------------------------------------------------
-
-
-    //------------------------------------------------------------------
-    // Determine the Effectiveness
-    // Calculation is based on which side is the "hot" side
-    //------------------------------------------------------------------
-
-
+    if( !S_EFFECT.isEmpty() ) {
+      S_EFFECT.execute();
+      effect = effect_dmd;
+    }
 
     real ToutCold;
 

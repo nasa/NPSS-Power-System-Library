@@ -1,6 +1,5 @@
 
-// Heat Exchanger AU map, based on a fuel (flow 1) to water (flow 2) heat transfer. 
-
+// Heat Exchanger AU map, based on a fuel (flow 1) to water (flow 2) heat transfer.
 
 Table TB_AU(real W1, real W2) {
  W1 = 0.40{
@@ -45,3 +44,12 @@ Table TB_AU(real W1, real W2) {
  }
 }
 
+class ThermalEff extends Subelement {
+  real term;
+  void calculate() {
+    AU = TB_AU(Fl_O1.W, Fl_O2.W);
+    NTU = AU/capMin;
+    term = (1/CR) * NTU**0.22 * (exp(-CR * NTU**0.78)-1);
+    effect_dmd = 1 - exp(term);
+  }
+}
