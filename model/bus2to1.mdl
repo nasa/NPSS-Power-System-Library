@@ -69,7 +69,6 @@ Element Cable Cable3 {
 Element Motor EM1 {
 	Eff=0.96;
 	SpecificPower=13.0; 
-	Torque=55144.0;   // in*lb ?????
 	frequency = 400.;
 }
 
@@ -118,9 +117,6 @@ Nozzle Noz{
 
 Element FlowEnd Turbinedump{
 };
-
-real MotorTorque=EM1.Torque;
-
 
 Independent turbPR{
 	varName="Turb.PRdes";

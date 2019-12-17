@@ -112,6 +112,11 @@ class Cable extends Element {
 	// FLOW STATIONS 
 
 	// SOCKETS
+    Socket S_eThermMass {
+		allowedValues = { "Q_loss", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
 
 	// TABLES
 
