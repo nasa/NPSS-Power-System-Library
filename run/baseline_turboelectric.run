@@ -101,7 +101,7 @@ Dependent target_pwr{
 }
 // <GLT> Add biases to solver variables so that if you guess the wrong sign,
 // or solver independents otherwise need to cross zero, you won't die by div/0.
-real bias_value = 2*Gen1.Vbus_LL;
+real bias_value = 0*2*Gen1.Vbus_LL;
 Rect1.ind_Vimag.a  = bias_value;
 Rect1.ind_Vimag.a  = bias_value;
 Inv1.ind_Vreal.a   = bias_value;
@@ -139,7 +139,7 @@ run();
 // printData(Cable1.list("Variable",FALSE));
 // printData(Cable2.list("Variable",FALSE));
 // printData(Cable3.list("Variable",FALSE));
-printData(Breaker1.list("Variable",FALSE));
+//printData(Breaker1.list("Variable",FALSE));
 
 csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
 csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
@@ -191,7 +191,7 @@ solver.maxIterations = 10000;
 
 // Run something like a power hook, start at design power, then drop it down to
 // a little less than half power and see how efficiencies, P_out/P_in change
-for (CASE = 1 ; CASE < 10; CASE++)
+for (CASE = 1 ; CASE < 12; CASE++)
 {
 	run();
 
