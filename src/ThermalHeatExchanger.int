@@ -1,0 +1,359 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __THERMALHEATEXCHANGERELEMENT__
+#define __THERMALHEATEXCHANGERELEMENT__
+
+#include <InterpIncludes.ncp>
+// Define AU table
+// #include <HEXMap.int>
+
+class ThermalHeatExchanger extends Element {
+
+  //------------------------------------------------------------
+  // ******* DOCUMENTATION *******
+  //------------------------------------------------------------
+
+  title = "";
+
+  description = isA() + " models thermal energy transfer between two parallel streams using either
+an effectiveness or heat flow.  Pressure losses may be applied to each stream.";
+
+
+
+  usageNotes = isA() +
+"
+
+- Energy exchanged between the two streams is defined by either effectiveness
+(effect) or total heat flow (Q) as determined by switchQcalc.  These values
+may be directly input or determined by a subelement plugged into the S_Q
+socket.
+
+- Stream pressure drops may be input through sockets, S_dPqP1 and S_dPqP2 or if
+sockets are empty directly through dPqP1 and dPqP2.
+
+- Heat exchanger may be turned off by setting either effect or Q to zero.
+
+- Steady-state operating conditions only.  Transient thermal transfer and
+storage in structure is not modeled.
+
+- The calculations are based on 'Compact Heat Exchangers. Third Edition' by
+W. M. Kays and A. L. London, The National Press, 1984.
+";
+
+ //------------------------------------------------------------
+ // ******* SETUP VARIABLES********
+ //------------------------------------------------------------
+
+//  Table TB_AU(real W1, real W2) {
+//  W1 = 0.40{
+//   W2 = {0.40 , 1.86 , 3.32 , 4.78 , 6.24 , 7.70 , 9.16 , 10.62 , 12.08 , 13.54 , 15.00 }
+//    AU = {0.761 , 2.265 , 3.085 , 3.618 , 3.996 , 4.280 , 4.502 , 4.680 , 4.827 , 4.950 , 5.055 }
+//  }
+//  W1 = 2.36{
+//   W2 = *;
+//    AU = {0.840 , 3.146 , 4.987 , 6.546 , 7.897 , 9.088 , 10.149 , 11.103 , 11.966 , 12.753 , 13.473 }
+//  }
+//  W1 = 4.31{
+//   W2 = *;
+//    AU = {0.850 , 3.281 , 5.334 , 7.156 , 8.803 , 10.308 , 11.695 , 12.980 , 14.176 , 15.294 , 16.341 }
+//  }
+//  W1 = 6.27{
+//   W2 = *;
+//    AU = {0.853 , 3.337 , 5.484 , 7.428 , 9.219 , 10.884 , 12.442 , 13.906 , 15.288 , 16.595 , 17.836 }
+//  }
+//  W1 = 8.22{
+//   W2 = *;
+//    AU = {0.855 , 3.368 , 5.568 , 7.584 , 9.461 , 11.222 , 12.886 , 14.463 , 15.964 , 17.395 , 18.763 }
+//  }
+//  W1 = 10.18{
+//   W2 = *;
+//    AU = {0.857 , 3.388 , 5.623 , 7.686 , 9.619 , 11.446 , 13.182 , 14.837 , 16.421 , 17.940 , 19.398 }
+//  }
+//  W1 = 12.13{
+//   W2 = *;
+//    AU = {0.858 , 3.402 , 5.661 , 7.758 , 9.732 , 11.606 , 13.395 , 15.107 , 16.752 , 18.336 , 19.862 }
+//  }
+//  W1 = 14.09{
+//   W2 = *;
+//    AU = {0.858 , 3.412 , 5.690 , 7.811 , 9.817 , 11.727 , 13.555 , 15.312 , 17.004 , 18.637 , 20.217 }
+//  }
+//  W1 = 16.04{
+//   W2 = *;
+//    AU = {0.859 , 3.420 , 5.712 , 7.853 , 9.882 , 11.820 , 13.680 , 15.472 , 17.202 , 18.875 , 20.497 }
+//  }
+//  W1 = 18.00{
+//   W2 = *;
+//    AU = {0.859 , 3.426 , 5.729 , 7.886 , 9.935 , 11.896 , 13.781 , 15.601 , 17.362 , 19.068 , 20.725 }
+//  }
+// }
+
+  // Real variables
+  real AU {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC_R;
+    description = "Area * overall thermal conductance";
+  }
+  real cap1 {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC_R;
+    description = "Capacity of flow stream 1 (W*Cp)";
+  }
+  real cap2 {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC_R;
+    description = "Capacity of flow stream 2 (W*Cp)";
+  }
+  real capMin {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC_R;
+    description = "Minimum of the two streams capacities";
+  }
+  real CR {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "cpacitance ratio";
+  }
+  real dPqP_dmd {
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Normalized pressure loss (used to temporarily store values returned from the pressure loss sockets)";
+  }
+  real dPqP1 {
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Pressure loss in stream 1";
+  }
+  real dPqP2{
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Pressure loss in stream2";
+  }
+  real effect{
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Heat transfer effectiveness";
+  }
+  real effect_dmd{
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Heat transfer effectiveness(used to temporarily store values returned from the AU sockets)";
+  }
+  real NTU{
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "transfer units";
+  }
+   real Q {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Heat flow from one side to another (positive when energy flows from stream 1 to stream 2";
+   }
+   real Q_in {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Input value of Q";
+   }
+   real Q_dmd {
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "Demand vale of Q from customer socket";
+   }
+
+   // Option variables
+  Option switchDes {
+     allowedValues = { DESIGN, OFFDESIGN }
+     description = "Design/Offdesign switch";
+     rewritableValues = FALSE;  // Enables converter optimization.
+  }
+
+  Option switchQcalc {
+    allowedValues = { "EFFECT", "Q" }
+    description = "Determines if the heat transfer rate is input or calculated from an effectiveness";
+    rewritableValues = FALSE;
+  }
+
+  Option switchQ{
+    allowedValues = { "INPUT", "OFF", "CALCULATE", "CUSTOM", "AU" }
+    description = "Determines if the heat transfer rate is input or calculated from an effectiveness";
+    rewritableValues = FALSE;
+  }
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  FluidInputPort Fl_I1 {
+    description = "Fluid input port 1" ;
+  }
+  FluidInputPort Fl_I2 {
+    description = "Fluid input port 2" ;
+  }
+  FluidOutputPort Fl_O1 {
+    description = "Fluid output port 1" ;
+  }
+  FluidOutputPort Fl_O2 {
+    description = "Fluid output port 2" ;
+  }
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+  FlowStation Fl_dP {
+    description = "Temporary FlowStation used to pass data to the pressure loss Subelements.  Used because the dPnorm subelements expect to reference the incoming conditions in Fl_I.";
+  }
+
+  // SOCKETS
+
+  Socket S_dPqP1 {
+    description = "Stream 1 pressure loss calculation";
+    allowedValues = { "dPqP_dmd" };
+    socketType = ADIAB_DPNORM;
+  }
+
+  Socket S_dPqP2 {
+    description = "Stream 2 pressure loss calculation";
+    allowedValues = { "dPqP_dmd" };
+    socketType = ADIAB_DPNORM ;
+  }
+  Socket S_EFFECT {
+    description = "Effectiveness calculation";
+    allowedValues = { "effect_dmd"};
+    socketType = "ThermalEff" ;
+  }
+
+  //------------------------------------------------------------
+  // ******* SOLVER SETUP *******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  // ****** ADD SOLVER INDEPENDENTS & DEPENDENT ******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+  void variableChanged( string name, any oldVal ) {
+  }
+
+
+
+  //------------------------------------------------------------------
+  // Calculations
+  //------------------------------------------------------------------
+
+  void calculate() {
+
+    //------------------------------------------------------------------
+    // Copy entrance conditions to exit
+    //------------------------------------------------------------------
+    Fl_O1.copyFlow( "Fl_I1" );
+    Fl_O2.copyFlow( "Fl_I2" );
+
+    //------------------------------------------------------------------
+    // Calculate the fluid capacity rates (flow x Cp)
+    //------------------------------------------------------------------
+    cap1 = Fl_I1.W * Fl_I1.Cpt;
+    cap2 = Fl_I2.W * Fl_I2.Cpt;
+
+    //------------------------------------------------------------------
+    // Determine which side has the minimum and maximum capacity
+    //------------------------------------------------------------------
+    if ( cap2 >= cap1 ) {
+      capMin = cap1;
+      CR = capMin/cap2;
+    }
+    else {
+      capMin = cap2 ;
+      CR = capMin/cap1;
+    }
+
+    //------------------------------------------------------------------
+    // Calculate the pressure loss on both sides of the HX
+    //------------------------------------------------------------------
+    if( !S_dPqP1.isEmpty() ) {
+      Fl_dP.copyFlow( "Fl_I1" );
+      S_dPqP1.execute();
+      dPqP1 = dPqP_dmd;
+    }
+    if( !S_dPqP2.isEmpty() ) {
+      Fl_dP.copyFlow( "Fl_I2" );
+      S_dPqP2.execute();
+      dPqP2 = dPqP_dmd;
+    }
+    if( !S_EFFECT.isEmpty() ) {
+      S_EFFECT.execute();
+      effect = effect_dmd;
+    }
+
+    real ToutCold;
+
+    //------------------------------------------------------------------
+    // If T2 > T1 then stream 2 is the hot side
+    //------------------------------------------------------------------
+    if ( Fl_I2.Tt > Fl_I1.Tt ) {
+
+	  //------------------------------------------------------------------------
+	  // Determine cold side temp (TO1) from effectiveness equation
+	  //------------------------------------------------------------------------
+	  ToutCold = Fl_I1.Tt + effect *( Fl_I2.Tt - Fl_I1.Tt )*( capMin / cap1 );
+
+	  //------------------------------------------------------------------------
+	  // Set the cold side conditions based on the temp and pressure loss
+	  //------------------------------------------------------------------------
+	  Fl_O1.setTotalTP( ToutCold, Fl_O1.Pt * ( 1 - dPqP1 ));
+
+	  //------------------------------------------------------------------------
+	  // Set the hot side conditions based on an energy balance and
+	  // pressure loss
+	  //------------------------------------------------------------------------
+      Fl_O2.setTotal_hP( Fl_I2.ht +( Fl_I1.ht - Fl_O1.ht )* Fl_I1.W /
+								Fl_I2.W, Fl_O2.Pt * ( 1 - dPqP2 ));
+
+    }
+
+    //------------------------------------------------------------------
+    // Stream 1 is the hot side
+    //------------------------------------------------------------------
+    else {
+	  //------------------------------------------------------------------------
+	  // Determine cold side temp (TO2) from effectiveness equation
+	  //------------------------------------------------------------------------
+	  ToutCold = Fl_I2.Tt + effect *( Fl_I1.Tt - Fl_I2.Tt )*( capMin / cap2 );
+
+	  //------------------------------------------------------------------------
+	  // Set the cold side conditions based on the temp and pressure loss
+	  //------------------------------------------------------------------------
+	  Fl_O2.setTotalTP( ToutCold, Fl_O2.Pt * ( 1 - dPqP2 ));
+
+	  //------------------------------------------------------------------------
+	  // Set the hot side conditions based on an energy balance and
+	  // pressure loss
+	  //-------------------------------------------------------------------------
+      Fl_O1.setTotal_hP( Fl_I1.ht +( Fl_I2.ht - Fl_O2.ht ) * Fl_I2.W /
+								Fl_I1.W, Fl_O1.Pt * ( 1 - dPqP1 ));
+
+    }
+
+    //------------------------------------------------------------------
+    // Calculate the Q
+    //------------------------------------------------------------------
+    Q = ( Fl_O2.ht - Fl_I2.ht )* Fl_I2.W;
+  }
+}
+
+#endif

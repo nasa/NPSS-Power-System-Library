@@ -1,11 +1,12 @@
-MODELNAME = "Thermal Duct Tester";
+MODELNAME = "Thermal heat exchanger loop test";
 setThermoPackage("FPT");
 // setThermoPackage("GasTbl");
 #include "ThermalDuct.int"
 #include "ThermalLoad.int"
 #include "ThermalTank.int"
+#include "ThermalEff.map"
 
-solver.maxIterations = 100;
+solver.maxIterations = 200;
 solver.maxJacobians = 100;
 
 Independent ind_Tbal{
@@ -48,13 +49,13 @@ Element ThermalTank volume{
   switchMass = "INPUT";
   W_out = 0.4;
   dPqP_dmd = 0.01;
-  T_mass = 518;
+  T_mass = 518; // guess
   mass = 0.5;
 }
 
-Element HeatExchanger HEX{
-  switchQcalc = "EFFECT";
-  effect = 0.8;
+Element ThermalHeatExchanger HEX{
+  Subelement ThermalEff S_EFFECT {}
+  // effect = 0.8;
 }
 
 Element FlowEnd fe_air{
@@ -159,7 +160,9 @@ if (trans_enable==TRUE){
   transientCSVStream << "T_coolant in,";
   transientCSVStream << "T_Load out,";
   transientCSVStream << "T_volume out,";
-  transientCSVStream << "T_HEX out,"<< endl;;
+  transientCSVStream << "T_HEX out,";
+  transientCSVStream << "AU,";
+  transientCSVStream << "effectiveness,"<< endl;
 
 
   void csvTransientPrint()
@@ -168,7 +171,9 @@ if (trans_enable==TRUE){
       transientCSVStream << fs_coolant.Fl_O.Tt << ", ";
       transientCSVStream << thermal_duct.Fl_O.Tt << ", ";
       transientCSVStream << volume.Fl_O.Tt << ", ";
-      transientCSVStream << HEX.Fl_O1.Tt << endl;
+      transientCSVStream << HEX.Fl_O1.Tt << ", ";
+      transientCSVStream << HEX.AU << ", ";
+      transientCSVStream << HEX.effect << endl;
 
 
       cout << "time, "  << time<< ", ";
