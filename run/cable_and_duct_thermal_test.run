@@ -65,14 +65,8 @@ ACCable {
 // Create a magic thermal output port that represents the heat extraction
 // from the cable.
 Element ThermalDuct TMS{
-  switchQ = "CALCULATE";
-  // switchDP = "INPUT";
-  // Q_in = 30;
   dPqP_dmd = 0.01;
-  Subelement ThermalVolume S_Q {
-      eff = 0.8;
-      Volume = 100;
-  }
+  eff = 0.8;
 }
 setOption("switchThermPort", "TRUE");
 
