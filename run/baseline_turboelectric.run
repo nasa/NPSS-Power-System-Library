@@ -32,6 +32,8 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+#include <Map_plotting\mapplot_V27.fnc>
+
 //model file
 
 // Tell the TMS model that we have power electronics we need to cool using
@@ -131,11 +133,26 @@ Inv1.Vimag   = 0;
 EM1.Vreal    = 996;
 EM1.Vimag    = 0;
 
+Turb.S_map {
+   int SCALED_MAP = TRUE;
+   int PLOT_OP_POINTS = TRUE;
+   // real AXES[] = { 138, 142., 1.1, 1.7 };
+   // real CONTOUR_EFF[] = { 0.70, 0.75, 0.80, 0.85, 0.875, 0.90, 0.91, 0.92, 0.93, 0.94 };
+}
+
+
+createMapDataFiles();
+
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run();
 
-#include "print_macros.fnc"
+saveOpPoints("DES");
+
+saveOpPoints("DONE");
+system( "start python Map_plotting\mapplot_V27.py" );
+
+//#include "print_macros.fnc"
 // printData(Cable1.list("Variable",FALSE));
 // printData(Cable2.list("Variable",FALSE));
 // printData(Cable3.list("Variable",FALSE));
@@ -161,6 +178,8 @@ page.display();  // output data to out file
 
 //page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;
+
+quit();
 
 /************************
 Off design
