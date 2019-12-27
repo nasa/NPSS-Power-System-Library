@@ -96,14 +96,45 @@ class Enode extends Element{
 	real IimagOut;
 	
 	string ElectricPorts[];
-	//------------------------------------------------------------
-	// ******* VARIABLE CHANGED METHODOLOGY *******
-	//------------------------------------------------------------
-	
+
 	//------------------------------------------------------------
 	//   ******* OPTION VARIABLE SETUP *******
 	//------------------------------------------------------------
 	
+	Option ElectricPowerType {
+		allowedValues = { "AC1", "DC", "AC3" };
+		description = "Electric Power Type (DC, AC1, AC3)";
+        trigger = TRUE;
+		rewritableValues = FALSE;
+	}
+
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+	void variableChanged( string name, any oldVal ) {
+		
+		if ( name =="ElectricPowerType" ) {
+			// change solver setup depending on power type
+			if ( ElectricPowerType == "DC" ) {
+                ind_Vreal.autoSetup = TRUE;
+                ind_Vimag.autoSetup = FALSE;
+                dep_Ireal.autoSetup = TRUE;
+                dep_Iimag.autoSetup = FALSE;
+			}
+			else if ( ElectricPowerType == "AC1" ) {
+                ind_Vreal.autoSetup = TRUE;
+                ind_Vimag.autoSetup = TRUE;
+                dep_Ireal.autoSetup = TRUE;
+                dep_Iimag.autoSetup = TRUE;
+			} 
+			else if ( ElectricPowerType == "AC3" ) {
+                ind_Vreal.autoSetup = TRUE;
+                ind_Vimag.autoSetup = TRUE;
+                dep_Ireal.autoSetup = TRUE;
+                dep_Iimag.autoSetup = TRUE;
+			} 
+		} 
+	} 
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
@@ -136,13 +167,6 @@ class Enode extends Element{
 			
 		}
 	
-	}
-	
-	//---------------------------------------------------------------------
-	// variable changed function
-	//---------------------------------------------------------------------
-	void variableChanged( string name, any oldValue ){
-		
 	}
     
 	//------------------------------------------------------------

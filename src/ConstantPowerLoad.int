@@ -1,0 +1,213 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
+// * December 23, 2019
+// ****************************************************************************
+
+class ConstantPowerLoad extends Element {
+	
+	//------------------------------------------------------------
+	//     ******* DOCUMENTATION *******
+	//------------------------------------------------------------
+	
+	title = "";
+	
+	description = isA() + " - Constant power load";
+	
+	usageNotes = isA() + "- NOTE TO USERS: This file....";
+	
+	background = "";
+	
+	//------------------------------------------------------------
+	//     ******* SETUP VARIABLES ********
+	//------------------------------------------------------------
+	
+	real Pdemand {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Power demanded by the load (you set this)";
+	}
+	real pfDemand {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Power factor this load should run at (you set this)";
+	}
+	real P {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Power doing useful work in this load element";
+	}
+	real pf {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Power factor at input to this load element";
+	}
+	real eff {
+		value = 0; IOstatus="output"; units="none";
+		description = "Efficiency of load";
+	}
+
+	real frequency {
+		value = 0; IOstatus="input"; units="deg";
+		description = "Input Frequency";
+	}
+
+	real Loss_r {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Real component of losses in this load";
+	}
+	real Loss_j {
+		value = 0; IOstatus="output"; units="kW";
+		description = "Imaginary component of losses in this load";
+	}
+
+    real Q_loss {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation in BTU/s at current time";
+    }
+
+	real Vreal{
+		value = 1000.;  IOstatus = "output";  //units = "";
+		description = "Real portion of voltage";
+	}
+	real Vimag{
+		value = -1.;  IOstatus = "output";  //units = "";
+		description = "Imaginary portion of voltage";
+	}
+
+	ComplexNumber V;
+	ComplexNumber S;
+	ComplexNumber I;
+
+    //------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        description = "Determines if the element is in design or off-design mode";
+        rewritableValues = FALSE;
+        trigger=TRUE;
+    }
+    Option switchThermPort {
+    	allowedValues = { "TRUE", "FALSE" };
+        //value = "FALSE";
+    	description = "Determines if component needs thermal port";
+    	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
+    }
+    
+	//------------------------------------------------------------
+	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+	//------------------------------------------------------------	
+	
+	// FLUID PORTS
+
+	// FUEL PORTS
+
+	// BLEED PORTS
+
+	// THERMAL PORTS
+
+	// MECHANICAL PORTS
+
+	// ELECTRICAL PORTS
+
+	ElectricPort EP_I {
+		description = "Electric Port";
+	}
+
+	// FLOW STATIONS
+
+	// SOCKETS
+
+    Socket S_eThermMass {
+		allowedValues = { "Q_loss", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
+
+	// TABLES
+	
+	//------------------------------------------------------------
+	// ******* INTERNAL SOLVER SETUP *******
+	//------------------------------------------------------------
+
+	//------------------------------------------------------------
+	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+	//------------------------------------------------------------
+	Independent ind_Vreal { 
+		varName = "Vreal"; 
+		autoSetup = TRUE;
+		indepRef = "10000";
+		description = "Varies the real component of the load voltage";
+	}
+	Independent ind_Vimag { 
+		varName = "Vimag"; 
+		autoSetup = TRUE;
+		indepRef = "10000";
+		description = "Varies the imaginary component of the load voltage";
+	}
+
+
+	Dependent dep_power {
+		eq_lhs = "EP_I.S.r";
+		eq_rhs = "Pdemand";
+        autoSetup=TRUE;
+	}
+    Dependent dep_power_factor{
+        eq_rhs="pf";
+        eq_lhs="pfDemand";
+        autoSetup=TRUE;
+    }
+
+	//------------------------------------------------------------
+	// ******* VARIABLE CHANGED METHODOLOGY *******
+	//------------------------------------------------------------
+
+	void variableChanged(string name, any oldVal){
+		if ( name == "switchThermPort" ){ 
+			if ( switchThermPort == "TRUE" ){
+				create("", "ThermalInputPort", "Q_I" );
+			}
+		}
+        if (name =="switchDes") {
+            if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC"))
+            {
+                ind_Vimag.autoSetup = FALSE;
+                dep_power_factor.autoSetup = FALSE;
+            }
+            else {
+                ind_Vimag.autoSetup = TRUE;
+                dep_power_factor.autoSetup = TRUE;
+            }
+        }
+	} // end variableChanged()
+
+	//------------------------------------------------------------
+	//   ******* PERFORM ENGINEERING CALCULATIONS *******
+	//------------------------------------------------------------
+	
+	void calculate() {
+
+		P = EP_I.S.r * eff;
+		Loss_r = EP_I.S.r - P;
+        Loss_j = EP_I.S.j;
+        if (switchThermPort=="TRUE"){
+            real KW_PER_BTU_PER_SEC = 1.05505585;
+            Q_loss = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_loss /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
+        }
+	}
+	// end calculation section
+
+	void prePass(){
+		EP_I.setIVRMS( 0., 0. , Vreal,  Vimag );
+		EP_I.frequency = frequency;
+	}
+
+}

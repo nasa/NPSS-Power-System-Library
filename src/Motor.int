@@ -70,7 +70,7 @@ class Motor extends Element {
 
     real Q_loss {
         value = 0; IOstatus="output"; //units=W;
-        description = "Power dissipation at current time";
+        description = "Power dissipation in BTU/s at current time";
     }
 
 	real Mass {
