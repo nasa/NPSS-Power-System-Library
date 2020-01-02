@@ -169,7 +169,7 @@ if (OD_en==1){
   OutFileStream transientCSVStream { filename = "output/T_transient.csv"; }
 
   // Write the CSV headers
-  transientCSVStream << "Q_loss,";
+  transientCSVStream << "Q_heat,";
   transientCSVStream << "HeatTransferRate,";
   transientCSVStream << "MassTemp,";
   transientCSVStream << "CASE,";
@@ -177,13 +177,13 @@ if (OD_en==1){
 
   void csvTransientPrint()
   {
-      transientCSVStream << ACCable.Q_loss << ", ";
+      transientCSVStream << ACCable.Q_heat << ", ";
       transientCSVStream << TMS.Q_O.HeatTransferRate << ", ";
       transientCSVStream << TMS.Q_O.MassTemp-458.67 << ", ";
       transientCSVStream << CASE << ", ";
       transientCSVStream << time << endl;
 
-      cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_loss << ", ";
+      cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_heat << ", ";
       cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
       cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
       cout << "CASE, "              << CASE << ", ";

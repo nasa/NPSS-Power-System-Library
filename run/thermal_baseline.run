@@ -158,7 +158,7 @@ PowerHookCSVStream << "EM1Speed,";
 PowerHookCSVStream << "EM1S_mapNmap,";
 PowerHookCSVStream << "EM1S_maptrqMap,";
 PowerHookCSVStream << "NozFg,";
-PowerHookCSVStream << "Q_loss,";
+PowerHookCSVStream << "Q_heat,";
 PowerHookCSVStream << "HeatTransferRate,";
 PowerHookCSVStream << "MassTemp,";
 PowerHookCSVStream << "CASE,";
@@ -173,7 +173,7 @@ void csvPowerHookPrint()
     PowerHookCSVStream << EM1.S_map.Nmap << ", ";
     PowerHookCSVStream << EM1.S_map.trqMap << ", ";
     PowerHookCSVStream << Noz.Fg << ", ";
-    PowerHookCSVStream << EM1.Q_loss << ", ";
+    PowerHookCSVStream << EM1.Q_heat << ", ";
     PowerHookCSVStream << motor_cooler.Q_O.HeatTransferRate << ", ";
     PowerHookCSVStream << motor_cooler.Q_O.MassTemp-458.67 << ", ";
     PowerHookCSVStream << CASE << ", ";
@@ -185,7 +185,7 @@ void csvPowerHookPrint()
     cout << "EM1.Speed, "         << EM1.Speed << ", ";
     cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
     cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
-    cout << "MotorPowerDissipated (BTU/s), "  << EM1.Q_loss << ", ";
+    cout << "MotorPowerDissipated (BTU/s), "  << EM1.Q_heat << ", ";
     cout << "HeatTransferRate (BTU/s), "  << motor_cooler.Q_O.HeatTransferRate << ", ";
     cout << "MassTemp (deg F), "          << motor_cooler.Q_O.MassTemp-458.67 << ", ";
     cout << "CASE, "              << CASE << ", ";

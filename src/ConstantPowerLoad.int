@@ -41,7 +41,7 @@ class ConstantPowerLoad extends Element {
 		description = "Power factor at input to this load element";
 	}
 	real eff {
-		value = 0; IOstatus="output"; units="none";
+		value = 0.95; IOstatus="output"; units="none";
 		description = "Efficiency of load";
 	}
 
@@ -59,7 +59,7 @@ class ConstantPowerLoad extends Element {
 		description = "Imaginary component of losses in this load";
 	}
 
-    real Q_loss {
+    real Q_heat {
         value = 0; IOstatus="output"; //units=W;
         description = "Power dissipation in BTU/s at current time";
     }
@@ -120,7 +120,7 @@ class ConstantPowerLoad extends Element {
 	// SOCKETS
 
     Socket S_eThermMass {
-		allowedValues = { "Q_loss", "Mass" };
+		allowedValues = { "Q_heat", "Mass" };
 		description = "Thermal mass socket";
 		socketType = "EThermalMass";
     }
@@ -149,7 +149,7 @@ class ConstantPowerLoad extends Element {
 
 
 	Dependent dep_power {
-		eq_lhs = "EP_I.S.r";
+		eq_lhs = "EP_I.S.r * eff";
 		eq_rhs = "Pdemand";
         autoSetup=TRUE;
 	}
@@ -193,8 +193,8 @@ class ConstantPowerLoad extends Element {
         Loss_j = EP_I.S.j;
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_loss = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_loss /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
             //------------------------------------------------------------    
             // Run the thermal mass model.
             //------------------------------------------------------------

@@ -57,7 +57,7 @@ class Breaker extends Element {
 		description = "Cable Loss";
 	}
 
-    real Q_loss {
+    real Q_heat {
         value = 0; IOstatus="output"; //units=W;
         description = "Power dissipation at current time";
     }
@@ -137,7 +137,7 @@ class Breaker extends Element {
 	// SOCKETS
 
     Socket S_eThermMass {
-		allowedValues = { "Q_loss", "Mass" };
+		allowedValues = { "Q_heat", "Mass" };
 		description = "Thermal mass socket";
 		socketType = "EThermalMass";
     }
@@ -313,8 +313,8 @@ class Breaker extends Element {
 
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_loss = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_loss /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
             //------------------------------------------------------------    
             // Run the thermal mass model.
             //------------------------------------------------------------

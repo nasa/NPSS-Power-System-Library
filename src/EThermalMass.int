@@ -30,7 +30,7 @@ class EThermalMass extends Subelement {
 
 extern real Q_I.HeatTransferRate;
 extern real Q_I.MassTemp;
-extern real Q_loss;
+extern real Q_heat;
 extern real Mass;
 
 //------------------------------------------------------------
@@ -49,7 +49,7 @@ system via a thermal port that must live within the electrical component.";
 
 - Parent component must have a thermal port.
 
-- Parent component must also have a Q_loss variable that contains the
+- Parent component must also have a Q_heat variable that contains the
 heat generated within the component at the given timestep.
 
 - The component temperature is calculated with a solver independent
@@ -181,9 +181,9 @@ void variableChanged( string name, any oldVal )
     //------------------------------------------------------------
     // Get local copy of Q_in and Q_out
     //------------------------------------------------------------
-    Q_in  = Q_loss;
+    Q_in  = Q_heat;
     Q_out = Q_I.HeatTransferRate;
-        //cout << "Q_loss = " << Q_loss << ", ";
+        //cout << "Q_heat = " << Q_heat << ", ";
         //cout << "Q_I.HeatTransferRate = " << Q_I.HeatTransferRate << ", ";
 	
     //------------------------------------------------------------    
