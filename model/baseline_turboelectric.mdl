@@ -158,17 +158,9 @@ Nozzle Noz{
 Element FlowEnd Turbinedump{
 };
 
-
 Independent turbPR{
 	varName="Turb.PRdes";
 }
-
-Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.I.phaseDeg";
-	eq_lhs="EM1.CurrentAngle_Demand";
-	autoSetup=TRUE;
-}
-
 
 Element Shaft Turbine_Shaft {
 	Nmech=4000;   // rpm

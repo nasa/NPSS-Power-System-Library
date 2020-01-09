@@ -150,7 +150,7 @@ run();
 saveOpPoints("DES");
 
 saveOpPoints("DONE");
-system( "start python Map_plotting\mapplot_V27.py" );
+//system( "start python Map_plotting\mapplot_V27.py" );
 
 //#include "print_macros.fnc"
 // printData(Cable1.list("Variable",FALSE));
@@ -178,8 +178,6 @@ page.display();  // output data to out file
 
 //page_runtime.display(); // output data to cmd window
 real Turb_speed = Turb.Np;
-
-quit();
 
 /************************
 Off design

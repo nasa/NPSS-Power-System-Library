@@ -58,18 +58,20 @@ GroupBlock Electrical {
    SimpleBlock title { 
 		body = "                          ELECTRICAL POWER SYSTEM"; 
    } 
-   DColTBlock motor { 	
-		titleBody = " Motors"; 
-		compType = "Motor"; 
+	
+   DColTBlock source { 
+		titleBody = " Sources"; 
+		compType = "Source"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","Eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_O.S.r","EP_O.S.j","eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
+		//showColHeader=FALSE; 	
    }
 	
    DColTBlock generator { 
 		titleBody = " Generators"; 
 		compType = "Generator"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"Pin","Pout","Eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"Pin","Pout","eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 	
    }
 
@@ -77,7 +79,7 @@ GroupBlock Electrical {
 		titleBody = " Inverters"; 
 		compType = "Inverter"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","pwrOut", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
+		compAttr = {"EP_I.S.r","EP_O.S.r","pwrOut", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
    }
 
@@ -85,8 +87,15 @@ GroupBlock Electrical {
 		titleBody = " Rectifiers"; 
 		compType = "Rectifier"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","Eff","effBase","effDes"}; 
+		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","eff","effBase","effDes"}; 
 		//showColHeader=FALSE; 	
+   }
+
+   DColTBlock motor { 	
+		titleBody = " Motors"; 
+		compType = "Motor"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j"};
    }
       
    DColTBlock cable { 
@@ -127,11 +136,12 @@ GroupBlock Electrical {
 	}
 
    anchor = "title"; 
-   title.bottom = "motor"; 
-   motor.bottom = "generator";
+   title.bottom = "source"; 
+   source.bottom = "generator";
    generator.bottom = "rectifier";
    rectifier.bottom = "inverter";
-   inverter.bottom = "cable"; 
+   inverter.bottom = "motor"; 
+   motor.bottom = "cable"; 
    cable.bottom =  "aerocable";
    aerocable.bottom =  "breaker";
    breaker.bottom =  "constantpowerload";

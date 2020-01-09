@@ -35,7 +35,7 @@ class Generator extends Element {
 		description = "Current Angle";
 	}
 
-	real Eff{
+	real eff{
 		value=1.; IOstatus="input"; units = "none";
 		description = "Projected Efficiency of the Cable";
 	}
@@ -243,10 +243,10 @@ class Generator extends Element {
 			On-design
 			****************************/
 
-			Eff = effDes;
+			eff = effDes;
 		
 			// compute power to the generator
-			Pin = Pout / Eff;
+			Pin = Pout / eff;
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
@@ -273,7 +273,7 @@ class Generator extends Element {
 		else{
 			effBase = effDes;
 		}
-		Eff = effBase;
+		eff = effBase;
 
 		if (switchDes == "OFFDESIGN" ){
 			/****************************
@@ -281,7 +281,7 @@ class Generator extends Element {
 			****************************/
 			
 			// Supply power is load power + losses
-			Pin = Pout / Eff;
+			Pin = Pout / eff;
 			
 			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
@@ -308,7 +308,7 @@ class Generator extends Element {
 		
 		//real Vbus = Vbus_LL / sqrt(3.);
 		EP_O.frequency = frequency;
-		EP_O.setIVRMS( 0., 0. , Vbus_LL,  0. );
+		EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vbus_LL, 0. );
 	}
 	
 }
