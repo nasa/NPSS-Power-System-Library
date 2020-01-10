@@ -35,7 +35,7 @@ class Generator extends Element {
 		description = "Current Angle";
 	}
 
-	real Eff{
+	real eff{
 		value=1.; IOstatus="input"; units = "none";
 		description = "Projected Efficiency of the Cable";
 	}
@@ -69,6 +69,11 @@ class Generator extends Element {
 		value = 0; IOstatus="output"; units="kW";
 		description = "Generator Loss";
 	}
+
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation at current time";
+    }
 
 	real Mass {
 		value=1.; IOstatus="output"; units="kg";
@@ -131,9 +136,10 @@ class Generator extends Element {
 	}
     Option switchThermPort {
     	allowedValues = { "TRUE", "FALSE" };
-        value = "FALSE";
+        //value = "FALSE";
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
     }
 	
 	//------------------------------------------------------------
@@ -171,6 +177,12 @@ class Generator extends Element {
 		socketType = "TURBINE_EFFICIENCY_MAP";
 	}
 
+    Socket S_eThermMass {
+		allowedValues = { "Q_heat", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
+
 	// TABLES
 	
 	//------------------------------------------------------------
@@ -198,7 +210,7 @@ class Generator extends Element {
 	void variableChanged( string name, any oldVal ) {
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalOutputPort", "Q_O" );
+				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
 		if (name =="switchDes") {
@@ -231,10 +243,10 @@ class Generator extends Element {
 			On-design
 			****************************/
 
-			Eff = effDes;
+			eff = effDes;
 		
 			// compute power to the generator
-			Pin = Pout / Eff;
+			Pin = Pout / eff;
 
 			// get design values 
 			Ndes = Sh_O.Nmech;
@@ -261,7 +273,7 @@ class Generator extends Element {
 		else{
 			effBase = effDes;
 		}
-		Eff = effBase;
+		eff = effBase;
 
 		if (switchDes == "OFFDESIGN" ){
 			/****************************
@@ -269,7 +281,7 @@ class Generator extends Element {
 			****************************/
 			
 			// Supply power is load power + losses
-			Pin = Pout / Eff;
+			Pin = Pout / eff;
 			
 			// determine loss in the generator
 			Loss_r = 3 * Current**2 * genResistance;
@@ -282,15 +294,21 @@ class Generator extends Element {
 
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
         }
 	}
 	void prePass(){
 		
 		//real Vbus = Vbus_LL / sqrt(3.);
 		EP_O.frequency = frequency;
-		EP_O.setIVRMS( 0., 0. , Vbus_LL,  0. );
+		EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vbus_LL, 0. );
 	}
 	
 }

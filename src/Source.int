@@ -1,0 +1,248 @@
+// ****************************************************************************
+// * NASA Glenn Research Center
+// * 21000 Brookpark Rd
+// * Cleveland, OH 44135
+// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
+// * December 23, 2019
+// ****************************************************************************
+
+class Source extends Element {
+    
+    //------------------------------------------------------------
+    //     ******* DOCUMENTATION *******
+    //------------------------------------------------------------
+    
+    title = "";
+    
+    description = isA() + " - Voltage source with constant impedance";
+    
+    usageNotes = isA() + "- NOTE TO USERS: This file....";
+    
+    background = "";
+    
+    //------------------------------------------------------------
+    //     ******* SETUP VARIABLES ********
+    //------------------------------------------------------------
+    
+    real pfDes {
+        value = 0; IOstatus="output"; units="kW";
+        description = "Design power factor at output of this source element";
+    }
+    real effDes {
+        value = 0.95; IOstatus="input"; units="none";
+        description = "Design efficiency of this source element";
+    }
+    real pf {
+        value = 0; IOstatus="output"; units="kW";
+        description = "Actual (calculated) power factor at output of this source element";
+    }
+    real eff {
+        value = 0.95; IOstatus="output"; units="none";
+        description = "Actual (calculated) efficiency of this source element";
+    }
+    real R{
+        value = .01;  IOstatus = "output";  //units = OHM;
+    }
+    real L{
+        value = .0000796;  IOstatus = "output";  //units = H;
+    }
+
+    real frequency {
+        value = 0; IOstatus="input"; units="deg";
+        description = "Output Frequency";
+    }
+
+    real Loss_r {
+        value = 0; IOstatus="output"; units="kW";
+        description = "Real component of losses in this load";
+    }
+    real Loss_j {
+        value = 0; IOstatus="output"; units="kW";
+        description = "Imaginary component of losses in this load";
+    }
+
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation in BTU/s at current time";
+    }
+
+	real Vreal{
+		value = 1000.;  IOstatus = "output";  //units = "";
+		description = "Real portion of output voltage";
+	}
+
+	real Vimag{
+		value = -1.;  IOstatus = "output";  //units = "";
+		description = "Imaginary portion of output voltage";
+	}
+    
+	real SpecificPower {
+		value = 13; IOstatus="input"; //units=;
+		description = "Power to Weight ratio for the source";
+	}
+
+	real Mass {
+		value=1.; IOstatus="output"; units="kg";
+		description = "Mass computed on-design for the source";
+	}
+
+    //------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        description = "Determines if the element is in design or off-design mode";
+        rewritableValues = FALSE;
+        trigger=TRUE;
+    }
+    Option switchThermPort {
+        allowedValues = { "TRUE", "FALSE" };
+        //value = "FALSE";
+        description = "Determines if component needs thermal port";
+        rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
+    }
+    
+    //------------------------------------------------------------
+    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+    //------------------------------------------------------------  
+    
+    // FLUID PORTS
+
+    // FUEL PORTS
+
+    // BLEED PORTS
+
+    // THERMAL PORTS
+
+    // MECHANICAL PORTS
+
+    // ELECTRICAL PORTS
+
+    ElectricPort EP_O {
+        description = "Electric Port";
+    }
+
+    // FLOW STATIONS
+
+    // SOCKETS
+
+    Socket S_eThermMass {
+        allowedValues = { "Q_heat", "Mass" };
+        description = "Thermal mass socket";
+        socketType = "EThermalMass";
+    }
+
+    // TABLES
+    
+    //------------------------------------------------------------
+    // ******* INTERNAL SOLVER SETUP *******
+    //------------------------------------------------------------
+
+    //------------------------------------------------------------
+    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+    //------------------------------------------------------------
+    //Independent ind_R { 
+    //    varName = "R"; 
+    //    autoSetup = TRUE;
+    //    indepRef = "10000";
+    //    description = "Varies the resistive component of the output impedance";
+    //}
+    //Independent ind_L { 
+    //    varName = "L"; 
+    //    autoSetup = TRUE;
+    //    indepRef = "10000";
+    //    description = "Varies the inductive component of the output impedance";
+    //}
+    //
+    //
+    //Dependent dep_eff {
+    //    eq_lhs = "eff";
+    //    eq_rhs = "effDes";
+    //    autoSetup=TRUE;
+    //}
+    //Dependent dep_power_factor{
+    //    eq_rhs="pf";
+    //    eq_lhs="pfDes";
+    //    autoSetup=TRUE;
+    //}
+
+    //------------------------------------------------------------
+    // ******* VARIABLE CHANGED METHODOLOGY *******
+    //------------------------------------------------------------
+
+    void variableChanged(string name, any oldVal){
+        //if ( name == "switchThermPort" ){ 
+        //    if ( switchThermPort == "TRUE" ){
+        //        create("", "ThermalInputPort", "Q_I" );
+        //    }
+        //}
+        //if (name =="switchDes") {
+        //    if (EP_O.ElectricPowerType == "DC")
+        //    {
+        //        ind_Vimag.autoSetup = FALSE;
+        //        dep_power_factor.autoSetup = FALSE;
+        //    }
+        //    else {
+        //        ind_Vimag.autoSetup = TRUE;
+        //        dep_power_factor.autoSetup = TRUE;
+        //    }
+        //}
+    } // end variableChanged()
+
+    //------------------------------------------------------------
+    //   ******* PERFORM ENGINEERING CALCULATIONS *******
+    //------------------------------------------------------------
+    
+    void calculate() {
+
+        // So this component expects you to set Vreal, Vimag, and effDes.
+        // It will calculate (resistive only) impedance, power factor, etc.
+        
+        // If we're on-design, we need to figure out the output impedance
+        // based on the design efficiency. Otherwise, calculate the loss
+        // and efficiency based on the impedance (which is held constant)
+        pf = cos(EP_O.S.phase);
+        if ( switchDes == "DESIGN" ){
+            /*****************************
+            On-Design
+            *****************************/
+            pfDes = pf;
+            eff = effDes;
+            
+            // Internal power, before flowing through this component's output impedance
+            real PInternal = EP_O.S.r / eff;
+            Loss_r = PInternal - EP_O.S.r;
+            Loss_j = 0;
+            R = Loss_r / EP_O.I.mag**2;
+            L = 0;
+			// Compute mass based on assumed specific power.
+			Mass = EP_O.S.r / SpecificPower;
+        }
+        else {
+            Loss_r = EP_O.I.mag**2 * R;
+            Loss_j = 0;
+            eff = EP_O.S.r / (EP_O.S.r+Loss_r);
+        }
+        
+        if (switchThermPort=="TRUE"){
+            real KW_PER_BTU_PER_SEC = 1.05505585;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
+        }
+    }
+    // end calculation section
+
+    void prePass(){
+        EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vreal, Vimag );
+        EP_O.frequency = frequency;
+    }
+
+}

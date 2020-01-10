@@ -37,7 +37,7 @@ class Motor extends Element {
 		description = "Current Angle for the motor";
 	}
 	
-	real Eff{
+	real eff{
 		value=1.; IOstatus="output"; units="none";
 		description = "Adiabatic efficiency.  Equal to effDes during design, and effBase during off design.";
 	}
@@ -67,6 +67,11 @@ class Motor extends Element {
 		value = 0; //IOstatus=OUTPUT; units="kW";
 		description = "Motor Loss";
 	}
+
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation in BTU/s at current time";
+    }
 
 	real Mass {
 		value=1.; IOstatus="output"; units="kg";
@@ -144,9 +149,10 @@ class Motor extends Element {
 	}
     Option switchThermPort {
     	allowedValues = { "TRUE", "FALSE" };
-        value = "FALSE";
+        //value = "FALSE";
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
     }
 	
 	//------------------------------------------------------------
@@ -184,6 +190,12 @@ class Motor extends Element {
 		socketType = "TURBINE_EFFICIENCY_MAP";
 	}
 
+    Socket S_eThermMass {
+		allowedValues = { "Q_heat", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
+
 	// TABLES
 	
 	//------------------------------------------------------------
@@ -218,6 +230,12 @@ class Motor extends Element {
 		eq_rhs = "trq";
 	}
 
+    Dependent dep_phase_angle{
+        eq_rhs="EP_I.I.phaseDeg";
+        eq_lhs="CurrentAngle_Demand";
+        autoSetup=TRUE;
+    }
+
 	//------------------------------------------------------------
 	// ******* VARIABLE CHANGED METHODOLOGY *******
 	//------------------------------------------------------------
@@ -225,7 +243,7 @@ class Motor extends Element {
 	void variableChanged(string name, any oldVal){
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalOutputPort", "Q_O" );
+				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
 		if(name == "switchDes"){
@@ -257,10 +275,10 @@ class Motor extends Element {
 			On-Design
 			*****************************/
 
-			Eff = effDes;
+			eff = effDes;
 
 			// compute power to the load
-			Pout = Pin * Eff;
+			Pout = Pin * eff;
 
 			// Compute mass based on assumed specific power.
 			Mass=Pout / SpecificPower;
@@ -272,7 +290,7 @@ class Motor extends Element {
 			trq = trqDes;
 
 			// compute losses
-			Loss_r=Pin * (1.0 / Eff - 1.0);
+			Loss_r=Pin * (1.0 / eff - 1.0);
 			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
 		
 			// determine resistance 
@@ -287,7 +305,7 @@ class Motor extends Element {
 			effBase = effDes;
 		}
 
-		Eff = effBase;
+		eff = effBase;
 
 		if ( switchDes == "OFFDESIGN" ){	
 			//*****************************
@@ -296,7 +314,7 @@ class Motor extends Element {
 
 			// Power to the load (supply - loss)
 			//Pout = Pin - Current**2 * motorResistance;
-			Pout = Pin * Eff;
+			Pout = Pin * eff;
 			
 			// Calculate loss
 			Loss_r = 3 * Current**2 * motorResistance;
@@ -311,15 +329,21 @@ class Motor extends Element {
 		
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
         }
 	}
 	
 	// end calculation section
 	void prePass(){
 		
-		EP_I.setIVRMS( 0., 0. , Vreal,  Vimag );
+		EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
 		EP_I.frequency = frequency;
 		
 	}

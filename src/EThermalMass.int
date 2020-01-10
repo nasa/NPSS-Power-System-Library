@@ -1,0 +1,207 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __E_THERMAL_MASS__
+#define __E_THERMAL_MASS__
+
+#include <InterpIncludes.ncp>
+
+class EThermalMass extends Subelement {
+
+extern real Q_I.HeatTransferRate;
+extern real Q_I.MassTemp;
+extern real Q_heat;
+extern real Mass;
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+  title = "";
+
+  description = "The "+isA()+" subelement performs a simple set of calculations
+to represent the thermal mass (temperature dynamics) of an electrical component.
+This subelement is intended to be incorporated in an appropriate socket within
+the electrical component and interfaces the component to a thermal management
+system via a thermal port that must live within the electrical component.";
+
+  usageNotes = isA() +
+  "
+
+- Parent component must have a thermal port.
+
+- Parent component must also have a Q_heat variable that contains the
+heat generated within the component at the given timestep.
+
+- The component temperature is calculated with a solver independent
+integrator pair.
+
+";
+
+background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+
+  real Q_in{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Input Q dissipated within electrical device";
+  }
+  real Q_out{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Heat flow out of this device, going into the cooling medium";
+  }
+  real Q_net{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Net heat flow through this device";
+  }
+  real Cp {
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_LBM_R;
+    description = "Component lumped Cp (specific heat)";
+  }
+  real dTqdt {
+    value = 0;  IOstatus = OUTPUT;  units = PER_SEC;
+    description = "Temperature time derivative";
+  }
+  real T {
+    value = 518.67;  IOstatus = INPUT; units = RANKINE;
+    description = "Temperature";
+    trigger = 1;
+  }
+
+//------------------------------------------------------------
+// ******* INTERNAL SOLVER SETUP *******
+//------------------------------------------------------------
+
+
+//------------------------------------------------------------
+//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+//------------------------------------------------------------
+
+  Independent ind_T {
+    varName = "T";
+    autoSetup = TRUE;
+    description = "Varies the material temperature";
+  }
+  
+  Integrator integ_T {
+    stateName = "T";
+    derivativeName = "dTqdt";
+    eq_lhs = "Q_in";
+    eq_rhs = "Q_out";
+    tolerance = 0.01;
+    autoSetup = TRUE;
+    description = "Balances the heat flows";
+  }
+
+//------------------------------------------------------------
+// ******* VARIABLE CHANGED METHODOLOGY *******
+//------------------------------------------------------------
+void variableChanged( string name, any oldVal )
+{
+
+  //------------------------------------------------------------    
+  // if the temperature is being set, push it to the port
+  //------------------------------------------------------------
+  if ( name == "T" ) {
+    Q_I.MassTemp = T;
+  }
+
+/*
+  if ( name == "solutionMode" ){
+    if ( solutionMode == "TRANSIENT") {
+      ind_T.autoSetup = TRUE;
+      integ_T.autoSetup = TRUE;
+      initializeHistory();
+    }
+    else {
+      ind_T.autoSetup = FALSE;
+      integ_T.autoSetup = FALSE;	
+    }
+  }
+*/
+}
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+  // default value is the first variable in the allowedValues list
+
+  Option solutionMode {
+    allowedValues = { STEADY_STATE, ONE_PASS, TRANSIENT } ;
+    description = "Solver solution switch";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+
+  // SOCKETS
+
+  // TABLES
+
+  //------------------------------------------------------------
+  //   ******* PERFORM ENGINEERING CALCULATIONS *******
+  //------------------------------------------------------------
+  void calculate() {
+
+    //------------------------------------------------------------
+    // Get local copy of Q_in and Q_out
+    //------------------------------------------------------------
+    Q_in  = Q_heat;
+    Q_out = Q_I.HeatTransferRate;
+        //cout << "Q_heat = " << Q_heat << ", ";
+        //cout << "Q_I.HeatTransferRate = " << Q_I.HeatTransferRate << ", ";
+	
+    //------------------------------------------------------------    
+    // Determine the net heat flow
+    //------------------------------------------------------------
+    Q_net = Q_in - Q_out;
+        //cout << "Q_net = " << Q_net << ", ";
+        //cout << "Mass = " << Mass << ", ";
+    
+    //------------------------------------------------------------    
+    // Determine the temperature derivative
+    //------------------------------------------------------------
+    dTqdt = Q_net /( Mass*Cp );
+        //cout << "dTqdt = " << dTqdt << ", ";
+        //cout << "Q_I.MassTemp = " << Q_I.MassTemp << ", ";
+        //cout << "T = " << T << ", ";
+        //cout << "Cp = " << Cp << endl;
+  }
+}
+
+#endif

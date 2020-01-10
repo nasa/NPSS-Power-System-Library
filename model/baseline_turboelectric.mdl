@@ -45,9 +45,10 @@ Element AeroCable Cable1 {
 
 Element Rectifier Rect1 {
 	effDes = .95;
-	pwrDes = 12000.;
+	pwrDes = 4000.;
 	#include <modelInverterRectifier.map>
 	frequency = 400.;
+    S_map.pwrMapDes = 0.5;
 }
 
 Element Breaker Breaker2 {
@@ -66,9 +67,22 @@ Element AeroCable Cable2 {
 
 Element Inverter Inv1 {
 	effDes = .95;
-	pwrDes = 12000.;
+	pwrDes = 4000.;
 	#include <modelInverterRectifier.map>
 	frequency=400;
+    S_map.pwrMapDes = 0.5;
+}
+
+
+Element Breaker Breaker3 {
+	effDes=0.995;
+	SpecificPower=250.0; 
+}
+
+Element Enode E3{
+	ElectricInputPort EP_I;
+	ElectricOutputPort EP_O;
+	frequency = 400.;
 }
 
 Element AeroCable Cable3 {
@@ -79,7 +93,7 @@ Element Motor EM1 {
 	 effDes=0.96;
 	 powerfactor=1.0;
 	 SpecificPower=13.0; 
-	 trqDes=55144.0; 
+	 trqDes=3500.0; 
 	 frequency = 400.;
 	 //Vreal = 1000.;
 	 #include <STARCABLmotorGenerator.map>
@@ -123,7 +137,7 @@ Element Shaft Propulsor_Shaft {
 Element FlowStart TurbineAtm{
 	Pt=500;
 	Tt=2200;
-	W=500;
+	W=30;
 	FAR = .02;
 }
 
@@ -144,17 +158,9 @@ Nozzle Noz{
 Element FlowEnd Turbinedump{
 };
 
-
 Independent turbPR{
 	varName="Turb.PRdes";
 }
-
-Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.I.phaseDeg";
-	eq_lhs="EM1.CurrentAngle_Demand";
-	autoSetup=TRUE;
-}
-
 
 Element Shaft Turbine_Shaft {
 	Nmech=4000;   // rpm
@@ -186,7 +192,9 @@ linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
 linkPortI( "Breaker2.EP_O", "E2.EP_I");
 linkPortI( "E2.EP_O","Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Cable3.EP_I" );
+linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
+linkPortI( "Breaker3.EP_O", "E3.EP_I");
+linkPortI( "E3.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
 
 
@@ -202,23 +210,26 @@ linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
 
+// Remove and re-append the elements containing nodes (or that are nodes)
 solverSequence.remove( "Gen1" );
-solverSequence.remove( "EM1" );
 solverSequence.remove( "E1" );
+solverSequence.remove( "Rect1" );
 solverSequence.remove( "E2" );
+solverSequence.remove( "Inv1" );
+solverSequence.remove( "E3" );
+solverSequence.remove( "EM1" );
 solverSequence.remove( "Turbine_Shaft" );
 solverSequence.remove( "Propulsor_Shaft" );
-solverSequence.remove( "Rect1" );
-solverSequence.remove( "Inv1" );
 
 solverSequence.append( "Gen1" );
-solverSequence.append( "EM1" );
 solverSequence.append( "E1" );
+solverSequence.append( "Rect1" );
 solverSequence.append( "E2" );
+solverSequence.append( "Inv1" );
+solverSequence.append( "E3" );
+solverSequence.append( "EM1" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
-solverSequence.append( "Rect1" );
-solverSequence.append( "Inv1" );
 
 
 solver.debugLevel = "ITERATION_DETAILS";

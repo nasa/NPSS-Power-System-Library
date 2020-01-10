@@ -37,7 +37,6 @@ class Cable extends Element {
 		value = 1.;  IOstatus = "input";  //units = M;
 	}
 
-	// Will add losses in future releases.
 	real Loss_j {
 		value = 0; IOstatus="output"; //units=W;
 		description = "Cable Loss";
@@ -47,6 +46,11 @@ class Cable extends Element {
 		value = 0; IOstatus="output"; //units=W;
 		description = "Cable Loss";
 	}
+
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation at current time";
+    }
 
 	real Mass {
 		value=0; IOstatus="output"; //units=KG;
@@ -74,9 +78,10 @@ class Cable extends Element {
 	}
     Option switchThermPort {
     	allowedValues = { "TRUE", "FALSE" };
-        value = "FALSE";
+        //value = "FALSE";
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
     }
 	
 	//------------------------------------------------------------
@@ -106,6 +111,11 @@ class Cable extends Element {
 	// FLOW STATIONS 
 
 	// SOCKETS
+    Socket S_eThermMass {
+		allowedValues = { "Q_heat", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
 
 	// TABLES
 
@@ -116,7 +126,7 @@ class Cable extends Element {
 	void variableChanged( string name, any oldVal ) {
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalOutputPort", "Q_O" );
+				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
 		if (name =="switchDes") {
@@ -164,8 +174,14 @@ class Cable extends Element {
 
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
         }
 		
 		//Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;

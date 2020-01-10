@@ -33,7 +33,7 @@ class Breaker extends Element {
 		value = .0000796;  IOstatus = "input";  //units = H_PER_FT;
 	}
 	
-	real Eff {
+	real eff {
 		value = 1.;  IOstatus = "input";  units = NONE;
 		description = "Efficiency at current point.";
 	}
@@ -57,11 +57,15 @@ class Breaker extends Element {
 		description = "Cable Loss";
 	}
 
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation at current time";
+    }
+
 	real Mass {
 		value=1.; IOstatus="output"; units="kg";
 		description = "Component mass";
 	}
-	
     
     real Ireal {
         value = 100; IOstatus="input"; //units=amps;
@@ -98,9 +102,10 @@ class Breaker extends Element {
 	}
     Option switchThermPort {
     	allowedValues = { "TRUE", "FALSE" };
-        value = "FALSE";
+        //value = "FALSE";
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
     }
 	
 	//------------------------------------------------------------
@@ -130,6 +135,12 @@ class Breaker extends Element {
 	// FLOW STATIONS 
 
 	// SOCKETS
+
+    Socket S_eThermMass {
+		allowedValues = { "Q_heat", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
 
 	// TABLES
 	
@@ -168,7 +179,7 @@ class Breaker extends Element {
     void variableChanged( string name, any oldVal ) {
 		if ( name == "switchThermPort" ){ 
 			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalOutputPort", "Q_O" );
+				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
         if (name =="switchDes") {
@@ -270,6 +281,11 @@ class Breaker extends Element {
 				// Calculate this component impedance
 				R = Z.r;
 				L = Z.j / (2*PI*EP_I.frequency);
+                if (EP_I.ElectricPowerType == "AC") {
+				}
+                else if (EP_I.ElectricPowerType == "AC3") {
+                    I.scale( 1./3. );
+                }
 			}
 		}
 		else {
@@ -295,15 +311,21 @@ class Breaker extends Element {
 		EP_O.frequency=EP_I.frequency;
 		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
 		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
-        Eff = EP_O.S.r/EP_I.S.r;	
+        eff = EP_O.S.r/EP_I.S.r;	
 		
         Loss_r = EP_I.S.r - EP_O.S.r;
         Loss_j = EP_I.S.j - EP_O.S.j;
 
         if (switchThermPort=="TRUE"){
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_O.HeatTransferRate = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_O.HeatTransferRate /= KW_PER_BTU_PER_SEC;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
         }
 			
 	}
