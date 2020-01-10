@@ -15,7 +15,13 @@ cout<<"======================================="<<endl;
 cout<<" Example Model with Real and Reactive Power "<<endl;
 cout<<"======================================="<<endl;
 
-setThermoPackage("GasTbl");
+#ifdef THERMO
+    cout << "THERMO" << endl;
+    setThermoPackage("$THERMO");
+#elseif
+    cout << "GasTbl" << endl;
+    setThermoPackage("GasTbl");
+#endif
 
 /**************************
 Electric Power System Components
@@ -34,7 +40,7 @@ Element AeroCable Cable1 {
 
 Element Motor EM1 {
 	 effDes=0.96;
-	 powerfactor=0.9;
+	 powerfactor=0.98;
 	 SpecificPower=13.0; 
 	 trq=55144.0; 
 	 frequency = 400.;
@@ -96,12 +102,6 @@ Independent turbPR{
 	varName="Turb.PRdes";
 }
 
-Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.I.phaseDeg";
-	eq_lhs="EM1.CurrentAngle_Demand";
-	autoSetup=TRUE;
-}
-
 Element Shaft Turbine_Shaft {
 	Nmech=4000;   // rpm
 	ShaftInputPort Sh1_I, Sh_Turbine;	
@@ -140,5 +140,5 @@ solverSequence.append( "EM1" );
 solverSequence.append( "Turbine_Shaft" );
 solverSequence.append( "Propulsor_Shaft" );
 
-solver.debugLevel = "ITERATION_DETAILS";
-solver.diagnosticFile = "soler.bad";
+//solver.debugLevel = "ITERATION_DETAILS";
+//solver.diagnosticFile = "soler.bad";

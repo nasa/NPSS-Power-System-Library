@@ -27,7 +27,7 @@ Electric Power System Components
 **************************/
 Element Generator Gen1 {
 	Vbus_LL=1200;	
-	Eff=0.96;
+	eff=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz	
 }
@@ -59,16 +59,14 @@ Element Cable Cable2b {
 }
 
 Element Motor EM1 {
-	Eff=0.96;
+	eff=0.96;
 	SpecificPower=13.0; 
-	Torque=55144.0;   // in*lb ?????
 	frequency = 400.;
 }
 
 Element Motor EM2 {
-	Eff=0.96;
+	eff=0.96;
 	SpecificPower=13.0; 
-	Torque=55144.0;   // in*lb ?????
 	frequency = 400.;
 }
 
@@ -148,22 +146,8 @@ Nozzle Noz2{
 Element FlowEnd Turbinedump{
 };
 
-real MotorTorque=EM1.Torque;
-
 Independent turbPR{
 	varName="Turb.PRdes";
-}
-
-Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.I.j";
-	eq_lhs="EM1.CurrentAngle_Demand";
-	autoSetup=TRUE;
-}
-
-Dependent MotorAngle2{
-	eq_rhs="EM2.EP_I.I.j";
-	eq_lhs="EM2.CurrentAngle_Demand";
-	autoSetup=TRUE;
 }
 
 Element Shaft Turbine_Shaft {

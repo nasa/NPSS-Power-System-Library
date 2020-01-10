@@ -1,0 +1,312 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __THERMALTANK__
+#define __THERMALTANK__
+
+#include <InterpIncludes.ncp>
+class ThermalTank extends Element {
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+  title = "";
+
+  description = "The "+isA()+" element estimates the performance of a simple tank.
+This tank contains a mass and temperature state during transient operation. For
+steady-state operation temperature is passed through and mass is kept constant.
+The pressure loss is calculated by the S_dP socket (or input by the
+user if this socket is empty).";
+
+  usageNotes = isA() +
+  "
+
+- The thermal tank element calculates a pressure drop.
+
+- The pressure drop can either be input or calculated from a
+subelement.
+
+- Mass and temperature are tracked by states during transient operation
+
+- Flow can either be input as a value or passed through from Fl_I.
+
+";
+
+background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+  FlowStation Fl_vol;
+
+  real dP {
+    value = 0;  IOstatus = OUTPUT;  units = PSIA;
+    description = "Actual pressure drop";
+  }
+  real dPqP {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Normalized pressure drop (delta P/P)";
+  }
+  real dPqP_in {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "User input value of dPqP";
+  }
+  real dPqP_dmd {
+    value = 0;  IOstatus = INPUT;  units = NONE;
+    description = "Subelement calculated dPqP";
+  }
+  real dTqdt {
+    value = 0;  IOstatus = OUTPUT;  units = RANKINE_PER_SEC;
+    description = "Temperature time derivative";
+  }
+  real dVqdt {
+    value = 0;  IOstatus = OUTPUT;  units = LBM_PER_SEC;
+    description = "Volume time derivative";
+  }
+  real T_mass {
+    value = 518;  IOstatus = INPUT; units = RANKINE;
+    description = "Temperature";
+  }
+  real T_current {
+    value = 518;  IOstatus = OUTPUT; units = RANKINE;
+    description = "Current Temperature state";
+  }
+  real time_current {
+    value = 0;  IOstatus = OUTPUT; units = SEC;
+    description = "Current time";
+  }
+  real mass {
+    value = 0;  IOstatus = INPUT; units = LBM;
+    description = "Volume mass";
+  }
+  real mass_current {
+    value = 0;  IOstatus = OUTPUT; units = LBM;
+    description = "Current volume mass state";
+  }
+  real W_dmd {
+    value = 0;  IOstatus = INPUT; units = LBM_PER_SEC;
+    description = "exit mass flow";
+  }
+  real W_out {
+    value = 0;  IOstatus = INPUT; units= LBM_PER_SEC;
+    description = "specified output mass flow";
+  }
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+  void variableChanged( string name, any oldVal ) {
+    // if ( name == "solutionMode" ){
+    //   if ( solutionMode == "TRANSIENT") {
+    //     integ_Vol.autoSetup = TRUE;
+    //     ind_W.autoSetup = TRUE;
+    //     initializeHistory();
+    //   }
+    //   else {
+    //     integ_Vol.autoSetup = FALSE;
+    //     ind_W.autoSetup = FALSE;
+    //   }
+    // }
+  }
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+  // default value is the first variable in the allowedValues list
+  Option solutionMode {
+      allowedValues = { STEADY_STATE, ONE_PASS, TRANSIENT } ;
+      description = "Solver solution switch";
+      rewritableValues = FALSE;  // Enables converter optimization.
+    }
+  Option switchDP {
+    allowedValues = { "CALCULATE", "OFF", "INPUT", "CUSTOM" }
+    description = "CALCULATE - Supplier-provided calculation (default) in socket S_dP which sets dPqP_dmd\n
+    OFF - no pressure loss\n
+    INPUT - Pressure loss, dPqP_in is input\n
+    CUSTOM - Customer hook function in socket S_customDP which sets dPqP_dmd
+    ";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+  Option switchMass {
+    allowedValues = { "OFF", "INPUT"}
+    description = "OFF - flow out  = flow in \n
+    INPUT - Manual output flow\n
+    ";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  FluidInputPort Fl_I {
+    description = "Inlet fluid port";
+  }
+
+  FluidOutputPort Fl_O {
+    description = "Outlet fluid port";
+  }
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+
+  FlowStation Fl_dP {
+    description = "Flow station for pressure loss calculation";
+  }
+
+  // SOCKETS
+
+  Socket S_customDP {
+    allowedValues = { "dPqP_dmd" };
+    description = "Pressure loss socket (customer)";
+  }
+
+  Socket S_dP {
+    allowedValues = { "dPqP_dmd" };
+    description = "Pressure loss socket";
+  }
+
+  // TABLES
+
+
+  //------------------------------------------------------------
+  // ******* INTERNAL SOLVER SETUP *******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  //   ******* PERFORM ENGINEERING CALCULATIONS *******
+  //------------------------------------------------------------
+  void calculate() {
+
+    //------------------------------------------------------------
+    // Determine which method is to be used to determine pressure
+    // drop
+    //------------------------------------------------------------
+    if( switchDP == "CALCULATE" ){
+      if(!S_dP.isEmpty()) {
+        Fl_dP.copyFlow( "Fl_I" );
+        if ( Fl_I.Aphy > 0.0 ) {
+          Fl_dP.copyFlowStatic( "Fl_I" );
+        }
+        Fl_dP.Cd = Fl_I.Cd;
+        S_dP.execute();
+      }
+      dPqP = dPqP_dmd;
+    }
+    if ( switchDP == "CUSTOM" ){
+        if(!S_customDP.isEmpty()) {
+          S_customDP.execute();
+        }
+      dPqP = dPqP_dmd;
+    }
+
+    if ( switchDP == "INPUT" ){
+      dPqP = dPqP_in;
+    }
+
+    if ( switchDP == "OFF" ){
+      dPqP = 0.;
+    }
+
+    if ( switchMass == "OFF" ){
+      W_dmd = Fl_I.W;
+    }
+    if ( switchMass == "INPUT" ){
+      W_dmd = W_out;
+    }
+
+    //------------------------------------------------------------
+    // Set the duct exit conditions.  The enthalpy is the same
+    // as the entrance enthalpy and exit pressure is determined
+    // from the pressure drop
+    //------------------------------------------------------------
+
+    dP = dPqP * Fl_I.Pt;
+    real PtOut = Fl_I.Pt - dP;
+
+    //------------------------------------------------------------
+    // Pass the flow information from the inlet to the outlet
+    //------------------------------------------------------------
+    Fl_vol.copyFlow( "Fl_I" );
+    Fl_vol.setTotalTP( T_mass, PtOut );
+    Fl_vol.W = W_dmd;
+
+    if ( solutionMode=="STEADY_STATE" || solutionMode=="ONE_PASS"  ){
+      // cout<< "-----------------------T_state = "<< T_mass<<endl;
+      T_mass = Fl_I.Tt;
+      mass = mass;
+    }
+
+    if ( solutionMode == "TRANSIENT" ){
+      if ( time > time_current ){
+        time_current = time;
+        mass_current = mass;
+        T_current = T_mass;
+        // cout<< "RUNNING TRANSIENT STEP-------Time : "<<time<<"timeStep : "<<timeStep<<"time_current : "<<time_current <<endl;
+      }
+
+    //------------------------------------------------------------
+    // If running transiently update mass
+    //------------------------------------------------------------
+      if (switchMass == "INPUT"){
+        dVqdt = (Fl_I.W - Fl_vol.W);
+        mass = mass_current + dVqdt * timeStep;
+      }
+      else{
+        mass = mass_current;
+      }
+
+    //------------------------------------------------------------
+    // Determine the temperature derivative
+    //------------------------------------------------------------
+        if (mass_current == 0){
+          T_mass = Fl_I.Tt;
+        }
+        else{
+          // cout<<"T_current : "<<T_current<< " T in : "<< Fl_I.Tt<<endl;
+          // cout<<"W in : "<<Fl_I.W<< " W out : "<< Fl_vol.W<<endl;
+          // cout<<"mass current : "<<mass_current<< " mass : "<< mass<<endl;
+          T_mass = (T_current*mass_current +(Fl_I.W*Fl_I.Tt - Fl_vol.W*T_current)*timeStep)/mass;
+        }
+    }
+    Fl_O.copyFlow("Fl_I");
+    Fl_O.setTotalTP( T_mass, PtOut );
+    Fl_O.W = W_dmd;
+    // cout<<"T is "<<T<< " T_current is "<<T_current<< " T_Fl is "<<Fl_I.Tt<< " T_Fl out is "<<Fl_O.Tt<<endl;
+  }
+}
+
+#endif

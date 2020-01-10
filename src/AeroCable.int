@@ -48,8 +48,13 @@ class AeroCable extends Element {
         description = "Cable Loss";
     }
 
+    real Q_heat {
+        value = 0; IOstatus="output"; //units=W;
+        description = "Power dissipation at current time";
+    }
+
     real Mass {
-        value=0; IOstatus="output"; //units=KG;
+        value=1; IOstatus="output"; //units=KG;
         description = "Mass output of the cable";
     }
     
@@ -130,6 +135,14 @@ class AeroCable extends Element {
         rewritableValues = FALSE;
         trigger=TRUE;
     }
+    Option switchThermPort {
+    	allowedValues = { "TRUE", "FALSE" };
+        //value = "FALSE";
+    	description = "Determines if component needs thermal port";
+    	rewritableValues = FALSE;  // Enables converter optimization.
+        trigger=TRUE;
+    }
+    
     
     //------------------------------------------------------------
     // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
@@ -142,22 +155,26 @@ class AeroCable extends Element {
 
     // THERMAL PORTS
 
-    //  ELECTRICAL PORTS
+    // ELECTRICAL PORTS
 
     ElectricOutputPort EP_O {
         description = "Electric port";
     }
-    string EPortRef;
     
     ElectricInputPort EP_I {
         description = "Electric Port";
     }
 
-    //MECHANICAL PORTS
+    // MECHANICAL PORTS
 
     // FLOW STATIONS 
 
     // SOCKETS
+    Socket S_eThermMass {
+		allowedValues = { "Q_heat", "Mass" };
+		description = "Thermal mass socket";
+		socketType = "EThermalMass";
+    }
 
     // TABLES
 
@@ -194,6 +211,13 @@ class AeroCable extends Element {
     //------------------------------------------------------------
 
     void variableChanged( string name, any oldVal ) {
+
+		// if the value of switchDes or switchThermPort change...
+		if ( name == "switchThermPort" ){ 
+			if ( switchThermPort == "TRUE" ){
+				create("", "ThermalInputPort", "Q_I" );
+			}
+		}
         if (name =="switchDes") {
             if (switchDes == "DESIGN") {
                 ind_Ireal.autoSetup = TRUE;
@@ -601,7 +625,19 @@ class AeroCable extends Element {
         
         Loss_r = EP_I.S.r - EP_O.S.r;
         Loss_j = EP_I.S.j - EP_O.S.j;
-		
+
+        if (switchThermPort=="TRUE"){
+            real KW_PER_BTU_PER_SEC = 1.05505585;
+            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat /= KW_PER_BTU_PER_SEC;
+            //------------------------------------------------------------    
+            // Run the thermal mass model.
+            //------------------------------------------------------------
+            if ( !S_eThermMass.isEmpty() ) {
+              S_eThermMass.execute();
+            }
+        }
+
 		// TODO: Run this calculation past Dave
 		SpecificAmperage = ampacity*length/Mass;
         

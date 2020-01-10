@@ -1,0 +1,91 @@
+indeps = {"Tt","Pt","WAR"}
+hsIndeps = {};
+hTindeps ={"Tt","Pt","WAR"};
+ThIndeps = {"ht","Pt","WAR"};
+TsIndeps = {"s","Pt","WAR"};
+hsIndeps = {"s","Pt","WAR"};
+shIndeps = {"ht","Pt","WAR"};
+
+
+setThermoPackage( "CEA", "thermo.inp", "trans.inp" , "Air", "H2O" );
+
+FlowStation temp;
+temp.setOption( "switchTransport" , "EQUIL" );
+
+temp.setDryAir();
+
+setThermoPackage( "FPT" );
+real k ( real Tt, real Pt, real WAR ) {
+
+  temp.setTotalTP( Tt, Pt );
+  return temp.kt;
+}
+real R( real Tt, real Pt, real WAR ) {
+
+  temp.setTotalTP( Tt, Pt );
+  return temp.Rt;
+}
+real rho ( real Tt, real Pt, real WAR ) {
+
+ temp.setTotalTP( Tt, Pt );
+ return temp.rhot;
+}
+real s ( real Tt, real Pt) {
+
+ temp.setTotalTP( Tt, Pt );
+ return temp.s;
+}
+real h_T ( real Tt, real Pt, real WAR ) {
+
+
+  temp.setTotalTP(Tt, Pt);
+  //cerr << "T " << Tt << " " << temp.ht << endl;
+  return temp.ht;
+}
+real gam ( real Tt, real Pt, real WAR) {
+
+  temp.setTotalTP(Tt, Pt);
+  return temp.gamt;
+}
+real mu ( real Tt, real Pt, real WAR) {
+
+  temp.setTotalTP( Tt, Pt );
+
+  return temp.mut;
+
+}
+real Cp ( real Tt, real Pt, real WAR) {
+
+  temp.setTotalTP( Tt, Pt );
+  return temp.Cpt;
+}
+real T_h ( real ht, real Pt, real WAR) {
+
+  //sleep ( 30. );
+  temp.setTotal_hP( ht, Pt );
+  //cerr <<"Tt " << temp.Tt << " " << ht << endl;
+  //sleep(10.);
+  return temp.Tt;
+}
+real s( real Tt, real Pt, real WAR ){
+
+  temp.setTotalTP( Tt, Pt );
+  //cerr << "s is " << temp.s << endl;
+  return temp.s;
+
+}
+real T_s ( real sinp, real Pt, real WAR ) {
+
+  temp.setTotalSP( sinp, Pt );
+  return temp.Tt;
+}
+real s_h( real h, real P, real WAR ){
+
+  temp.setTotal_hP( h, P );
+  return temp.s;
+}
+real h_s ( real sinp, real Pt, real WAR) {
+
+  temp.setTotalSP( sinp, Pt );
+  return temp.ht;
+}

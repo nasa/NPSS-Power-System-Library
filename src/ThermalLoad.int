@@ -1,0 +1,169 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+//
+// For further information contact support@wolverine-ventures.com
+//
+
+#ifndef __THERMALLOAD__
+#define __THERMALLOAD__
+
+#include <InterpIncludes.ncp>
+class ThermalLoad extends Element {
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+  title = "";
+
+  description = "The "+isA()+" element performs a simple adiabatic pressureloss
+calculation.  The pressure loss is calculated by the S_dP socket (or input by the
+user if this socket is empty).  The duct maintains a constant enthalpy
+while the pressure loss is applied.";
+
+  usageNotes = isA() +
+  "
+
+- The duct element calculates an pressure drop.
+
+- The pressure drop can either be input or calculated from a
+subelement.
+
+- The heat loss can either be input or calculated from a
+subelement.
+
+- There are two option switches that determine where the dP
+and Q are calculated.
+
+";
+
+background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+
+  real T {
+    value = 518;  IOstatus = INPUT; units = RANKINE;
+    description = "Temperature";
+    trigger = 1;
+  }
+  real Q_in{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Heat loss of load";
+  }
+  real Q_out{
+    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+    description = "Cooling heat loss";
+  }
+  real Q_net{
+    value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
+    description = "net heat ";
+  }
+
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+  void variableChanged( string name, any oldVal ) {
+    if ( name == "T" ) {
+      Q_I.MassTemp = T;
+    }
+  }
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+  Option solutionMode {
+    allowedValues = { STEADY_STATE, ONE_PASS, TRANSIENT } ;
+    description = "Solver solution switch";
+    rewritableValues = FALSE;  // Enables converter optimization.
+  }
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  // FLUID PORTS
+
+  // FUEL PORTS
+
+  // BLEED PORTS
+
+  // THERMAL PORTS
+
+  ThermalInputPort Q_I {
+    description = "Inlet thermal port";
+  }
+
+  // MECHANICAL PORTS
+
+  // FLOW STATIONS
+
+  // SOCKETS
+
+  // TABLES
+
+
+  //------------------------------------------------------------
+  // ******* INTERNAL SOLVER SETUP *******
+  //------------------------------------------------------------
+
+  //------------------------------------------------------------
+  //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //------------------------------------------------------------
+
+  Independent ind_T {
+    varName = "T";
+    autoSetup = TRUE;
+    description = "Varies the material temperature";
+  }
+
+  Dependent dep_T {
+    eq_lhs = "Q_net";
+    eq_rhs = "0";
+    tolerance = 0.01;
+    autoSetup = TRUE;
+    description = "Balances heat loads";
+  }
+
+  //------------------------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //------------------------------------------------------------
+
+  void variableChanged( string name, any oldVal )
+  {
+    if ( name == "T" ) {
+      Q_I.MassTemp = T;
+    }
+  }
+
+  //------------------------------------------------------------
+  //   ******* PERFORM ENGINEERING CALCULATIONS *******
+  //------------------------------------------------------------
+  void calculate() {
+    // cout << "running Load"<<endl;
+    Q_out = Q_I.HeatTransferRate;
+    Q_net = Q_in - Q_out;
+    // cout<<"Q_net = Q_in - Q_out => "<<Q_net<< " = "<<Q_in<<"  - "<<Q_out<<endl;
+
+  }
+
+}
+
+#endif

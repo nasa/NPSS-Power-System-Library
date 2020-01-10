@@ -32,10 +32,57 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+#include <Map_plotting\mapplot_V27.fnc>
+
 //model file
+
+// Tell the TMS model that we have power electronics we need to cool using
+// a define statement
+#define POWER_ELECTRONICS
+#include "baseline_TMS.mdl"
+setThermoPackage("GasTbl");
 #include "baseline_turboelectric.mdl"
 
 OutFileStream csvStream { filename = "output/out.csv"; } 
+
+
+Gen1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.0923; // specific heat of copper
+        T = 490;
+    }
+}
+Rect1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.215; // specific heat of copper
+        T = 495;
+    }
+}
+Inv1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.215; // specific heat of aluminum
+        T = 500;
+    }
+}
+EM1 {
+    setOption("switchThermPort","TRUE");
+    // Subelement 
+    Subelement EThermalMass S_eThermMass {
+        Cp = 0.0923; // specific heat of copper
+        T = 505;
+    }
+}
+linkPorts("generator_cooler.Q_O", "Gen1.Q_I", "Q1");
+linkPorts("rectifier_cooler.Q_O", "Rect1.Q_I", "Q2");
+linkPorts("inverter_cooler.Q_O", "Inv1.Q_I", "Q3");
+linkPorts("motor_cooler.Q_O", "EM1.Q_I", "Q4");
+
 
 /************************
 On design
@@ -48,7 +95,7 @@ solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
-real TurbPowDesired = 3000/0.746/0.8;
+real TurbPowDesired = 1500/0.746/0.8;
 Independent prop_pwr{varName = "Prop.pwr";}
 Dependent target_pwr{
   eq_lhs = "TurbPowDesired";
@@ -56,7 +103,7 @@ Dependent target_pwr{
 }
 // <GLT> Add biases to solver variables so that if you guess the wrong sign,
 // or solver independents otherwise need to cross zero, you won't die by div/0.
-real bias_value = 10*Gen1.Vbus_LL;
+real bias_value = 0*2*Gen1.Vbus_LL;
 Rect1.ind_Vimag.a  = bias_value;
 Rect1.ind_Vimag.a  = bias_value;
 Inv1.ind_Vreal.a   = bias_value;
@@ -75,21 +122,41 @@ solver.debugLevel = "ITERATION_DETAILS";
 // <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
 // Looks like the only thing that botches this up now is guessing them such that you get currents
 // with the wrong sign...
-Rect1.Vreal  = 990;
-Rect1.Vimag  = 0;
-Inv1.Vreal   = 980;
+E1.VrealRMS    = 999;
+E1.VimagRMS    = 0;
+Rect1.Vreal    = 998;
+Rect1.Vimag    = 0;
+E2.VrealRMS   = 1390;
+E2.VimagRMS   = 0;
+Inv1.Vreal   = 997;
 Inv1.Vimag   = 0;
-EM1.Vreal    = 970;
+EM1.Vreal    = 996;
 EM1.Vimag    = 0;
+
+Turb.S_map {
+   int SCALED_MAP = TRUE;
+   int PLOT_OP_POINTS = TRUE;
+   // real AXES[] = { 138, 142., 1.1, 1.7 };
+   // real CONTOUR_EFF[] = { 0.70, 0.75, 0.80, 0.85, 0.875, 0.90, 0.91, 0.92, 0.93, 0.94 };
+}
+
+
+createMapDataFiles();
 
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run();
 
-#include "print_macros.fnc"
-printData(Cable1.list("Variable",FALSE));
-printData(Cable2.list("Variable",FALSE));
-printData(Cable3.list("Variable",FALSE));
+saveOpPoints("DES");
+
+saveOpPoints("DONE");
+//system( "start python Map_plotting\mapplot_V27.py" );
+
+//#include "print_macros.fnc"
+// printData(Cable1.list("Variable",FALSE));
+// printData(Cable2.list("Variable",FALSE));
+// printData(Cable3.list("Variable",FALSE));
+//printData(Breaker1.list("Variable",FALSE));
 
 csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
 csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
@@ -102,6 +169,7 @@ cout << "Turbine_Shaft.pwrIn = "    <<  Turbine_Shaft.pwrIn*0.746 << endl;
 cout << "Turbine_Shaft.pwrOut = "   <<  Turbine_Shaft.pwrOut*0.746 << endl;
 cout << "Turbine_Shaft.pwrNet = "   <<  Turbine_Shaft.pwrNet*0.746 << endl;
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+cout << "Turbine PR " << Turb.PR << " Nozzle Thrust " << Noz.Fg << endl;
 cout << endl;
 
 
@@ -115,6 +183,7 @@ real Turb_speed = Turb.Np;
 Off design
 ************************/
 
+//solver.solutionMode = "ONE_PASS";
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
@@ -124,7 +193,7 @@ Independent ind_AtmW{
 
 Dependent corr_speed{
   //eq_lhs = "Turb_speed";
-  eq_lhs = "84.";
+  eq_lhs = "82.";
   eq_rhs = "Turb.Np";
 }
 
@@ -139,7 +208,7 @@ solver.maxIterations = 10000;
 
 // Run something like a power hook, start at design power, then drop it down to
 // a little less than half power and see how efficiencies, P_out/P_in change
-for (CASE = 1 ; CASE < 13; CASE++)
+for (CASE = 1 ; CASE < 12; CASE++)
 {
 	run();
 
@@ -158,7 +227,7 @@ for (CASE = 1 ; CASE < 13; CASE++)
 	cout << endl;
 	page.display();  // output data to out file
 
-	Prop.pwr *= 0.90000001;
+	Prop.pwr *= 0.9;
 }
 
 //page_runtime.display(); // output data to cmd window
