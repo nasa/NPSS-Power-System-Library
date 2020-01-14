@@ -162,7 +162,7 @@ class ElectricPort extends Subelement {
 		//--------------------------------------------------------------------
 		if (ElectricPowerType == "DC" ){	
 			if ( VjRMS!=0. || IjRMS!=0. ){
-				ESOreport(ESO_Id_ImagInDC, refport + " contains imaginary components.", 1);
+				ESOreport(ESO_Id_ImagInDC, refport + "contains imaginary components.", 1);
 			}
 		}
 		
