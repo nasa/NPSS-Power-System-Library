@@ -25,13 +25,11 @@ fine, imprisonment, or both.
 
 class Enode extends Element{
 	
-	
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
 	
 	// FLUID PORTS
-	
 	
 	// FUEL PORTS
 	
@@ -150,23 +148,21 @@ class Enode extends Element{
 		//  solver will drive to zero
 		//----------------------------------------------------------
 		Inet.setrj( 0., 0. );
+
 		int i;
-		for (i=0; i<ElectricPorts.entries(); i = i + 1) {
-			
-			
+		for (i = 0; i < ElectricPorts.entries(); i++) {
+
 			string Iname;
 			
-			if ( ElectricPorts[i]->hasInterface( "ElectricInputPort" )){
-				Iname =ElectricPorts[i]+".I"; 
-			    Inet.plus( Iname );			    
+			if (ElectricPorts[i]->hasInterface("ElectricInputPort")){
+				Iname = ElectricPorts[i]+".I"; 
+			    Inet.plus(Iname);			    
 			}
-			if ( ElectricPorts[i]->hasInterface( "ElectricOutputPort" )){
-				Iname =ElectricPorts[i]+".I";
-				Inet.minus( Iname );
+			if (ElectricPorts[i]->hasInterface("ElectricOutputPort")){
+				Iname = ElectricPorts[i]+".I";
+				Inet.minus(Iname);
 			}
-			
 		}
-	
 	}
     
 	//------------------------------------------------------------
@@ -178,11 +174,10 @@ class Enode extends Element{
 		// push the voltage from the solver out to the ports
 		//---------------------------------------------------
         int i;		
-		for (i=0; i<ElectricPorts.entries(); i = i + 1) {
-			ElectricPorts[i]->frequency= frequency;	
+		for (i = 0; i < ElectricPorts.entries(); i++) {
+			ElectricPorts[i]->frequency = frequency;	
 			ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
 		}
-		
 	}
 	
 	// -------------------------------------------------------------
@@ -192,14 +187,9 @@ class Enode extends Element{
 		//------------------------------------------------------------    
 		// allow for the creation of ports at run time
 		//------------------------------------------------------------
-		if ( name->hasInterface( "ElectricPort" )) {
+		if (name->hasInterface("ElectricPort")) {
 			ElectricPorts.append(name);
 		}
-		
 	}
-	
 }
-
-
 #endif
-

@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __CABLE__
+#define __CABLE__
+
 //#include <InterpIncludes.ncp>
 class Cable extends Element {
 	
@@ -194,3 +197,4 @@ class Cable extends Element {
 		}		
 	}
 }
+#endif

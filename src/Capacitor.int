@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __CAPACITOR__
+#define __CAPACITOR__
+
 //#include <InterpIncludes.ncp>
 class Capacitor extends Element {
 	
@@ -67,3 +70,4 @@ class Capacitor extends Element {
 	}
 	
 }
+#endif

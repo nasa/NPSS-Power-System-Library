@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __BREAKER__
+#define __BREAKER__
+
 //#include <InterpIncludes.ncp>
 class Breaker extends Element {
 	
@@ -330,3 +333,4 @@ class Breaker extends Element {
 			
 	}
 }
+#endif

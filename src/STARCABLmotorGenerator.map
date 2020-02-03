@@ -3,7 +3,7 @@
 //  |    that is of the type: MotorGeneratorMap
 //  ----------------------------------------------------------------------
 //#include<MotorGeneratorMap.c>
-Subelement MotorGeneratorMap S_map{
+Subelement MotorGeneratorMap S_map {
 
     // default design point location
     NmapDes = .5;

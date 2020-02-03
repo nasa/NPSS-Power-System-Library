@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __RESISTOR__
+#define __RESISTOR__
+
 //#include <InterpIncludes.ncp>
 class Resistor extends Element {
 	
@@ -66,3 +69,4 @@ class Resistor extends Element {
 	}
 	
 }
+#endif

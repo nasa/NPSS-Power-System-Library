@@ -6,6 +6,9 @@
 // * March 18, 2019
 // ****************************************************************************
 
+#ifndef __RECTIFIER__
+#define __RECTIFIER__
+
 //#include <InterpIncludes.ncp>
 class Rectifier extends Element {
 	
@@ -262,9 +265,9 @@ class Rectifier extends Element {
 	// ******* PREPASS FUNCTION *******
 	//------------------------------------------------------------
 	void prePass() {	
+		EP_I.frequency = frequency;
 		EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
 		EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, EP_I.V.mag * 3 * sqrt(2) / PI, 0);
 	}
 }
-
-
+#endif

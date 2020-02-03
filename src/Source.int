@@ -6,6 +6,9 @@
 // * December 23, 2019
 // ****************************************************************************
 
+#ifndef __SOURCE__
+#define __SOURCE__
+
 class Source extends Element {
     
     //------------------------------------------------------------
@@ -241,8 +244,9 @@ class Source extends Element {
     // end calculation section
 
     void prePass(){
-        EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vreal, Vimag );
         EP_O.frequency = frequency;
+        EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
     }
 
 }
+#endif

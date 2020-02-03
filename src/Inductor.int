@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __INDUCTOR__
+#define __INDUCTOR__
+
 //#include <InterpIncludes.ncp>
 class Inductor extends Element {
 	
@@ -63,3 +66,4 @@ class Inductor extends Element {
 	}
 	
 }
+#endif

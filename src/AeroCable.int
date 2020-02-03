@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __AEROCABLE__
+#define __AEROCABLE__
+
 //#include <InterpIncludes.ncp>
 class AeroCable extends Element {
     
@@ -315,7 +318,7 @@ class AeroCable extends Element {
             if (frequency != 680) {
                 if (frequency != 800) {
                     cerr << "Incompatible frequency = ";
-                    cerr << frequency<< endl;
+                    cerr << frequency << endl;
                     cerr << "Voltage in = " << EP_I.V.mag << endl;
                     cerr << "Voltage out = " << EP_O.V.mag << endl;
                 }
@@ -643,3 +646,4 @@ class AeroCable extends Element {
         
     }
 }
+#endif

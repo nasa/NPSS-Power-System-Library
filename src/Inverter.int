@@ -181,7 +181,6 @@ class Inverter extends Element {
 		autoSetup=TRUE;
 	}
 	
-	
 	Dependent dep_phase{
 		eq_rhs="0";
 		eq_lhs="EP_O.V.phaseDeg";
@@ -220,6 +219,7 @@ class Inverter extends Element {
 			// Handle case guessed design power is zero.
 			if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
 			pwrDes = pwrOut;
+
 			
 			// Compute mass based on assumed specific power.  Both Mass
 			// and loses are based on output power (Power Sent)
@@ -265,9 +265,5 @@ class Inverter extends Element {
 		EP_O.frequency = frequency;
 		EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
 		EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, EP_O.V.mag * sqrt(2),0);
-		
-		
 	}
 }
-
-

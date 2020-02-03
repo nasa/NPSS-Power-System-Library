@@ -1,4 +1,7 @@
 
+#ifndef __COMPLEXNUMBER__
+#define	__COMPLEXNUMBER__
+
 class ComplexNumber extends VariableContainer {
 	
 	description = "Complex Number Object";
@@ -262,3 +265,4 @@ class ComplexNumber extends VariableContainer {
     }
     
 }
+#endif

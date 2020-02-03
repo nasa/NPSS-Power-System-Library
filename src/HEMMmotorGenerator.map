@@ -6,8 +6,8 @@
 Subelement MotorGeneratorMap S_map{
 
     // default design point location
-    NmapDes = 1.0;
-    trqMapDes = 1.0;
+    NmapDes = 0.5;
+    trqMapDes = 0.488;
 
     // resulting performance
     //effMap = 

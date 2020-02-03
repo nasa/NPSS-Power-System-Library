@@ -6,6 +6,9 @@
 // * December 23, 2019
 // ****************************************************************************
 
+#ifndef __CONSTANTPOWERLOAD__
+#define __CONSTANTPOWERLOAD__
+
 class ConstantPowerLoad extends Element {
 	
 	//------------------------------------------------------------
@@ -205,9 +208,10 @@ class ConstantPowerLoad extends Element {
 	}
 	// end calculation section
 
-	void prePass(){
-		EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
+	void prePass() {
 		EP_I.frequency = frequency;
+		EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
 	}
 
 }
+#endif

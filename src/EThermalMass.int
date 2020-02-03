@@ -107,7 +107,9 @@ background = "";
   Integrator integ_T {
     stateName = "T";
     derivativeName = "dTqdt";
+    // eq_lhs = "Q_in";
     eq_lhs = "Q_heat";
+    // eq_rhs = "Q_out";
     eq_rhs = "Q_I.HeatTransferRate";
     tolerance = 0.01;
     autoSetup = TRUE;
@@ -203,5 +205,4 @@ void variableChanged( string name, any oldVal )
         //cout << "Cp = " << Cp << endl;
   }
 }
-
 #endif

@@ -6,6 +6,9 @@
 // * February 14, 2019
 // ****************************************************************************
 
+#ifndef __BASICLOAD__
+#define __BASICLOAD__
+
 class BasicLoad extends Element {
 	
 	//------------------------------------------------------------
@@ -63,3 +66,4 @@ class BasicLoad extends Element {
 		EP_O.frequency=EP_I.frequency;		
 	}
 }
+#endif

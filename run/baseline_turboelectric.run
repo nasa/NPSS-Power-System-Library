@@ -232,4 +232,3 @@ for (CASE = 1 ; CASE < 12; CASE++)
 
 //page_runtime.display(); // output data to cmd window
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
-

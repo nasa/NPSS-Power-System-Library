@@ -161,6 +161,4 @@ class InverterRectifierMap extends Subelement{
 
     } // end of calculations
 } // end of MotorGeneratorMap subelement class
-
 #endif
-

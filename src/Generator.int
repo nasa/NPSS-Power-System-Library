@@ -6,6 +6,9 @@
 // * April 26, 2018
 // ****************************************************************************
 
+#ifndef __GENERATOR__
+#define __GENERATOR__
+
 //#include <InterpIncludes.ncp>
 class Generator extends Element {
 	
@@ -196,11 +199,13 @@ class Generator extends Element {
 	Independent ind_trqTemp {
 		varName = "trqTemp";
 		description = "Varies temporary torque to match calculated torque for map";
+		autoSetup = FALSE;
 	}
 
 	Dependent dep_trq_map {
 		eq_lhs = "trqTemp";
 		eq_rhs = "trq";
+		autoSetup = FALSE;
 	}
 
 	//------------------------------------------------------------
@@ -305,12 +310,9 @@ class Generator extends Element {
         }
 	}
 	void prePass(){
-		
-		//real Vbus = Vbus_LL / sqrt(3.);
 		EP_O.frequency = frequency;
-		EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vbus_LL, 0. );
+		EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
 	}
 	
 }
-
-
+#endif

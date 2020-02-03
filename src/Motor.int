@@ -9,6 +9,9 @@
 //  
 // ****************************************************************************
 
+#ifndef __MOTOR__
+#define __MOTOR__
+
 //#include <InterpIncludes.ncp>
 //#include "ElectricPort.prt"
 
@@ -223,15 +226,17 @@ class Motor extends Element {
 	Independent ind_trqTemp {
 		varName = "trqTemp";
 		description = "Varies temporary torque to match calculated torque for map";
+		autoSetup = FALSE;
 	}
 
 	Dependent dep_trq_map {
 		eq_lhs = "trqTemp";
 		eq_rhs = "trq";
+		autoSetup = FALSE;
 	}
 
     Dependent dep_phase_angle{
-        eq_rhs="EP_I.I.phaseDeg";
+        eq_rhs="EP_I.I.j";
         eq_lhs="CurrentAngle_Demand";
         autoSetup=TRUE;
     }
@@ -342,11 +347,10 @@ class Motor extends Element {
 	
 	// end calculation section
 	void prePass(){
-		
-		EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
 		EP_I.frequency = frequency;
-		
+		EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
 	}
 	
 	
 } // end the Motor element class
+#endif

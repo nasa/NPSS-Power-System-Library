@@ -21,7 +21,6 @@ cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
 
-
 /**************************
 Electric Power System Components
 **************************/
