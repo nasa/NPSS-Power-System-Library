@@ -1,10 +1,16 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
-// * December 23, 2019
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     Source.int										           |
+ | Date(s):       December 2019                                                |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __SOURCE__
 #define __SOURCE__

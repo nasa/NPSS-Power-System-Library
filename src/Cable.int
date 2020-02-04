@@ -1,20 +1,25 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * Jeffrey Csank, David Sadey, Tom Lavelle
-// * April 26, 2018
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     Cable.int                                                    |
+ | Date(s):       April 2018                                                   |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle       			   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __CABLE__
 #define __CABLE__
 
-//#include <InterpIncludes.ncp>
 class Cable extends Element {
 	
-	//------------------------------------------------------------
-	//     ******* DOCUMENTATION *******
-	//------------------------------------------------------------
+    //------------------------------
+    // ****** DOCUMENTATION ********
+    //------------------------------  
 	
 	title = "";
 	
@@ -24,44 +29,44 @@ class Cable extends Element {
 	
 	background = "";
 	
-	//------------------------------------------------------------
-	//     ******* SETUP VARIABLES ********
-	//------------------------------------------------------------
+    //--------------------------------
+    // ****** SETUP VARIABLES ********
+    //--------------------------------
 	
-	real R{
-		value = .01;  IOstatus = "input";  //units = OHM;
+	real R {
+		value = .01;  IOstatus = "input";  // [ohms]
 	}
     
-	real L{
-		value = .0000796;  IOstatus = "input";  //units = H_PER_FT;
+	real L {
+		value = .0000796;  IOstatus = "input";  // [henry / ft]
 	}
     
-    real length{
-		value = 1.;  IOstatus = "input";  //units = M;
+    real length {
+		value = 1.;  IOstatus = "input";  // [meters]
 	}
 
 	real Loss_j {
-		value = 0; IOstatus="output"; //units=W;
+		value = 0; IOstatus="output"; // [watts]
 		description = "Cable Loss";
 	}
 
 	real Loss_r {
-		value = 0; IOstatus="output"; //units=W;
+		value = 0; IOstatus="output"; // [watts]
 		description = "Cable Loss";
 	}
 
     real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus="output"; // [watts]
         description = "Power dissipation at current time";
     }
 
 	real Mass {
-		value=0; IOstatus="output"; //units=KG;
+		value = 0; IOstatus = "output"; // [kilograms]
 		description = "Mass output of the cable";
 	}
 	
 	real SpecificAmperage {
-	value = 170.; IOstatus="input"; //units=amp * m / kg;
+	value = 170.; IOstatus = "input"; // [A * m / kg]
 	description = "Amps to Weight/length ratio for the cable";
 	}
 
@@ -74,62 +79,48 @@ class Cable extends Element {
 	//------------------------------------------------------------
 
 	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
+		allowedValues = { "DESIGN", "OFFDESIGN" }
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger=FALSE;
+		trigger = FALSE;
 	}
     Option switchThermPort {
-    	allowedValues = { "TRUE", "FALSE" };
-        //value = "FALSE";
+    	allowedValues = { "TRUE", "FALSE" }
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
+        trigger = TRUE;
     }
 	
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------	
-	// FLUID PORTS
-
-	// FUEL PORTS
-
-	// BLEED PORTS
-
-	// THERMAL PORTS
 
 	// 	ELECTRICAL PORTS
 
 	ElectricOutputPort EP_O {
 		description = "Electric port";
 	}
-	string EPortRef;
-	
+
 	ElectricInputPort EP_I {
 		description = "Electric Port";
 	}
 
-	//MECHANICAL PORTS
-
-	// FLOW STATIONS 
-
 	// SOCKETS
+
     Socket S_eThermMass {
-		allowedValues = { "Q_heat", "Mass" };
+		allowedValues = { "Q_heat", "Mass" }
 		description = "Thermal mass socket";
 		socketType = "EThermalMass";
     }
 
-	// TABLES
+    //---------------------------------------------
+    // ******* VARIABLE CHANGED METHODOLOGY *******
+    //---------------------------------------------
 
-	//------------------------------------------------------------
-	// ******* VARIABLE CHANGED METHODOLOGY *******
-	//------------------------------------------------------------
-
-	void variableChanged( string name, any oldVal ) {
-		if ( name == "switchThermPort" ){ 
-			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalInputPort", "Q_I" );
+	void variableChanged(string name, any oldVal) {
+		if (name == "switchThermPort") { 
+			if (switchThermPort == "TRUE") {
+				create("", "ThermalInputPort", "Q_I");
 			}
 		}
 		if (name =="switchDes") {
@@ -146,54 +137,44 @@ class Cable extends Element {
 				SpecificAmperage.IOstatus = OUTPUT;
 			}
 		}
-	} // end variableChanged()
+	}
 
-	//------------------------------------------------------------
-	//   ******* PERFORM ENGINEERING CALCULATIONS *******
-	//------------------------------------------------------------
+    //---------------------------------------------------
+    //   ******* PERFORM ENGINEERING CALCULATIONS *******
+    //---------------------------------------------------
 	
 	void calculate() {
 		
-		//-------------------------------------------------------
 		// calculate current from voltage drop
-		//-------------------------------------------------------
+		Z.setrj(R,  L * (2*PI*EP_I.frequency));
 		
-		Z.setrj( R,  L*(2*PI*EP_I.frequency) );
-		
-		dV.copy( "EP_I.VLN" );
-		dV.minus( "EP_O.VLN" );	
-		I.copy( "dV" );
-	    I.div( "Z" );
+		dV.copy("EP_I.VLN");
+		dV.minus("EP_O.VLN");	
+		I.copy("dV");
+	    I.div("Z");
 
-	    //----------------------------------------------------------
 	    // set the conditions in the port
-	    //-----------------------------------------------------------
-		EP_O.frequency=EP_I.frequency;
-		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 
-		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 		
+		EP_O.frequency = EP_I.frequency;
+		EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS); 
+		EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS); 		
 		
         Loss_r = EP_I.S.r - EP_O.S.r;
         Loss_j = EP_I.S.j - EP_O.S.j;
 
-        if (switchThermPort=="TRUE"){
+        if (switchThermPort == "TRUE") {
             real KW_PER_BTU_PER_SEC = 1.05505585;
             Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
             Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
+            // run the thermal mass model
+            if (!S_eThermMass.isEmpty()) {
               S_eThermMass.execute();
             }
         }
 		
-		//Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
-		if (switchDes=="DESIGN"){
-			/***************************
-			On-Design
-			in on design, calculate the mass of the cable
-			***************************/
-			Mass=EP_I.I.mag/SpecificAmperage*length*3;
+		// Loss = 3 * EP_I.I.mag * (EP_I.V.mag - Vload) / 1000.;
+        // on-design
+		if (switchDes == "DESIGN") {
+			Mass = EP_I.I.mag / SpecificAmperage * length * 3; // calculate the mass of the cable
 		}		
 	}
 }

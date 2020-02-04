@@ -1,12 +1,20 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * Jeffrey Csank, David Sadey, Tom Lavelle
-// * March 18, 2019
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     Inverter.int                                                 |
+ | Date(s):       March 2019	                                               |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
-//#include <InterpIncludes.ncp>
+#ifndef __INVERTER__
+#define __INVERTER__
+
 class Inverter extends Element {
 	
 	//------------------------------------------------------------
@@ -267,3 +275,4 @@ class Inverter extends Element {
 		EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, EP_O.V.mag * sqrt(2),0);
 	}
 }
+#endif

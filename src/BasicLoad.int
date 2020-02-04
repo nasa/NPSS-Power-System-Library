@@ -1,19 +1,25 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * Jeffrey Csank, David Sadey, Tom Lavelle
-// * February 14, 2019
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     BasicLoad.int                                                |
+ | Date(s):       February 2019                                                |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle       			   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __BASICLOAD__
 #define __BASICLOAD__
 
 class BasicLoad extends Element {
 	
-	//------------------------------------------------------------
-	//     ******* DOCUMENTATION *******
-	//------------------------------------------------------------
+    //------------------------------
+    // ****** DOCUMENTATION ********
+    //------------------------------  
 	
 	title = "";
 	
@@ -23,9 +29,10 @@ class BasicLoad extends Element {
 	
 	background = "";
 	
-	//------------------------------------------------------------
-	//     ******* SETUP VARIABLES ********
-	//------------------------------------------------------------	
+    //--------------------------------
+    // ****** SETUP VARIABLES ********
+    //--------------------------------
+
 	ComplexNumber dV;
 	ComplexNumber Z;
 	ComplexNumber I;
@@ -33,9 +40,11 @@ class BasicLoad extends Element {
 	//------------------------------------------------------------
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------	
+
 	ElectricOutputPort EP_O {
 		description = "Electric port";
 	}
+	
 	string EPortRef;
 	
 	ElectricInputPort EP_I {
@@ -46,24 +55,24 @@ class BasicLoad extends Element {
 		allowedValues = { "DESIGN", "OFFDESIGN" } ;
 		description = "Determines if the element is in design or off-design mode";
 		rewritableValues = FALSE;
-		trigger=FALSE;
+		trigger = FALSE;
 	}
 	
 	void calculate() {		
-		//-------------------------------------------------------
+		//------------------------------------
 		// calculate current from voltage drop
-		//-------------------------------------------------------
-		dV.copy( "EP_I.VLN" );
-		dV.minus( "EP_O.VLN" );
-		I.copy( "dV" );
-	    I.div( "Z" );
+		//------------------------------------
+		dV.copy("EP_I.VLN");
+		dV.minus("EP_O.VLN");
+		I.copy("dV");
+	    I.div("Z");
 		
-		  //----------------------------------------------------------
+		//-------------------------------
 	    // set the conditions in the port
-	    //-----------------------------------------------------------
-		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
-		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 			
-		EP_O.frequency=EP_I.frequency;		
+	    //-------------------------------
+		EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS); 	
+		EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS); 			
+		EP_O.frequency = EP_I.frequency;		
 	}
 }
 #endif

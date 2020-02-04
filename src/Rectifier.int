@@ -1,10 +1,16 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * Jeffrey Csank, David Sadey, Tom Lavelle
-// * March 18, 2019
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     Rectifier.int										           |
+ | Date(s):       March 2019                                                   |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __RECTIFIER__
 #define __RECTIFIER__

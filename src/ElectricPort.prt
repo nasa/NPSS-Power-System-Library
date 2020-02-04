@@ -1,3 +1,17 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     ElectricPort.prt											   |
+ | Date(s):       December 2019                                                |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
 #ifndef __ELECTRICPORT__
 #define __ELECTRICPORT__
 

@@ -1,20 +1,25 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
-// * April 26, 2018
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     AeroCable.int                                                |
+ | Date(s):       April 2018                                                   |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __AEROCABLE__
 #define __AEROCABLE__
 
-//#include <InterpIncludes.ncp>
 class AeroCable extends Element {
-    
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
+
+    //------------------------------
+    // ****** DOCUMENTATION ********
+    //------------------------------  
     
     title = "";
     
@@ -24,67 +29,67 @@ class AeroCable extends Element {
     
     background = "";
     
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
+    //--------------------------------
+    // ****** SETUP VARIABLES ********
+    //--------------------------------
     
-    real R{
-        value = .01;  IOstatus = "input";  //units = OHM;
+    real R {
+        value = .01;  IOstatus = "input";  // [ohms]
     }
     
-    real L{
-        value = .0000796;  IOstatus = "input";  //units = H;
+    real L {
+        value = .0000796;  IOstatus = "input";  // [henrys]
     }
     
-    real length{
-        value = 1.;  IOstatus = "input";  //units = M;
+    real length {
+        value = 1.;  IOstatus = "input";  // [meters]
     }
 
     // Will add losses in future releases.
     real Loss_j {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus = "output"; // [watts]
         description = "Cable Loss";
     }
 
     real Loss_r {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus = "output"; // [watts]
         description = "Cable Loss";
     }
 
     real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus = "output"; // [watts]
         description = "Power dissipation at current time";
     }
 
     real Mass {
-        value=1; IOstatus="output"; //units=KG;
+        value = 1; IOstatus = "output"; // [kilograms]
         description = "Mass output of the cable";
     }
     
     real SpecificAmperage {
-        value = 170.; IOstatus="input"; //units=amp * m / kg;
+        value = 170.; IOstatus = "input"; // [A * m / kg]
         description = "Amps to Weight/length ratio for the cable";
     }
 
     real frequency {
-        value = 400; IOstatus="input"; //units=HZ;
+        value = 400; IOstatus = "input"; // [hertz]
         description = "Frequency of AC current in cable";
     }
     
     real Ireal {
-        value = 100; IOstatus="input"; //units=amps;
+        value = 100; IOstatus = "input"; // [amps]
         description = "Guess value for real current component in cable";
     }
     real Iimag {
-        value = 0; IOstatus="input"; //units=amps;
+        value = 0; IOstatus = "input"; // [amps]
         description = "Guess value for imaginary current component in cable";
     }
     real Vreal_drop {
-        value = 0; IOstatus="output"; //units=amps;
+        value = 0; IOstatus = "output"; // [amps] (??)
         description = "Voltage dropped across cable given operating current";
     }
     real Vimag_drop {
-        value = 0; IOstatus="output"; //units=amps;
+        value = 0; IOstatus = "output"; // [amps] (??)
         description = "Imaginary component of voltage dropped across cable, given operating current";
     }
     
@@ -93,97 +98,86 @@ class AeroCable extends Element {
     ComplexNumber I;
     
     int n_phases {
-        value = 3; IOstatus="input"; //units=none;
+        value = 3; IOstatus = "input";
         description = "Number of electrical phase currents carried by this cable (cable assembly)";
     }
     
     int n_parallel {
-        value = 6; IOstatus="input"; //units=none;
+        value = 6; IOstatus = "input";
         description = "Constraint: max allowed number of parallel wires to make the cable";
     }
     
     real drop_tolerance {
-        value = 5.; IOstatus="input"; //units=none;
+        value = 5.; IOstatus = "input";
         description = "Constraint: max voltage allowed to drop across cable, as a percentage of input voltage";
     }
     
     string cable_size {
-        value = ""; IOstatus="output";
+        value = ""; IOstatus = "output";
         description = "Cable size in AWG or kcmil";
     }
     
     real paralleled {
-        value = 1.; IOstatus="output"; //units=none;
+        value = 1.; IOstatus = "output";
         description = "Number of wires paralleled to make this cable";
     }
     
     real ampacity {
-        value = 1000.; IOstatus="output"; //units=amp;
+        value = 1000.; IOstatus = "output"; // [amps]
         description = "Current carrying capacity for this cable solution";
     }
     
     int params_test {
-        value = 0; IOstatus="output"; //units=none;
+        value = 0; IOstatus = "output";
         description = "Error flag for the sizing tool";
     }
     
     
-    //------------------------------------------------------------
+    //----------------------------------------
     //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
+    //----------------------------------------
 
     Option switchDes {
-        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        allowedValues = { "DESIGN", "OFFDESIGN" }
         description = "Determines if the element is in design or off-design mode";
         rewritableValues = FALSE;
-        trigger=TRUE;
+        trigger = TRUE;
     }
+
     Option switchThermPort {
-    	allowedValues = { "TRUE", "FALSE" };
-        //value = "FALSE";
+    	allowedValues = { "TRUE", "FALSE" }
     	description = "Determines if component needs thermal port";
     	rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
+        trigger = TRUE;
     }
     
     
     //------------------------------------------------------------
     // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
     //------------------------------------------------------------  
-    // FLUID PORTS
-
-    // FUEL PORTS
-
-    // BLEED PORTS
-
-    // THERMAL PORTS
 
     // ELECTRICAL PORTS
 
     ElectricOutputPort EP_O {
-        description = "Electric port";
+        description = "Electric output port";
     }
     
     ElectricInputPort EP_I {
-        description = "Electric Port";
+        description = "Electric input port";
     }
 
-    // MECHANICAL PORTS
-
-    // FLOW STATIONS 
-
     // SOCKETS
+
     Socket S_eThermMass {
-		allowedValues = { "Q_heat", "Mass" };
+		allowedValues = { "Q_heat", "Mass" }
 		description = "Thermal mass socket";
 		socketType = "EThermalMass";
     }
 
-    // TABLES
-
-    //------------------------------------------------------------
+    //------------------------------------------------------
     //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
+    //------------------------------------------------------
+    
     Independent ind_Ireal { 
         varName = "Ireal"; 
         autoSetup = TRUE;   // Only set up for on-design to help size cable.
@@ -200,25 +194,26 @@ class AeroCable extends Element {
 
     Dependent dep_Vreal_err {
         eq_lhs = "EP_I.VLN.r";
-        eq_rhs = "EP_O.VLN.r+Vreal_drop";
+        eq_rhs = "EP_O.VLN.r + Vreal_drop";
         autoSetup = TRUE;   // Only set up for on-design to help size cable.
     }
+
     Dependent dep_Vimag_err {
         eq_lhs = "EP_I.VLN.j";
-        eq_rhs = "EP_O.VLN.j+Vimag_drop";
+        eq_rhs = "EP_O.VLN.j + Vimag_drop";
         autoSetup = TRUE;   // Only set up for on-design to help size cable.
     }
     
-    //------------------------------------------------------------
+    //---------------------------------------------
     // ******* VARIABLE CHANGED METHODOLOGY *******
-    //------------------------------------------------------------
+    //---------------------------------------------
 
-    void variableChanged( string name, any oldVal ) {
+    void variableChanged(string name, any oldVal) {
 
 		// if the value of switchDes or switchThermPort change...
-		if ( name == "switchThermPort" ){ 
-			if ( switchThermPort == "TRUE" ){
-				create("", "ThermalInputPort", "Q_I" );
+		if (name == "switchThermPort") { 
+			if (switchThermPort == "TRUE") {
+				create("", "ThermalInputPort", "Q_I");
 			}
 		}
         if (name =="switchDes") {
@@ -248,15 +243,15 @@ class AeroCable extends Element {
                 SpecificAmperage.IOstatus = "output";
             }
         }
-    } // end variableChanged()
+    }
     
-    //------------------------------------------------------------
+    //--------------------------------------------
     //   ******* CABLE SIZING CALCULATIONS *******
-    //------------------------------------------------------------
+    //--------------------------------------------
     
-    //---------------------------------
+    //--------------------------
     // AC Cable metrics function
-    //---------------------------------
+    //--------------------------
     void ac_cable_metrics()
     {
         // Set cable parameters 
@@ -265,17 +260,20 @@ class AeroCable extends Element {
             "8 Gauge","6 Gauge","4 Gauge","2 Gauge","1 Gauge","1/0","2/0","3/0",
             "4/0","262 kcmil","313 kcmil","373 kcmil","444 kcmil","535 kcmil",
             "646 kcmil","777 kcmil","1111 kcmil"};
+            
         // Cable Mass [kg/m]
         real cable_mass[] = {0.047621, 0.050598, 0.065479, 0.078873, 0.101195, 0.142864,
                              0.193461, 0.312514, 0.467283, 0.584848, 0.721759, 0.886945,
                              1.055107, 1.244104, 1.510485, 1.753056, 2.083428, 2.461421,
                              2.983766, 3.494206, 4.031433, 5.900565};
+                             
         // Cable reactance [ohms/m]
         real cable_reactances[] = {0.000213, 0.000203, 0.000187, 0.000174, 0.000164,
                                    0.000157, 0.000148, 0.000128, 0.000121, 0.000118,
                                    0.000115, 0.000112, 0.000112, 0.000108, 0.000112,
                                    0.000108, 0.000105, 0.000102, 0.000102, 0.000102,
                                    0.000098, 0.000098};
+
         // 400 Hz characteristics -> Resistance [ohms/m]
         real cable_ampacities_400[] = {17, 25, 40, 48, 62, 77, 103,136,179,204,236,
                                        268,299,337,377,406,443,485,522,557,614,698};
@@ -285,6 +283,7 @@ class AeroCable extends Element {
                                           0.000280, 0.000241, 0.000216, 0.000195,
                                           0.000177, 0.000167, 0.000156, 0.000143,
                                           0.000129, 0.000108};
+
         // 680 Hz characteristics
         real cable_ampacities_680[] = {17, 25, 40, 48, 62, 77, 102,135,175,198,225,
                                        252,276,306,340,363,395,432,466,498,550,627};
@@ -294,6 +293,7 @@ class AeroCable extends Element {
                                           0.000328, 0.000292, 0.000266, 0.000244,
                                           0.000223, 0.000211, 0.000196, 0.000179,
                                           0.000161, 0.000134};
+
         // 800 Hz characteristics
         real cable_ampacities_800[] = {17, 25, 40, 48, 62, 77, 102,135,173,195,221,
                                        246,268,296,328,350,381,418,451,482,532,606};
@@ -313,6 +313,7 @@ class AeroCable extends Element {
         cable_resistivities.append(cable_resistivities_400);
         cable_resistivities.append(cable_resistivities_680);
         cable_resistivities.append(cable_resistivities_800);
+
         // Perform error check on input data
         if (frequency != 400) {
             if (frequency != 680) {
@@ -324,6 +325,7 @@ class AeroCable extends Element {
                 }
             }
         }
+
         // Determine number of lines
         real lines;
         if (n_phases == 1) {
@@ -397,7 +399,7 @@ class AeroCable extends Element {
                     temp_current = cable_ampacities[row][index]*conductors;
                     
                     // Exit loop once compatible cable setup is found
-                    found=1;
+                    found = 1;
 
                     resistance = cable_resistivities[row][index]; // [ohms/m]
                     reactance = (frequency/60)*cable_reactances[index]; // [ohms/m]
@@ -411,9 +413,9 @@ class AeroCable extends Element {
                         // Check to see if cable setup is optimal
                         // This is an AC bus, so there may or may not be send & return lines multiplied
                         // by the number of paralleled conductors
-                        //if (percent > drop_tolerance) {
-                        //  index = index + 1;
-                        //}
+                        //  if (percent > drop_tolerance) {
+                        //    index = index + 1;
+                        //  }
                         if ((lines*cable_mass[index]*conductors*length) < Mass) {
                             // If optimal weight, then re-initialize weight, index, and
                             // number of paralleled conductors
@@ -427,7 +429,7 @@ class AeroCable extends Element {
                         }
                     }
                     else {
-                        index = index+1;  // Terminate loop
+                        index = index + 1;  // Terminate loop
                     }
                 }
             }
@@ -443,7 +445,7 @@ class AeroCable extends Element {
             
             // Bundled impedance
             impedance.setrj(resistance, reactance);
-            impedance.setMagPhase( impedance.mag*length/paralleled, impedance.phase );   // [ohms]
+            impedance.setMagPhase(impedance.mag*length/paralleled, impedance.phase);   // [ohms]
             voltage_drop.copy("current");
             voltage_drop.times("impedance");
             Mass = lines*cable_mass[optimal_wire]*length*paralleled;
@@ -454,9 +456,9 @@ class AeroCable extends Element {
         }
     }
     
-    //---------------------------------
+    //--------------------------
     // DC Cable metrics function
-    //---------------------------------
+    //--------------------------
     void dc_cable_metrics()
     {
         // Set cable parameters 
@@ -502,7 +504,7 @@ class AeroCable extends Element {
 					
         while (search_stop == 0) {
             found = 0;
-            while (found==0) {
+            while (found == 0) {
                 if (conductors > n_parallel) {
                     search_stop = 1;
                     found = 1;
@@ -528,7 +530,7 @@ class AeroCable extends Element {
                     temp_current = cable_ampacities[index-1]*conductors;
                     if (temp_current > current) {
                         // Exit loop once compatible cable setup is found
-                        found=1;
+                        found = 1;
                         
                         // Check to see if cable setup is optimal
                         // This is a DC bus, so there will be send & return lines multiplied
@@ -560,26 +562,27 @@ class AeroCable extends Element {
 		}
         // Initialize rest of output
         if (optimal_wire != 0) {
-            resistance = 2*cable_resistivities[optimal_wire-1]*length/paralleled;    // [ohms]
+            resistance = 2*cable_resistivities[optimal_wire-1] * length / paralleled;    // [ohms]
             cable_size = cable_sizes[optimal_wire-1];
-            voltage_drop = current*(2*cable_resistivities[optimal_wire-1]*length/paralleled); // ohms
-            Mass = 2*cable_mass[optimal_wire-1]*length*paralleled;
+            voltage_drop = current * (2*cable_resistivities[optimal_wire-1] * length / paralleled); // [ohms]
+            Mass = 2*cable_mass[optimal_wire-1] * length * paralleled;
 			
             R = resistance;
         }   
     }
 
-    //------------------------------------------------------------
+    //---------------------------------------------------
     //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
+    //---------------------------------------------------
     
     void calculate() {
         
 		// Get frequency from input port, propagate through to output port.
 		frequency = EP_I.frequency;
-        EP_O.frequency=EP_I.frequency;
+        EP_O.frequency = EP_I.frequency;
 		
-        if (switchDes=="DESIGN"){
+        // on-design
+        if (switchDes == "DESIGN") {
             // We don't know R/L yet, so need to guess something.
             // Solver should be set up to guess current so that the
             // observed output voltage matches input, minus the drop
@@ -594,56 +597,55 @@ class AeroCable extends Element {
 			}
             
             I.setrj(Ireal, Iimag);
-            Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+            Z.setrj(R, L * (2*PI*EP_I.frequency));
             
             // Calculate voltage drop = dV = IZ
-            dV.copy( "I" );
-            dV.times( "Z" );
-        }
-        else { // --- Off-Design ---
+            dV.copy("I");
+            dV.times("Z");
+        } else { // off-Design
                 
             // Get voltage across cable
-            dV.copy( "EP_I.VLN" );
-            dV.minus( "EP_O.VLN" );
+            dV.copy("EP_I.VLN");
+            dV.minus("EP_O.VLN");
         
-            //-------------------------------------------------------
+            //------------------------------------
             // calculate current from voltage drop
-            //-------------------------------------------------------
+            //------------------------------------
             
-            Z.setrj( R,  L*(2*PI*EP_I.frequency) );
+            Z.setrj(R,  L * (2*PI*EP_I.frequency));
             
-            I.copy( "dV" );
-            I.div( "Z" );
+            I.copy("dV");
+            I.div("Z");
         }
         
         // Calculate voltage drop that may be used in solver during on-design.
         Vreal_drop = dV.r;
         Vimag_drop = dV.j;
         
-        //----------------------------------------------------------
+        //--------------------------------
         // set the conditions in the ports
-        //-----------------------------------------------------------
-        EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS );
-        EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS );
+        //--------------------------------
+        EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
+        EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
         
         Loss_r = EP_I.S.r - EP_O.S.r;
         Loss_j = EP_I.S.j - EP_O.S.j;
 
-        if (switchThermPort=="TRUE"){
+        if (switchThermPort == "TRUE") {
             real KW_PER_BTU_PER_SEC = 1.05505585;
             Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
             Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
+
+            //---------------------------    
+            // run the thermal mass model
+            //---------------------------
+            if (!S_eThermMass.isEmpty()) {
               S_eThermMass.execute();
             }
         }
 
 		// TODO: Run this calculation past Dave
-		SpecificAmperage = ampacity*length/Mass;
-        
+		SpecificAmperage = ampacity * length / Mass;
     }
 }
 #endif

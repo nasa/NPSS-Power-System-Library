@@ -1,3 +1,16 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     ComplexNumber.int                                            |
+ | Date(s):       April 2018                                                   |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle       			   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __COMPLEXNUMBER__
 #define	__COMPLEXNUMBER__
@@ -5,8 +18,7 @@
 class ComplexNumber extends VariableContainer {
 	
 	description = "Complex Number Object";
-	background = "Author: Jesus Garcia (jesus2.garcia@ge.com)";
-	
+	background = "";
 	
 	string IOstatus {
 		value ="unset";  units = "none";
@@ -100,8 +112,7 @@ class ComplexNumber extends VariableContainer {
 		getFunction = "get_jPEAK";
 	}
 	
-	real get_jPEAK(){
-		//return _r/sqrt(2.);	
+	real get_jPEAK() {
 		return _j*sqrt(2);	
 	}
 	

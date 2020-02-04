@@ -9,7 +9,6 @@
 #ifndef __GENERATOR__
 #define __GENERATOR__
 
-//#include <InterpIncludes.ncp>
 class Generator extends Element {
 	
 	//------------------------------------------------------------
@@ -17,11 +16,8 @@ class Generator extends Element {
 	//------------------------------------------------------------
 	
 	title = "";
-	
 	description = isA() + " Determines power for a Generator";
-	
 	usageNotes = isA() + "- NOTE TO USERS: This file....";
-	
 	background = "";
 	
 	//------------------------------------------------------------
@@ -149,14 +145,6 @@ class Generator extends Element {
 	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
 	//------------------------------------------------------------
 
-	// FLUID PORTS
-
-	// FUEL PORTS
-
-	// BLEED PORTS
-
-	// THERMAL PORTS
-
 	// 	ELECTRICAL PORTS
 
 	ElectricPort EP_O {
@@ -169,15 +157,12 @@ class Generator extends Element {
 		description = "Mechanical connection to the turbine";
 	}
 
-	// FLOW STATIONS 
-
 	// SOCKETS
 
-	Socket S_map{
+	Socket S_map {
 		allowedValues = {"effBase"}
-		description = "Socket to calculate motor map performance";
-		//socketType = "MOTOR_GENERATOR_MAP";
-		socketType = "TURBINE_EFFICIENCY_MAP";
+		description = "Socket to calculate generator map performance";
+		socketType = "MotorGeneratorMap"; 
 	}
 
     Socket S_eThermMass {
@@ -186,51 +171,20 @@ class Generator extends Element {
 		socketType = "EThermalMass";
     }
 
-	// TABLES
-	
-	//------------------------------------------------------------
-	// ******* INTERNAL SOLVER SETUP *******
-	//------------------------------------------------------------
-
-	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-	//------------------------------------------------------------
-
-	Independent ind_trqTemp {
-		varName = "trqTemp";
-		description = "Varies temporary torque to match calculated torque for map";
-		autoSetup = FALSE;
-	}
-
-	Dependent dep_trq_map {
-		eq_lhs = "trqTemp";
-		eq_rhs = "trq";
-		autoSetup = FALSE;
-	}
-
-	//------------------------------------------------------------
+	//---------------------------------------------
 	// ******* VARIABLE CHANGED METHODOLOGY *******
-	//------------------------------------------------------------
+	//---------------------------------------------
 
-	void variableChanged( string name, any oldVal ) {
-		if ( name == "switchThermPort" ){ 
-			if ( switchThermPort == "TRUE" ){
+	void variableChanged(string name, any oldVal) {
+		if (name == "switchThermPort") { 
+			if (switchThermPort == "TRUE") {
 				create("", "ThermalInputPort", "Q_I" );
 			}
 		}
-		if (name =="switchDes") {
-			if (switchDes == DESIGN) {
-				ind_trqTemp.autoSetup = FALSE;
-				dep_trq_map.autoSetup = FALSE;
-			}
-			else if (switchDes == OFFDESIGN) {
-				effDes.IOstatus = "output";
-				ind_trqTemp.autoSetup = TRUE;
-				dep_trq_map.autoSetup = TRUE;
-			}
-		}
-	} // end variableChanged()
-	
+
+		if (name =="switchDes") {} // do nothing
+	}
+
 	//------------------------------------------------------------
 	//   ******* PERFORM ENGINEERING CALCULATIONS *******
 	//------------------------------------------------------------
@@ -243,10 +197,10 @@ class Generator extends Element {
 		Pout = EP_O.S.r;
 		Current = EP_O.I.mag;
 
-		if (switchDes == "DESIGN" ){
-			/****************************
-			On-design
-			****************************/
+		if (switchDes == "DESIGN"){
+            //----------
+            // On-design
+            //----------
 
 			eff = effDes;
 		
@@ -271,19 +225,16 @@ class Generator extends Element {
 			Mass = Pout / SpecificPower;
 		}
 
-		//set efficiency value
+		// set efficiency value
 		if(!S_map.isEmpty()){
 			S_map.execute();
-		}
-		else{
+		} else {
 			effBase = effDes;
 		}
 		eff = effBase;
 
-		if (switchDes == "OFFDESIGN" ){
-			/****************************
-			Off-design
-			****************************/
+		// Off-design
+		if (switchDes == "OFFDESIGN") { 
 			
 			// Supply power is load power + losses
 			Pin = Pout / eff;
@@ -304,7 +255,7 @@ class Generator extends Element {
             //------------------------------------------------------------    
             // Run the thermal mass model.
             //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
+            if (!S_eThermMass.isEmpty()) {
               S_eThermMass.execute();
             }
         }

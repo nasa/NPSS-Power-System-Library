@@ -1,25 +1,16 @@
-/*******************************************************************************
-© Copyright 2003. The U.S. Government, as Represented by the Administrator of
-the National Aeronautics and Space Administration (NASA). All rights reserved.
-Includes content licensed from the U.S. Government, National Aeronautics and
-Space Administration under United States Copyright Registration Numbers
-V3503D364 and V3482D344.
-© 2008-2013 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
-*******************************************************************************/
-
-/*******************************************************************************
-NPSS® software and related documentation is export controlled with an Export
-Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
-reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
-not be transferred to a country checked under anti-terrorism on the Commerce
-Country Chart structure or to foreign nationals of those countries in the U.S.
-or abroad without first obtaining a license from the Bureau of Industry and
-Security, United States Department of Commerce. Violations are punishable by
-fine, imprisonment, or both.
-*******************************************************************************/
-//
-// For further information contact support@wolverine-ventures.com
-//
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     EThermalMass.int                                             |
+ | Date(s):       February 2020                                                |
+ | Author(s):     George Thomas                                                |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __E_THERMAL_MASS__
 #define __E_THERMAL_MASS__

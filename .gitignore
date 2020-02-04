@@ -1,5 +1,5 @@
 *.lnk
 *.bad
-*.bat
 *.csv
-
+output/*
+Map_plotting/*.txt

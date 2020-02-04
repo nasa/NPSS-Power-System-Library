@@ -1,7 +1,21 @@
-//-----------------------------------------------------------------
-// interpreted link port
-// let the two ports know about each other
-//-----------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     InterpretedPort.int										   |
+ | Date(s):       October 2018	                                               |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ | Description:   Link port file to let ports know about each other.           |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __INTERPRETEDPORT__
+#define __INTERPRETEDPORT__
+
 void linkPortI( string E1, string E2 ){
 	E1->refport = E2;
 	E2->refport = E1;
@@ -84,5 +98,5 @@ void linkEports( string portName1, string portName2, string linkType ) {
 		*/
 		linkPortI( portName1, portName2 );
 	}
-	
 }
+#endif

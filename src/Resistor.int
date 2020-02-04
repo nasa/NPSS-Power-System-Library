@@ -1,10 +1,16 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * Jeffrey Csank, David Sadey, Tom Lavelle
-// * April 26, 2018
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
+ |                                                                             |
+ | File Name:     Resistor.int										           |
+ | Date(s):       April 2018                                                   |
+ | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 #ifndef __RESISTOR__
 #define __RESISTOR__

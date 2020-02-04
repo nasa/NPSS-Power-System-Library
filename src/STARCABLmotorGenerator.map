@@ -2,7 +2,46 @@
 //  |    Declaration of a new subelement instance MotorGeneratorMap
 //  |    that is of the type: MotorGeneratorMap
 //  ----------------------------------------------------------------------
-//#include<MotorGeneratorMap.c>
+
+//------------------------------------------------------------
+//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+//------------------------------------------------------------
+
+Independent ind_trqTemp {
+    varName = "trqTemp";
+    description = "Varies temporary torque to match calculated torque for map";
+    autoSetup = FALSE;
+}
+
+Dependent dep_trq_map {
+    eq_lhs = "trqTemp";
+    eq_rhs = "trq";
+    autoSetup = FALSE;
+}
+
+//---------------------------------------------
+// ******* VARIABLE CHANGED METHODOLOGY *******
+//---------------------------------------------
+
+void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") { 
+        if (switchThermPort == "TRUE") {
+            create("", "ThermalInputPort", "Q_I" );
+        }
+    }
+
+    if (name =="switchDes") {
+        if (switchDes == DESIGN) {
+            ind_trqTemp.autoSetup = FALSE;
+            dep_trq_map.autoSetup = FALSE;
+        } else if (switchDes == OFFDESIGN) {
+            effDes.IOstatus = "output";
+            ind_trqTemp.autoSetup = TRUE;
+            dep_trq_map.autoSetup = TRUE;
+        }
+    }
+}
+
 Subelement MotorGeneratorMap S_map {
 
     // default design point location
