@@ -6,8 +6,8 @@
  | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
  | File Name:     Inductor.int										           |
- | Date(s):       April 2018	                                               |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ | Date(s):       April 2018	                                               |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -16,59 +16,59 @@
 #define __INDUCTOR__
 
 class Inductor extends Element {
-	
-	//------------------------------------------------------------
-	//     ******* DOCUMENTATION *******
-	//------------------------------------------------------------
-	
-	title = "";
-	
-	description = isA() + " Determines power for the cable";
-	
-	usageNotes = isA() + "- NOTE TO USERS: This file....";
-	
-	background = "";
-	
-	//------------------------------------------------------------
-	//     ******* SETUP VARIABLES ********
-	//------------------------------------------------------------
-	
-	real L;	
-	ComplexNumber Z;
-	ComplexNumber dV;
-	ComplexNumber I;
-	
-	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-	//------------------------------------------------------------	
-	ElectricOutputPort EP_O {
-		description = "Electric port";
-	}
-	string EPortRef;
-	
-	ElectricInputPort EP_I {
-		description = "Electric Port";
-	}
-	
-	void calculate() {
-		
-		//-------------------------------------------------------
-		// calculate current from voltage drop
-		//-------------------------------------------------------
-		dV.copy( "EP_I.V" );
-		dV.minus( "EP_O.V" );	
-		Z.setrj( 0., 2.*PI*EP_I.frequency*L );
-		I.copy( "dV" );
-	    I.div( "Z" );
+    
+    //------------------------------------------------------------
+    //     ******* DOCUMENTATION *******
+    //------------------------------------------------------------
+    
+    title = "";
+    
+    description = isA() + " Determines power for the cable";
+    
+    usageNotes = isA() + "- NOTE TO USERS: This file....";
+    
+    background = "";
+    
+    //------------------------------------------------------------
+    //     ******* SETUP VARIABLES ********
+    //------------------------------------------------------------
+    
+    real L;	
+    ComplexNumber Z;
+    ComplexNumber dV;
+    ComplexNumber I;
+    
+    //------------------------------------------------------------
+    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+    //------------------------------------------------------------	
+    ElectricOutputPort EP_O {
+        description = "Electric port";
+    }
+    string EPortRef;
+    
+    ElectricInputPort EP_I {
+        description = "Electric Port";
+    }
+    
+    void calculate() {
+        
+        //-------------------------------------------------------
+        // calculate current from voltage drop
+        //-------------------------------------------------------
+        dV.copy( "EP_I.V" );
+        dV.minus( "EP_O.V" );	
+        Z.setrj( 0., 2.*PI*EP_I.frequency*L );
+        I.copy( "dV" );
+        I.div( "Z" );
 
-	    //----------------------------------------------------------
-	    // set the conditions in the ports
-	    //----------------------------------------------------------
-		EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
-		EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
-		EP_O.frequency=EP_I.frequency;
-		
-	}
-	
+        //----------------------------------------------------------
+        // set the conditions in the ports
+        //----------------------------------------------------------
+        EP_O.setIVRMS( I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS ); 	
+        EP_I.setIVRMS( I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS ); 	
+        EP_O.frequency=EP_I.frequency;
+        
+    }
+    
 }
 #endif

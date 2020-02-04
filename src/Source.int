@@ -6,8 +6,8 @@
  | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
  | File Name:     Source.int										           |
- | Date(s):       December 2019                                                |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       December 2019                                                |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -75,25 +75,25 @@ class Source extends Element {
         description = "Power dissipation in BTU/s at current time";
     }
 
-	real Vreal{
-		value = 1000.;  IOstatus = "output";  //units = "";
-		description = "Real portion of output voltage";
-	}
+    real Vreal{
+        value = 1000.;  IOstatus = "output";  //units = "";
+        description = "Real portion of output voltage";
+    }
 
-	real Vimag{
-		value = -1.;  IOstatus = "output";  //units = "";
-		description = "Imaginary portion of output voltage";
-	}
+    real Vimag{
+        value = -1.;  IOstatus = "output";  //units = "";
+        description = "Imaginary portion of output voltage";
+    }
     
-	real SpecificPower {
-		value = 13; IOstatus="input"; //units=;
-		description = "Power to Weight ratio for the source";
-	}
+    real SpecificPower {
+        value = 13; IOstatus="input"; //units=;
+        description = "Power to Weight ratio for the source";
+    }
 
-	real Mass {
-		value=1.; IOstatus="output"; units="kg";
-		description = "Mass computed on-design for the source";
-	}
+    real Mass {
+        value=1.; IOstatus="output"; units="kg";
+        description = "Mass computed on-design for the source";
+    }
 
     //------------------------------------------------------------
     //   ******* OPTION VARIABLE SETUP *******
@@ -226,8 +226,8 @@ class Source extends Element {
             Loss_j = 0;
             R = Loss_r / EP_O.I.mag**2;
             L = 0;
-			// Compute mass based on assumed specific power.
-			Mass = EP_O.S.r / SpecificPower;
+            // Compute mass based on assumed specific power.
+            Mass = EP_O.S.r / SpecificPower;
         }
         else {
             Loss_r = EP_O.I.mag**2 * R;
