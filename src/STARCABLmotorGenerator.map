@@ -10,13 +10,13 @@
 Independent ind_trqTemp {
     varName = "trqTemp";
     description = "Varies temporary torque to match calculated torque for map";
-    autoSetup = FALSE;
+    // autoSetup = TRUE;
 }
 
 Dependent dep_trq_map {
     eq_lhs = "trqTemp";
     eq_rhs = "trq";
-    autoSetup = FALSE;
+    // autoSetup = TRUE;
 }
 
 //---------------------------------------------

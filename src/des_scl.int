@@ -1,0 +1,88 @@
+/* ******************************************************
+*  File Name: des_scl.int								*
+*  Description: Component design scalars passed to  	*
+*				design points during MDP				*
+*******************************************************	*/
+
+// Generator (Gen1)
+Gen1.Ndes = TKO.Gen1.Ndes;
+Gen1.trqDes = TKO.Gen1.trqDes;
+Gen1.S_map.s_effDes = TKO.Gen1.S_map.s_effDes;
+Gen1.S_map.s_Ndes = TKO.Gen1.S_map.s_Ndes;
+Gen1.S_map.s_trqDes = TKO.Gen1.S_map.s_trqDes;
+
+// Breaker (Breaker1)
+Breaker1.R = TKO.Breaker1.R;
+Breaker1.L = TKO.Breaker1.L;
+
+// Enode (E1)
+
+// AeroCable (Cable1)
+Cable1.R = TKO.Cable1.R;
+Cable1.L = TKO.Cable1.L;
+
+// Rectifier (Rect1)
+Rect1.S_map.s_effDes = TKO.Rect1.S_map.s_effDes;
+Rect1.S_map.s_pwrDes = TKO.Rect1.S_map.s_pwrDes;
+Rect1.pwrDes = TKO.Rect1.pwrDes;
+
+// Breaker (Breaker2)
+Breaker2.R = TKO.Breaker2.R;
+Breaker2.L = TKO.Breaker2.L;
+
+// Enode (E2)
+
+// AeroCable (Cable2)
+Cable2.R = TKO.Cable2.R;
+Cable2.L = TKO.Cable2.L;
+
+// Inverter (Inv1)
+Inv1.S_map.s_effDes = TKO.Inv1.S_map.s_effDes;
+Inv1.S_map.s_pwrDes = TKO.Inv1.S_map.s_pwrDes;
+Inv1.pwrDes = TKO.Inv1.pwrDes;
+
+// AeroCable (Cable3)
+Cable3.R = TKO.Cable3.R;
+Cable3.L = TKO.Cable3.L;
+
+// Motor (EM1)
+EM1.Ndes = TKO.EM1.Ndes;
+EM1.trqDes = TKO.EM1.trqDes;
+EM1.S_map.s_effDes = TKO.EM1.S_map.s_effDes;
+EM1.S_map.s_Ndes = TKO.EM1.S_map.s_Ndes;
+EM1.S_map.s_trqDes = TKO.EM1.S_map.s_trqDes;
+
+
+
+
+
+
+// Propeller Flow Start (Atm)
+
+// Propeller (Prop)
+//Prop.dia = TKO.Prop.dia;
+//Prop.NmechDes = TKO.Prop.NmechDes;
+//Prop.gearRatio = TKO.Prop.gearRatio;
+
+// Propeller Flow End (dump)
+
+// Propeller Shaft (Propulsor_Shaft)
+
+
+
+
+
+// Turbine Flow Start (TurbineAtm)
+
+// Turbine (Turb)
+//Turb.S_map.s_effDes = TKO.Turb.S_map.s_effDes;
+//Turb.S_map.s_NpDes = TKO.Turb.S_map.s_NpDes; 
+//Turb.S_map.s_PRdes = TKO.Turb.S_map.s_PRdes; 
+//Turb.S_map.s_WpDes = TKO.Turb.S_map.s_WpDes; 
+//Turb.effBase = TKO.Turb.effBase;  
+//Turb.Fl_O.Aphy = TKO.Turb.Fl_O.Aphy;
+
+// Turbine Nozzle (Noz)
+//Noz.AthCold = TKO.Noz.AthCold;
+
+// Turbine Flow End (Turbinedump)

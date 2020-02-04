@@ -70,7 +70,7 @@ class Generator extends Element {
 	}
 
     real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus="output";
         description = "Power dissipation at current time";
     }
 

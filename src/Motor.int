@@ -16,295 +16,324 @@
 #define __MOTOR__
 
 class Motor extends Element {
-	
-	//------------------------------------------------------------
-	//     ******* DOCUMENTATION *******
-	//------------------------------------------------------------
-	
-	title = "";
-	description = isA() + " Determines motor power";
-	usageNotes = isA() + "- NOTE TO USERS: This file....";
-	background = "";
-	
-	//------------------------------------------------------------
-	//     ******* SETUP VARIABLES ********
-	//------------------------------------------------------------
-	
-	real Current {
-		value = 1.; IOstatus="input"; //units=AMP;
-		description = "Current";
-	} 
+    
+    //------------------------------------------------------------
+    //     ******* DOCUMENTATION *******
+    //------------------------------------------------------------
+    
+    title = "";
+    description = isA() + " Determines motor power";
+    usageNotes = isA() + "- NOTE TO USERS: This file....";
+    background = "";
+    
+    //------------------------------------------------------------
+    //     ******* SETUP VARIABLES ********
+    //------------------------------------------------------------
+    
+    real Current {
+        value = 1.; IOstatus = "input"; // [amps]
+        description = "Current";
+    } 
 
-	real CurrentAngle_Demand {
-		value = 0; IOstatus="output"; units="kW";
-		description = "Current Angle for the motor";
-	}
-	
-	real eff{
-		value=1.; IOstatus="output"; units="none";
-		description = "Adiabatic efficiency.  Equal to effDes during design, and effBase during off design.";
-	}
+    real CurrentAngle_Demand {
+        value = 0; IOstatus="output";
+        description = "Current Angle for the motor";
+    }
+    
+    real eff {
+        value = 1.; IOstatus = "output"; units = "none";
+        description = "Adiabatic efficiency.  Equal to effDes during design, and effBase during off design.";
+    }
 
-	real effBase{
-		value = 1.;  IOstatus ="output";  units = "none";
-		description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
-		
-	}
+    real effBase {
+        value = 1.;  IOstatus = "output";  units = "none";
+        description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+    }
 
-	real effDes{
-		value = 1.;  IOstatus = "input";  units = "none";
-		description = "Adiabatic efficiency at design point.";
-	} 
+    real effDes {
+        value = 1.;  IOstatus = "input";  units = "none";
+        description = "Adiabatic efficiency at design point.";
+    } 
 
-	real frequency {
-		value = 0; IOstatus="input"; units=DEG;
-		description = "Generator Frequency";
-	}
-	
-	real Loss_j {
-		value = 0; //IOstatus=OUTPUT; //units="kW";
-		description = "Motor Loss";
-	}
+    real frequency {
+        value = 0; IOstatus = "input"; // [hertz]
+        description = "Generator Frequency";
+    }
+    
+    real Loss_j {
+        value = 0; units = "kW";
+        description = "Motor Loss";
+    }
 
-	real Loss_r {
-		value = 0; //IOstatus=OUTPUT; units="kW";
-		description = "Motor Loss";
-	}
+    real Loss_r {
+        value = 0; units = "kW";
+        description = "Motor Loss";
+    }
 
     real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
+        value = 0; IOstatus = "output"; 
         description = "Power dissipation in BTU/s at current time";
     }
 
-	real Mass {
-		value=1.; IOstatus="output"; units="kg";
-		description = "Mass output of the motor";
-	}
+    real Mass {
+        value = 1.; IOstatus = "output"; units = "kg";
+        description = "Mass output of the motor";
+    }
 
-	real motorResistance {
-		value = 1.; IOstatus="output"; units= "kW";
-		description = "Resistance of the motor based on losses";
-	} 
+    real motorResistance {
+        value = 1.; IOstatus = "output"; units = "kW";
+        description = "Resistance of the motor based on losses";
+    } 
 
-	real Ndes{
-		value = 1.;  IOstatus = "output";  units = "rpm";
-		description = "rotational speed at design";
-	}
+    real Ndes {
+        value = 1.;  IOstatus = "output";  units = "rpm";
+        description = "Rotational speed at design";
+    }
 
-	real Pout{
-		value = 1.;  IOstatus = "output";  units = "kW";
-		description = "Power out of the motor";
-	}
+    real NdesSet {
+        value = 1.;  IOstatus = "output";  units = "rpm";
+        description = "Rotational speed at design condition, temp variable";
+    }
 
-	real Pin{
-		value = 1.;  IOstatus = "output";  units = "kW";
-		description = "Power in to the motor";
-	}
+    real Pout {
+        value = 1.;  IOstatus = "output";  units = "kW";
+        description = "Power out of the motor";
+    }
 
-	real powerfactor {
-		value = 1; //IOstatus=OUTPUT; units="kW";
-		description = "Motor Loss";
-	}
-	
-	real SpecificPower {
-		value = 13; IOstatus="input"; //units=;
-		description = "Power to Weight ratio for the motor";
-	}
-	
-	real Speed{
-		value=1.; IOstatus="input"; //units=RPM;
-		description = "Propulsor Speed";
-	}
+    real Pin {
+        value = 1.;  IOstatus = "output";  units = "kW";
+        description = "Power in to the motor";
+    }
 
-	real trq{
-		value=1.; IOstatus="output"; //units=FT_LBF;
-		description = "Propulsor Torque";
-	}
+    real powerfactor {
+        value = 1;
+        description = "Motor Loss";
+    }
+    
+    real SpecificPower {
+        value = 13; IOstatus = "input";
+        description = "Power to Weight ratio for the motor";
+    }
+    
+    real Speed {
+        value = 1.; IOstatus = "input";
+        description = "Propulsor Speed";
+    }
 
-	real trqDes{
-		value = 1.;  IOstatus = "output";  //units = FT_LBF;
-		description = "Torque at design";
-	}
+    real trq {
+        value = 1.; IOstatus = "output"; // [ft * lbf]
+        description = "Propulsor Torque";
+    }
 
-	real trqTemp {
-		value = 1.;  IOstatus = "output";  //units = FT_LBF;
-		description = "Temporary torque which the solver drives to match actual torque";
-	}
+    real trqDes {
+        value = 1.;  IOstatus = "output";  // [ft * lbf]
+        description = "Torque at design";
+    }
 
-	real Vreal{
-		value = 1000.;  IOstatus = "output";  //units = "";
-		description = "Real portion of voltage";
-	}
+    real trqTemp {
+        value = 1.;  IOstatus = "output";  // [ft * lbf]
+        description = "Temporary torque which the solver drives to match actual torque";
+    }
 
-	real Vimag{
-		value = -1.;  IOstatus = "output";  //units = "";
-		description = "Imaginary portion of voltage";
-	}
-	
-	//------------------------------------------------------------
-	//   ******* OPTION VARIABLE SETUP *******
-	//------------------------------------------------------------
+    real trqDesSet{
+        value = 1.;  IOstatus = "output";  //units = FT_LBF;
+        description = "Torque at design condition, temp variable";
+    }
 
-	Option switchDes {
-		allowedValues = { "DESIGN", "OFFDESIGN" } ;
-		description = "Determines if the element is in design or off-design mode";
-		rewritableValues = FALSE;
-	}
+    real Vreal {
+        value = 1000.;  IOstatus = "output";  // [volts]
+        description = "Real portion of voltage";
+    }
+
+    real Vimag {
+        value = -1.;  IOstatus = "output";  // [volts]
+        description = "Imaginary portion of voltage";
+    }
+    
+    //------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+
+    Option switchDes {
+        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        description = "Determines if the element is in design or off-design mode";
+        rewritableValues = FALSE;
+    }
 
     Option switchThermPort {
-    	allowedValues = { "TRUE", "FALSE" };
-    	description = "Determines if component needs thermal port";
-    	rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
+        allowedValues = { "TRUE", "FALSE" };
+        description = "Determines if component needs thermal port";
+        rewritableValues = FALSE;  // Enables converter optimization.
+        trigger = TRUE;
     }
-	
-	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-	//------------------------------------------------------------
-	
-	// MECHANICAL PORTS
+    
+    //------------------------------------------------------------
+    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+    //------------------------------------------------------------
+    
+    // MECHANICAL PORTS
 
-	ShaftOutputPort Sh_O {
-		description = "Mechanical connection to the shaft";
-	}
-	
-	// ELECTRICAL PORTS
+    ShaftOutputPort Sh_O {
+        description = "Mechanical connection to the shaft";
+    }
+    
+    // ELECTRICAL PORTS
 
-	ElectricPort EP_I {
-		description = "Electric Port";
-	}
+    ElectricPort EP_I {
+        description = "Electric Port";
+    }
 
 
-	// SOCKETS
-
-	Socket S_map{
-		allowedValues = {"effBase"}
-		description = "Socket to calculate motor map performance";
-		socketType = "MotorGeneratorMap";
-	}
+    Socket S_map {
+        allowedValues = {"effBase"}
+        description = "Socket to calculate motor map performance";
+        socketType = "MotorGeneratorMap";
+    }
 
     Socket S_eThermMass {
-		allowedValues = { "Q_heat", "Mass" };
-		description = "Thermal mass socket";
-		socketType = "EThermalMass";
+        allowedValues = { "Q_heat", "Mass" };
+        description = "Thermal mass socket";
+        socketType = "EThermalMass";
     }
 
-	// TABLES
-	
-	//------------------------------------------------------------
-	// ******* INTERNAL SOLVER SETUP *******
-	//------------------------------------------------------------
+    // TABLES
+    
+    //------------------------------------------------------------
+    // ******* INTERNAL SOLVER SETUP *******
+    //------------------------------------------------------------
 
-	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-	//------------------------------------------------------------
+    //------------------------------------------------------------
+    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+    //------------------------------------------------------------
 
-	Independent ind_Vreal { 
-		varName = "Vreal"; 
-		autoSetup = TRUE;
-		indepRef = "10000";
-		
-		description = "Varies the real component of the motor voltage";
-	}
-	
-	Independent ind_Vimag { 
-		varName = "Vimag"; 
-		autoSetup = TRUE;
-		indepRef = "10000";
-		description = "Varies the imaginary component of the motor voltage";
-	}
-
-    Dependent dep_phase_angle{
-        eq_rhs="EP_I.I.j";
-        eq_lhs="CurrentAngle_Demand";
-        autoSetup=TRUE;
+    Independent ind_Vreal { 
+        varName = "Vreal"; 
+        autoSetup = TRUE;
+        indepRef = "10000";
+        
+        description = "Varies the real component of the motor voltage";
+    }
+    
+    Independent ind_Vimag { 
+        varName = "Vimag"; 
+        autoSetup = TRUE;
+        indepRef = "10000";
+        description = "Varies the imaginary component of the motor voltage";
     }
 
-	//---------------------------------------------
-	// ******* VARIABLE CHANGED METHODOLOGY *******
-	//---------------------------------------------
+    Dependent dep_phase_angle {
+        eq_rhs = "EP_I.I.j";
+        eq_lhs = "CurrentAngle_Demand";
+        autoSetup = TRUE;
+    }
 
-	void variableChanged(string name, any oldVal) {
-		if (name == "switchThermPort") { 
-			if (switchThermPort == "TRUE") {
-				create("", "ThermalInputPort", "Q_I" );
-			}
-		}
+    Independent ind_trqDes {
+        varName = "trqDes";
+        description = "Varies design torque to match calculated torque at design condition";
+    }
 
-		if (name =="switchDes") {} // do nothing
-	}
+    Dependent dep_trqDesSet {
+        eq_lhs = "trqDes";
+        eq_rhs = "trqDesSet";
+    }
+    
+    Independent ind_Ndes {
+        varName = "Ndes";
+        description = "Varies design speed to match calculated speed at design condition";
+    }
 
-	//------------------------------------------------------------
-	//   ******* PERFORM ENGINEERING CALCULATIONS *******
-	//------------------------------------------------------------
-	
-	void calculate() {
-		
-		Speed=Sh_O.Nmech;
-		//EP_I.copyport();
-		Pin = EP_I.S.r;
-		Current = EP_I.I.mag;
-		
-		if ( switchDes == "DESIGN" ){
-			/*****************************
-			On-Design
-			*****************************/
+    Dependent dep_NdesSet {
+        eq_lhs = "Ndes";
+        eq_rhs = "NdesSet";
+    }
 
-			eff = effDes;
+    //---------------------------------------------
+    // ******* VARIABLE CHANGED METHODOLOGY *******
+    //---------------------------------------------
 
-			// compute power to the load
-			Pout = Pin * eff;
+    void variableChanged(string name, any oldVal) {
+        if (name == "switchThermPort") { 
+            if (switchThermPort == "TRUE") {
+                create("", "ThermalInputPort", "Q_I" );
+            }
+        }
 
-			// Compute mass based on assumed specific power.
-			Mass=Pout / SpecificPower;
+        if (name == "switchDes") {
+            if (switchDes == DESIGN) {
+                ind_trqDes.autoSetup = TRUE;
+                dep_trqDesSet.autoSetup = TRUE;
+                ind_Ndes.autoSetup = TRUE;
+                dep_NdesSet.autoSetup = TRUE;
+            }
+        }
+    }
 
-			// get design values 
-			Ndes = Sh_O.Nmech;
-			trqDes = Pout * ( C_HP_PER_RPMtoFT_LBF * (1./ 0.745699872) / Ndes );
-			trqTemp = trqDes;
-			trq = trqDes;
+    //------------------------------------------------------------
+    //   ******* PERFORM ENGINEERING CALCULATIONS *******
+    //------------------------------------------------------------
+    
+    void calculate() {
+        
+        Speed = Sh_O.Nmech;
+        Pin = EP_I.S.r;
+        Current = EP_I.I.mag;
+        
+        /* ON-DESIGN */
+        if (switchDes == "DESIGN") {
 
-			// compute losses
-			Loss_r=Pin * (1.0 / eff - 1.0);
-			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
-		
-			// determine resistance 
-			motorResistance =  Loss_r / 3 / Current**2;
-		}
+            eff = effDes;
 
-		//set efficiency value
-		if(!S_map.isEmpty()){
-			S_map.execute();
-		}
-		else{
-			effBase = effDes;
-		}
+            // compute power to the load
+            Pout = Pin * eff;
 
-		eff = effBase;
+            // compute mass based on assumed specific power.
+            Mass = Pout / SpecificPower;
 
-		if ( switchDes == "OFFDESIGN" ){	
-			//*****************************
-			// Off-Design
-			//*****************************
+            // get design values 
+            NdesSet = Sh_O.Nmech;
+            trqDesSet = Pout * (C_HP_PER_RPMtoFT_LBF * (1. / 0.74569987) / NdesSet);
+            trqTemp = trqDesSet;
+            trq = trqDesSet;
 
-			// Power to the load (supply - loss)
-			//Pout = Pin - Current**2 * motorResistance;
-			Pout = Pin * eff;
-			
-			// Calculate loss
-			Loss_r = 3 * Current**2 * motorResistance;
-			Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
-		}
-		
-		CurrentAngle_Demand = EP_I.VLN.phaseDeg - acos(powerfactor) * 180/PI;
-		
-		// Motor and Propulsor shaft connection
-		trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
-		Sh_O.trq=trq;
-		
-        if (switchThermPort=="TRUE"){
+            // compute losses
+            Loss_r = Pin * (1.0 / eff - 1.0);
+            Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
+        
+            // determine resistance 
+            motorResistance =  Loss_r / 3 / Current**2;
+        }
+
+        //set efficiency value
+        if(!S_map.isEmpty()) {
+            S_map.execute();
+        } else {
+            effBase = effDes;
+        }
+
+        eff = effBase;
+
+        if (switchDes == "OFFDESIGN") {	
+            //*****************************
+            // Off-Design
+            //*****************************
+
+            // Power to the load 
+            Pout = Pin * eff;
+            
+            // Calculate loss
+            Loss_r = 3 * Current**2 * motorResistance;
+            Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
+        }
+        
+        CurrentAngle_Demand = EP_I.VLN.phaseDeg - acos(powerfactor) * 180/PI;
+        
+        // Motor and Propulsor shaft connection
+        trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
+        Sh_O.trq = trq;
+        
+        if (switchThermPort == "TRUE") {
             real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+            Q_heat = sqrt(Loss_r**2 + Loss_j**2);
             Q_heat /= KW_PER_BTU_PER_SEC;
             //------------------------------------------------------------    
             // Run the thermal mass model.
@@ -313,14 +342,12 @@ class Motor extends Element {
               S_eThermMass.execute();
             }
         }
-	}
-	
-	// end calculation section
-	void prePass(){
-		EP_I.frequency = frequency;
-		EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
-	}
-	
-	
-} // end the Motor element class
+    }
+
+    // end calculation section
+    void prePass() {
+        EP_I.frequency = frequency;
+        EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
+    }
+}
 #endif

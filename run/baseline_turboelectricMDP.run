@@ -1,0 +1,290 @@
+/*******************************************************************************
+� Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+� 2008-2015 NPSS� Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS� software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+// Make GasTbl the default thermopackage
+#ifndef THERMO
+#define THERMO GasTbl
+#endif
+
+//include the power train components 
+//#include "PTE_Viewer.view"
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// add in electric port
+#include "ElectricPort.prt"
+//#include "InterpretedPort.int"
+
+#include <print_macros2.fnc>
+
+//----------------------------------------------------------------------------
+//{ Model Definition:  3 Assembly MDP for all architectures
+//----------------------------------------------------------------------------
+cout << "\nMDP Solver Setup\n"; 
+
+Element Assembly TKO { 
+    #include "baseline_turboelectricMDP.mdl"
+
+    Solver solver{ 
+        //defaultTolerance = 0.000005;
+        defaultToleranceType = "FRACTIONAL";  //ABSOLUTE
+        maxJacobians = 5000;
+        maxIterations = 10000;
+        //defaultDxLimit = 0.05;
+        //solver.debugLevel = "ITERATION_DETAILS";
+        //solver.diagnosticFile = "TKO.mySolver.Output"; 
+    }
+    
+    // Vary TKO output power until it matches desired power
+    real TurbPowDesired = 3000/0.746/0.8;
+    Independent ind_TKO_prop_pwr {
+        varName = "PropLoad.trqLoad";
+        autoSetup = TRUE;
+    }
+    Dependent dep_TKO_turb_pwr{
+        eq_lhs = "TurbPowDesired";
+        eq_rhs = "TurbLoad.trqLoad * Turbine_Shaft.Nmech/5252";
+        autoSetup = TRUE;
+    }
+    
+    // ASSEMBLY DATAVIEWER
+    OutFileStream csvStream { filename = "output/TKOout.csv"; } 
+        
+    void postexecute() {
+        /*
+        cout << "TKO Motor Design Speed: " << TKO.EM1.Ndes << " RPM" << endl;
+        cout << "TKO Motor Design Torque: " << TKO.EM1.trqDes << " ft-lbf" << endl;
+
+        cout << "TKO Inverter Design Power: " << TKO.Inv1.pwrDes << endl;
+        cout << "TKO Inverter Map Design Power: " << TKO.Inv1.S_map.s_pwrDes << endl;
+        cout << "TKO Inverter Power: " << TKO.Inv1.pwrOut << endl;
+        cout << "TKO Inverter Map Power: " << TKO.Inv1.S_map.pwrMap << endl;
+        
+        cout << "TKO Propeller Shaft Speed: " << TKO.Propulsor_Shaft.Nmech << " RPM" << endl;
+        cout << "TKO Propeller Shaft Torque In: " << TKO.Propulsor_Shaft.trqIn << " ft-lbf" << endl;
+        cout << "TKO Propeller Shaft Torque Out: " << TKO.Propulsor_Shaft.trqOut << " ft-lbf" << endl;
+        cout << "TKO Propeller Shaft Torque Net: " << TKO.Propulsor_Shaft.trqNet << " ft-lbf" << endl;
+        
+        cout << "TKO Motor Power: " << TKO.EM1.Pout*1.34102 << " hp" << endl;
+        cout << "TKO Motor Speed: " << TKO.EM1.Speed << " RPM" << endl;
+        cout << "TKO Motor Torque: " << TKO.EM1.trq << " ft-lbf" << endl;
+        
+        cout << "TKO Generator Power: " << TKO.Gen1.Pout*1.34102 << " hp" << endl;
+        cout << "TKO Generator Speed: " << TKO.Gen1.Speed << " RPM" << endl;
+        cout << "TKO Generator Torque: " << TKO.Gen1.trq << " ft-lbf" << endl;
+        */
+    }
+}
+
+Element Assembly TOC { 
+    #include "baseline_turboelectricMDP.mdl"
+    
+    // Set propulsor shaft to a higher value than TKO
+    Propulsor_Shaft.Nmech = 4000*1.25;
+    
+    Solver solver {
+        //defaultTolerance = 0.000005;
+        defaultToleranceType = "FRACTIONAL";  //ABSOLUTE
+        maxJacobians = 5000;
+        maxIterations = 10000;
+        //defaultDxLimit = 0.05;
+        defaultPerturbation = 0.0001;
+        defaultDxLimit = 0.001; 
+    }
+    
+    // Vary TOC output power until it matches desired power
+    real TurbPowDesired = 3000/0.746/0.8;
+    Independent ind_TOC_prop_pwr {
+        varName = "PropLoad.trqLoad";
+        autoSetup = FALSE;
+    }
+    Dependent dep_TOC_turb_pwr{
+        eq_lhs = "TurbPowDesired";
+        eq_rhs = "TurbLoad.trqLoad * Turbine_Shaft.Nmech/5252";
+        autoSetup = FALSE;
+    }
+    
+    // ASSEMBLY DATAVIEWER
+    OutFileStream csvStream { filename = "output/TOCout.csv"; }  
+
+    // PASS REFERENCE POINT SCALARS TO THIS ASSEMBLY
+    void preexecute() { 
+        #include <des_scl.int>
+        TOC.PropLoad.trqLoad = TKO.PropLoad.trqLoad * 0.5;
+        //cout << TOC.PropLoad.trqLoad << endl;
+    }    
+    
+    void postexecute() {
+        /*
+        cout << "TOC Motor Design Speed: " << TOC.EM1.Ndes << endl;
+        cout << "TOC Motor Design Torque: " << TOC.EM1.trqDes << endl;
+        
+        cout << "TOC Motor Power: " << TOC.EM1.Pout*1.34102 << " hp" << endl;
+        cout << "TOC Motor Speed: " << TOC.EM1.Speed << " RPM" << endl;
+        cout << "TOC Motor Torque: " << TOC.EM1.trq << " ft-lbf" << endl;
+
+        cout << "TOC Inverter Design Power: " << TOC.Inv1.pwrDes << " kW" << endl;
+        cout << "TOC Inverter Map Design Power: " << TOC.Inv1.S_map.s_pwrDes << " kW" << endl;
+        cout << "TOC Inverter Power: " << TOC.Inv1.pwrOut << " kW" << endl;
+        cout << "TOC Inverter Map Power: " << TOC.Inv1.S_map.pwrMap << endl;
+
+        cout << "TOC Propeller Shaft Speed: " << TOC.Propulsor_Shaft.Nmech << " RPM" << endl;
+        cout << "TOC Propeller Shaft Torque In: " << TOC.Propulsor_Shaft.trqIn << " ft-lbf" << endl;
+        cout << "TOC Propeller Shaft Torque Out: " << TOC.Propulsor_Shaft.trqOut << " ft-lbf" << endl;
+        cout << "TOC Propeller Shaft Torque Net: " << TOC.Propulsor_Shaft.trqNet << " ft-lbf" << endl;
+        
+        cout << "-----------------------------------------------------------------------------------" << endl;
+        */
+    }
+}
+//}
+
+#include <independent_initial.int>
+
+
+//----------------------------------------------------------------------------
+//{  Switch Design Point Flags
+//----------------------------------------------------------------------------
+TKO { 
+  setOption( "switchDes", "DESIGN" );
+} 
+TOC { 
+  setOption( "switchDes", "OFFDESIGN" );
+}
+//}
+
+
+
+//----------------------------------------------------------------------------
+//{  MDP Solver Setup
+//----------------------------------------------------------------------------
+
+// Vary motor design speed until it matches propeller speed at TOC
+Independent ind_TKO_Motor_Ndes {
+    varName = "TKO.EM1.Ndes";
+    autoSetup = TRUE;
+}
+Dependent dep_TOC_Motor_Ndes {
+    eq_lhs = "TOC.EM1.Ndes";
+    eq_rhs = "TOC.Propulsor_Shaft.Nmech";
+    autoSetup = TRUE;
+}
+// Turn off motor's internal design speed ind/dep pair 
+TKO.EM1.ind_Ndes.autoSetup = FALSE;
+TKO.EM1.dep_NdesSet.autoSetup = FALSE;
+
+
+// Turn off propeller shaft speed independents
+TKO.Propulsor_Shaft.ind_Nmech.autoSetup = FALSE;
+TOC.Propulsor_Shaft.ind_Nmech.autoSetup = FALSE;
+// Turn off turbine shaft speed independents
+TKO.Turbine_Shaft.ind_Nmech.autoSetup = FALSE;
+TOC.Turbine_Shaft.ind_Nmech.autoSetup = FALSE;
+
+//solver.defaultTolerance = 0.000005; 
+//solver.defaultToleranceType = "FRACTIONAL"; 
+solver.maxJacobians = 500;
+solver.maxIterations = 1350;
+solver.defaultDxLimit = 0.2;
+// solver.debugLevel = "ITERATION_DETAILS";
+// solver.diagnosticFile = "mySolver.Output";
+
+TKO.autoSolverSetup(); 
+TOC.autoSolverSetup(); 
+autoSolverSetup(); 
+//}
+
+
+
+
+
+
+/************************
+On design
+************************/
+
+//setOption("switchDes","DESIGN"); 
+autoSolverSetup();
+
+solver.debugLevel = "ITERATION_DETAILS";
+solver.diagnosticFile = "output/solver.bad";
+solver.maxIterations=10000;
+solver.maxJacobians=5000;
+
+// <GLT> Add biases to solver variables so that if you guess the wrong sign,
+// or solver independents otherwise need to cross zero, you won't die by div/0.
+real bias_value = 10*TKO.Gen1.Vbus_LL;
+
+TOC.Rect1.ind_Vimag.a  = bias_value;
+TOC.Rect1.ind_Vimag.a  = bias_value;
+TOC.Inv1.ind_Vreal.a   = bias_value;
+TOC.Inv1.ind_Vimag.a   = bias_value;
+TOC.EM1.ind_Vreal.a    = bias_value;
+TOC.EM1.ind_Vimag.a    = bias_value;
+
+TKO.Rect1.ind_Vimag.a  = bias_value;
+TKO.Rect1.ind_Vimag.a  = bias_value;
+TKO.Inv1.ind_Vreal.a   = bias_value;
+TKO.Inv1.ind_Vimag.a   = bias_value;
+TKO.EM1.ind_Vreal.a    = bias_value;
+TKO.EM1.ind_Vimag.a    = bias_value;
+
+//solver.solutionMode = "ONE_PASS";
+
+solver.diagnosticFile = "output/MDPSolverOutput";
+solver.debugLevel = "ITERATION_DETAILS";
+TKO.solver.diagnosticFile = "output/TKOSolverOutput";
+TKO.solver.debugLevel = "ITERATION_DETAILS";
+TOC.solver.diagnosticFile = "output/TOCSolverOutput";
+TOC.solver.debugLevel = "ITERATION_DETAILS";
+
+// <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
+// Looks like the only thing that botches this up now is guessing them such that you get currents
+// with the wrong sign...
+TOC.E1.VrealRMS    = 999;
+TOC.E1.VimagRMS    = 0;
+TOC.Rect1.Vreal    = 998;
+TOC.Rect1.Vimag    = 0;
+TOC.E2.VrealRMS   = 1390;
+TOC.E2.VimagRMS   = 0;
+TOC.Inv1.Vreal   = 997;
+TOC.Inv1.Vimag   = 0;
+TOC.EM1.Vreal    = 996;
+TOC.EM1.Vimag    = 0;
+
+TKO.E1.VrealRMS    = 999;
+TKO.E1.VimagRMS    = 0;
+TKO.Rect1.Vreal    = 998;
+TKO.Rect1.Vimag    = 0;
+TKO.E2.VrealRMS   = 1390;
+TKO.E2.VimagRMS   = 0;
+TKO.Inv1.Vreal   = 997;
+TKO.Inv1.Vimag   = 0;
+TKO.EM1.Vreal    = 996;
+TKO.EM1.Vimag    = 0;
+
+//cout << solverSequence << endl;
+//cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+run();
+printPride();
+printPrideTKO();
+printPrideTOC();
+
+page.display();  // output data to out file

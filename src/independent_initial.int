@@ -1,0 +1,26 @@
+// Initial guesses for independent variables
+
+TKO.EM1.Ndes = 4500;
+TKO.EM1.trqDes = 1000;
+TOC.EM1.Ndes = 4500;
+TOC.EM1.trqDes = 1000;
+
+
+TKO.Gen1.Ndes = 4500;
+TKO.Gen1.trqDes = 6000;
+TKO.Gen1.trqTemp = 6000;
+TOC.Gen1.Ndes = 4500;
+TOC.Gen1.trqDes = 6000;
+TOC.Gen1.trqTemp = 6000;
+
+
+TKO.Rect1.S_map.s_effDes = 1;
+TKO.Rect1.S_map.s_pwrDes = 4500;
+TOC.Rect1.S_map.s_effDes = 1;
+TOC.Rect1.S_map.s_pwrDes = 4500;
+
+
+TKO.Inv1.S_map.s_effDes = 1;
+TKO.Inv1.S_map.s_pwrDes = 4000;
+TOC.Inv1.S_map.s_effDes = 1;
+TOC.Inv1.S_map.s_pwrDes = 4000;
