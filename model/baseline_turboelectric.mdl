@@ -192,8 +192,8 @@ linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
 linkPortI( "Breaker2.EP_O", "E2.EP_I");
 linkPortI( "E2.EP_O","Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
 linkPortI( "Breaker3.EP_O", "E3.EP_I");
+linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
 linkPortI( "E3.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
 

@@ -12,4 +12,4 @@
 echo.
 echo =========== %~n1 ===========
 
-call runnpss -I model -I src -I view -I run %1
+call runnpss -I src -I model -I view -I utils %1

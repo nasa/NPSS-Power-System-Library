@@ -13,8 +13,8 @@
  -------------------------------------------------------------------------------
 ***/
 
-#ifndef __INTERPRETEDPORT__
-#define __INTERPRETEDPORT__
+// #ifndef __INTERPRETEDPORT__
+// #define __INTERPRETEDPORT__
 
 void linkPortI( string E1, string E2 ){
     E1->refport = E2;
@@ -99,4 +99,4 @@ void linkEports( string portName1, string portName2, string linkType ) {
         linkPortI( portName1, portName2 );
     }
 }
-#endif
+// #endif

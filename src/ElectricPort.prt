@@ -123,7 +123,7 @@ class ElectricPort extends Subelement {
         }
 
         if (refport == "") {
-            ESOreport(ESO_Id_NoRefPort);
+            ESOreport(ESO_Id_NoRefPort, "Ref port empty!");
         }		
     }
     
@@ -132,7 +132,7 @@ class ElectricPort extends Subelement {
     //------------------------------------------------------
     void pushport() {
         if (refport == "") {
-            ESOreport(ESO_Id_NoRefPort);
+            ESOreport(ESO_Id_NoRefPort, "Ref port empty!!");
         } else {
             refport->copyport();
         }

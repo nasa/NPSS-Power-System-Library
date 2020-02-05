@@ -217,7 +217,8 @@ class Motor extends Element {
     }
 
     Dependent dep_phase_angle {
-        eq_rhs = "EP_I.I.j";
+        eq_rhs = "EP_I.I.phaseDeg";
+        // eq_rhs = "EP_I.I.j";
         eq_lhs = "CurrentAngle_Demand";
         autoSetup = TRUE;
     }

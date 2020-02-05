@@ -32,6 +32,7 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 //#include "InterpretedPort.int"
 
+#include <Debug.fnc>
 #include <print_macros2.fnc>
 
 //----------------------------------------------------------------------------
@@ -58,6 +59,7 @@ Element Assembly TKO {
         varName = "PropLoad.trqLoad";
         autoSetup = TRUE;
     }
+
     Dependent dep_TKO_turb_pwr{
         eq_lhs = "TurbPowDesired";
         eq_rhs = "TurbLoad.trqLoad * Turbine_Shaft.Nmech/5252";
@@ -100,11 +102,11 @@ Element Assembly TOC {
     Propulsor_Shaft.Nmech = 4000*1.25;
     
     Solver solver {
-        //defaultTolerance = 0.000005;
+        // defaultTolerance = 0.000005;
         defaultToleranceType = "FRACTIONAL";  //ABSOLUTE
         maxJacobians = 5000;
         maxIterations = 10000;
-        //defaultDxLimit = 0.05;
+        // defaultDxLimit = 0.05;
         defaultPerturbation = 0.0001;
         defaultDxLimit = 0.001; 
     }
@@ -128,7 +130,7 @@ Element Assembly TOC {
     void preexecute() { 
         #include <des_scl.int>
         TOC.PropLoad.trqLoad = TKO.PropLoad.trqLoad * 0.5;
-        //cout << TOC.PropLoad.trqLoad << endl;
+        // cout << TOC.PropLoad.trqLoad << endl;
     }    
     
     void postexecute() {
@@ -207,7 +209,9 @@ solver.defaultDxLimit = 0.2;
 // solver.diagnosticFile = "mySolver.Output";
 
 TKO.autoSolverSetup(); 
+printSolverSetup("TKO.solver", FALSE);
 TOC.autoSolverSetup(); 
+printSolverSetup("TOC.solver", FALSE);
 autoSolverSetup(); 
 //}
 
@@ -282,6 +286,7 @@ TKO.EM1.Vimag    = 0;
 
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+printSolverSetup("solver", FALSE);
 run();
 printPride();
 printPrideTKO();

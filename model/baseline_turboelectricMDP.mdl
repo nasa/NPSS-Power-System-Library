@@ -164,11 +164,11 @@ Element Load TurbLoad {
 	}
 }
 
-Dependent MotorAngle{
-	eq_rhs="EM1.EP_I.I.phaseDeg";
-	eq_lhs="EM1.CurrentAngle_Demand";
-	autoSetup=TRUE;
-}
+// Dependent MotorAngle{
+// 	eq_rhs="EM1.EP_I.I.phaseDeg";
+// 	eq_lhs="EM1.CurrentAngle_Demand";
+// 	autoSetup=TRUE;
+// }
 
 
 Element Shaft Turbine_Shaft {
@@ -192,9 +192,9 @@ Inv1.EP_I.setOption("ElectricPowerType","DC");
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
+linkPorts( "Propulsor_Shaft.Sh1_I", "EM1.Sh_O", "Shaft_Motor1" );
 linkPortI( "Breaker1.EP_O", "E1.EP_I");
+linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
 linkPortI( "E1.EP_O", "Cable1.EP_I");
 linkPortI( "Cable1.EP_O", "Rect1.EP_I");
 linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
