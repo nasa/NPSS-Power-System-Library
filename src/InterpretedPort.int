@@ -6,8 +6,8 @@
  | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
  | File Name:     InterpretedPort.int										   |
- | Date(s):       October 2018	                                               |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ | Date(s):       October 2018	                                               |
  | Description:   Link port file to let ports know about each other.           |
  |                                                                             |
  -------------------------------------------------------------------------------
@@ -17,86 +17,86 @@
 #define __INTERPRETEDPORT__
 
 void linkPortI( string E1, string E2 ){
-	E1->refport = E2;
-	E2->refport = E1;
+    E1->refport = E2;
+    E2->refport = E1;
 }
 
 
 
 //link electric port function prototype
 void linkEports( string portName1, string portName2, string linkType ) {
-	
-	string nodePortFullName, nodePortName;
-	
-	if ( linkType != "NODE" && linkType !="PORT" ) {ESOreport(1020902, "linkType input: " + linkType + " is invalid. Valid options are \"NODE\" or \"PORT\" ", 1); return;}
-	if (!exists(portName1)) { ESOreport(1020902, "portName1 " + portName1 + " doesn't exist", 1); return; }
-	//if (portName1 -> isA() != "ElectricInputPort" && portName1 -> isA() != "ElectricOutputPort" ) {ESOreport(1020902, "portName1 " + portName1 + " is not an electric port", 1); return; }
-	//if (portName1 -> isLinked == 1) {ESOreport(1020902, "portName1 " + portName1 + " already Linked", 1); return; }
-	
-	if (linkType == "NODE") {
-		if (!exists(portName2)) { create("Element","Enode",portName2);
-			portName2->frequency = defaultFrequency;
-			solverSequence.append( portName2 );
-		}
-		nodePortName="Ep";
-		int DUMCounter;
-		if( DUMCounter <= 0 )    { DUMCounter = 1; }
-		nodePortName = nodePortName + toStr(DUMCounter);
-		DUMCounter++;
-		nodePortFullName = portName2 + "." + nodePortName;    
-		if (!exists(nodePortFullName)) {
-			if ( portName1->hasInterface( "ElectricOutputPort" )){
-			portName2->create("VariableContainer","ElectricInputPort",nodePortName); 
-			}
-			if ( portName1->hasInterface( "ElectricInputPort" )){
-			portName2->create("VariableContainer","ElectricOutputPort",nodePortName); 
-			}
-			
-		}
-		else { ESOreport(1020902, "Node Port Name" + portName1 + "aready in use please use other name for this linkage", 1); return; }
-		
-		linkPortI( portName1, nodePortFullName );
-		/*
-		//set the element port 
-		portName1 -> nodeIn           = 0;
-		portName1 -> linkName         = nodePortFullName;
-		portName1 -> isLinked         = 1;
-		portName1 -> nodeName          = portName2;
-		
-		//set the node port 
-		nodePortFullName -> nodeIn   = 1;
-		nodePortFullName -> linkName = portName1; //portName1 needs to come with full Element scope
-		nodePortFullName -> isLinked = 1;
-		nodePortFullName -> nodeName  = portName2;
-		
-		portName2->portList.append(nodePortName);
-		portName2->portListLink.append(nodePortFullName -> linkName);
-		
-		
-		portName1 -> updatePort();
-		//portName2 -> updateNode();
-		*/
-		
-	}
-	
-	if (linkType == "PORT") {
-		if (!exists(portName2)) { ESOreport(1020902, "portName1 " + portName2 + " doesn't exist", 1); return; }
-		if (portName2 -> isA() != "ElectricInputPort" && portName2 -> isA() != "ElectricOutputPort" ) {ESOreport(1020902, "portName1 " + portName2 + " is not an electric port", 1); return; }
-		if (portName2 -> isA() ==  portName1 -> isA() ) {ESOreport(1020902, "Both ports are of type " + portName1->isA() + " and cannot be connected", 1); return; }
-		/*
-		portName1 -> nodeIn           = 0;
-		portName1 -> linkName         = portName2;
-		portName1 -> isLinked         = 1;
-		portName1 -> nodeName          = "NO_NODE";  
-		
-		portName2 -> nodeIn           = 0;
-		portName2 -> linkName         = portName1;
-		portName2 -> isLinked         = 1;
-		portName2 -> nodeName          = "NO_NODE";  
-		
-		portName1 -> updatePort();  
-		*/
-		linkPortI( portName1, portName2 );
-	}
+    
+    string nodePortFullName, nodePortName;
+    
+    if ( linkType != "NODE" && linkType !="PORT" ) {ESOreport(1020902, "linkType input: " + linkType + " is invalid. Valid options are \"NODE\" or \"PORT\" ", 1); return;}
+    if (!exists(portName1)) { ESOreport(1020902, "portName1 " + portName1 + " doesn't exist", 1); return; }
+    //if (portName1 -> isA() != "ElectricInputPort" && portName1 -> isA() != "ElectricOutputPort" ) {ESOreport(1020902, "portName1 " + portName1 + " is not an electric port", 1); return; }
+    //if (portName1 -> isLinked == 1) {ESOreport(1020902, "portName1 " + portName1 + " already Linked", 1); return; }
+    
+    if (linkType == "NODE") {
+        if (!exists(portName2)) { create("Element","Enode",portName2);
+            portName2->frequency = defaultFrequency;
+            solverSequence.append( portName2 );
+        }
+        nodePortName="Ep";
+        int DUMCounter;
+        if( DUMCounter <= 0 )    { DUMCounter = 1; }
+        nodePortName = nodePortName + toStr(DUMCounter);
+        DUMCounter++;
+        nodePortFullName = portName2 + "." + nodePortName;    
+        if (!exists(nodePortFullName)) {
+            if ( portName1->hasInterface( "ElectricOutputPort" )){
+            portName2->create("VariableContainer","ElectricInputPort",nodePortName); 
+            }
+            if ( portName1->hasInterface( "ElectricInputPort" )){
+            portName2->create("VariableContainer","ElectricOutputPort",nodePortName); 
+            }
+            
+        }
+        else { ESOreport(1020902, "Node Port Name" + portName1 + "aready in use please use other name for this linkage", 1); return; }
+        
+        linkPortI( portName1, nodePortFullName );
+        /*
+        //set the element port 
+        portName1 -> nodeIn           = 0;
+        portName1 -> linkName         = nodePortFullName;
+        portName1 -> isLinked         = 1;
+        portName1 -> nodeName          = portName2;
+        
+        //set the node port 
+        nodePortFullName -> nodeIn   = 1;
+        nodePortFullName -> linkName = portName1; //portName1 needs to come with full Element scope
+        nodePortFullName -> isLinked = 1;
+        nodePortFullName -> nodeName  = portName2;
+        
+        portName2->portList.append(nodePortName);
+        portName2->portListLink.append(nodePortFullName -> linkName);
+        
+        
+        portName1 -> updatePort();
+        //portName2 -> updateNode();
+        */
+        
+    }
+    
+    if (linkType == "PORT") {
+        if (!exists(portName2)) { ESOreport(1020902, "portName1 " + portName2 + " doesn't exist", 1); return; }
+        if (portName2 -> isA() != "ElectricInputPort" && portName2 -> isA() != "ElectricOutputPort" ) {ESOreport(1020902, "portName1 " + portName2 + " is not an electric port", 1); return; }
+        if (portName2 -> isA() ==  portName1 -> isA() ) {ESOreport(1020902, "Both ports are of type " + portName1->isA() + " and cannot be connected", 1); return; }
+        /*
+        portName1 -> nodeIn           = 0;
+        portName1 -> linkName         = portName2;
+        portName1 -> isLinked         = 1;
+        portName1 -> nodeName          = "NO_NODE";  
+        
+        portName2 -> nodeIn           = 0;
+        portName2 -> linkName         = portName1;
+        portName2 -> isLinked         = 1;
+        portName2 -> nodeName          = "NO_NODE";  
+        
+        portName1 -> updatePort();  
+        */
+        linkPortI( portName1, portName2 );
+    }
 }
 #endif

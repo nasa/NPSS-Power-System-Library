@@ -2,12 +2,12 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
  |                                                                             |
  | File Name:     EThermalMass.int                                             |
- | Date(s):       February 2020                                                |
  | Author(s):     George Thomas                                                |
+ | Date(s):       February 2020                                                |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -178,7 +178,7 @@ void variableChanged( string name, any oldVal )
     Q_out = Q_I.HeatTransferRate;
         //cout << "Q_heat = " << Q_heat << ", ";
         //cout << "Q_I.HeatTransferRate = " << Q_I.HeatTransferRate << ", ";
-	
+  
     //------------------------------------------------------------    
     // Determine the net heat flow
     //------------------------------------------------------------

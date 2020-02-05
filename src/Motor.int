@@ -6,8 +6,8 @@
  | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
  | File Name:     Motor.int										               |
- | Date(s):       May 2018                                                     |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ | Date(s):       May 2018                                                     |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -135,7 +135,7 @@ class Motor extends Element {
         description = "Temporary torque which the solver drives to match actual torque";
     }
 
-    real trqDesSet{
+    real trqDesSet {
         value = 1.;  IOstatus = "output";  //units = FT_LBF;
         description = "Torque at design condition, temp variable";
     }
@@ -183,6 +183,7 @@ class Motor extends Element {
         description = "Electric Port";
     }
 
+    // SOCKETS
 
     Socket S_map {
         allowedValues = {"effBase"}
@@ -196,15 +197,9 @@ class Motor extends Element {
         socketType = "EThermalMass";
     }
 
-    // TABLES
-    
-    //------------------------------------------------------------
-    // ******* INTERNAL SOLVER SETUP *******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
+    //-----------------------------------------------------
+    // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+    //-----------------------------------------------------
 
     Independent ind_Vreal { 
         varName = "Vreal"; 

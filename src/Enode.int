@@ -6,8 +6,8 @@
  | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
  | File Name:     Enode.int                                                    |
- | Date(s):       February 2020                                                |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       February 2020                                                |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -18,172 +18,172 @@
 #include <InterpIncludes.ncp>
 
 class Enode extends Element{
-	
-	//------------------------------------------------------------
-	// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-	//------------------------------------------------------------
-	
-	// FLUID PORTS
-	
-	// FUEL PORTS
-	
-	// BLEED PORTS
-	
-	// THERMAL PORTS
-	string Eports[];
-	Eports {
-		description = "Array of Electric ports";
-		ptrType = "ElectricPort";
-	}
-	
-	// FLOW STATIONS
-	
-	// SOCKETS
-	
-	//------------------------------------------------------------
-	// ******* INTERNAL SOLVER SETUP *******
-	//------------------------------------------------------------  
-	
-	//------------------------------------------------------------
-	//  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
-	//------------------------------------------------------------
-	Independent ind_Vreal { 
-		varName = "VrealRMS"; 
-		autoSetup = TRUE;
-		indepRef = "1200";
-		
-		description = "Varies the volume total pressure";
-	}
-	
-	Independent ind_Vimag { 
-		varName = "VimagRMS"; 
-		autoSetup = TRUE;
-		indepRef = "1200";
-		description = "Varies the volume total specific enthalpy";
-	}
-	
-	Dependent dep_Ireal{
-		eq_lhs = "Inet.rRMS";  
-		eq_rhs = "0.0";
-		autoSetup = TRUE;
-	}
-	
-	Dependent dep_Iimag{
-		eq_lhs = "Inet.jRMS";  
-		eq_rhs = "0.";
-		autoSetup = TRUE;
-	}
-	
-	
-	ComplexNumber Inet;
-	
-	real frequency;
-	real Vmag;
-	real Vangle;
-	real VrealRMS;
-	real VimagRMS;
-	real IrealIn;
-	real IrealOut;
-	real IimagIn;
-	real IimagOut;
-	
-	string ElectricPorts[];
+    
+    //------------------------------------------------------------
+    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+    //------------------------------------------------------------
+    
+    // FLUID PORTS
+    
+    // FUEL PORTS
+    
+    // BLEED PORTS
+    
+    // THERMAL PORTS
+    string Eports[];
+    Eports {
+        description = "Array of Electric ports";
+        ptrType = "ElectricPort";
+    }
+    
+    // FLOW STATIONS
+    
+    // SOCKETS
+    
+    //------------------------------------------------------------
+    // ******* INTERNAL SOLVER SETUP *******
+    //------------------------------------------------------------  
+    
+    //------------------------------------------------------------
+    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENT  ******
+    //------------------------------------------------------------
+    Independent ind_Vreal { 
+        varName = "VrealRMS"; 
+        autoSetup = TRUE;
+        indepRef = "1200";
+        
+        description = "Varies the volume total pressure";
+    }
+    
+    Independent ind_Vimag { 
+        varName = "VimagRMS"; 
+        autoSetup = TRUE;
+        indepRef = "1200";
+        description = "Varies the volume total specific enthalpy";
+    }
+    
+    Dependent dep_Ireal{
+        eq_lhs = "Inet.rRMS";  
+        eq_rhs = "0.0";
+        autoSetup = TRUE;
+    }
+    
+    Dependent dep_Iimag{
+        eq_lhs = "Inet.jRMS";  
+        eq_rhs = "0.";
+        autoSetup = TRUE;
+    }
+    
+    
+    ComplexNumber Inet;
+    
+    real frequency;
+    real Vmag;
+    real Vangle;
+    real VrealRMS;
+    real VimagRMS;
+    real IrealIn;
+    real IrealOut;
+    real IimagIn;
+    real IimagOut;
+    
+    string ElectricPorts[];
 
-	//------------------------------------------------------------
-	//   ******* OPTION VARIABLE SETUP *******
-	//------------------------------------------------------------
-	
-	Option ElectricPowerType {
-		allowedValues = { "AC1", "DC", "AC3" };
-		description = "Electric Power Type (DC, AC1, AC3)";
+    //------------------------------------------------------------
+    //   ******* OPTION VARIABLE SETUP *******
+    //------------------------------------------------------------
+    
+    Option ElectricPowerType {
+        allowedValues = { "AC1", "DC", "AC3" };
+        description = "Electric Power Type (DC, AC1, AC3)";
         trigger = TRUE;
-		rewritableValues = FALSE;
-	}
+        rewritableValues = FALSE;
+    }
 
-	//------------------------------------------------------------
-	// ******* VARIABLE CHANGED METHODOLOGY *******
-	//------------------------------------------------------------
-	void variableChanged( string name, any oldVal ) {
-		
-		if ( name =="ElectricPowerType" ) {
-			// change solver setup depending on power type
-			if ( ElectricPowerType == "DC" ) {
+    //------------------------------------------------------------
+    // ******* VARIABLE CHANGED METHODOLOGY *******
+    //------------------------------------------------------------
+    void variableChanged( string name, any oldVal ) {
+        
+        if ( name =="ElectricPowerType" ) {
+            // change solver setup depending on power type
+            if ( ElectricPowerType == "DC" ) {
                 ind_Vreal.autoSetup = TRUE;
                 ind_Vimag.autoSetup = FALSE;
                 dep_Ireal.autoSetup = TRUE;
                 dep_Iimag.autoSetup = FALSE;
-			}
-			else if ( ElectricPowerType == "AC1" ) {
+            }
+            else if ( ElectricPowerType == "AC1" ) {
                 ind_Vreal.autoSetup = TRUE;
                 ind_Vimag.autoSetup = TRUE;
                 dep_Ireal.autoSetup = TRUE;
                 dep_Iimag.autoSetup = TRUE;
-			} 
-			else if ( ElectricPowerType == "AC3" ) {
+            } 
+            else if ( ElectricPowerType == "AC3" ) {
                 ind_Vreal.autoSetup = TRUE;
                 ind_Vimag.autoSetup = TRUE;
                 dep_Ireal.autoSetup = TRUE;
                 dep_Iimag.autoSetup = TRUE;
-			} 
-		} 
-	} 
-	//------------------------------------------------------------
-	//   ******* PERFORM ENGINEERING CALCULATIONS *******
-	//------------------------------------------------------------
-	
-	
-	//---------------------------------------------------------------------
-	// calculate function
-	//---------------------------------------------------------------------
-	void calculate() {
-				
-		//---------------------------------------------------------
-		//  Sum up the current components at node
-		//  solver will drive to zero
-		//----------------------------------------------------------
-		Inet.setrj( 0., 0. );
-
-		int i;
-		for (i = 0; i < ElectricPorts.entries(); i++) {
-
-			string Iname;
-			
-			if (ElectricPorts[i]->hasInterface("ElectricInputPort")){
-				Iname = ElectricPorts[i]+".I"; 
-			    Inet.plus(Iname);			    
-			}
-			if (ElectricPorts[i]->hasInterface("ElectricOutputPort")){
-				Iname = ElectricPorts[i]+".I";
-				Inet.minus(Iname);
-			}
-		}
-	}
+            } 
+        } 
+    } 
+    //------------------------------------------------------------
+    //   ******* PERFORM ENGINEERING CALCULATIONS *******
+    //------------------------------------------------------------
     
-	//------------------------------------------------------------
-	// ******* PREPASS FUNCTION *******
-	//------------------------------------------------------------
-	void prePass() {
-		
-	    //---------------------------------------------------
-		// push the voltage from the solver out to the ports
-		//---------------------------------------------------
+    
+    //---------------------------------------------------------------------
+    // calculate function
+    //---------------------------------------------------------------------
+    void calculate() {
+                
+        //---------------------------------------------------------
+        //  Sum up the current components at node
+        //  solver will drive to zero
+        //----------------------------------------------------------
+        Inet.setrj( 0., 0. );
+
+        int i;
+        for (i = 0; i < ElectricPorts.entries(); i++) {
+
+            string Iname;
+            
+            if (ElectricPorts[i]->hasInterface("ElectricInputPort")){
+                Iname = ElectricPorts[i]+".I"; 
+                Inet.plus(Iname);			    
+            }
+            if (ElectricPorts[i]->hasInterface("ElectricOutputPort")){
+                Iname = ElectricPorts[i]+".I";
+                Inet.minus(Iname);
+            }
+        }
+    }
+    
+    //------------------------------------------------------------
+    // ******* PREPASS FUNCTION *******
+    //------------------------------------------------------------
+    void prePass() {
+        
+        //---------------------------------------------------
+        // push the voltage from the solver out to the ports
+        //---------------------------------------------------
         int i;		
-		for (i = 0; i < ElectricPorts.entries(); i++) {
-			ElectricPorts[i]->frequency = frequency;	
-			ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
-		}
-	}
-	
-	// -------------------------------------------------------------
-	//   ************ POSTCREATE FUNCTION **********
-	// -------------------------------------------------------------
-	void postcreate( string name ) {
-		//------------------------------------------------------------    
-		// allow for the creation of ports at run time
-		//------------------------------------------------------------
-		if (name->hasInterface("ElectricPort")) {
-			ElectricPorts.append(name);
-		}
-	}
+        for (i = 0; i < ElectricPorts.entries(); i++) {
+            ElectricPorts[i]->frequency = frequency;	
+            ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
+        }
+    }
+    
+    // -------------------------------------------------------------
+    //   ************ POSTCREATE FUNCTION **********
+    // -------------------------------------------------------------
+    void postcreate( string name ) {
+        //------------------------------------------------------------    
+        // allow for the creation of ports at run time
+        //------------------------------------------------------------
+        if (name->hasInterface("ElectricPort")) {
+            ElectricPorts.append(name);
+        }
+    }
 }
 #endif
