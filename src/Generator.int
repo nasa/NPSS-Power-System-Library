@@ -141,7 +141,6 @@ class Generator extends Element {
     }
     Option switchThermPort {
         allowedValues = { "TRUE", "FALSE" };
-        //value = "FALSE";
         description = "Determines if component needs thermal port";
         rewritableValues = FALSE;  // Enables converter optimization.
         trigger=TRUE;

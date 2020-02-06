@@ -13,7 +13,7 @@
 //
 //-------------------------------------------------------------------------------------------------
 
-real defaultFrequency =400.;
+real defaultFrequency = 400.;
 
 cout<<"======================================="<<endl;
 cout<<" Example where 1 generator feeds 2 motors "<<endl;
@@ -31,42 +31,45 @@ Element Generator Gen1 {
 	frequency=400; // Hz	
 }
 
-
 Element Cable Cable1 {
 	length=28.3464; 	
 	R=4.3245e-6;
 	L=9.84e-5*length/4./60./2./PI;	
+	Loss_j = 165.;
 }
-
 
 Element Enode E1{
 	ElectricInputPort EP_I;
 	ElectricOutputPort EP_O1, EP_O2;
+	frequency = 400;
 }
 
 Element Cable Cable2a {
 	R=4.3245e-6;
 	length=28.3464; 
 	L=9.84e-5*length/4./60./2./PI;
-	
+	Loss_j = 41.;
 }
 
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
 	length=28.3464/3.; 
     L=9.84e-5*length/4./60./2./PI;
+	Loss_j = 14.;
 }
 
 Element Motor EM1 {
 	eff=0.96;
 	SpecificPower=13.0; 
 	frequency = 400.;
+	Vreal = 1200.;
 }
 
 Element Motor EM2 {
 	eff=0.96;
 	SpecificPower=13.0; 
 	frequency = 400.;
+	Vreal = 1200.;
 }
 
 /**************************
@@ -156,8 +159,6 @@ Element Shaft Turbine_Shaft {
 }
 
 setOption("ElectricPowerType","AC3");
-
-E1.frequency = 400.;
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages

@@ -28,8 +28,8 @@ cdict = {'red': ( (0.0, 0.0, 0.0),
 my_cmap = matplotlib.colors.LinearSegmentedColormap('my_colormap',cdict,256)
 '''
 
-# execfile("Map_plotting/mapCompList.txt")
-exec(open("Map_plotting/mapCompList.txt").read())
+# execfile("map_plotting/mapCompList.txt")
+exec(open("map_plotting/mapCompList.txt").read())
 
 
 

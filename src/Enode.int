@@ -17,7 +17,7 @@
 
 #include <InterpIncludes.ncp>
 
-class Enode extends Element{
+class Enode extends Element {
     
     //------------------------------------------------------------
     // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********

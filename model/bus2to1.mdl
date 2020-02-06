@@ -5,7 +5,7 @@
 //   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
 //					NASA Glenn Research Center
 //
-//   Description:   Model file describes how to have 2 generators feeed into 1 bus and provide power
+//   Description:   Model file describes how to have 2 generators feed into 1 bus and provide power
 //					to a single motor.
 //
 //					Gen1 -> cable2a ->		

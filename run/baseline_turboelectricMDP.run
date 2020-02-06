@@ -32,7 +32,7 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 //#include "InterpretedPort.int"
 
-#include <Debug.fnc>
+#include <printUtils.fnc>
 #include <print_macros2.fnc>
 
 //----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ cout << "\nMDP Solver Setup\n";
 Element Assembly TKO { 
     #include "baseline_turboelectricMDP.mdl"
 
-    Solver solver{ 
+    Solver solver { 
         //defaultTolerance = 0.000005;
         defaultToleranceType = "FRACTIONAL";  //ABSOLUTE
         maxJacobians = 5000;
@@ -158,25 +158,49 @@ Element Assembly TOC {
 }
 //}
 
-#include <independent_initial.int>
+//------------------------------------------
+// Initial guesses for independent variables
+//------------------------------------------
+
+TKO.EM1.Ndes = 4500;
+TKO.EM1.trqDes = 1000;
+TOC.EM1.Ndes = 4500;
+TOC.EM1.trqDes = 1000;
 
 
-//----------------------------------------------------------------------------
-//{  Switch Design Point Flags
-//----------------------------------------------------------------------------
-TKO { 
-  setOption( "switchDes", "DESIGN" );
+TKO.Gen1.Ndes = 4500;
+TKO.Gen1.trqDes = 6000;
+TKO.Gen1.trqTemp = 6000;
+TOC.Gen1.Ndes = 4500;
+TOC.Gen1.trqDes = 6000;
+TOC.Gen1.trqTemp = 6000;
+
+
+TKO.Rect1.S_map.s_effDes = 1;
+TKO.Rect1.S_map.s_pwrDes = 4500;
+TOC.Rect1.S_map.s_effDes = 1;
+TOC.Rect1.S_map.s_pwrDes = 4500;
+
+
+TKO.Inv1.S_map.s_effDes = 1;
+TKO.Inv1.S_map.s_pwrDes = 4000;
+TOC.Inv1.S_map.s_effDes = 1;
+TOC.Inv1.S_map.s_pwrDes = 4000;
+
+
+//--------------------------
+// Switch Design Point Flags
+//--------------------------
+TKO {
+    setOption("switchDes", "DESIGN");
+    setOption("multiDesign", "TRUE");
 } 
-TOC { 
-  setOption( "switchDes", "OFFDESIGN" );
-}
-//}
 
+TOC {setOption("switchDes", "OFFDESIGN");}
 
-
-//----------------------------------------------------------------------------
-//{  MDP Solver Setup
-//----------------------------------------------------------------------------
+//-----------------
+// MDP Solver Setup
+//-----------------
 
 // Vary motor design speed until it matches propeller speed at TOC
 Independent ind_TKO_Motor_Ndes {
@@ -188,6 +212,7 @@ Dependent dep_TOC_Motor_Ndes {
     eq_rhs = "TOC.Propulsor_Shaft.Nmech";
     autoSetup = TRUE;
 }
+
 // Turn off motor's internal design speed ind/dep pair 
 TKO.EM1.ind_Ndes.autoSetup = FALSE;
 TKO.EM1.dep_NdesSet.autoSetup = FALSE;
@@ -209,9 +234,9 @@ solver.defaultDxLimit = 0.2;
 // solver.diagnosticFile = "mySolver.Output";
 
 TKO.autoSolverSetup(); 
-printSolverSetup("TKO.solver", FALSE);
+// printSolverSetup("TKO.solver", FALSE);
 TOC.autoSolverSetup(); 
-printSolverSetup("TOC.solver", FALSE);
+// printSolverSetup("TOC.solver", FALSE);
 autoSolverSetup(); 
 //}
 
@@ -286,7 +311,7 @@ TKO.EM1.Vimag    = 0;
 
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
-printSolverSetup("solver", FALSE);
+// printSolverSetup("solver", FALSE);
 run();
 printPride();
 printPrideTKO();

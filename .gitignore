@@ -2,8 +2,8 @@
 *.bad
 *.csv
 *.lib
+
 output/*
-Map_plotting/*.txt
 
 fort.76
 temp.out

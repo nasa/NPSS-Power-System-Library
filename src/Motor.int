@@ -155,16 +155,22 @@ class Motor extends Element {
     //------------------------------------------------------------
 
     Option switchDes {
-        allowedValues = { "DESIGN", "OFFDESIGN" } ;
+        allowedValues = { "DESIGN", "OFFDESIGN" }
         description = "Determines if the element is in design or off-design mode";
         rewritableValues = FALSE;
     }
 
     Option switchThermPort {
-        allowedValues = { "TRUE", "FALSE" };
+        allowedValues = { "TRUE", "FALSE" }
         description = "Determines if component needs thermal port";
         rewritableValues = FALSE;  // Enables converter optimization.
         trigger = TRUE;
+    }
+
+    Option multiDesign {
+        allowedValues = { "TRUE", "FALSE" }
+        description = "Determines if component is undergoing multi-design point simulation";
+        rewritableValues = FALSE;
     }
     
     //------------------------------------------------------------
@@ -186,7 +192,7 @@ class Motor extends Element {
     // SOCKETS
 
     Socket S_map {
-        allowedValues = {"effBase"}
+        allowedValues = { "effBase" }
         description = "Socket to calculate motor map performance";
         socketType = "MotorGeneratorMap";
     }
@@ -205,7 +211,6 @@ class Motor extends Element {
         varName = "Vreal"; 
         autoSetup = TRUE;
         indepRef = "10000";
-        
         description = "Varies the real component of the motor voltage";
     }
     
@@ -217,8 +222,8 @@ class Motor extends Element {
     }
 
     Dependent dep_phase_angle {
-        eq_rhs = "EP_I.I.phaseDeg";
-        // eq_rhs = "EP_I.I.j";
+        // eq_rhs = "EP_I.I.phaseDeg"; // this doesn't work for some reason
+        eq_rhs = "EP_I.I.j";
         eq_lhs = "CurrentAngle_Demand";
         autoSetup = TRUE;
     }
@@ -254,7 +259,7 @@ class Motor extends Element {
             }
         }
 
-        if (name == "switchDes") {
+        if (name == "multiDesign") {
             if (switchDes == DESIGN) {
                 ind_trqDes.autoSetup = TRUE;
                 dep_trqDesSet.autoSetup = TRUE;
@@ -286,10 +291,17 @@ class Motor extends Element {
             Mass = Pout / SpecificPower;
 
             // get design values 
-            NdesSet = Sh_O.Nmech;
-            trqDesSet = Pout * (C_HP_PER_RPMtoFT_LBF * (1. / 0.74569987) / NdesSet);
-            trqTemp = trqDesSet;
-            trq = trqDesSet;
+            if (multiDesign == "TRUE") {
+                NdesSet = Sh_O.Nmech;
+                trqDesSet = Pout * (C_HP_PER_RPMtoFT_LBF * (1. / 0.74569987) / NdesSet);
+                trqTemp = trqDesSet;
+                trq = trqDesSet;
+            } else {
+                Ndes = Sh_O.Nmech;
+                trqDes = Pout * (C_HP_PER_RPMtoFT_LBF * (1. / 0.745699872) / Ndes);
+                trqTemp = trqDes;
+                trq = trqDes;
+            }
 
             // compute losses
             Loss_r = Pin * (1.0 / eff - 1.0);
@@ -331,10 +343,9 @@ class Motor extends Element {
             real KW_PER_BTU_PER_SEC = 1.05505585;
             Q_heat = sqrt(Loss_r**2 + Loss_j**2);
             Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
+
+            // run the thermal mass model
+            if (!S_eThermMass.isEmpty()) {
               S_eThermMass.execute();
             }
         }
@@ -343,7 +354,7 @@ class Motor extends Element {
     // end calculation section
     void prePass() {
         EP_I.frequency = frequency;
-        EP_I.setIVRMS( EP_I.I.r, EP_I.I.j, Vreal, Vimag );
+        EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
     }
 }
 #endif

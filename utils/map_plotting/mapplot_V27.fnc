@@ -53,7 +53,7 @@ void saveOpPoints( string info ) {
       }
 
 
-      DATA_MAP.open( "Map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt" );
+      DATA_MAP.open( "utils/map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt" );
       DATA_MAP.width = 0;
 
       if ( firstCall[n] == 1 ) {
@@ -141,11 +141,11 @@ void createMapDataFiles() {
    //-------------------------------------------------------------------------
    // write a list of all the components to a file as a PYTHON variable
    //-------------------------------------------------------------------------
-   COMPONENT_FILE.filename = "Map_plotting/mapCompList.txt";
+   COMPONENT_FILE.filename = "utils/map_plotting/mapCompList.txt";
    COMPONENT_FILE << "component_list=[ ";
 
    for ( n=0; n < COMPONENT_NAMES.entries(); ++n ) {
-      COMPONENT_FILE << "\"" << "Map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt" << "\", ";
+      COMPONENT_FILE << "\"" << "utils/map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt" << "\", ";
    } 
 
    COMPONENT_FILE << " ]";
@@ -162,7 +162,7 @@ void createMapDataFiles() {
 
       // set the map data filename
       DATA_MAP.width = 0;
-      DATA_MAP.filename = "Map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt";
+      DATA_MAP.filename = "utils/map_plotting/mapData" + COMPONENT_NAMES[n] + ".txt";
       DATA_MAP << "mapname = '" << COMPONENT_NAMES[n] << "'" << endl;
 
       // determine if the component map is a COMPRESSOR or TURBINE
@@ -525,4 +525,3 @@ void createMapDataFiles() {
    DATA_MAP.append = TRUE;
 
 }
-

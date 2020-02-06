@@ -45,7 +45,8 @@ autoSolverSetup();
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 
-solver.maxIterations=500;
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
 //solver.clear();
 
 run();
@@ -70,6 +71,9 @@ solver.addIndependent( "ind_AtmW" );
 
 solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
 Propulsor_Shaft.Nmech*=.9;
+
+// EM1.ind_Vreal.dxLimit = 0.01; // default: 0.1
+// EM2.ind_Vreal.dxLimit = 0.01; // default: 0.1
 
 cout << solver.list( "Independent" ) << endl;
 

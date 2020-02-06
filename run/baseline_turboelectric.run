@@ -32,7 +32,7 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
-#include <Map_plotting\mapplot_V27.fnc>
+#include <map_plotting\mapplot_V27.fnc>
 
 //model file
 

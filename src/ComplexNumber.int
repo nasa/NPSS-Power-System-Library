@@ -144,6 +144,7 @@ class ComplexNumber extends VariableContainer {
         description = "Phase Angle value of the complex plane polar representation";
         getFunction = "get_phase"; 
     }
+
     real get_phase() { 
         _phase = atan(j/r);
         if ( r < 0 ) { _phase = _phase + PI; }
@@ -160,6 +161,7 @@ class ComplexNumber extends VariableContainer {
         description = "Phase Angle (Deg) value of the polar representation of the complex plane";
         getFunction = "get_phaseDeg"; 
     }
+
     real get_phaseDeg() { 
         return phase*180./PI;
     }
