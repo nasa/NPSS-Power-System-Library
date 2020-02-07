@@ -2,10 +2,10 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
  |                                                                             |
- | File Name:     ConstantPowerLoad.int										   |
+ | File Name:     ConstantPowerLoad.int										                     |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
  | Date(s):       December 2019                                                |
  |                                                                             |
@@ -16,208 +16,193 @@
 #define __CONSTANTPOWERLOAD__
 
 class ConstantPowerLoad extends Element {
+  
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------  
+
+  // title = "";
+
+  description = "The " + isA() + " element serves as a constant power load.";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+  
+  //--------------------------------
+  // ****** SETUP VARIABLES ********
+  //--------------------------------
+  
+  real Pdemand {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Power demanded by the load (you set this).";
+  }
+
+  real pfDemand {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Power factor this load should run at (you set this).";
+  }
+
+  real P {
+    value = 0; IOstatus = "output"; unitsa = "kW"; // [kilowatts]
+    description = "Power doing useful work in this load element.";
+  }
+
+  real pf {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Power factor at input to this load element.";
+  }
+
+  real eff {
+    value = 0.95; IOstatus = "output"; units = "none";
+    description = "Efficiency of load.";
+  }
+
+  real frequency {
+    value = 0; IOstatus = "input"; units = "deg";
+    description = "Input frequency.";
+  }
+
+  real Loss_r {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Real component of losses in this load.";
+  }
+
+  real Loss_j {
+    value = 0; IOstatus="output"; units="kW";
+    description = "Imaginary component of losses in this load.";
+  }
+
+  real Q_heat {
+    value = 0; IOstatus="output"; units = "W" // [watts]
+    description = "Power dissipation in BTU/s at current time.";
+  }
+
+  real Vreal{
+    value = 1000.;  IOstatus = "output";  units = "none"; // [volts]
+    description = "Real portion of voltage.";
+  }
+
+  real Vimag{
+    value = -1.;  IOstatus = "output";  units = "none"; // [volts]
+    description = "Imaginary portion of voltage.";
+  }
+
+  ComplexNumber V;
+  ComplexNumber S;
+  ComplexNumber I;
+
+  //--------------------------------------
+  // ******* OPTION VARIABLE SETUP *******
+  //--------------------------------------
+
+  Option switchDes {
+    allowedValues = { "DESIGN", "OFFDESIGN" }
+    description = "Determines if the element is in design or off-design mode.";
+    rewritableValues = FALSE;
+    trigger = TRUE;
+  }
+  Option switchThermPort {
+    allowedValues = { "TRUE", "FALSE" }
+    description = "Determines if component needs thermal port.";
+    rewritableValues = FALSE;  // Enables converter optimization.
+    trigger = TRUE;
+  }
+  
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------  
+  
+  /* ELECTRICAL PORTS */
+
+  ElectricPort EP_I {
+    description = "Electric input port.";
+  }
+
+  /* SOCKETS */
+
+  Socket S_eThermMass {
+    allowedValues = { "Q_heat", "Mass" };
+    description = "Thermal mass socket";
+    socketType = "EThermalMass";
+  }
+
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  Independent ind_Vreal { 
+    varName = "Vreal"; 
+    autoSetup = TRUE;
+    indepRef = "10000";
+    description = "Varies the real component of the load voltage.";
+  }
+
+  Independent ind_Vimag { 
+    varName = "Vimag"; 
+    autoSetup = TRUE;
+    indepRef = "10000";
+    description = "Varies the imaginary component of the load voltage.";
+  }
+
+  Dependent dep_power {
+    eq_lhs = "EP_I.S.r * eff";
+    eq_rhs = "Pdemand";
+    autoSetup = TRUE;
+  }
+
+  Dependent dep_power_factor{
+    eq_rhs = "pf";
+    eq_lhs = "pfDemand";
+    autoSetup = TRUE;
+  }
+
+  //---------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //---------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if ( name == "switchThermPort" ) {
+      if ( switchThermPort == "TRUE" ) {
+        create("", "ThermalInputPort", "Q_I");
+      }
+    }
     
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
-    
-    title = "";
-    
-    description = isA() + " - Constant power load";
-    
-    usageNotes = isA() + "- NOTE TO USERS: This file....";
-    
-    background = "";
-    
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
-    
-    real Pdemand {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Power demanded by the load (you set this)";
+    if (name == "switchDes") {
+      if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC")) {
+        ind_Vimag.autoSetup = FALSE;
+        dep_power_factor.autoSetup = FALSE;
+      } else {
+        ind_Vimag.autoSetup = TRUE;
+        dep_power_factor.autoSetup = TRUE;
+      }
     }
-    real pfDemand {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Power factor this load should run at (you set this)";
+  }
+
+  //-------------------------------------------------
+  // ******* PERFORM ENGINEERING CALCULATIONS *******
+  //-------------------------------------------------
+  
+  void calculate() {
+    pf = cos(EP_I.S.phase);
+    P = EP_I.S.r * eff;
+    Loss_r = EP_I.S.r - P;
+    Loss_j = EP_I.S.j;
+
+    if (switchThermPort == "TRUE") {
+      real KW_PER_BTU_PER_SEC = 1.05505585;
+      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+      Q_heat /= KW_PER_BTU_PER_SEC;
+
+      // run the thermal mass model.
+      if (!S_eThermMass.isEmpty()) {
+        S_eThermMass.execute();
+      }
     }
-    real P {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Power doing useful work in this load element";
-    }
-    real pf {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Power factor at input to this load element";
-    }
-    real eff {
-        value = 0.95; IOstatus="output"; units="none";
-        description = "Efficiency of load";
-    }
+  }
 
-    real frequency {
-        value = 0; IOstatus="input"; units="deg";
-        description = "Input Frequency";
-    }
-
-    real Loss_r {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Real component of losses in this load";
-    }
-    real Loss_j {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Imaginary component of losses in this load";
-    }
-
-    real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
-        description = "Power dissipation in BTU/s at current time";
-    }
-
-    real Vreal{
-        value = 1000.;  IOstatus = "output";  //units = "";
-        description = "Real portion of voltage";
-    }
-    real Vimag{
-        value = -1.;  IOstatus = "output";  //units = "";
-        description = "Imaginary portion of voltage";
-    }
-
-    ComplexNumber V;
-    ComplexNumber S;
-    ComplexNumber I;
-
-    //------------------------------------------------------------
-    //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
-
-    Option switchDes {
-        allowedValues = { "DESIGN", "OFFDESIGN" } ;
-        description = "Determines if the element is in design or off-design mode";
-        rewritableValues = FALSE;
-        trigger=TRUE;
-    }
-    Option switchThermPort {
-        allowedValues = { "TRUE", "FALSE" };
-        //value = "FALSE";
-        description = "Determines if component needs thermal port";
-        rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
-    }
-    
-    //------------------------------------------------------------
-    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-    //------------------------------------------------------------	
-    
-    // FLUID PORTS
-
-    // FUEL PORTS
-
-    // BLEED PORTS
-
-    // THERMAL PORTS
-
-    // MECHANICAL PORTS
-
-    // ELECTRICAL PORTS
-
-    ElectricPort EP_I {
-        description = "Electric Port";
-    }
-
-    // FLOW STATIONS
-
-    // SOCKETS
-
-    Socket S_eThermMass {
-        allowedValues = { "Q_heat", "Mass" };
-        description = "Thermal mass socket";
-        socketType = "EThermalMass";
-    }
-
-    // TABLES
-    
-    //------------------------------------------------------------
-    // ******* INTERNAL SOLVER SETUP *******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
-    Independent ind_Vreal { 
-        varName = "Vreal"; 
-        autoSetup = TRUE;
-        indepRef = "10000";
-        description = "Varies the real component of the load voltage";
-    }
-    Independent ind_Vimag { 
-        varName = "Vimag"; 
-        autoSetup = TRUE;
-        indepRef = "10000";
-        description = "Varies the imaginary component of the load voltage";
-    }
-
-
-    Dependent dep_power {
-        eq_lhs = "EP_I.S.r * eff";
-        eq_rhs = "Pdemand";
-        autoSetup=TRUE;
-    }
-    Dependent dep_power_factor{
-        eq_rhs="pf";
-        eq_lhs="pfDemand";
-        autoSetup=TRUE;
-    }
-
-    //------------------------------------------------------------
-    // ******* VARIABLE CHANGED METHODOLOGY *******
-    //------------------------------------------------------------
-
-    void variableChanged(string name, any oldVal){
-        if ( name == "switchThermPort" ){ 
-            if ( switchThermPort == "TRUE" ){
-                create("", "ThermalInputPort", "Q_I" );
-            }
-        }
-        if (name =="switchDes") {
-            if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC"))
-            {
-                ind_Vimag.autoSetup = FALSE;
-                dep_power_factor.autoSetup = FALSE;
-            }
-            else {
-                ind_Vimag.autoSetup = TRUE;
-                dep_power_factor.autoSetup = TRUE;
-            }
-        }
-    } // end variableChanged()
-
-    //------------------------------------------------------------
-    //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
-    
-    void calculate() {
-        pf = cos(EP_I.S.phase);
-        P = EP_I.S.r * eff;
-        Loss_r = EP_I.S.r - P;
-        Loss_j = EP_I.S.j;
-        if (switchThermPort=="TRUE"){
-            real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
-              S_eThermMass.execute();
-            }
-        }
-    }
-    // end calculation section
-
-    void prePass() {
-        EP_I.frequency = frequency;
-        EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
-    }
-
+  void prePass() {
+    EP_I.frequency = frequency;
+    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
+  }
 }
 #endif

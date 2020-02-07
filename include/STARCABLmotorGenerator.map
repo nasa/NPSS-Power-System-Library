@@ -41,6 +41,7 @@ void variableChanged(string name, any oldVal) {
         }
     }
 
+    // currently only works with motor element
     if (name == "multiDesign") {
         if (switchDes == DESIGN) {
             ind_trqDes.autoSetup = TRUE;

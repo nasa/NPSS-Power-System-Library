@@ -136,7 +136,7 @@ class Motor extends Element {
     }
 
     real trqDesSet {
-        value = 1.;  IOstatus = "output";  //units = FT_LBF;
+        value = 1.;  IOstatus = "output";  // [ft * lbf];
         description = "Torque at design condition, temp variable";
     }
 

@@ -2,10 +2,10 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
  |                                                                             |
- | File Name:     Generator.int											       |
+ | File Name:     Generator.int											                           |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
  | Date(s):       April 2018                                                   |
  |                                                                             |
@@ -16,259 +16,257 @@
 #define __GENERATOR__
 
 class Generator extends Element {
+  
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------  
+  
+  // title = "";
+
+  description = "The " + isA() + " determines power for a Generator";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+  
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
+  
+  real Current {
+    value = 1.; IOstatus = "input"; units = "A";
+    description = "Current.";
+  } 
+  
+  real CurrentAngle {
+    value = 0; IOstatus = "input"; units = "deg";
+    description = "Current angle.";
+  }
+
+  real eff {
+    value = 1.; IOstatus = "input"; units = "none";
+    description = "Projected efficiency of the cable.";
+  }
+
+  real effBase {
+    value = 1.;  IOstatus = "output";  units = "none";
+    description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";	
+  }
+
+  real effDes {
+    value = 1.;  IOstatus = "input";  units = "none";
+    description = "Adiabatic efficiency at design point.";
+  }
+  
+  real frequency {
+    value = 0; IOstatus = "input"; units = "deg";
+    description = "Generator frequency.";
+  }
+
+  real genResistance {
+    value = 1; IOstatus = "input"; units = "kW";
+    description = "Resistance of generator (based on efficiency).";
+  }
+
+  real Loss_j {
+    value = 0; IOstatus = "output"; units = "kW";
+    description = "Generator loss.";
+  }
+
+  real Loss_r {
+    value = 0; IOstatus = "output"; units = "kW";
+    description = "Generator loss.";
+  }
+
+  real Q_heat {
+    value = 0; IOstatus = "output";
+    description = "Power dissipation at current time.";
+  }
+
+  real Mass {
+    value = 1.; IOstatus = "output"; units = "kg";
+    description = "Mass output of the generator.";
+  }
+
+  real Ndes {
+    value = 1.;  IOstatus = "output";  units = "rpm";
+    description = "Rotational speed at design.";
+  }
+  
+  real Pout {
+    value = 1.;  IOstatus = "output";  units = "kW";
+    description = "Power out of the generator.";
+  }
+
+  real Pin {
+    value = 1.;  IOstatus = "input";  units = "kW";
+    description = "Power in to the generator.";
+  }
+
+  real SpecificPower {
+    value = 13; IOstatus = "input"; units = "none"; // [kW / kg]
+    description = "Power to weight ratio for the generator.";
+  }
+
+  real Speed {
+    value = 1.;  IOstatus = "input";  units = "rpm";
+    description = "Shaft/generator speed.";
+  }
+
+  real trq {
+    value = 1.;  IOstatus = "output";  units = "ft*lbf";
+    description = "Torque from shaft.";
+  }
+
+  real trqDes {
+    value = 1.;  IOstatus = "output";  units = "ft*lbf";
+    description = "Torque at design.";
+  }
+
+  real trqTemp {
+    value = 1.;  IOstatus = "output";  units = "ft*lbf";
+    description = "Temporary torque which the solver drives to match actual torque.";
+  }
+
+  real Vbus_LL {
+    value = 0; IOstatus = "input"; units = "V";
+    description = "Bus voltage (off-design).";
+  } 
+  
+  //------------------------------------
+  // ****** OPTION VARIABLE SETUP ******
+  //------------------------------------
+
+  Option switchDes {
+    allowedValues = { "DESIGN", "OFFDESIGN" } ;
+    description = "Determines if the element is in design or off-design mode.";
+    rewritableValues = FALSE;
+  }
+
+  Option switchThermPort {
+    allowedValues = { "TRUE", "FALSE" };
+    description = "Determines if component needs thermal port.";
+    rewritableValues = FALSE;  // Enables converter optimization.
+    trigger = TRUE;
+  }
+  
+  //----------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
+  //----------------------------------------------------------  
+
+  /* ELECTRICAL PORTS */
+
+  ElectricPort EP_O {
+    description = "Electric port";
+  }
+  
+  /* MECHANICAL PORTS */
+  
+  ShaftOutputPort Sh_O {
+    description = "Mechanical connection to the turbine.";
+  }
+
+  /* SOCKETS */
+
+  Socket S_map {
+    allowedValues = { "effBase" }
+    description = "Socket to calculate generator map performance.";
+    socketType = "MotorGeneratorMap"; 
+  }
+
+  Socket S_eThermMass {
+    allowedValues = { "Q_heat", "Mass" };
+    description = "Thermal mass socket.";
+    socketType = "EThermalMass";
+  }
+
+  //-------------------------------------------
+  // ****** VARIABLE CHANGED METHODOLOGY ******
+  //-------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") { 
+      if (switchThermPort == "TRUE") {
+        create("", "ThermalInputPort", "Q_I");
+      }
+    }
+
+    if (name =="switchDes") {} // do nothing
+  }
+
+  //-----------------------------------------------
+  // ****** PERFORM ENGINEERING CALCULATIONS ******
+  //-----------------------------------------------
+
+  void calculate() {
+    real powerfactor = 1.0;
+    real Vbus = 0;
     
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
+    Speed = Sh_O.Nmech;
+    Pout = EP_O.S.r;
+    Current = EP_O.I.mag;
+
+    if (switchDes == "DESIGN") {
+
+      eff = effDes;
     
-    title = "";
-    description = isA() + " Determines power for a Generator";
-    usageNotes = isA() + "- NOTE TO USERS: This file....";
-    background = "";
+      // compute power to the generator
+      Pin = Pout / eff;
+
+      // get design values 
+      Ndes = Sh_O.Nmech;
+      trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
+      trqTemp = trqDes;
+      trq = trqDes;
     
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
+      // determine loss in the generator
+      Loss_r = Pin - Pout;
+      Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
     
-    real Current {
-        value = 1.; IOstatus="input"; units="A";
-        description = "Current";
-    } 
+      // determine resistance 
+      genResistance =  Loss_r / 3 / Current**2;
     
-    real CurrentAngle {
-        value = 0; IOstatus="input"; units="deg";
-        description = "Current Angle";
+      // compute mass based on assumed specific power
+      // both mass and losses are based on output power (power sent)
+      Mass = Pout / SpecificPower;
     }
 
-    real eff{
-        value=1.; IOstatus="input"; units = "none";
-        description = "Projected Efficiency of the Cable";
+    // set efficiency value
+    if(!S_map.isEmpty()) {
+      S_map.execute();
+    } else {
+      effBase = effDes;
     }
+    eff = effBase;
 
-    real effBase{
-        value = 1.;  IOstatus = "output";  units = "none";
-        description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";	
-    }
-
-    real effDes{
-        value = 1.;  IOstatus = "input";  units = "none";
-        description = "Adiabatic efficiency at design point.";
-    }
-    
-    real frequency {
-        value = 0; IOstatus="input"; units="deg";
-        description = "Generator Frequency";
-    }
-
-    real genResistance {
-        value = 1; IOstatus="input"; units= "kW";
-        description = "Resistance of Generator (based on efficiency)";
-    }
-
-    real Loss_j {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Generator Loss";
-    }
-
-    real Loss_r {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Generator Loss";
-    }
-
-    real Q_heat {
-        value = 0; IOstatus="output";
-        description = "Power dissipation at current time";
-    }
-
-    real Mass {
-        value=1.; IOstatus="output"; units="kg";
-        description = "Mass output of the Generator";
-    }
-
-    real Ndes{
-        value = 1.;  IOstatus = "output";  units = "rpm";
-        description = "rotational speed at design";
-    }
-    
-    real Pout {
-        value = 1.;  IOstatus = "output";  units = "kW";
-        description = "Power out of the generator";
-    }
-
-    real Pin {
-        value = 1.;  IOstatus = "input";  units = "kW";
-        description = "Power in to the generator";
-    }
-
-    real SpecificPower {
-        value = 13; IOstatus="input"; //units=KW_PER_KG;
-        description = "Power to Weight ratio for the Generator";
-    }
-
-    real Speed {
-        value = 1.;  IOstatus = "input";  units = "rpm";
-        description = "Shaft/generator speed";
-    }
-
-    real trq {
-        value = 1.;  IOstatus = "output";  units = "ft*lbf";
-        description = "Torque from shaft";
-    }
-
-    real trqDes{
-        value = 1.;  IOstatus = "output";  units = "ft*lbf";
-        description = "Torque at design";
-    }
-
-    real trqTemp{
-        value = 1.;  IOstatus = "output";  units = "ft*lbf";
-        description = "Temporary torque which the solver drives to match actual torque";
-    }
-
-    real Vbus_LL {
-        value = 0; IOstatus="input"; units="V";
-        description = "Bus voltage (off-design)";
-    } 
-    
-    //------------------------------------------------------------
-    //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
-
-    Option switchDes {
-        allowedValues = { "DESIGN", "OFFDESIGN" } ;
-        description = "Determines if the element is in design or off-design mode";
-        rewritableValues = FALSE;
-    }
-    Option switchThermPort {
-        allowedValues = { "TRUE", "FALSE" };
-        description = "Determines if component needs thermal port";
-        rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
-    }
-    
-    //------------------------------------------------------------
-    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-    //------------------------------------------------------------
-
-    // 	ELECTRICAL PORTS
-
-    ElectricPort EP_O {
-        description = "Electric port";
-    }
-    
-    //MECHANICAL PORTS
-    
-    ShaftOutputPort Sh_O {
-        description = "Mechanical connection to the turbine";
-    }
-
-    // SOCKETS
-
-    Socket S_map {
-        allowedValues = {"effBase"}
-        description = "Socket to calculate generator map performance";
-        socketType = "MotorGeneratorMap"; 
-    }
-
-    Socket S_eThermMass {
-        allowedValues = { "Q_heat", "Mass" };
-        description = "Thermal mass socket";
-        socketType = "EThermalMass";
-    }
-
-    //---------------------------------------------
-    // ******* VARIABLE CHANGED METHODOLOGY *******
-    //---------------------------------------------
-
-    void variableChanged(string name, any oldVal) {
-        if (name == "switchThermPort") { 
-            if (switchThermPort == "TRUE") {
-                create("", "ThermalInputPort", "Q_I" );
-            }
-        }
-
-        if (name =="switchDes") {} // do nothing
-    }
-
-    //------------------------------------------------------------
-    //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
-
-    void calculate() {
-        real powerfactor=1.0;
-        real Vbus=0;
-        
-        Speed = Sh_O.Nmech;
-        Pout = EP_O.S.r;
-        Current = EP_O.I.mag;
-
-        if (switchDes == "DESIGN"){
-            //----------
-            // On-design
-            //----------
-
-            eff = effDes;
-        
-            // compute power to the generator
-            Pin = Pout / eff;
-
-            // get design values 
-            Ndes = Sh_O.Nmech;
-            trqDes = C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Ndes;
-            trqTemp = trqDes;
-            trq = trqDes;
-        
-            // determine loss in the generator
-            Loss_r = Pin - Pout;
-            Loss_j= sqrt((Pin / powerfactor)**2 - Pin**2);
-        
-            // determine resistance 
-            genResistance =  Loss_r / 3 / Current**2;
-        
-            // Compute mass based on assumed specific power.  Both Mass
-            // and loses are based on output power (Power Sent)
-            Mass = Pout / SpecificPower;
-        }
-
-        // set efficiency value
-        if(!S_map.isEmpty()){
-            S_map.execute();
-        } else {
-            effBase = effDes;
-        }
-        eff = effBase;
-
-        // Off-design
-        if (switchDes == "OFFDESIGN") { 
-            
-            // Supply power is load power + losses
-            Pin = Pout / eff;
-            
-            // determine loss in the generator
-            Loss_r = 3 * Current**2 * genResistance;
-            Loss_j=sqrt((Pin / powerfactor)**2 - Pin**2);
-        }
-        
-        // Generator / Turbine Engine shaft connection
-        trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
-        Sh_O.trq = -trq;
-
-        if (switchThermPort=="TRUE"){
-            real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if (!S_eThermMass.isEmpty()) {
-              S_eThermMass.execute();
-            }
-        }
-    }
-    void prePass(){
-        EP_O.frequency = frequency;
-        EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
+    if (switchDes == "OFFDESIGN") { 
+      
+      // supply power is load power + losses
+      Pin = Pout / eff;
+      
+      // determine loss in the generator
+      Loss_r = 3 * Current**2 * genResistance;
+      Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
     }
     
+    // generator / turbine engine shaft connection
+    trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
+    Sh_O.trq = -trq;
+
+    if (switchThermPort == "TRUE"){
+      real KW_PER_BTU_PER_SEC = 1.05505585;
+      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+      Q_heat /= KW_PER_BTU_PER_SEC;
+
+      // run the thermal mass model.
+      if (!S_eThermMass.isEmpty()) {
+        S_eThermMass.execute();
+      }
+    }
+  }
+
+  void prePass(){
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
+  }
 }
 #endif
