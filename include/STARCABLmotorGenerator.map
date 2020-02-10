@@ -3,63 +3,11 @@
 //  |    that is of the type: MotorGeneratorMap
 //  ----------------------------------------------------------------------
 
-//------------------------------------------------------------
-//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-//------------------------------------------------------------
-
-Independent ind_trqTemp {
-    varName = "trqTemp";
-    description = "Varies temporary torque to match calculated torque for map";
-    // autoSetup = TRUE;
-}
-
-Dependent dep_trq_map {
-    eq_lhs = "trqTemp";
-    eq_rhs = "trq";
-    // autoSetup = TRUE;
-}
-
-//---------------------------------------------
-// ******* VARIABLE CHANGED METHODOLOGY *******
-//---------------------------------------------
-
-void variableChanged(string name, any oldVal) {
-    if (name == "switchThermPort") { 
-        if (switchThermPort == "TRUE") {
-            create("", "ThermalInputPort", "Q_I" );
-        }
-    }
-
-    if (name =="switchDes") {
-        if (switchDes == DESIGN) {
-            ind_trqTemp.autoSetup = FALSE;
-            dep_trq_map.autoSetup = FALSE;
-        } else if (switchDes == OFFDESIGN) {
-            effDes.IOstatus = "output";
-            ind_trqTemp.autoSetup = TRUE;
-            dep_trq_map.autoSetup = TRUE;
-        }
-    }
-
-    // currently only works with motor element
-    if (name == "multiDesign") {
-        if (switchDes == DESIGN) {
-            ind_trqDes.autoSetup = TRUE;
-            dep_trqDesSet.autoSetup = TRUE;
-            ind_Ndes.autoSetup = TRUE;
-            dep_NdesSet.autoSetup = TRUE;
-        }
-    }
-}
-
 Subelement MotorGeneratorMap S_map {
 
     // default design point location
     NmapDes = .5;
     trqMapDes = .488;
-
-    // resulting performance
-    //effMap = 
 
     Table TB_eff(real trqMap, real Nmap){
 
@@ -128,12 +76,12 @@ Subelement MotorGeneratorMap S_map {
             effMap = { .796,    .877,   .907,  .923,   .933,   .939, .944,   .948,   .950,  .952,   .953,  .954}
         }
 
-        Nmap.interp = "linear";    //find more accurate case
+        Nmap.interp = "linear";    // find more accurate case
         Nmap.extrap = "none";
 
-        trqMap.interp = "linear";    //find more accurate case
+        trqMap.interp = "linear";    // find more accurate case
         trqMap.extrap = "none";
 
         printExtrap = 1;
-    } // end TB_eff  
-} // end S_map
+    }
+}

@@ -30,16 +30,16 @@ extern real Mass;
 
   // title = "";
 
-  description = "The " + isA() + " subelement performs a simple set of calculations to represent the thermal mass "
-  "(temperature dynamics) of an electrical component. This subelement is intended to be incorporated in an appropriate "
-  "socket within the electrical component and interfaces the component to a thermal management system via a thermal "
+  description = "The " + isA() + " subelement performs a simple set of calculations to represent the thermal mass " +
+  "(temperature dynamics) of an electrical component. This subelement is intended to be incorporated in an appropriate " +
+  "socket within the electrical component and interfaces the component to a thermal management system via a thermal " +
   "port that must live within the electrical component.";
 
   usageNotes = isA() +
-  "\n"
-  "- Parent component must have a thermal port.\n\n"
-  "- Parent component must also have a Q_heat variable that contains the
-  heat generated within the component at the given timestep.\n\n"
+  "\n" +
+  "- Parent component must have a thermal port.\n\n" +
+  "- Parent component must also have a Q_heat variable that contains the " +
+  "heat generated within the component at the given timestep.\n\n" +
   "- The component temperature is calculated with a solver independent
   integrator pair.";
 
@@ -49,33 +49,33 @@ extern real Mass;
   // ****** SETUP VARIABLES ******
   //------------------------------
 
-  real Q_in{
-    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+  real Q_in {
+    value = 0;  IOstatus = INPUT;  units = "Btu/sec";
     description = "Input Q dissipated within electrical device.";
   }
   
-  real Q_out{
-    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+  real Q_out {
+    value = 0;  IOstatus = INPUT;  units = "Btu/sec";
     description = "Heat flow out of this device, going into the cooling medium.";
   }
 
-  real Q_net{
-    value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
+  real Q_net {
+    value = 0;  IOstatus = INPUT;  units = "Btu/sec";
     description = "Net heat flow through this device.";
   }
 
   real Cp {
-    value = 0;  IOstatus = INPUT;  units = BTU_PER_LBM_R;
+    value = 0;  IOstatus = INPUT;  units = "Btu/(lbm*R)";
     description = "Component lumped Cp (specific heat).";
   }
 
   real dTqdt {
-    value = 0;  IOstatus = OUTPUT;  units = PER_SEC;
+    value = 0;  IOstatus = OUTPUT;  units = "1/sec";
     description = "Temperature time derivative.";
   }
   
   real T {
-    value = 518.67;  IOstatus = INPUT; units = RANKINE;
+    value = 518.67;  IOstatus = INPUT; units = "R";
     description = "Temperature.";
     trigger = 1;
   }

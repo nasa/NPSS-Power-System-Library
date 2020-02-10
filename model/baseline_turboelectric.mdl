@@ -21,11 +21,11 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
+	#include <STARCABLmotorGenerator.map>
 	Vbus_LL=1000;	
 	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
-	#include <STARCABLmotorGenerator.map>
 }
 
 Element Breaker Breaker1 {
@@ -44,9 +44,9 @@ Element AeroCable Cable1 {
 }
 
 Element Rectifier Rect1 {
+	#include <modelInverterRectifier.map>
 	effDes = .95;
 	pwrDes = 4000.;
-	#include <modelInverterRectifier.map>
 	frequency = 400.;
     S_map.pwrMapDes = 0.5;
 }
@@ -66,9 +66,9 @@ Element AeroCable Cable2 {
 }
 
 Element Inverter Inv1 {
+	#include <modelInverterRectifier.map>
 	effDes = .95;
 	pwrDes = 4000.;
-	#include <modelInverterRectifier.map>
 	frequency=400;
     S_map.pwrMapDes = 0.5;
 }
@@ -90,13 +90,13 @@ Element AeroCable Cable3 {
 }
 
 Element Motor EM1 {
+	 #include <STARCABLmotorGenerator.map>
 	 effDes=0.96;
 	 powerfactor=1.0;
 	 SpecificPower=13.0; 
 	 trqDes=3500.0; 
 	 frequency = 400.;
 	 //Vreal = 1000.;
-	 #include <STARCABLmotorGenerator.map>
 }
 
 

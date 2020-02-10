@@ -1,0 +1,31 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
+ |                                                                             |
+ | File Name:     DC_DC_Converter.int										                       |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       March 2019                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __DC_DC_CONVERTER__
+#define __DC_DC_CONVERTER__
+
+class DC_DC_Converter extends Element {
+
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------
+
+  // title = "";
+
+  description = "The " + isA() + " severs as an electrical DC-DC converter.";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+}
+#endif

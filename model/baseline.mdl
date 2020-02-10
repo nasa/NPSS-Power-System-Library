@@ -27,11 +27,11 @@ cout<<"======================================="<<endl;
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
+	#include <STARCABLmotorGenerator.map>
 	Vbus_LL=1200;	
 	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
-	#include <STARCABLmotorGenerator.map>
 }
 
 Element AeroCable Cable1 {
@@ -39,13 +39,13 @@ Element AeroCable Cable1 {
 }
 
 Element Motor EM1 {
+	 #include <STARCABLmotorGenerator.map>
 	 effDes=0.96;
 	 powerfactor=0.98;
 	 SpecificPower=13.0; 
 	 trq=55144.0; 
 	 frequency = 400.;
 	 Vreal = 1000.;
-	 #include <STARCABLmotorGenerator.map>
 }
 
 

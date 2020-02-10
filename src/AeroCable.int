@@ -86,12 +86,12 @@ class AeroCable extends Element {
   }
 
   real Vreal_drop {
-    value = 0; IOstatus = "output"; units = NONE;
+    value = 0; IOstatus = "output"; units = "none";
     description = "Voltage dropped across cable given operating current.";
   }
 
   real Vimag_drop {
-    value = 0; IOstatus = "output"; units = NONE;
+    value = 0; IOstatus = "output"; units = "none";
     description = "Imaginary component of voltage dropped across cable, given operating current.";
   }
   
@@ -100,27 +100,27 @@ class AeroCable extends Element {
   ComplexNumber I;
   
   int n_phases {
-    value = 3; IOstatus = "input"; units = NONE;
+    value = 3; IOstatus = "input"; units = "none";
     description = "Number of electrical phase currents carried by this cable (cable assembly).";
   }
   
   int n_parallel {
-    value = 6; IOstatus = "input"; units = NONE;
+    value = 6; IOstatus = "input";units = "none";
     description = "Constraint: max allowed number of parallel wires to make the cable.";
   }
   
   real drop_tolerance {
-    value = 5.; IOstatus = "input"; units = NONE;
+    value = 5.; IOstatus = "input"; units = "none";
     description = "Constraint: max voltage allowed to drop across cable, as a percentage of input voltage.";
   }
   
   string cable_size {
-    value = ""; IOstatus = "output"; units = NONE;
+    value = ""; IOstatus = "output"; units = "none";
     description = "Cable size in AWG or kcmil.";
   }
   
   real paralleled {
-    value = 1.; IOstatus = "output"; units = NONE;
+    value = 1.; IOstatus = "output"; units = "none";
     description = "Number of wires paralleled to make this cable.";
   }
   
@@ -130,7 +130,7 @@ class AeroCable extends Element {
   }
   
   int params_test {
-    value = 0; IOstatus = "output"; units = NONE;
+    value = 0; IOstatus = "output"; units = "none";
     description = "Error flag for the sizing tool.";
   }
   
@@ -436,15 +436,12 @@ class AeroCable extends Element {
               Mass = lines * cable_mass[index] * conductors * length; // [lbs]
               optimal_wire = index;
               paralleled = conductors;
-              // index = cable_sizes.entries();  // terminate loop
-              break;
+              index = cable_sizes.entries();  // terminate loop
             } else {
-              // index = cable_sizes.entries();  // terminate loop
-              break;
+              index = cable_sizes.entries();  // terminate loop
             }
           } else {
-            // index++; // terminate loop
-            break;
+            index++; // terminate loop
           }
         }
       }
@@ -568,17 +565,14 @@ class AeroCable extends Element {
               Mass = cable_mass[index-1] * conductors * 2;
               optimal_wire = index;
               paralleled = conductors;
-              // index = cable_sizes.entries() + 1;  // terminate loop
-              break;
+              index = cable_sizes.entries() + 1;  // terminate loop
             }
             else {
-              // index = cable_sizes.entries() + 1;  // terminate loop
-              break;
+              index = cable_sizes.entries() + 1;  // terminate loop
             }
           }
           else {
-            // index++;  // terminate loop
-            break;
+            index++;  // terminate loop
           }
         }
       }

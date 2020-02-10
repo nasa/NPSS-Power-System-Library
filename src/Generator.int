@@ -252,7 +252,7 @@ class Generator extends Element {
     trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
     Sh_O.trq = -trq;
 
-    if (switchThermPort == "TRUE"){
+    if (switchThermPort == "TRUE") {
       real KW_PER_BTU_PER_SEC = 1.05505585;
       Q_heat = sqrt(Loss_r**2 + Loss_j**2);
       Q_heat /= KW_PER_BTU_PER_SEC;
@@ -264,7 +264,7 @@ class Generator extends Element {
     }
   }
 
-  void prePass(){
+  void prePass() {
     EP_O.frequency = frequency;
     EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
   }

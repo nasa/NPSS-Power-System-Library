@@ -10,21 +10,18 @@
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
+
 #ifndef __MOTOR_GENERATOR_MAP__
 #define __MOTOR_GENERATOR_MAP__
 
 #include <InterpIncludes.ncp>
 
-// Variables that exist in the parent Motor or Generator element 
-// and are used in this subelement.
+// variables that exist in the parent Motor or Generator element and are used in this subelement
 extern real Speed;
 extern real trqTemp;
 extern real Ndes;
 extern real trqDes;
 extern real effDes;
-
-// Variables that exist in the parent Motor or Generator element
-// and are set by this subelement.
 extern real effBase;
 
 class MotorGeneratorMap extends Subelement {
@@ -35,7 +32,7 @@ class MotorGeneratorMap extends Subelement {
 
   // title = "";
 
-  description = "The " + isA() + " handles the determination of efficiency for a generator or motor. "
+  description = "The " + isA() + " handles the determination of efficiency for a generator or motor. " +
   "It performs calls to a map that determines the efficiency as a function of rotational speed and torque.";
 
   // usageNotes = isA();
@@ -53,36 +50,43 @@ class MotorGeneratorMap extends Subelement {
 
   real effMapDes {
     value = 1;  IOstatus = OUTPUT;  units = NONE;
-    description = "Efficiency of motor or generator at design point."
+    description = "Efficiency of motor or generator at design point." +
     " Returned from unscaled map TB_eff at trqMapDes and NmapDes.";
   }
+
   real Nmap {
-    value = 0.;  IOstatus = OUTPUT;  units = RPM;
-    description = "Speed scaled to map. "
+    value = 0.;  IOstatus = OUTPUT;  units = "rpm"; // [rev / min]
+    description = "Speed scaled to map. " +
     "Equal to NmapDes during design, and calculated as N / s_Ndes during off-design.";
   }
+
   real NmapDes {
-    value = 0.;  IOstatus = INPUT;  units = RPM;
+    value = 0.;  IOstatus = INPUT;  units = "rpm"; // [rev / min]
     description = "Speed scaled to map at design point. Set by map itself.";
   }
+
   real trqMap {
-    value = 0.;  IOstatus = OUTPUT;  units = FT_LBF;
-    description = "Torque scaled to map. "
+    value = 0.;  IOstatus = OUTPUT;  units = "ft*lbf";
+    description = "Torque scaled to map. " +
     "Equal to trqMapDes during design, and calculated at T / s_trqDes during off-design.";
   }
+
   real trqMapDes {
-    value = 0.;  IOstatus = INPUT;  units = FT_LBF;
+    value = 0.;  IOstatus = INPUT;  units = "ft*lbf";
     description = "Torque scaled to map at design point. Set by map itself.";
   }
+
   real s_effDes {
     value = 1.;  IOstatus = OUTPUT;  units = NONE;
-    description = "Efficiency map scalar. "
+    description = "Efficiency map scalar. " +
     "Relates actual design efficiency to scaled design efficiency (effDes / effMapDes).";
   }
+
   real s_Ndes {
     value = 1.;  IOstatus = OUTPUT;  units = NONE;
     description = "Speed map scalar. Relates actual design speed to scaled design speed (Ndes / NmapDes).";
   }
+
   real s_trqDes {
     value = 1.;  IOstatus = OUTPUT;  units = NONE;
     description = "Torque map scalar. Relates actual design torque to scaled design (trqDes / trqMapDes).";
@@ -107,8 +111,8 @@ class MotorGeneratorMap extends Subelement {
   addInterface("MOTOR_GENERATOR_MAP"); // compatible with the Motor and Generator elements' S_map socketType
 
   Socket TB_eff {
-    description = "Efficiency vs. speed and torque. "
-    "A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. "
+    description = "Efficiency vs. speed and torque. " +
+    "A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. " +
     "The format is TB_eff(real Nmap, real trqMap), and returns effMap.";
     socketType = "Function";
     required = TRUE;
@@ -116,11 +120,32 @@ class MotorGeneratorMap extends Subelement {
     returnType = "real";
   } 
 
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  Independent ind_trqTemp {
+    varName = "trqTemp";
+    description = "Varies temporary torque to match calculated torque for map.";
+    autoSetup = FALSE;
+  }
+
+  Dependent dep_trq_map {
+    eq_lhs = "trqTemp";
+    eq_rhs = "trq";
+    autoSetup = FALSE;
+  }
+
   //---------------------------------------------
   // ******* VARIABLE CHANGED METHODOLOGY *******
   //---------------------------------------------
 
   void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") { 
+        if (switchThermPort == "TRUE") {
+            create("", "ThermalInputPort", "Q_I" );
+        }
+    }
 
     if (name == "switchDes") {
       if (switchDes == DESIGN) {
@@ -129,12 +154,28 @@ class MotorGeneratorMap extends Subelement {
         s_effDes.IOstatus = OUTPUT;
         s_Ndes.IOstatus = OUTPUT;
         s_trqDes.IOstatus = OUTPUT;
+
+        ind_trqTemp.autoSetup = FALSE;
+        dep_trq_map.autoSetup = FALSE;
       } else if (switchDes == OFFDESIGN) {
         NmapDes.IOstatus = OUTPUT;
         trqMapDes.IOstatus = OUTPUT;
         s_effDes.IOstatus = INPUT;
         s_Ndes.IOstatus = INPUT;
         s_trqDes.IOstatus = INPUT;
+        effDes.IOstatus = "output";
+
+        ind_trqTemp.autoSetup = TRUE;
+        dep_trq_map.autoSetup = TRUE;
+      }
+    }
+
+    if (name == "multiDesign") {
+      if (switchDes == DESIGN) {
+        ind_trqDes.autoSetup = TRUE;
+        dep_trqDesSet.autoSetup = TRUE;
+        ind_Ndes.autoSetup = TRUE;
+        dep_NdesSet.autoSetup = TRUE;
       }
     }
   }
@@ -144,7 +185,6 @@ class MotorGeneratorMap extends Subelement {
   //-------------------------------------------------
 
   void calculate() {
-
     if(switchDes == DESIGN) {
       // set map values at design point
       Nmap = NmapDes;
@@ -163,9 +203,8 @@ class MotorGeneratorMap extends Subelement {
       trqMap = trqTemp / s_trqDes;
       effMap = TB_eff(trqMap, Nmap);
       
-      //set efficiency to send to parent element
+      // set efficiency to send to parent element
       effBase = effMap * s_effDes;
-
     }
   }
 }

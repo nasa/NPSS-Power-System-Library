@@ -164,8 +164,8 @@ class ElectricPort extends Subelement {
     
     // check to see if we are in DC power mode and passing imaginary info
     if (ElectricPowerType == "DC") {	
-      if (VjRMS!=0. || IjRMS!=0.) {
-        ESOreport(ESO_Id_ImagInDC, refport + " contains imaginary components.", 1);
+      if (VjRMS != 0. || IjRMS != 0.) {
+        ESOreport(ESO_Id_ImagInDC, refport + " contains imaginary components!", 1);
       }
     }
     

@@ -129,8 +129,8 @@ class Enode extends Element {
 
   void calculate() {
         
-    //  sum up the current components at node
-    //  solver will drive to zero
+    // sum up the current components at node
+    // solver will drive to zero
     Inet.setrj( 0., 0. );
 
     int i;

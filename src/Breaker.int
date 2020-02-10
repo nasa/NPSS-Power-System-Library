@@ -23,8 +23,8 @@ class Breaker extends Element {
 
   // title = "";
 
-  description = "The " + isA() + " represents the performance (losses) of a circuit breaker. "
-  "On-design, the breaker runs at the design efficiency and computes its impedance. "
+  description = "The " + isA() + " represents the performance (losses) of a circuit breaker. " +
+  "On-design, the breaker runs at the design efficiency and computes its impedance. " +
   "Off-design, it runs with the impedance. Supports DC, 1-phase, and 3-phase.";
 
   // usageNotes = isA() + "- NOTE TO USERS: This file....";

@@ -163,7 +163,5 @@ background = "";
     // cout<<"Q_net = Q_in - Q_out => "<<Q_net<< " = "<<Q_in<<"  - "<<Q_out<<endl;
 
   }
-
 }
-
 #endif
