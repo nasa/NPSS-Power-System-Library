@@ -1,0 +1,44 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
+ |                                                                             |
+ | File Name:     baseline_all_elec.run                                        |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Run file for DC source to DC-DC converter to power load.     |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+/**
+ ---------
+ | Setup |
+ ---------
+**/
+
+#include "npssel.view"
+#include "PrintUtils.fnc"
+
+#include "baseline_all_elec.mdl"
+
+setOption("switchDes", "DESIGN");
+autoSolverSetup();
+
+/**
+ ----------------
+ | Solver Setup |
+ ----------------
+**/
+
+/**
+ --------------------
+ | Run Solver Cases |
+ --------------------
+**/
+
+run();
+printCaseStats("solver");

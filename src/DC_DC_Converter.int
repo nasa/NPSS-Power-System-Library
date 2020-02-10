@@ -57,9 +57,14 @@ class DC_DC_Converter extends Element {
     description = "Output power.";
   }
 
-  real V {
+  real Voltage {
     value = 1000.; IOstatus = "input"; units = "V"; // [voltage]
     description = "Converter voltage.";
+  }
+
+  real K {
+    value = 2; IOstatus = "input"; units = "none";
+    description = "Voltage ratio (V_in * K = V_out).";
   }
 
   real SpecificPower {
@@ -95,7 +100,7 @@ class DC_DC_Converter extends Element {
   Option switchThermPort {
     allowedValues = { "TRUE", "FALSE" }
     description = "Determines if component needs thermal port.";
-    rewritableValues = FALSE;  // Enables converter optimization.
+    rewritableValues = FALSE;  // enables converter optimization.
     trigger = TRUE;
   }
 
@@ -132,15 +137,15 @@ class DC_DC_Converter extends Element {
   //-----------------------------------------------------
 
   Independent V { 
-    varName = "V"; 
-    autoSetup = TRUE;
+    varName = "Voltage"; 
     indepRef = "1000";
     description = "Varies the inverter voltage.";
+    autoSetup = TRUE;
   }
   
   Dependent dep_Power {
-    eq_rhs = "EP_I.S.rRMS * eff";
     eq_lhs = "EP_O.S.rRMS";
+    eq_rhs = "EP_I.S.rRMS * eff";
     autoSetup = TRUE;
   }
   
@@ -201,9 +206,8 @@ class DC_DC_Converter extends Element {
   // ******* PREPASS FUNCTION *******
   //------------------------------------------------------------
   void prePass() {	
-    EP_I.frequency = frequency;
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, EP_I.V.mag, 0);
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, V, 0);
+    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Voltage, 0);
+    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Voltage * K, 0);
   }
 }
 #endif

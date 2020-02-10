@@ -13,20 +13,15 @@ Several examples are included in the library to demonstrate the use of the
 various components, and how they may be connected to an NPSS gas-turbine engine
 model.
 
-## Setup
-
-It is ***highly*** recommended to run `NPSS-PSL-env.bat` in the scripts
-directory to configure the NPSS PSL environment and binary.
-
 ## Usage
 
-If you have run the environment batch script, you can now run a model like so:
+If you have your NPSS environment set up, you can now run a model like so:
 
 ```bat
 runnpss-psl run\[file_name].run
 ```
 
-> NOTE: It is recommended you currently run this command from the project root
+> NOTE: You must run this command from the project root
 directory (containing "src", "model", etc).
 
 ## Example

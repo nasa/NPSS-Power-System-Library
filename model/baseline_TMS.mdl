@@ -34,14 +34,14 @@ Element ThermalDuct generator_cooler{
   eff = 0.8;
 }
 #ifdef POWER_ELECTRONICS
-    Element ThermalDuct rectifier_cooler{
-      dPqP_dmd = 0.01;
-      eff = 0.8;
-    }
-    Element ThermalDuct inverter_cooler{
-      dPqP_dmd = 0.01;
-      eff = 0.8;
-    }
+  Element ThermalDuct rectifier_cooler{
+    dPqP_dmd = 0.01;
+    eff = 0.8;
+  }
+  Element ThermalDuct inverter_cooler{
+    dPqP_dmd = 0.01;
+    eff = 0.8;
+  }
 #endif
 Element ThermalDuct motor_cooler{
   dPqP_dmd = 0.01;
@@ -64,30 +64,30 @@ Element HeatExchanger HEX{
 }
 
 Element FlowEnd fe_air{
-    void postexecute(){
-      //cerr << "comp is " << Fl_I.comp << endl;
-    }
+  void postexecute(){
+    //cerr << "comp is " << Fl_I.comp << endl;
+  }
 }
 
 Element FlowEnd fe_coolant{
-    void postexecute(){
-      //cerr << "comp is " << Fl_I.comp << endl;
-    }
+  void postexecute(){
+    //cerr << "comp is " << Fl_I.comp << endl;
+  }
 }
 #ifdef POWER_ELECTRONICS
-    linkPorts("fs_coolant.Fl_O","generator_cooler.Fl_I", "FC1");
-    linkPorts("generator_cooler.Fl_O","rectifier_cooler.Fl_I", "FC2");
-    linkPorts("rectifier_cooler.Fl_O","inverter_cooler.Fl_I", "FC3");
-    linkPorts("inverter_cooler.Fl_O","motor_cooler.Fl_I", "FC4");
-    linkPorts("motor_cooler.Fl_O","volume.Fl_I", "FC5");
-    linkPorts("volume.Fl_O","HEX.Fl_I1", "FC6");
-    linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC7");
+  linkPorts("fs_coolant.Fl_O","generator_cooler.Fl_I", "FC1");
+  linkPorts("generator_cooler.Fl_O","rectifier_cooler.Fl_I", "FC2");
+  linkPorts("rectifier_cooler.Fl_O","inverter_cooler.Fl_I", "FC3");
+  linkPorts("inverter_cooler.Fl_O","motor_cooler.Fl_I", "FC4");
+  linkPorts("motor_cooler.Fl_O","volume.Fl_I", "FC5");
+  linkPorts("volume.Fl_O","HEX.Fl_I1", "FC6");
+  linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC7");
 #else
-    linkPorts("fs_coolant.Fl_O","generator_cooler.Fl_I", "FC1");
-    linkPorts("generator_cooler.Fl_O","motor_cooler.Fl_I", "FC4");
-    linkPorts("motor_cooler.Fl_O","volume.Fl_I", "FC5");
-    linkPorts("volume.Fl_O","HEX.Fl_I1", "FC6");
-    linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC7");
+  linkPorts("fs_coolant.Fl_O","generator_cooler.Fl_I", "FC1");
+  linkPorts("generator_cooler.Fl_O","motor_cooler.Fl_I", "FC4");
+  linkPorts("motor_cooler.Fl_O","volume.Fl_I", "FC5");
+  linkPorts("volume.Fl_O","HEX.Fl_I1", "FC6");
+  linkPorts("HEX.Fl_O1","fe_coolant.Fl_I", "FC7");
 #endif
 
 linkPorts("fs_air.Fl_O","HEX.Fl_I2", "FC11");

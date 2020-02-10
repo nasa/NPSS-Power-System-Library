@@ -43,7 +43,7 @@ class ConstantPowerLoad extends Element {
   }
 
   real P {
-    value = 0; IOstatus = "output"; unitsa = "kW"; // [kilowatts]
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power doing useful work in this load element.";
   }
 
@@ -73,7 +73,7 @@ class ConstantPowerLoad extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus="output"; units = "W" // [watts]
+    value = 0; IOstatus="output"; units = "W"; // [watts]
     description = "Power dissipation in BTU/s at current time.";
   }
 
