@@ -107,7 +107,16 @@ cout << "=======================\n"
 run(); CASE++;
 page.display();
 printCaseStats("solver");
+//printCaseStats("HOV.solver");
+//printCaseStats("CRZ.solver");
 
+// Jonathan, can you get rid of this quit, and then get off-design working like you have for the single design point?
+// What you'll need to do is get rid of the CRZ assembly or otherwise remove it from the solver sequence and remove
+// its solver variables from the solver deps/indeps. Then set up the HOV to run off-design. Once you have it working
+// let's also get the "energy tracking" feature I added to the source working as well, and let's set up a really simple
+// mission where we can track the energy. Try to get as far as you can, and then let me know where you end up.
+// Great work today!!!
+// - George
 quit();
 
 int i;
@@ -120,7 +129,6 @@ printSolverSetup("HOV.solver", FALSE);
 CRZ.autoSolverSetup(); 
 printSolverSetup("CRZ.solver", FALSE);
 autoSolverSetup(); 
-quit();
 printSolverSetup("solver", FALSE);
 
 cout << "=======================\n"
