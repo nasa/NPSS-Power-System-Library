@@ -3,7 +3,5 @@
 *.csv
 *.lib
 
-output/*
-
 fort.76
 temp.out
