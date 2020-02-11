@@ -135,12 +135,20 @@ GroupBlock Electrical {
 		//showColHeader=FALSE; 	
 	}
 
+   DColTBlock dc_dc_converter { 
+		titleBody = "  DC-DC Converters"; 
+		compType = "DC_DC_Converter"; 
+		compTypeFormat = "????????????"; 
+		compAttr = {"pwrOut", "EP_I.S.r", "EP_O.S.r", "EP_I.V.r", "K", "EP_O.V.r", "EP_I.I.mag", "EP_O.I.mag", "Mass", "eff", "effBase", "effDes"}; 
+   }
+
    anchor = "title"; 
    title.bottom = "source"; 
    source.bottom = "generator";
    generator.bottom = "rectifier";
    rectifier.bottom = "inverter";
-   inverter.bottom = "motor"; 
+   inverter.bottom = "dc_dc_converter";
+   dc_dc_converter.bottom = "motor"; 
    motor.bottom = "cable"; 
    cable.bottom =  "aerocable";
    aerocable.bottom =  "breaker";

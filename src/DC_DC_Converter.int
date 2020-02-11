@@ -3,7 +3,7 @@
  |                                                                             |
  | NASA Glenn Research Center                                                  |
  | 21000 Brookpark Rd 		                                                     |
- | Cleveland, OH, 44135 	                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     DC_DC_Converter.int										                       |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
@@ -68,7 +68,7 @@ class DC_DC_Converter extends Element {
   }
 
   real SpecificPower {
-    value = 13; IOstatus = "input"; units = "none"; // [kW/kg]
+    value = 9; IOstatus = "input"; units = "none"; // [kW/kg]
     description = "Power to weight ratio for the component.";
   }
 
@@ -98,7 +98,7 @@ class DC_DC_Converter extends Element {
   }
 
   Option switchThermPort {
-    allowedValues = { "TRUE", "FALSE" }
+    allowedValues = { "FALSE", "TRUE" }
     description = "Determines if component needs thermal port.";
     rewritableValues = FALSE;  // enables converter optimization.
     trigger = TRUE;
@@ -122,7 +122,7 @@ class DC_DC_Converter extends Element {
 
   Socket S_map {
     allowedValues = { "effBase" }
-    description = "Socket to calculate motor map performance.";
+    description = "Socket to calculate converter map performance.";
     socketType = "INVERTER_RECTIFIER_MAP";
   }
 
@@ -139,7 +139,7 @@ class DC_DC_Converter extends Element {
   Independent V { 
     varName = "Voltage"; 
     indepRef = "1000";
-    description = "Varies the inverter voltage.";
+    description = "Varies the converter voltage.";
     autoSetup = TRUE;
   }
   
@@ -176,7 +176,7 @@ class DC_DC_Converter extends Element {
       pwrDes = pwrOut;
       
       // compute mass based on assumed specific power
-      // Both mass and loses are based on output power (power sent)
+      // both mass and loses are based on output power (power sent)
       Mass = pwrOut / SpecificPower;
     }
 
@@ -190,24 +190,24 @@ class DC_DC_Converter extends Element {
     
     Loss_r = EP_I.S.r - EP_O.S.r;
 
-    if (switchThermPort=="TRUE") {
+    if (switchThermPort == "TRUE") {
       real KW_PER_BTU_PER_SEC = 1.05505585;
-      Q_heat = sqrt(Loss_r**2);
-      Q_heat /= KW_PER_BTU_PER_SEC;
+      Q_heat = Loss_r / KW_PER_BTU_PER_SEC;
 
-      // run the thermal mass model.
+      // run the thermal mass model
       if (!S_eThermMass.isEmpty()) {
         S_eThermMass.execute();
       }
     }
   }
   
-  //------------------------------------------------------------
-  // ******* PREPASS FUNCTION *******
-  //------------------------------------------------------------
+  //-------------------------------
+  // ****** PREPASS FUNCTION ******
+  //-------------------------------
+
   void prePass() {	
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Voltage, 0);
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Voltage * K, 0);
+    EP_I.setIVRMS(EP_I.I.r, 0, Voltage, 0);
+    EP_O.setIVRMS(EP_O.I.r, 0, Voltage * K, 0);
   }
 }
 #endif
