@@ -171,7 +171,7 @@ class Motor extends Element {
   }
 
   Option multiDesign {
-    allowedValues = { "TRUE", "FALSE" }
+    allowedValues = { "FALSE", "TRUE" }
     description = "Determines if component is undergoing multi-design point simulation.";
     rewritableValues = FALSE;
   }

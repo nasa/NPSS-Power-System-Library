@@ -159,6 +159,7 @@ class Source extends Element {
      eq_rhs = "effDes";
      autoSetup = TRUE;
   }
+
   Dependent dep_power_factor{
      eq_rhs = "pf";
      eq_lhs = "pfDes";
@@ -170,8 +171,8 @@ class Source extends Element {
   // ****** VARIABLE CHANGED METHODOLOGY ******
   //-------------------------------------------
 
-  /*
   void variableChanged(string name, any oldVal){
+    /*
     if (name == "switchThermPort") { 
        if (switchThermPort == "TRUE") {
            create("", "ThermalInputPort", "Q_I");
@@ -186,8 +187,8 @@ class Source extends Element {
            dep_power_factor.autoSetup = TRUE;
        }
     }
+    */
   }
-  */
 
   //-----------------------------------------------
   // ****** PERFORM ENGINEERING CALCULATIONS ******
