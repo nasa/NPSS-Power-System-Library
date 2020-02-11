@@ -56,7 +56,7 @@ class AeroCable extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus = "output"; units = "W"; // [watts]
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [watts]
     description = "Power dissipation at current time.";
   }
 

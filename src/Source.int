@@ -15,6 +15,9 @@
 #ifndef __SOURCE__
 #define __SOURCE__
 
+int ESO_Id_ExceededEnergyDes = 10000*145 + 100*22 + 1;
+ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
+
 class Source extends Element {
   
   //----------------------------
@@ -23,7 +26,12 @@ class Source extends Element {
   
   // title = "";
 
-  description = "The " + isA() + " serves as a voltage source with constant impedance.";
+  description = "The " + isA() + " serves as a voltage source with constant impedance. It also " +
+                "contains simplified logic for calculating energy consumed to be used with a MDP " +
+                "solver setup. This energy is used to compute mass via a flat assumption for " +
+                "specific energy. Users can also specify specific power. Mass is calculated " +
+                "as the larger of the two masses (design power/spc power) and " +
+                "(design energy/spc energy)";
   
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
@@ -75,8 +83,28 @@ class Source extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus = "output"; units = "W"; // [watts]
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [watts]
     description = "Power dissipation in BTU/s at current time.";
+  }
+
+  real energyDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Design energy for this source.";
+  }
+
+  real energyConsumed {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Total energy consumed over mission, only use off-design.";
+  }
+
+  real energy {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Energy consumed at the current operating point.";
+  }
+
+  real segmentTime {
+    value = 0.25; IOstatus = "output"; units = "hr"; // [h]
+    description = "Hours spent running at the current operating point.";
   }
 
   real Vreal {
@@ -90,8 +118,13 @@ class Source extends Element {
   }
   
   real SpecificPower {
-    value = 13; IOstatus = "input"; units = "none";
+    value = 13; IOstatus = "input"; units = "none"; // [kW/kg]
     description = "Power to weight ratio for the source.";
+  }
+  
+  real SpecificEnergy {
+    value = 130; IOstatus = "input"; units = "none"; // [W-h/kg]
+    description = "Energy to weight ratio for the source.";
   }
 
   real Mass {
@@ -114,6 +147,19 @@ class Source extends Element {
     allowedValues = { "TRUE", "FALSE" }
     description = "Determines if component needs thermal port.";
     rewritableValues = FALSE;  // enables converter optimization
+    trigger = TRUE;
+  }
+
+  Option switchTrackEnergy {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if we should track energy or not when running off-design.";
+    rewritableValues = FALSE;  // enables converter optimization
+  }
+
+  Option multiDesign {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if component is undergoing multi-design point simulation.";
+    rewritableValues = FALSE;
     trigger = TRUE;
   }
   
@@ -139,55 +185,35 @@ class Source extends Element {
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  /*
-  Independent ind_R { 
-     varName = "R"; 
-     autoSetup = TRUE;
-     indepRef = "10000";
-     description = "Varies the resistive component of the output impedance.";
+  // MDP variable
+  Independent ind_energyDes {
+    varName = "energyDes";
+    description = "Varies design energy to match calculated energy at design condition.";
   }
 
-  Independent ind_L { 
-     varName = "L"; 
-     autoSetup = TRUE;
-     indepRef = "10000";
-     description = "Varies the inductive component of the output impedance.";
+  // MDP variable
+  Dependent dep_energyDes {
+    eq_lhs = "energyDes";
+    eq_rhs = "energy";
   }
   
-  Dependent dep_eff {
-     eq_lhs = "eff";
-     eq_rhs = "effDes";
-     autoSetup = TRUE;
-  }
-
-  Dependent dep_power_factor{
-     eq_rhs = "pf";
-     eq_lhs = "pfDes";
-     autoSetup = TRUE;
-  }
-  */
-
   //-------------------------------------------
   // ****** VARIABLE CHANGED METHODOLOGY ******
   //-------------------------------------------
 
-  void variableChanged(string name, any oldVal){
-    /*
+  void variableChanged(string name, any oldVal) {
+
     if (name == "switchThermPort") { 
        if (switchThermPort == "TRUE") {
            create("", "ThermalInputPort", "Q_I");
        }
     }
-    if (name =="switchDes") {
-       if (EP_O.ElectricPowerType == "DC") {
-           ind_Vimag.autoSetup = FALSE;
-           dep_power_factor.autoSetup = FALSE;
-       } else {
-           ind_Vimag.autoSetup = TRUE;
-           dep_power_factor.autoSetup = TRUE;
-       }
+    if (name == "multiDesign") {
+      if (switchDes == DESIGN) {
+        ind_energyDes.autoSetup = TRUE;
+        dep_energyDes.autoSetup = TRUE;
+      }
     }
-    */
   }
 
   //-----------------------------------------------
@@ -216,11 +242,37 @@ class Source extends Element {
       R = Loss_r / EP_O.I.mag**2;
       L = 0;
 
-      Mass = EP_O.S.r / SpecificPower; // compute mass based on assumed specific power
+      // Energy consumed at this operating point.
+      energy = PInternal*segmentTime;
+
+      // get design values 
+      if (multiDesign != "TRUE") {
+        energyDes = energy;
+      }
+      real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
+      real powerBasedMass = EP_O.S.r / SpecificPower;
+      if (energyBasedMass > powerBasedMass) {
+        Mass = energyBasedMass; // compute mass based on assumed specific energy
+      }
+      else {
+        Mass = powerBasedMass; // compute mass based on assumed specific power
+      }
     } else {
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
       eff = EP_O.S.r / (EP_O.S.r+Loss_r);
+      
+      // Energy consumed at this operating point.
+      energy = (EP_O.S.r+Loss_r)*segmentTime;
+      if (switchTrackEnergy == "TRUE") {
+        energyConsumed += energy;
+      }
+      if (energyConsumed > energyDes) {
+        ESOreport(ESO_Id_ExceededEnergyDes, "Source component's energy consumed ("+
+                                            toStr(energyConsumed)+
+                                            ") exceeded design energy ("
+                                            +toStr(energyDes)+").", 1);
+      }
     }
     
     if (switchThermPort == "TRUE") {

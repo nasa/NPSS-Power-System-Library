@@ -29,7 +29,7 @@ Element Cable A1 {
 
 Element DC_DC_Converter Converter {
   Voltage       = 1000; // [volts]
-  K             = 2;    // voltage ratio (V_in * K = V_out)
+  K             = 1;    // voltage ratio (V_in * K = V_out)
   effDes        = 0.93; // [93 %]
   SpecificPower = 9;    // [kW / kg]
 }
@@ -51,3 +51,12 @@ linkPortI("Source.EP_O", "A1.EP_I");        // Source -> A1 (cable)
 linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
 linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
 linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
+
+// Remove and re-append the elements containing nodes (or that are nodes) to make them execute last.
+solverSequence.remove( "Source" );
+solverSequence.remove( "Converter" );
+solverSequence.remove( "Load" );
+
+solverSequence.append( "Source" );
+solverSequence.append( "Converter" );
+solverSequence.append( "Load" );

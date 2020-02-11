@@ -1,0 +1,117 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH, 44135 	                                                     |
+ |                                                                             |
+ | File Name:     baseline_all_elec.run                                        |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Run file for DC source to DC-DC converter to power load.     |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+/**
+ ---------
+ | Setup |
+ ---------
+**/
+
+#include "npssel.view"
+#include "PrintUtils.fnc"
+
+// add in electric port
+#include "ElectricPort.prt"
+
+solver.maxJacobians = 5000;
+solver.maxIterations = 10000;
+
+Element Assembly HOV { 
+    #include "baseline_all_elec.mdl"
+    solver.maxJacobians = 50000;
+    solver.maxIterations = 100000;
+    Source.segmentTime = 20/60; // 20 minutes of hover (expressed in hours which is this variable's unit)
+    Source.energyDes = Load.Pdemand*Source.segmentTime; // Initial guess for design energy in kW-h.
+}
+Element Assembly CRZ { 
+    #include "baseline_all_elec.mdl"
+    solver.maxJacobians = 5000;
+    solver.maxIterations = 10000;
+    Source.segmentTime = 30/60; // 30 minutes of cruise
+    // No need to guess design energy in the cruise assembly...
+    
+    // PASS REFERENCE POINT SCALARS TO THIS ASSEMBLY
+    void preexecute() {
+        Source.R = HOV.Source.R;
+        A1.R = HOV.A1.R;
+        //Converter.S_map.s_effDes = HOV.Converter.S_map.s_effDes;
+        //Converter.S_map.s_pwrDes = HOV.Converter.S_map.s_pwrDes;
+        //Converter.pwrDes = HOV.Converter.pwrDes;
+        A2.L = HOV.A2.L;
+    }    
+}
+
+HOV {
+    setOption("switchDes", "DESIGN");
+    setOption("multiDesign", "TRUE");
+    Source {
+        // Turn off source internal design energy ind/dep pair 
+        ind_energyDes.autoSetup = FALSE;
+        dep_energyDes.autoSetup = FALSE;
+    }
+} 
+
+CRZ {
+    setOption("switchDes", "OFFDESIGN");
+}
+
+// Vary design assembly's (HOV's) design energy until that energy matches the sum of energies consumed in all flight segments.
+Independent ind_energyDes {
+    varName = "HOV.Source.energyDes";
+    autoSetup = TRUE;
+}
+Dependent dep_energyDes {
+    eq_lhs = "HOV.Source.energyDes";
+    eq_rhs = "HOV.Source.energy+CRZ.Source.energy";
+    autoSetup = TRUE;
+}
+
+
+
+/**
+ --------------------
+ | Run Solver Cases |
+ --------------------
+**/
+
+setOption("switchDes", "DESIGN");
+autoSolverSetup();
+
+cout << "=======================\n"
+     << "====== On-Design ======\n"
+     << "=======================\n\n";
+
+run(); CASE++;
+page.display();
+printCaseStats("solver");
+quit();
+int i;
+real loads[] = { 10, 8 , 6, 4, 2 };
+
+setOption("switchDes", "OFFDESIGN");
+autoSolverSetup();
+
+cout << "=======================\n"
+     << "====== Off-Design =====\n"
+     << "=======================\n\n";
+
+for (i = 0; i < loads.entries(); i++) {
+  cout << "Power Demand: " << loads[i] << " kW\n\n";
+  Load.Pdemand = loads[i];
+  run(); CASE++;
+  page.display();
+  printCaseStats("solver");
+}

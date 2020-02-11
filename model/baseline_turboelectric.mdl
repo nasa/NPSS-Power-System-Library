@@ -210,7 +210,7 @@ linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
 
-// Remove and re-append the elements containing nodes (or that are nodes)
+// Remove and re-append the elements containing nodes (or that are nodes) to make them execute last.
 solverSequence.remove( "Gen1" );
 solverSequence.remove( "E1" );
 solverSequence.remove( "Rect1" );
