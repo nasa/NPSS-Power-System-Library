@@ -5,7 +5,7 @@
  | 21000 Brookpark Rd 		                                                     |
  | Cleveland, OH, 44135 	                                                     |
  |                                                                             |
- | File Name:     Baseline_all_elec.mdl                                        |
+ | File Name:     baseline_all_elec.mdl                                        |
  | Author(s):	    Jonathan Fuzaro Alencar       			                         |
  | Date(s):       February 2020                                                |
  |                                                                             |
@@ -13,6 +13,9 @@
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
+
+#define THERMO_PKG GasTbl
+setThermoPackage("$THERMO_PKG");
 
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
@@ -28,8 +31,9 @@ Element Cable A1 {
 }
 
 Element DC_DC_Converter Converter {
+  // #include <InverterRectifierMap.int>
   Voltage       = 1000; // [volts]
-  K             = 1;    // voltage ratio (V_in * K = V_out)
+  K             = 2.0;  // voltage ratio (V_in * K = V_out)
   effDes        = 0.93; // [93 %]
   SpecificPower = 9;    // [kW / kg]
 }
@@ -39,9 +43,10 @@ Element Cable A2 {
 }
 
 Element ConstantPowerLoad Load {
-  Pdemand = 10; // [kilowatts]
-  Vreal = 900;
-  Vimag = 0;
+  pfDemand = 1;
+  Pdemand = 10;  // [kilowatts]
+  Vreal   = 2000; // [volts]
+  Vimag   = 0;   // [volts]
 }
 
 setOption("ElectricPowerType", "DC");
@@ -52,11 +57,7 @@ linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
 linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
 linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
 
-// Remove and re-append the elements containing nodes (or that are nodes) to make them execute last.
-solverSequence.remove( "Source" );
-solverSequence.remove( "Converter" );
-solverSequence.remove( "Load" );
-
-solverSequence.append( "Source" );
-solverSequence.append( "Converter" );
-solverSequence.append( "Load" );
+solverSequence = {
+    "A1", "A2", "Converter", // Power transmission components
+    "Source", "Load"         // Power components
+};

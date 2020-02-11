@@ -101,8 +101,9 @@ class ConstantPowerLoad extends Element {
     rewritableValues = FALSE;
     trigger = TRUE;
   }
+
   Option switchThermPort {
-    allowedValues = { "TRUE", "FALSE" }
+    allowedValues = { "FALSE", "TRUE" }
     description = "Determines if component needs thermal port.";
     rewritableValues = FALSE;  // Enables converter optimization.
     trigger = TRUE;
@@ -168,7 +169,7 @@ class ConstantPowerLoad extends Element {
     }
     
     if (name == "switchDes") {
-      if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC")) {
+      if (EP_I.ElectricPowerType == "DC") {
         ind_Vimag.autoSetup = FALSE;
         dep_power_factor.autoSetup = FALSE;
       } else {

@@ -2,14 +2,15 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                     |
- | Cleveland, OH, 44135 	                                                     |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH, 44135 	                                                   |
  |                                                                             |
- | File Name:     baseline_all_elec.run                                        |
- | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | File Name:     baseline_all_elecMDP.run                                     |
+ | Author(s):     George Thomas and Jonathan Fuzaro Alencar                    |
  | Date(s):       February 2020                                                |
  |                                                                             |
- | Description:   Run file for DC source to DC-DC converter to power load.     |
+ | Description:   Run file for a highly simplified all-electric aircraft       |
+ |                powertrain with MDP-based logic to size the battery.         |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -29,20 +30,25 @@
 solver.maxJacobians = 5000;
 solver.maxIterations = 10000;
 
-Element Assembly HOV { 
+Element Assembly HOV { // This assembly represents the powertrain running at a hover power setting
     #include "baseline_all_elec.mdl"
-    solver.maxJacobians = 50000;
-    solver.maxIterations = 100000;
-    Source.segmentTime = 20/60; // 20 minutes of hover (expressed in hours which is this variable's unit)
+    Solver solver { 
+        maxJacobians = 5000;
+        maxIterations = 10000;
+    }
+    Source.segmentTime = 20./60.; // 20 minutes of hover (expressed in hours which is this variable's unit)
     Source.energyDes = Load.Pdemand*Source.segmentTime; // Initial guess for design energy in kW-h.
 }
-Element Assembly CRZ { 
+Element Assembly CRZ { // This assembly represents the powertrain running at a lower, cruise power setting
     #include "baseline_all_elec.mdl"
-    solver.maxJacobians = 5000;
-    solver.maxIterations = 10000;
-    Source.segmentTime = 30/60; // 30 minutes of cruise
+    Solver solver { 
+        maxJacobians = 5000;
+        maxIterations = 10000;
+    }
+    Source.segmentTime = 60./60.; // 60 minutes of cruise
     // No need to guess design energy in the cruise assembly...
-    
+    Load.Pdemand = HOV.Load.Pdemand*0.5; // Also assume cruise power is 1/2 hover power.
+
     // PASS REFERENCE POINT SCALARS TO THIS ASSEMBLY
     void preexecute() {
         Source.R = HOV.Source.R;
@@ -88,7 +94,11 @@ Dependent dep_energyDes {
 **/
 
 setOption("switchDes", "DESIGN");
-autoSolverSetup();
+HOV.autoSolverSetup(); 
+printSolverSetup("HOV.solver", FALSE);
+CRZ.autoSolverSetup(); 
+printSolverSetup("CRZ.solver", FALSE);
+autoSolverSetup(); 
 
 cout << "=======================\n"
      << "====== On-Design ======\n"
@@ -97,12 +107,21 @@ cout << "=======================\n"
 run(); CASE++;
 page.display();
 printCaseStats("solver");
+
 quit();
+
 int i;
 real loads[] = { 10, 8 , 6, 4, 2 };
 
 setOption("switchDes", "OFFDESIGN");
-autoSolverSetup();
+
+HOV.autoSolverSetup(); 
+printSolverSetup("HOV.solver", FALSE);
+CRZ.autoSolverSetup(); 
+printSolverSetup("CRZ.solver", FALSE);
+autoSolverSetup(); 
+quit();
+printSolverSetup("solver", FALSE);
 
 cout << "=======================\n"
      << "====== Off-Design =====\n"
