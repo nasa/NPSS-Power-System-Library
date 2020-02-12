@@ -64,7 +64,7 @@ class Source extends Element {
     value = .01;  IOstatus = "output";  units = "ohm";
   }
   real L {
-    value = .0000796;  IOstatus = "output";  units = "H"; // [henry]
+    value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
   }
 
   real frequency {
@@ -83,7 +83,7 @@ class Source extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus = "output"; units = "Btu/sec"; // [watts]
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }
 
@@ -156,7 +156,7 @@ class Source extends Element {
     rewritableValues = FALSE;  // enables converter optimization
   }
 
-  Option multiDesign {
+  Option multiDes {
     allowedValues = { "FALSE", "TRUE" }
     description = "Determines if component is undergoing multi-design point simulation.";
     rewritableValues = FALSE;
@@ -208,7 +208,7 @@ class Source extends Element {
            create("", "ThermalInputPort", "Q_I");
        }
     }
-    if (name == "multiDesign") {
+    if (name == "multiDes") {
       if (switchDes == DESIGN) {
         ind_energyDes.autoSetup = TRUE;
         dep_energyDes.autoSetup = TRUE;
@@ -246,7 +246,7 @@ class Source extends Element {
       energy = PInternal*segmentTime;
 
       // get design values 
-      if (multiDesign != "TRUE") {
+      if (multiDes != "TRUE") {
         energyDes = energy;
       }
       real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg

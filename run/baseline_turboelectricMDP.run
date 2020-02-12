@@ -193,7 +193,7 @@ TOC.Inv1.S_map.s_pwrDes = 4000;
 //--------------------------
 TKO {
     setOption("switchDes", "DESIGN");
-    setOption("multiDesign", "TRUE");
+    setOption("multiDes", "TRUE");
 } 
 
 TOC {setOption("switchDes", "OFFDESIGN");}

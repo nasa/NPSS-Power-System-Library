@@ -170,7 +170,7 @@ class MotorGeneratorMap extends Subelement {
       }
     }
 
-    if (name == "multiDesign") {
+    if (name == "multiDes") {
       if (switchDes == DESIGN) {
         ind_trqDes.autoSetup = TRUE;
         dep_trqDesSet.autoSetup = TRUE;

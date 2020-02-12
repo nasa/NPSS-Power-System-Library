@@ -74,7 +74,7 @@ class Motor extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus = "output";  units = "Btu/sec"; // [watts]
+    value = 0; IOstatus = "output";  units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }
 
@@ -170,7 +170,7 @@ class Motor extends Element {
     trigger = TRUE;
   }
 
-  Option multiDesign {
+  Option multiDes {
     allowedValues = { "FALSE", "TRUE" }
     description = "Determines if component is undergoing multi-design point simulation.";
     rewritableValues = FALSE;
@@ -267,7 +267,7 @@ class Motor extends Element {
       }
     }
 
-    if (name == "multiDesign") {
+    if (name == "multiDes") {
       if (switchDes == DESIGN) {
         ind_trqDes.autoSetup = TRUE;
         dep_trqDesSet.autoSetup = TRUE;
@@ -292,7 +292,7 @@ class Motor extends Element {
       Mass = Pout / SpecificPower; // compute mass based on assumed specific power 
 
       // get design values 
-      if (multiDesign == "TRUE") {
+      if (multiDes == "TRUE") {
         NdesSet = Sh_O.Nmech;
         trqDesSet = Pout * (C_HP_PER_RPMtoFT_LBF * (1. / 0.74569987) / NdesSet);
         trqTemp = trqDesSet;

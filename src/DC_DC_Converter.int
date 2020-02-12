@@ -83,7 +83,7 @@ class DC_DC_Converter extends Element {
   }
 
   real Q_heat {
-    value = 0; IOstatus = "output"; units = "Btu/sec"; // [watts]
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
 

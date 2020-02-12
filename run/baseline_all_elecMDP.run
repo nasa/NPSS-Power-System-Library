@@ -62,7 +62,7 @@ Element Assembly CRZ { // This assembly represents the powertrain running at a l
 
 HOV {
     setOption("switchDes", "DESIGN");
-    setOption("multiDesign", "TRUE");
+    setOption("multiDes", "TRUE");
     Source {
         // Turn off source internal design energy ind/dep pair 
         ind_energyDes.autoSetup = FALSE;
