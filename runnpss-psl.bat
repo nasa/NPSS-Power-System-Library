@@ -11,5 +11,6 @@
 
 echo.
 echo =========== %~n1 ===========
+echo.
 
 call runnpss -I src -I include -I model -I view -I utils %1

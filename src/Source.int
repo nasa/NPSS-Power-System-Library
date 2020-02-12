@@ -2,10 +2,10 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     Source.int										           |
+ | File Name:     Source.int										                               |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
  | Date(s):       December 2019                                                |
  |                                                                             |
@@ -63,6 +63,7 @@ class Source extends Element {
   real R {
     value = .01;  IOstatus = "output";  units = "ohm";
   }
+
   real L {
     value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
   }

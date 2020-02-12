@@ -3,7 +3,7 @@
  |                                                                             |
  | NASA Glenn Research Center                                                  |
  | 21000 Brookpark Rd 		                                                     |
- | Cleveland, OH, 44135 	                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     PrintUtils.int                                               |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
@@ -26,6 +26,8 @@ void printSolverSetup(string solverName, int recursive) {
   int i;
   string indeps[] = solverName->list("Independent", recursive);
   string deps[] = solverName->list("Dependent", recursive);
+
+  cout << "*** " << solverName << " ***\n";
 
   cout << "\nIndependent Components: \n";
   for (i = 0; i < indeps.entries(); i++) {
@@ -50,4 +52,16 @@ void printCaseStats(string solverName) {
   << "Jacobians: " << solverName->numJacobians << endl
   << "Broydens: " << solverName->numBroydens << endl
   << "==================\n\n";
+}
+
+void printDesignBanner(string des) {
+  if (des == "on") {
+    cout << "=======================\n"
+         << "====== On-Design ======\n"
+         << "=======================\n\n";
+  } else if (des == "off") {
+    cout << "=======================\n"
+         << "====== Off-Design =====\n"
+         << "=======================\n\n";
+  }
 }

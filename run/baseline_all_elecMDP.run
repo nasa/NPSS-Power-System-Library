@@ -2,11 +2,11 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     baseline_all_elecMDP.run                                     |
- | Author(s):     George Thomas and Jonathan Fuzaro Alencar                    |
+ | Author(s):     George Thomas & Jonathan Fuzaro Alencar                      |
  | Date(s):       February 2020                                                |
  |                                                                             |
  | Description:   Run file for a highly simplified all-electric aircraft       |
@@ -24,68 +24,81 @@
 #include "npssel.view"
 #include "PrintUtils.fnc"
 
-// add in electric port
 #include "ElectricPort.prt"
 
 solver.maxJacobians = 5000;
 solver.maxIterations = 10000;
 
-Element Assembly HOV { // This assembly represents the powertrain running at a hover power setting
-    #include "baseline_all_elec.mdl"
-    Solver solver { 
-        maxJacobians = 5000;
-        maxIterations = 10000;
-    }
-    Source.segmentTime = 20./60.; // 20 minutes of hover (expressed in hours which is this variable's unit)
-    Source.energyDes = Load.Pdemand*Source.segmentTime; // Initial guess for design energy in kW-h.
-}
-Element Assembly CRZ { // This assembly represents the powertrain running at a lower, cruise power setting
-    #include "baseline_all_elec.mdl"
-    Solver solver { 
-        maxJacobians = 5000;
-        maxIterations = 10000;
-    }
-    Source.segmentTime = 60./60.; // 60 minutes of cruise
-    // No need to guess design energy in the cruise assembly...
-    Load.Pdemand = HOV.Load.Pdemand*0.5; // Also assume cruise power is 1/2 hover power.
+// this assembly represents the powertrain running at a hover power setting
+Element Assembly HOV { 
 
-    // PASS REFERENCE POINT SCALARS TO THIS ASSEMBLY
-    void preexecute() {
-        Source.R = HOV.Source.R;
-        A1.R = HOV.A1.R;
-        //Converter.S_map.s_effDes = HOV.Converter.S_map.s_effDes;
-        //Converter.S_map.s_pwrDes = HOV.Converter.S_map.s_pwrDes;
-        //Converter.pwrDes = HOV.Converter.pwrDes;
-        A2.L = HOV.A2.L;
-    }    
+  #include "baseline_all_elec.mdl"
+
+  Solver solver { 
+    maxJacobians = 5000;
+    maxIterations = 10000;
+  }
+
+  Source.segmentTime = 20./60.; // 20 minutes of hover (expressed in hours which is this var's unit)
+  Source.energyDes = Load.Pdemand * Source.segmentTime; // initial guess for design energy in kW-h.
+}
+
+// this assembly represents the powertrain running at a lower, cruise power setting
+Element Assembly CRZ {
+
+  #include "baseline_all_elec.mdl"
+
+  Solver solver { 
+    maxJacobians = 5000;
+    maxIterations = 10000;
+  }
+
+  Source.segmentTime = 60./60.; // 60 minutes of cruise
+
+  // no need to guess design energy in the cruise assembly
+  // assume cruise power is 1/2 hover power
+  Load.Pdemand = HOV.Load.Pdemand * 0.5;
+
+  // pass reference point scalars to this assembly
+  void preexecute() {
+    Source.R = HOV.Source.R;
+    A1.R = HOV.A1.R;
+    // Converter.S_map.s_effDes = HOV.Converter.S_map.s_effDes;
+    // Converter.S_map.s_pwrDes = HOV.Converter.S_map.s_pwrDes;
+    // Converter.pwrDes = HOV.Converter.pwrDes;
+    A2.L = HOV.A2.L;
+  }    
 }
 
 HOV {
-    setOption("switchDes", "DESIGN");
-    setOption("multiDes", "TRUE");
-    Source {
-        // Turn off source internal design energy ind/dep pair 
-        ind_energyDes.autoSetup = FALSE;
-        dep_energyDes.autoSetup = FALSE;
-    }
+  setOption("switchDes", "DESIGN");
+  setOption("multiDes", "TRUE");
+
+  // turn off source internal design energy ind/dep pair 
+  Source {
+    ind_energyDes.autoSetup = FALSE;
+    dep_energyDes.autoSetup = FALSE;
+  }
 } 
 
 CRZ {
-    setOption("switchDes", "OFFDESIGN");
+  setOption("switchDes", "OFFDESIGN");
 }
 
-// Vary design assembly's (HOV's) design energy until that energy matches the sum of energies consumed in all flight segments.
+/**
+ * Vary design assembly's (HOV's) design energy until that energy matches the
+ * sum of energies consumed in all flight segments.
+ */
 Independent ind_energyDes {
-    varName = "HOV.Source.energyDes";
-    autoSetup = TRUE;
+  varName = "HOV.Source.energyDes";
+  autoSetup = TRUE;
 }
+
 Dependent dep_energyDes {
-    eq_lhs = "HOV.Source.energyDes";
-    eq_rhs = "HOV.Source.energy+CRZ.Source.energy";
-    autoSetup = TRUE;
+  eq_lhs = "HOV.Source.energyDes";
+  eq_rhs = "HOV.Source.energy+CRZ.Source.energy";
+  autoSetup = TRUE;
 }
-
-
 
 /**
  --------------------
@@ -94,15 +107,14 @@ Dependent dep_energyDes {
 **/
 
 setOption("switchDes", "DESIGN");
-HOV.autoSolverSetup(); 
+HOV.autoSolverSetup();
 printSolverSetup("HOV.solver", FALSE);
-CRZ.autoSolverSetup(); 
+CRZ.autoSolverSetup();
 printSolverSetup("CRZ.solver", FALSE);
-autoSolverSetup(); 
+autoSolverSetup();
+printSolverSetup("solver", FALSE);
 
-cout << "=======================\n"
-     << "====== On-Design ======\n"
-     << "=======================\n\n";
+printDesignBanner("on");
 
 run(); CASE++;
 page.display();
@@ -117,27 +129,29 @@ printCaseStats("solver");
 // mission where we can track the energy. Try to get as far as you can, and then let me know where you end up.
 // Great work today!!!
 // - George
-quit();
+// quit();
+
+CRZ.solver.clear();
+
+solver {
+  clear();
+  executionSequence.remove("CRZ");
+}
+
+setOption("switchDes", "OFFDESIGN");
+HOV.autoSolverSetup(); 
+printSolverSetup("HOV.solver", FALSE);
+autoSolverSetup(); 
+printSolverSetup("solver", FALSE);
 
 int i;
 real loads[] = { 10, 8 , 6, 4, 2 };
 
-setOption("switchDes", "OFFDESIGN");
-
-HOV.autoSolverSetup(); 
-printSolverSetup("HOV.solver", FALSE);
-CRZ.autoSolverSetup(); 
-printSolverSetup("CRZ.solver", FALSE);
-autoSolverSetup(); 
-printSolverSetup("solver", FALSE);
-
-cout << "=======================\n"
-     << "====== Off-Design =====\n"
-     << "=======================\n\n";
+printDesignBanner("off");
 
 for (i = 0; i < loads.entries(); i++) {
   cout << "Power Demand: " << loads[i] << " kW\n\n";
-  Load.Pdemand = loads[i];
+  HOV.Load.Pdemand = loads[i];
   run(); CASE++;
   page.display();
   printCaseStats("solver");

@@ -3,7 +3,7 @@
  |                                                                             |
  | NASA Glenn Research Center                                                  |
  | 21000 Brookpark Rd 		                                                     |
- | Cleveland, OH, 44135 	                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     baseline_all_elec.mdl                                        |
  | Author(s):	    Jonathan Fuzaro Alencar       			                         |
@@ -21,9 +21,9 @@ setThermoPackage("$THERMO_PKG");
 #include "InterpretedPort.int"
 
 Element Source Source {
-  Vreal     = 1000; // [volts]
-  Vimag     = 0;    // [volts]
-  effDes    = 0.99; // [99 %]
+  Vreal  = 1000; // [volts]
+  Vimag  = 0;    // [volts]
+  effDes = 0.99; // [99 %]
 }
 
 Element Cable A1 {
@@ -43,10 +43,10 @@ Element Cable A2 {
 }
 
 Element ConstantPowerLoad Load {
+  Vreal    = 2000; // [volts]
+  Vimag    = 0;    // [volts]
+  Pdemand  = 10;   // [kilowatts]
   pfDemand = 1;
-  Pdemand = 10;  // [kilowatts]
-  Vreal   = 2000; // [volts]
-  Vimag   = 0;   // [volts]
 }
 
 setOption("ElectricPowerType", "DC");

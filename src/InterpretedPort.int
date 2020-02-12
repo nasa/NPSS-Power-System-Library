@@ -2,12 +2,13 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                   |
- | Cleveland, OH, 44135 	                                                   |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     InterpretedPort.int										   |
+ | File Name:     InterpretedPort.int										                       |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle                      |
  | Date(s):       October 2018	                                               |
+ |                                                                             |
  | Description:   Link port file to let ports know about each other.           |
  |                                                                             |
  -------------------------------------------------------------------------------
