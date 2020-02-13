@@ -27,7 +27,7 @@ void printSolverSetup(string solverName, int recursive) {
   string indeps[] = solverName->list("Independent", recursive);
   string deps[] = solverName->list("Dependent", recursive);
 
-  cout << "*** " << solverName << " ***\n";
+  cout << "==== " << solverName << " ====\n";
 
   cout << "\nIndependent Components: \n";
   for (i = 0; i < indeps.entries(); i++) {
@@ -46,12 +46,12 @@ void printSolverSetup(string solverName, int recursive) {
 
 // prints information from a solver case run
 void printCaseStats(string solverName) {
-  cout << "==== CASE: " << solverName->CASE << " =====\n"
-  << "Iterations: " << solverName->iterationCounter << endl
-  << "Passes: " << solverName->passCounter << endl
-  << "Jacobians: " << solverName->numJacobians << endl
-  << "Broydens: " << solverName->numBroydens << endl
-  << "==================\n\n";
+  cout << "==== CASE: " << solverName->CASE << " ====="
+       << "\nIterations: " << solverName->iterationCounter
+       << "\nPasses: " << solverName->passCounter
+       << "\nJacobians: " << solverName->numJacobians
+       << "\nBroydens: " << solverName->numBroydens
+       << "\n==================\n";
 }
 
 void printDesignBanner(string des) {

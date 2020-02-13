@@ -15,14 +15,14 @@
 #ifndef __SOURCE__
 #define __SOURCE__
 
-int ESO_Id_ExceededEnergyDes = 10000*145 + 100*22 + 1;
+int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
 
 class Source extends Element {
   
   //----------------------------
   // ****** DOCUMENTATION ******
-  //----------------------------  
+  //----------------------------
   
   // title = "";
 
@@ -36,9 +36,9 @@ class Source extends Element {
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
   
-  //------------------------------------------------------------
-  //     ******* SETUP VARIABLES ********
-  //------------------------------------------------------------
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
   
   real pfDes {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
@@ -244,45 +244,36 @@ class Source extends Element {
       L = 0;
 
       // Energy consumed at this operating point.
-      energy = PInternal*segmentTime;
+      energy = PInternal * segmentTime;
 
       // get design values 
       if (multiDes != "TRUE") {
         energyDes = energy;
       }
+
       real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
       if (energyBasedMass > powerBasedMass) {
         Mass = energyBasedMass; // compute mass based on assumed specific energy
-      }
-      else {
+      } else {
         Mass = powerBasedMass; // compute mass based on assumed specific power
       }
     } else {
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
-      eff = EP_O.S.r / (EP_O.S.r+Loss_r);
+      eff = EP_O.S.r / (EP_O.S.r + Loss_r);
       
-      // Energy consumed at this operating point.
-      energy = (EP_O.S.r+Loss_r)*segmentTime;
-      if (switchTrackEnergy == "TRUE") {
-        energyConsumed += energy;
-      }
-      if (energyConsumed > energyDes) {
-        ESOreport(ESO_Id_ExceededEnergyDes, "Source component's energy consumed ("+
-                                            toStr(energyConsumed)+
-                                            ") exceeded design energy ("
-                                            +toStr(energyDes)+").", 1);
-      }
+      // energy consumed at this operating point.
+      energy = (EP_O.S.r + Loss_r) * segmentTime;
     }
-    
+
     if (switchThermPort == "TRUE") {
       real KW_PER_BTU_PER_SEC = 1.05505585;
       Q_heat = sqrt(Loss_r**2 + Loss_j**2);
       Q_heat /= KW_PER_BTU_PER_SEC;
 
       // run the thermal mass model.
-      if ( !S_eThermMass.isEmpty() ) {
+      if (!S_eThermMass.isEmpty()) {
         S_eThermMass.execute();
       }
     }

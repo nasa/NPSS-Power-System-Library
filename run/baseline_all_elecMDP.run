@@ -26,6 +26,8 @@
 
 #include "ElectricPort.prt"
 
+#define HP_PER_KW 0.7457
+
 solver.maxJacobians = 5000;
 solver.maxIterations = 10000;
 
@@ -96,7 +98,7 @@ Independent ind_energyDes {
 
 Dependent dep_energyDes {
   eq_lhs = "HOV.Source.energyDes";
-  eq_rhs = "HOV.Source.energy+CRZ.Source.energy";
+  eq_rhs = "HOV.Source.energy + CRZ.Source.energy";
   autoSetup = TRUE;
 }
 
@@ -108,28 +110,21 @@ Dependent dep_energyDes {
 
 setOption("switchDes", "DESIGN");
 HOV.autoSolverSetup();
-printSolverSetup("HOV.solver", FALSE);
 CRZ.autoSolverSetup();
-printSolverSetup("CRZ.solver", FALSE);
 autoSolverSetup();
-printSolverSetup("solver", FALSE);
-
-printDesignBanner("on");
 
 run(); CASE++;
 page.display();
+printDesignBanner("on");
+printSolverSetup("HOV.solver", FALSE);
+printCaseStats("HOV.solver");
+cout << "====================\n\n";
+printSolverSetup("CRZ.solver", FALSE);
+printCaseStats("CRZ.solver");
+cout << "====================\n\n";
+printSolverSetup("solver", FALSE);
 printCaseStats("solver");
-//printCaseStats("HOV.solver");
-//printCaseStats("CRZ.solver");
-
-// Jonathan, can you get rid of this quit, and then get off-design working like you have for the single design point?
-// What you'll need to do is get rid of the CRZ assembly or otherwise remove it from the solver sequence and remove
-// its solver variables from the solver deps/indeps. Then set up the HOV to run off-design. Once you have it working
-// let's also get the "energy tracking" feature I added to the source working as well, and let's set up a really simple
-// mission where we can track the energy. Try to get as far as you can, and then let me know where you end up.
-// Great work today!!!
-// - George
-// quit();
+cout << "====================\n\n";
 
 CRZ.solver.clear();
 
@@ -138,21 +133,55 @@ solver {
   executionSequence.remove("CRZ");
 }
 
-setOption("switchDes", "OFFDESIGN");
-HOV.autoSolverSetup(); 
-printSolverSetup("HOV.solver", FALSE);
-autoSolverSetup(); 
-printSolverSetup("solver", FALSE);
+// add post execute sequence to track energy consumption for flight missions
+HOV {
+  void postexecute() {
+    Source.energyConsumed += Source.energy;
+    if (Source.energyConsumed > Source.energyDes) {
+      ESOreport(ESO_Id_ExceededEnergyDes,
+      "Source component's energy consumed (" + toStr(Source.energyConsumed) +
+      ") exceeded design energy (" + toStr(Source.energyDes)+").", 1);
+    }
+  }
+}
 
-int i;
-real loads[] = { 10, 8 , 6, 4, 2 };
+ind_energyDes.autoSetup = FALSE;
+dep_energyDes.autoSetup = FALSE;
+
+setOption("switchDes", "OFFDESIGN");
+setOption("switchTrackEnergy", "TRUE"); // source energy consumption tracker
+HOV.autoSolverSetup(); 
 
 printDesignBanner("off");
+printSolverSetup("HOV.solver", FALSE);
 
+// power loads for each flight mission segment [kW]
+// load = HP_TO_KW * avg(front + rear)
+real loads[];
+loads.append($HP_PER_KW * (21.2 + 18.7) / 2);
+loads.append($HP_PER_KW * (10.7 + 13.2) / 2);
+loads.append($HP_PER_KW * (21.2 + 18.7) / 2);
+loads.append($HP_PER_KW * ( 9.4 + 11.8) / 2);
+
+// segment time intervals [hr]
+real segments[];
+segments.append( 2. / 60.); //  2 [min]
+segments.append(50. / 70.); //    [nm / kn = hr]
+segments.append( 2. / 60.); //  2 [min]
+segments.append(20. / 60.); // 20 [min]
+
+int i;
+CASE = 0;
 for (i = 0; i < loads.entries(); i++) {
-  cout << "Power Demand: " << loads[i] << " kW\n\n";
   HOV.Load.Pdemand = loads[i];
+  HOV.Source.segmentTime = segments[i];
   run(); CASE++;
   page.display();
-  printCaseStats("solver");
+  cout << "=====================\n";
+  printCaseStats("HOV.solver");
+  cout << "Power demand: "    << loads[i]         << " kW\n"
+       << "Flight interval: " << segments[i]      << " hr ("
+                              << segments[i] * 60 << " min)\n"
+       << "Energy Consumed: " << HOV.Source.energyConsumed << " kW-hr\n";
+  cout << "=====================\n\n";
 }
