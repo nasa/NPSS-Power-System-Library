@@ -108,6 +108,7 @@ Dependent dep_energyDes {
  --------------------
 **/
 
+/* On-Design */
 setOption("switchDes", "DESIGN");
 HOV.autoSolverSetup();
 CRZ.autoSolverSetup();
@@ -126,6 +127,7 @@ printSolverSetup("solver", FALSE);
 printCaseStats("solver");
 cout << "====================\n\n";
 
+/* Off-Design */
 CRZ.solver.clear();
 
 solver {
