@@ -24,17 +24,15 @@
 #include "npssel.view"
 #include "PrintUtils.fnc"
 
-#include "ElectricPort.prt"
+#include "baseline_all_elec.mdl"
 
-#define HP_PER_KW 0.7457
+#define HP_PER_KW 0.7457 // [horsepower / kilowatt]
 
 solver.maxJacobians = 5000;
 solver.maxIterations = 10000;
 
 // this assembly represents the powertrain running at a hover power setting
-Element Assembly HOV { 
-
-  #include "baseline_all_elec.mdl"
+eAssembly baselineElectric HOV { 
 
   Solver solver { 
     maxJacobians = 5000;
@@ -46,9 +44,7 @@ Element Assembly HOV {
 }
 
 // this assembly represents the powertrain running at a lower, cruise power setting
-Element Assembly CRZ {
-
-  #include "baseline_all_elec.mdl"
+eAssembly baselineElectric CRZ { 
 
   Solver solver { 
     maxJacobians = 5000;
@@ -58,16 +54,12 @@ Element Assembly CRZ {
   Source.segmentTime = 60./60.; // 60 minutes of cruise
 
   // no need to guess design energy in the cruise assembly
-  // assume cruise power is 1/2 hover power
-  Load.Pdemand = HOV.Load.Pdemand * 0.5;
+  Load.Pdemand = HOV.Load.Pdemand * 0.5; // assume cruize load demand is 1/2 hover load demand
 
   // pass reference point scalars to this assembly
   void preexecute() {
     Source.R = HOV.Source.R;
     A1.R = HOV.A1.R;
-    // Converter.S_map.s_effDes = HOV.Converter.S_map.s_effDes;
-    // Converter.S_map.s_pwrDes = HOV.Converter.S_map.s_pwrDes;
-    // Converter.pwrDes = HOV.Converter.pwrDes;
     A2.L = HOV.A2.L;
   }    
 }
@@ -184,6 +176,6 @@ for (i = 0; i < loads.entries(); i++) {
   cout << "Power demand: "    << loads[i]         << " kW\n"
        << "Flight interval: " << segments[i]      << " hr ("
                               << segments[i] * 60 << " min)\n"
-       << "Energy Consumed: " << HOV.Source.energyConsumed << " kW-hr\n";
-  cout << "=====================\n\n";
+       << "Energy Consumed: " << HOV.Source.energyConsumed << " kW-hr\n"
+       << "=====================\n\n";
 }

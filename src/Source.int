@@ -26,12 +26,12 @@ class Source extends Element {
   
   // title = "";
 
-  description = "The " + isA() + " serves as a voltage source with constant impedance. It also " +
-                "contains simplified logic for calculating energy consumed to be used with a MDP " +
-                "solver setup. This energy is used to compute mass via a flat assumption for " +
-                "specific energy. Users can also specify specific power. Mass is calculated " +
-                "as the larger of the two masses (design power/spc power) and " +
-                "(design energy/spc energy)";
+  description = "The " + isA() + " serves as a voltage source with constant 
+  impedance. It also contains simplified logic for calculating energy consumed 
+  to be used with a MDP solver setup. This energy is used to compute mass via a 
+  flat assumption for specific energy. Users can also specify specific power. 
+  Mass is calculated as the larger of the two masses (design power/spc power) 
+  and (design energy/spc energy)";
   
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";

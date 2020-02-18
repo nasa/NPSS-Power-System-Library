@@ -14,8 +14,8 @@
  -------------------------------------------------------------------------------
 ***/
 
-// #ifndef __INTERPRETEDPORT__
-// #define __INTERPRETEDPORT__
+#ifndef __INTERPRETED_PORT__
+#define __INTERPRETED_PORT__
 
 void linkPortI(string E1, string E2) {
   E1->refport = E2;
@@ -36,7 +36,8 @@ void linkEports(string portName1, string portName2, string linkType) {
   }
   
   if (linkType == "NODE") {
-    if (!exists(portName2)) { create("Element","Enode",portName2);
+    if (!exists(portName2)) {
+      create("Element","Enode",portName2);
       portName2->frequency = defaultFrequency;
       solverSequence.append( portName2 );
     }
@@ -72,7 +73,8 @@ void linkEports(string portName1, string portName2, string linkType) {
       ESOreport(1020902, "Both ports are of type " + portName1->isA() + " and cannot be connected", 1);
       return;
     }
-    linkPortI( portName1, portName2 );
+    linkPortI(portName1, portName2);
   }
 }
-// #endif
+
+#endif

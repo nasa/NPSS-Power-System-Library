@@ -12,8 +12,8 @@
  -------------------------------------------------------------------------------
 ***/
 
-#ifndef __COMPLEXNUMBER__
-#define	__COMPLEXNUMBER__
+#ifndef __COMPLEX_NUMBER__
+#define	__COMPLEX_NUMBER__
 
 class ComplexNumber extends VariableContainer {
   
@@ -25,9 +25,9 @@ class ComplexNumber extends VariableContainer {
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
   
-  //------------------------------
-  // ****** SETUP VARIABLES ******
-  //------------------------------
+  //----------------------------
+  // ****** FUNCTIONALITY ******
+  //----------------------------
 
   string IOstatus {
     value ="unset";  units = "none";

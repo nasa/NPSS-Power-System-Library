@@ -9,6 +9,8 @@
  | Author(s):     Jonathan Fuzaro Alencar                                      |
  | Date(s):       March 2019                                                   |
  |                                                                             |
+ | Description:   Electrical DC to DC power converter.                         |
+ |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 

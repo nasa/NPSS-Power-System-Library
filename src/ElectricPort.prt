@@ -12,8 +12,8 @@
  -------------------------------------------------------------------------------
 ***/
 
-#ifndef __ELECTRICPORT__
-#define __ELECTRICPORT__
+#ifndef __ELECTRIC_PORT__
+#define __ELECTRIC_PORT__
 
 #include "ComplexNumber.int"
 
@@ -209,4 +209,5 @@ class ElectricPort extends Subelement {
 
 class ElectricInputPort extends ElectricPort;
 class ElectricOutputPort extends ElectricPort;
+
 #endif

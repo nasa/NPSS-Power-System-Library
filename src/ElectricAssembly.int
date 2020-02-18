@@ -1,0 +1,69 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     ElectricAssembly.int                                         |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Electric assembly that extends generic NPSS assembly. It is  |
+ |                exactly the same but already includes port files and         |
+ |                contains a propagate power function to determine component   |
+ |                power types automatically.                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __ELECTRIC_ASSEMBLY__
+#define __ELECTRIC_ASSEMBLY__
+
+#include "ElectricPort.prt"
+
+
+class ElectricAssembly extends InterpretedAssembly {
+
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------  
+  // title = "";
+
+  description = "The " + isA() + " extends the generic NPSS assembly to include 
+  electric port functionality. It also contains a propagate power function to 
+  determine power types of components within an assembly (DC, AC, AC3).";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+
+  // void propagate_power(string source) {
+  // }
+
+  // void postcreate() {
+  //   propagate_power();
+  // }
+
+  /**
+   * Override linkPortI() to automatically configure electrical power type.
+   */
+  void linkPortI(string E1, string E2) {
+      E1->refport = E2;
+      E2->refport = E1;
+      // string sourceComponents[] = { "Source", "Generator" };
+      // string converterComponents[] = { "Inverter", "Rectifier" };
+
+    if (E1->parent.isA() == "Source" || E1->parent.isA() == "Generator") {
+      E2->setOption("ElectricPowerType", E1->ElectricPowerType);
+    } else if (E1->parent.isA() == "Inverter") {
+      E2->setOption("ElectricPowerType", "AC1");
+    } else if (E1->parent.isA() == "Rectifier") {
+      E2->setOption("ElectricPowerType", "DC");
+    } else {
+      E2->setOption("ElectricPowerType", E1->ElectricPowerType);
+    }
+  }
+}
+
+class eAssembly extends ElectricAssembly;
+#endif

@@ -14,50 +14,54 @@
  -------------------------------------------------------------------------------
 ***/
 
-#define THERMO_PKG GasTbl
-setThermoPackage("$THERMO_PKG");
+#define THERMO GasTbl
+setThermoPackage("$THERMO");
 
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
+ElectricAssembly baselineElectric {
+  Element Source Source {
+    Vreal  = 1000; // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.99; // [99 %]
+  }
 
-Element Source Source {
-  Vreal  = 1000; // [volts]
-  Vimag  = 0;    // [volts]
-  effDes = 0.99; // [99 %]
+  Element Cable A1 {
+    length = 1; // [meter]
+  }
+
+  Element DC_DC_Converter Converter {
+    // #include <InverterRectifierMap.int>
+    Voltage       = 1000; // [volts]
+    K             = 2.0;  // voltage ratio (V_in * K = V_out)
+    effDes        = 0.93; // [93 %]
+    SpecificPower = 9;    // [kW / kg]
+  }
+
+  Element Cable A2 {
+    length = 1; // [meter]
+  }
+
+  Element ConstantPowerLoad Load {
+    Vreal    = 2000; // [volts]
+    Vimag    = 0;    // [volts]
+    Pdemand  = 10;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Source.EP_O.setOption("ElectricPowerType", "DC");
+  cout << "Power type: " << Source.EP_O.ElectricPowerType << endl << endl;
+
+  // Source -> A1 (cable) -> Converter -> A2 (cable) -> Load
+  linkPortI("Source.EP_O", "A1.EP_I");        // Source -> A1 (cable)
+  cout << "Power type: " << A1.EP_I.ElectricPowerType << endl << endl;
+
+  linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
+  cout << "Power type: " << A1.EP_O.ElectricPowerType << endl << endl;
+
+  linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
+  linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
+
+  solverSequence = {
+      "A1", "A2", "Converter", // Power transmission components
+      "Source", "Load"         // Power components
+  };
 }
-
-Element Cable A1 {
-  length = 1; // [meter]
-}
-
-Element DC_DC_Converter Converter {
-  // #include <InverterRectifierMap.int>
-  Voltage       = 1000; // [volts]
-  K             = 2.0;  // voltage ratio (V_in * K = V_out)
-  effDes        = 0.93; // [93 %]
-  SpecificPower = 9;    // [kW / kg]
-}
-
-Element Cable A2 {
-  length = 1; // [meter]
-}
-
-Element ConstantPowerLoad Load {
-  Vreal    = 2000; // [volts]
-  Vimag    = 0;    // [volts]
-  Pdemand  = 10;   // [kilowatts]
-  pfDemand = 1;
-}
-
-setOption("ElectricPowerType", "DC");
-
-// Source -> A1 (cable) -> Converter -> A2 (cable) -> Load
-linkPortI("Source.EP_O", "A1.EP_I");        // Source -> A1 (cable)
-linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
-linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
-linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
-
-solverSequence = {
-    "A1", "A2", "Converter", // Power transmission components
-    "Source", "Load"         // Power components
-};
