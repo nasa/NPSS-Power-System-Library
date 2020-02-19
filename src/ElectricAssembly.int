@@ -48,20 +48,26 @@ class ElectricAssembly extends InterpretedAssembly {
    * Override linkPortI() to automatically configure electrical power type.
    */
   void linkPortI(string E1, string E2) {
-      E1->refport = E2;
-      E2->refport = E1;
-      // string sourceComponents[] = { "Source", "Generator" };
-      // string converterComponents[] = { "Inverter", "Rectifier" };
+    E1->refport = E2;
+    E2->refport = E1;
+    // string sourceComponents[] = { "Source", "Generator" };
+    // string converterComponents[] = { "Inverter", "Rectifier" };
 
-    if (E1->parent.isA() == "Source" || E1->parent.isA() == "Generator") {
-      E2->setOption("ElectricPowerType", E1->ElectricPowerType);
-    } else if (E1->parent.isA() == "Inverter") {
-      E2->setOption("ElectricPowerType", "AC1");
-    } else if (E1->parent.isA() == "Rectifier") {
-      E2->setOption("ElectricPowerType", "DC");
-    } else {
-      E2->setOption("ElectricPowerType", E1->ElectricPowerType);
-    }
+    // if (E1->parent.isA() == "Source" || E1->parent.isA() == "Generator") {
+    //   if (E1->powerTypeWritten == FALSE) {
+    //     cerr << "[ERROR]: " + E1->parent.isA() + " power type not specified!\n";
+    //   } else {
+    //     E2->setOption("ElectricPowerType", E1->ElectricPowerType);
+    //   }
+    // } else if (E1->parent.isA() == "Inverter") {
+    //   E2->setOption("ElectricPowerType", "AC1");
+    // }
+
+    // if (E1->parent.isA() == "Rectifier") {
+    //   E2->setOption("ElectricPowerType", "DC");
+    // } else {
+    //   E2->setOption("ElectricPowerType", E1->ElectricPowerType);
+    // }
   }
 }
 

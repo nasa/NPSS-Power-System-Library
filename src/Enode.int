@@ -49,7 +49,8 @@ class Enode extends Element {
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
   //----------------------------------------------------------  
   
-  /* THERMAL PORTS */
+  /* ELECTRICAL PORTS */
+
   string Eports[];
   Eports {
     description = "Array of electric ports.";
@@ -153,8 +154,7 @@ class Enode extends Element {
   //-------------------------------
 
   void prePass() {
-    // push the voltage from the solver out to the ports
-    int i;		
+    int i; // push the voltage from the solver out to the ports
     for (i = 0; i < ElectricPorts.entries(); i++) {
       ElectricPorts[i]->frequency = frequency;	
       ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
@@ -165,7 +165,7 @@ class Enode extends Element {
   //  ****** POSTCREATE FUNCTION ******
   // ----------------------------------
 
-  void postcreate( string name ) {
+  void postcreate(string name) {
     // allow for the creation of ports at run time
     if (name->hasInterface("ElectricPort")) {
       ElectricPorts.append(name);

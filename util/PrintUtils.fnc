@@ -20,6 +20,14 @@ void printList(string list[]) {
   }
 }
 
+void printElements(int recursive) {
+  int i;
+  string elements[] = list("Element", recursive);
+  for (i = 0; i < elements.entries(); i++) {
+    cout << elements[i] << " : " << elements[i]->isA() << endl;
+  }
+}
+
 // prints solver independents and depedents
 void printSolverSetup(string solverName, int recursive) {
 

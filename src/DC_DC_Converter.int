@@ -114,10 +114,14 @@ class DC_DC_Converter extends Element {
 
   ElectricPort EP_I {
     description = "Electric input port.";
+    ElectricPowerType.allowedValues = { "DC" };
+    setOption("ElectricPowerType", "DC"); // only DC input allowed
   }
 
   ElectricPort EP_O {
     description = "Electric output port.";
+    ElectricPowerType.allowedValues = { "DC" };
+    setOption("ElectricPowerType", "DC"); // only DC output allowed
   }
 
   /* SOCKETS */

@@ -37,6 +37,9 @@ class ElectricPort extends Subelement {
   // ****** SETUP VARIABLES ********
   //--------------------------------
 
+  string converterComponenets = { "Inverter", "Rectifier", "DC_DC_Converter" };
+  string singlePortComponents = { "Generator", "Motor", "Source", "ConstantPowerLoad" };
+
   ComplexNumber V {
     lock = TRUE;	
   }
@@ -85,10 +88,9 @@ class ElectricPort extends Subelement {
   // ******* VARIABLE CHANGED METHODOLOGY *******
   //---------------------------------------------
   void variableChanged(string name, any oldVal) {
-    
+
+    // change variable IO status depending switchDes status
     if (name == "ElectricPowerType") {
-      
-      // change variable IO status depending switchDes status
       if (ElectricPowerType == "DC") {
         V.hide(0);
         S.hide(0);
@@ -204,6 +206,25 @@ class ElectricPort extends Subelement {
     S.lock = TRUE;
     
     pushport();	
+  }
+
+  // depth-first traversal of circuit graph to populate port power type
+  void propagatePower() {
+
+    int i;
+    portComponent = refport->parent.isA();
+
+    while (singlePortComponents.contains(portComponent)) { // check if port is single
+      if (portComponent != "Enode") { // check if port is a node
+        if (!converterComponenets.contains(portComponent)) { // ignore conversion ports
+            refport->setOption("ElectricPowerType", ElectricPowerType);
+            // portComponent = refport->parentll
+          }
+        }
+      } else { // depth-first traversal across node ports
+
+      }
+    }
   }
 }
 
