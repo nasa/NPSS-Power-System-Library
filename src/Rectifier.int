@@ -128,12 +128,13 @@ class Rectifier extends Element {
 
   /* ELECTRICAL PORTS */
 
-  ElectricPort EP_I {
+  ElectricInputPort EP_I {
     description = "Electric input port.";
-    ElectricPowerType.allowedValues = { "AC1", "AC3" };
+    ElectricPowerType.allowedValues = { "AC3" };
+    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
 
-  ElectricPort EP_O {
+  ElectricOutputPort EP_O {
     description = "Electric output port.";
     ElectricPowerType.allowedValues = { "DC" };
     setOption("ElectricPowerType", "DC"); // only DC output allowed

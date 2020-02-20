@@ -115,7 +115,7 @@ class ConstantPowerLoad extends Element {
   
   /* ELECTRICAL PORTS */
 
-  ElectricPort EP_I {
+  ElectricInputPort EP_I {
     description = "Electric input port.";
   }
 

@@ -1,0 +1,48 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     power_propagation.run                                        |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Run file for automatic power propagation example.            |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+/**
+ ---------
+ | Setup |
+ ---------
+**/
+
+#include "npssel.view"
+#include "PrintUtils.fnc"
+
+#include "power_propagation.mdl"
+
+/**
+ --------------------
+ | Run Solver Cases |
+ --------------------
+**/
+
+setOption("switchDes", "DESIGN");
+autoSolverSetup();
+
+printDesignBanner("on");
+
+string elements[] = list("ElectricPort", TRUE);
+
+int i;
+for (i = 0; i < elements.entries(); i++) {
+  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->isA() << endl;
+}
+
+run(); CASE++;
+page.display();
+printCaseStats("solver");

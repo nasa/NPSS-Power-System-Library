@@ -170,7 +170,7 @@ class Source extends Element {
   
   /* ELECTRICAL PORTS */
 
-  ElectricPort EP_O {
+  ElectricOutputPort EP_O {
     description = "Electric output port.";
   }
 
@@ -203,12 +203,12 @@ class Source extends Element {
   //-------------------------------------------
 
   void variableChanged(string name, any oldVal) {
-
     if (name == "switchThermPort") { 
        if (switchThermPort == "TRUE") {
            create("", "ThermalInputPort", "Q_I");
        }
     }
+
     if (name == "multiDes") {
       if (switchDes == DESIGN) {
         ind_energyDes.autoSetup = TRUE;
@@ -226,12 +226,14 @@ class Source extends Element {
    */
   void calculate() {
     
-    /** If we're on-design, we need to figure out the output impedance based
+    /** 
+     * If we're on-design, we need to figure out the output impedance based
      * on the design efficiency. Otherwise, calculate the loss and the 
      * efficiency based on the impedance (which is held constant).
      */
 
     pf = cos(EP_O.S.phase);
+
     if (switchDes == "DESIGN") {
       pfDes = pf;
       eff = effDes;
@@ -253,6 +255,7 @@ class Source extends Element {
 
       real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
+
       if (energyBasedMass > powerBasedMass) {
         Mass = energyBasedMass; // compute mass based on assumed specific energy
       } else {
@@ -279,7 +282,7 @@ class Source extends Element {
     }
   }
 
-  void prePass(){
+  void prePass() {
     EP_O.propagatePower();
     EP_O.frequency = frequency;
     EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);

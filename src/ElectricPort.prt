@@ -37,8 +37,8 @@ class ElectricPort extends Subelement {
   // ****** SETUP VARIABLES ********
   //--------------------------------
 
-  string converterComponenets = { "Inverter", "Rectifier", "DC_DC_Converter" };
-  string singlePortComponents = { "Generator", "Motor", "Source", "ConstantPowerLoad" };
+  string converterComponenets[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
+  string singlePortComponents[] = { "Generator", "Motor", "Source", "ConstantPowerLoad" };
 
   ComplexNumber V {
     lock = TRUE;	
@@ -62,7 +62,7 @@ class ElectricPort extends Subelement {
     allowedValues = { "AC1", "DC", "AC3" };
     description = "Electric power type (DC, AC1, AC3).";
     trigger = 1;
-    rewritableValues = FALSE;
+    rewritableValues = TRUE;
   }
   
   real frequency {
@@ -208,23 +208,56 @@ class ElectricPort extends Subelement {
     pushport();	
   }
 
+
+  // sets component power type the same on both input and output ports
+  void getOtherPort(string port) {
+    if (port->isA() == "ElectricInputPort") {
+      nextPort = port->parent.EP_O.getPathName();
+    } else {
+      nextPort = port->parent.EP_I.getPathName();
+    }
+  }
+
   // depth-first traversal of circuit graph to populate port power type
   void propagatePower() {
 
-    int i;
-    portComponent = refport->parent.isA();
+    string nextPort = propagate(refport);
 
-    while (singlePortComponents.contains(portComponent)) { // check if port is single
+    if (nextPort != "complete") {
+      propagateNode(nextPort);
+    }
+  }
+
+  string propagate(string originPort) {
+
+    string port = originPort;
+    string powerType = port->ElectricPowerType
+    string portComponent;
+
+    while (!singlePortComponents.contains(port->isA())) {
+
+      portComponent = port->parent.isA();
+      cout << "Current Port: " << port;
+
       if (portComponent != "Enode") { // check if port is a node
         if (!converterComponenets.contains(portComponent)) { // ignore conversion ports
-            refport->setOption("ElectricPowerType", ElectricPowerType);
-            // portComponent = refport->parentll
-          }
+          port->setOption("ElectricPowerType", powerType)
+          port = getOtherPort(port);
+          port->setOption("ElectricPowerType", powerType);
+        } else {
+          port = getOtherPort();
+          powerType = port->ElectricPowerType;
         }
-      } else { // depth-first traversal across node ports
-
+        port = port->refport;
+      } else {
+        return port;
       }
     }
+    return "complete";
+  }
+  
+  void propagateNode() {
+
   }
 }
 

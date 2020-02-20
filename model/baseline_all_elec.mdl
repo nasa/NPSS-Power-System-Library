@@ -14,8 +14,6 @@
  -------------------------------------------------------------------------------
 ***/
 
-#include "PrintUtils.fnc"
-
 #define THERMO GasTbl
 setThermoPackage("$THERMO");
 
@@ -48,8 +46,6 @@ ElectricAssembly baselineElectric {
     Pdemand  = 10;   // [kilowatts]
     pfDemand = 1;
   }
-
-  printElements(TRUE);
 
   Source.EP_O.setOption("ElectricPowerType", "DC");
 

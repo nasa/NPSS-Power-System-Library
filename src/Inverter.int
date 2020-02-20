@@ -134,7 +134,8 @@ class Inverter extends Element {
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
-    ElectricPowerType.allowedValues = { "AC1", "AC3" };
+    ElectricPowerType.allowedValues = { "AC3" };
+    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
 
   /* SOCKETS */

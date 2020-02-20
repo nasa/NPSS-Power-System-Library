@@ -1,0 +1,149 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     power_propagation.mdl                                        |
+ | Author(s):	    Jonathan Fuzaro Alencar       			                         |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Model to serve as automatic power propagation example.       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+ElectricAssembly powerPropagation {
+  Element Source B1 {
+    Vreal  = 100;  // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.99; // [99 %]
+  }
+
+  Element Source B2 {
+    Vreal  = 100;  // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.99; // [99 %]
+  }
+
+  Element Source B3 {
+    Vreal  = 100;  // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.99; // [99 %]
+  }
+
+  Element Cable A1 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A2 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A3 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A4 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A5 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A6 {
+    length = 1; // [meters]
+  }
+
+  Element Cable A7 {
+    length = 1; // [meters]
+  }
+
+  Element Rectifier R1 {
+    Vreal  = 100;  // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.95; // [93 %]
+  }
+
+  Element ConstantPowerLoad L1 {
+    Vreal    = 100; // [volts]
+    Vimag    = 0;   // [volts]
+    Pdemand  = 1;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Element ConstantPowerLoad L2 {
+    Vreal    = 100; // [volts]
+    Vimag    = 0;   // [volts]
+    Pdemand  = 1;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Element ConstantPowerLoad L3 {
+    Vreal    = 100; // [volts]
+    Vimag    = 0;   // [volts]
+    Pdemand  = 1;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Element Enode E1 {
+    ElectricInputPort EP_I1, EP_I2, EP_I3;
+    ElectricInputPort EP_O1, EP_O2;
+  }
+
+  Element Enode E2 {
+    ElectricInputPort EP_I1, EP_I2;
+    ElectricInputPort EP_O;
+  }
+
+  /**
+   -------------------------------------------------------------------------------
+  |                                  DIAGRAM                                    |
+  |                                                                             |
+  |                        |-> Cbl (A4) -> CPL (L1)                             |
+  | Src (B1) -> Cbl (A1) ->|                                                    |
+  |                        |                                                    |
+  |              Node (E1) |-> Cbl (A5) -> CPL (L2)                             |
+  |                        |                                                    |
+  | Src (B2) -> Cbl (A2) ->|                                                    |
+  |                        |<- Cbl (A6) <- Rctf (R1) <-|                        |
+  |                                                    |                        |
+  |                                          Node (E2) |<- Cbl (A7) <- CPL (L3) |
+  |                                                    |                        |
+  |                             Src (B3) -> Cbl (A3) ->|                        |
+  |                                                                             |
+  -------------------------------------------------------------------------------
+  **/
+
+  B1.EP_O.setOption("ElectricPowerType", "AC3");
+  B2.EP_O.setOption("ElectricPowerType", "AC3");
+  B3.EP_O.setOption("ElectricPowerType", "DC");
+
+  R1.EP_I.setOption("ElectricPowerType", "AC3");
+
+  linkPortI("B1.EP_O" , "A1.EP_I");
+  linkPortI("B2.EP_O" , "A2.EP_I");
+  linkPortI("B3.EP_O" , "A3.EP_I");
+  linkPortI("E1.EP_O1", "A4.EP_I");
+  linkPortI("E1.EP_O2", "A5.EP_I");
+  linkPortI("R1.EP_O" , "A6.EP_I");
+  linkPortI("L3.EP_I" , "A7.EP_I");
+
+  linkPortI("A1.EP_O", "E1.EP_I1");
+  linkPortI("A2.EP_O", "E1.EP_I2");
+  linkPortI("A3.EP_O", "E2.EP_I1");
+  linkPortI("A4.EP_O", "L1.EP_I");
+  linkPortI("A5.EP_O", "L2.EP_I");
+  linkPortI("A6.EP_O", "E1.EP_I3");
+  linkPortI("A7.EP_O", "E2.EP_I2");
+
+  linkPortI("E2.EP_O", "R1.EP_I");
+
+  solverSequence = {
+      "E1", "E2",                                     // power nodes
+      "A1", "A2", "A3", "A4", "A5", "A6", "A7", "R1", // power transmission
+      "B1", "B2", "B3", "L1", "L2", "L3"              // power components
+  };
+}

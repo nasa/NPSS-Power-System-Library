@@ -155,8 +155,10 @@ class Generator extends Element {
 
   /* ELECTRICAL PORTS */
 
-  ElectricPort EP_O {
-    description = "Electric port";
+  ElectricOutputPort EP_O {
+    description = "Electric output port.";
+    ElectricPowerType.allowedValues = { "AC3" };
+    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
   
   /* MECHANICAL PORTS */

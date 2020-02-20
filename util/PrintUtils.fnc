@@ -20,11 +20,13 @@ void printList(string list[]) {
   }
 }
 
-void printElements(int recursive) {
+// prints list of elements of certain type
+void printElements(string type, int recursive) {
+  string elements[] = list(type, recursive);
+
   int i;
-  string elements[] = list("Element", recursive);
   for (i = 0; i < elements.entries(); i++) {
-    cout << elements[i] << " : " << elements[i]->isA() << endl;
+    cout << i+1 << ".) " << elements[i] << ": " << elements[i]->isA() << endl;
   }
 }
 
@@ -63,13 +65,15 @@ void printCaseStats(string solverName) {
 }
 
 void printDesignBanner(string des) {
-  if (des == "on") {
+  if (des == "on" || des == "ON") {
     cout << "=======================\n"
          << "====== On-Design ======\n"
          << "=======================\n\n";
-  } else if (des == "off") {
+  } else if (des == "off" || des == "OFF") {
     cout << "=======================\n"
          << "====== Off-Design =====\n"
          << "=======================\n\n";
+  } else {
+    cout << "[ERROR]: Not a valid design parameter.\n";
   }
 }
