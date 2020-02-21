@@ -267,7 +267,6 @@ class Generator extends Element {
   }
 
   void prePass() {
-    EP_O.propagatePower();
     EP_O.frequency = frequency;
     EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
   }

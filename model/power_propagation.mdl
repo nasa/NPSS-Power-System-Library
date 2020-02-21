@@ -15,73 +15,73 @@
 ***/
 
 ElectricAssembly powerPropagation {
-  Element Source B1 {
+  Element Source B1 { // battery 1
     Vreal  = 100;  // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.99; // [99 %]
   }
 
-  Element Source B2 {
+  Element Source B2 { // battery 2
     Vreal  = 100;  // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.99; // [99 %]
   }
 
-  Element Source B3 {
+  Element Source B3 { // battery 3
     Vreal  = 100;  // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.99; // [99 %]
   }
 
-  Element Cable A1 {
+  Element Cable C1 { // cable 1
     length = 1; // [meters]
   }
 
-  Element Cable A2 {
+  Element Cable C2 { // cable 2
     length = 1; // [meters]
   }
 
-  Element Cable A3 {
+  Element Cable C3 { // cable 3
     length = 1; // [meters]
   }
 
-  Element Cable A4 {
+  Element Cable C4 { // cable 4
     length = 1; // [meters]
   }
 
-  Element Cable A5 {
+  Element Cable C5 { // cable 5
     length = 1; // [meters]
   }
 
-  Element Cable A6 {
+  Element Cable C6 { // cable 6
     length = 1; // [meters]
   }
 
-  Element Cable A7 {
+  Element Cable C7 { // cable 7
     length = 1; // [meters]
   }
 
-  Element Rectifier R1 {
+  Element Rectifier Rf {
     Vreal  = 100;  // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.95; // [93 %]
   }
 
-  Element ConstantPowerLoad L1 {
+  Element ConstantPowerLoad L1 { // load 1
     Vreal    = 100; // [volts]
     Vimag    = 0;   // [volts]
     Pdemand  = 1;   // [kilowatts]
     pfDemand = 1;
   }
 
-  Element ConstantPowerLoad L2 {
+  Element ConstantPowerLoad L2 { // load 2
     Vreal    = 100; // [volts]
     Vimag    = 0;   // [volts]
     Pdemand  = 1;   // [kilowatts]
     pfDemand = 1;
   }
 
-  Element ConstantPowerLoad L3 {
+  Element ConstantPowerLoad L3 { // load 3
     Vreal    = 100; // [volts]
     Vimag    = 0;   // [volts]
     Pdemand  = 1;   // [kilowatts]
@@ -99,20 +99,20 @@ ElectricAssembly powerPropagation {
   }
 
   /**
-   -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
   |                                  DIAGRAM                                    |
   |                                                                             |
-  |                        |-> Cbl (A4) -> CPL (L1)                             |
-  | Src (B1) -> Cbl (A1) ->|                                                    |
+  |                        |-> Cbl (C4) -> CPL (L1)                             |
+  | Src (B1) -> Cbl (C1) ->|                                                    |
   |                        |                                                    |
-  |              Node (E1) |-> Cbl (A5) -> CPL (L2)                             |
+  |              Node (E1) |-> Cbl (C5) -> CPL (L2)                             |
   |                        |                                                    |
-  | Src (B2) -> Cbl (A2) ->|                                                    |
-  |                        |<- Cbl (A6) <- Rctf (R1) <-|                        |
+  | Src (B2) -> Cbl (C2) ->|                                                    |
+  |                        |<- Cbl (C6) <- Rctf (Rf) <-|                        |
   |                                                    |                        |
-  |                                          Node (E2) |<- Cbl (A7) <- CPL (L3) |
+  |                                          Node (E2) |<- Cbl (C7) <- CPL (L3) |
   |                                                    |                        |
-  |                             Src (B3) -> Cbl (A3) ->|                        |
+  |                             Src (B3) -> Cbl (C3) ->|                        |
   |                                                                             |
   -------------------------------------------------------------------------------
   **/
@@ -121,29 +121,29 @@ ElectricAssembly powerPropagation {
   B2.EP_O.setOption("ElectricPowerType", "AC3");
   B3.EP_O.setOption("ElectricPowerType", "DC");
 
-  R1.EP_I.setOption("ElectricPowerType", "AC3");
+  Rf.EP_I.setOption("ElectricPowerType", "AC3");
 
-  linkPortI("B1.EP_O" , "A1.EP_I");
-  linkPortI("B2.EP_O" , "A2.EP_I");
-  linkPortI("B3.EP_O" , "A3.EP_I");
-  linkPortI("E1.EP_O1", "A4.EP_I");
-  linkPortI("E1.EP_O2", "A5.EP_I");
-  linkPortI("R1.EP_O" , "A6.EP_I");
-  linkPortI("L3.EP_I" , "A7.EP_I");
+  linkPortI("B1.EP_O" , "C1.EP_I");
+  linkPortI("B2.EP_O" , "C2.EP_I");
+  linkPortI("B3.EP_O" , "C3.EP_I");
+  linkPortI("E1.EP_O1", "C4.EP_I");
+  linkPortI("E1.EP_O2", "C5.EP_I");
+  linkPortI("Rf.EP_O" , "C6.EP_I");
+  linkPortI("L3.EP_I" , "C7.EP_I");
 
-  linkPortI("A1.EP_O", "E1.EP_I1");
-  linkPortI("A2.EP_O", "E1.EP_I2");
-  linkPortI("A3.EP_O", "E2.EP_I1");
-  linkPortI("A4.EP_O", "L1.EP_I");
-  linkPortI("A5.EP_O", "L2.EP_I");
-  linkPortI("A6.EP_O", "E1.EP_I3");
-  linkPortI("A7.EP_O", "E2.EP_I2");
+  linkPortI("C1.EP_O", "E1.EP_I1");
+  linkPortI("C2.EP_O", "E1.EP_I2");
+  linkPortI("C3.EP_O", "E2.EP_I1");
+  linkPortI("C4.EP_O", "L1.EP_I");
+  linkPortI("C5.EP_O", "L2.EP_I");
+  linkPortI("C6.EP_O", "E1.EP_I3");
+  linkPortI("C7.EP_O", "E2.EP_I2");
 
-  linkPortI("E2.EP_O", "R1.EP_I");
+  linkPortI("E2.EP_O", "Rf.EP_I");
 
   solverSequence = {
       "E1", "E2",                                     // power nodes
-      "A1", "A2", "A3", "A4", "A5", "A6", "A7", "R1", // power transmission
+      "C1", "C2", "C3", "C4", "C5", "C6", "C7", "Rf", // power transmission
       "B1", "B2", "B3", "L1", "L2", "L3"              // power components
   };
 }

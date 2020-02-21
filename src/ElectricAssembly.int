@@ -25,6 +25,8 @@
 
 class ElectricAssembly extends InterpretedAssembly {
 
+  #include "PropagatePower.fnc"
+
   //----------------------------
   // ****** DOCUMENTATION ******
   //----------------------------  
