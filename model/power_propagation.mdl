@@ -61,7 +61,7 @@ ElectricAssembly powerPropagation {
     length = 1; // [meters]
   }
 
-  Element Rectifier Rf {
+  Element Inverter Iv {
     Vreal  = 100;  // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.95; // [93 %]
@@ -108,7 +108,7 @@ ElectricAssembly powerPropagation {
   |              Node (E1) |-> Cbl (C5) -> CPL (L2)                             |
   |                        |                                                    |
   | Src (B2) -> Cbl (C2) ->|                                                    |
-  |                        |<- Cbl (C6) <- Rctf (Rf) <-|                        |
+  |                        |<- Cbl (C6) <- Rctf (Iv) <-|                        |
   |                                                    |                        |
   |                                          Node (E2) |<- Cbl (C7) <- CPL (L3) |
   |                                                    |                        |
@@ -121,14 +121,14 @@ ElectricAssembly powerPropagation {
   B2.EP_O.setOption("ElectricPowerType", "AC3");
   B3.EP_O.setOption("ElectricPowerType", "DC");
 
-  Rf.EP_I.setOption("ElectricPowerType", "AC3");
+  Iv.EP_I.setOption("ElectricPowerType", "AC3");
 
   linkPortI("B1.EP_O" , "C1.EP_I");
   linkPortI("B2.EP_O" , "C2.EP_I");
   linkPortI("B3.EP_O" , "C3.EP_I");
   linkPortI("E1.EP_O1", "C4.EP_I");
   linkPortI("E1.EP_O2", "C5.EP_I");
-  linkPortI("Rf.EP_O" , "C6.EP_I");
+  linkPortI("Iv.EP_O" , "C6.EP_I");
   linkPortI("L3.EP_I" , "C7.EP_I");
 
   linkPortI("C1.EP_O", "E1.EP_I1");
@@ -139,11 +139,11 @@ ElectricAssembly powerPropagation {
   linkPortI("C6.EP_O", "E1.EP_I3");
   linkPortI("C7.EP_O", "E2.EP_I2");
 
-  linkPortI("E2.EP_O", "Rf.EP_I");
+  linkPortI("E2.EP_O", "Iv.EP_I");
 
   solverSequence = {
       "E1", "E2",                                     // power nodes
-      "C1", "C2", "C3", "C4", "C5", "C6", "C7", "Rf", // power transmission
+      "C1", "C2", "C3", "C4", "C5", "C6", "C7", "Iv", // power transmission
       "B1", "B2", "B3", "L1", "L2", "L3"              // power components
   };
 }

@@ -85,6 +85,7 @@ class Cable extends Element {
     rewritableValues = FALSE;
     trigger = FALSE;
   }
+
   Option switchThermPort {
     allowedValues = { "TRUE", "FALSE" }
     description = "Determines if component needs thermal port.";
