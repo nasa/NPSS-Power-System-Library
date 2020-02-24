@@ -34,20 +34,15 @@
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 
-// if (testfunc(0))
-// cout << "result!!! : " << testfunc(0) << endl;
-// quit();
-
-powerPropagation.B1.EP_O.propagatePower();
-printDesignBanner("on");
-
-
 string elements[] = list("ElectricPort", TRUE);
 
 int i;
-// for (i = 0; i < elements.entries(); i++) {
-//   cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
-// }
+for (i = 0; i < elements.entries(); i++) {
+  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
+}
+
+powerPropagation.B1.EP_O.propagatePower();
+printDesignBanner("on");
 
 run(); CASE++;
 page.display();

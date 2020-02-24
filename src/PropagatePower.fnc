@@ -15,8 +15,6 @@
 #ifndef __PROPAGATE_POWER__
 #define __PROPAGATE_POWER__
 
-#include "ElectricPort.prt"
-
 string converterComponenets[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 string singlePortComponents[] = { "Generator", "Motor", "Source", "ConstantPowerLoad" };
 
@@ -66,10 +64,12 @@ void propagateNode(string originPort) {
   string powerType = port->ElectricPowerType;
   string nodePorts[] = port->parent.ElectricPorts;
 
+  (port->parent.getPathName())->setOption("ElectricPowerType", powerType);
+
   int i;
   for (i = 0; i < nodePorts.entries(); i++) {
     port = port->parent.getPathName() + "." + nodePorts[i];
-    cout << "Current Port: " << port << endl;
+    cout << "Current port: " << port << endl;
     if (port != originPort) {
       port->setOption("ElectricPowerType", powerType);
       cout << "Propagating power on port: " << port << endl;

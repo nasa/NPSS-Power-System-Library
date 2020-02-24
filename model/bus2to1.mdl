@@ -155,6 +155,8 @@ linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh2_I"    , "Gen2.Sh_O", "Gen1-to-Shaft2");
 
+Gen1.EP_O.propagatePower();
+
 solverSequence.remove( "E2" );
 solverSequence.remove( "Gen1" );
 solverSequence.remove( "Gen2" );

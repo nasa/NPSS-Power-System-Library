@@ -125,7 +125,8 @@ class Cable extends Element {
         create("", "ThermalInputPort", "Q_I");
       }
     }
-    if (name =="switchDes") {
+
+    if (name == "switchDes") {
       if (switchDes == DESIGN) {
         R.IOstatus = INPUT;
         L.IOstatus = INPUT;
