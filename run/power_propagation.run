@@ -31,8 +31,6 @@
  --------------------
 **/
 
-setOption("switchDes", "DESIGN");
-autoSolverSetup();
 
 string elements[] = list("ElectricPort", TRUE);
 
@@ -41,7 +39,9 @@ for (i = 0; i < elements.entries(); i++) {
   cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
 }
 
-powerPropagation.B1.EP_O.propagatePower();
+powerPropagation.S1.EP_O.propagatePower();
+setOption("switchDes", "DESIGN");
+autoSolverSetup();
 printDesignBanner("on");
 
 run(); CASE++;

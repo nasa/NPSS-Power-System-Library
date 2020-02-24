@@ -38,7 +38,7 @@ class Rectifier extends Element {
   ComplexNumber Vdc;
     
   real eff {
-    value = 1.0; IOstatus = "input"; units = NONE;
+    value = 1.0; IOstatus = "input"; units = "none";
     description = "Efficiency of the rectifier.";
   }
 
