@@ -77,7 +77,7 @@ class Enode extends Element {
   
   Dependent dep_Ireal {
     eq_lhs = "Inet.rRMS";
-    eq_rhs = "0.0";
+    eq_rhs = "0.";
     autoSetup = TRUE;
   }
   

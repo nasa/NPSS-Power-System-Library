@@ -9,7 +9,7 @@
  | Author(s):     Jonathan Fuzaro Alencar                                      |
  | Date(s):       February 2020                                                |
  |                                                                             |
- | Description:   Run file for automatic power propagation example.            |
+ | Description:   Run file for automatic power propagation mode.               |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -34,12 +34,21 @@
 
 string elements[] = list("ElectricPort", TRUE);
 
+cout << "Before power propagation: \n";
+
 int i;
 for (i = 0; i < elements.entries(); i++) {
   cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
 }
 
 powerPropagation.S1.EP_O.propagatePower();
+cout << "\nAfter power propagation: \n";
+
+for (i = 0; i < elements.entries(); i++) {
+  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
+}
+cout << endl;
+
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 printDesignBanner("on");
@@ -47,7 +56,3 @@ printDesignBanner("on");
 run(); CASE++;
 page.display();
 printCaseStats("solver");
-
-for (i = 0; i < elements.entries(); i++) {
-  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
-}

@@ -15,10 +15,10 @@
 #ifndef __PROPAGATE_POWER__
 #define __PROPAGATE_POWER__
 
-string converterComponenets[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 string singlePortComponents[] = { "Generator", "Motor", "Source", "ConstantPowerLoad" };
+string converterComponenets[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 
-// sets component power type the same on both input and output ports
+// sets component power type on both input and output ports of component
 string getOtherPort(string port) {
   if (port->isA() == "ElectricInputPort") {
     return port->parent.EP_O.getPathName();
@@ -38,14 +38,11 @@ void propagatePower() {
     if (portComponent != "Enode") { // check if port is a node
       if (!converterComponenets.contains(portComponent)) { // ignore conversion ports
         port->setOption("ElectricPowerType", powerType);
-        cout << "Setting port " << port << " to power type: " << powerType << endl;
         port = getOtherPort(port);
         port->setOption("ElectricPowerType", powerType);
-        cout << "Setting port " << port << " to power type: " << powerType << endl;
       } else { // skip setting conversion ports but change branch power type
         port = getOtherPort(port);
         powerType = port->ElectricPowerType;
-        cout << "Found " << port << ", setting power type to: " << powerType << endl;
       }
       port = (port->refport)->getPathName(); // move to linked port
     } else {
@@ -58,6 +55,7 @@ void propagatePower() {
   port->setOption("ElectricPowerType", powerType);
 }
 
+// this is called when propagatePower() encounters a node
 void propagateNode(string originPort) {
 
   string port = originPort;
@@ -69,10 +67,8 @@ void propagateNode(string originPort) {
   int i;
   for (i = 0; i < nodePorts.entries(); i++) {
     port = port->parent.getPathName() + "." + nodePorts[i];
-    cout << "Current port: " << port << endl;
     if (port != originPort) {
       port->setOption("ElectricPowerType", powerType);
-      cout << "Propagating power on port: " << port << endl;
       port->propagatePower();
     }
   }
