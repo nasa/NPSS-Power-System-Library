@@ -10,9 +10,7 @@
  | Date(s):       February 2020                                                |
  |                                                                             |
  | Description:   Electric assembly that extends generic NPSS assembly. It is  |
- |                exactly the same but already includes port files and         |
- |                contains a propagate power function to determine component   |
- |                power types automatically.                                   |
+ |                exactly the same but already includes the electric port file.|
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -22,10 +20,7 @@
 
 #include "ElectricPort.prt"
 
-
 class ElectricAssembly extends InterpretedAssembly {
-
-  #include "PropagatePower.fnc"
 
   //----------------------------
   // ****** DOCUMENTATION ******
@@ -33,44 +28,10 @@ class ElectricAssembly extends InterpretedAssembly {
   // title = "";
 
   description = "The " + isA() + " extends the generic NPSS assembly to include 
-  electric port functionality. It also contains a propagate power function to 
-  determine power types of components within an assembly (DC, AC, AC3).";
+  electric port functionality.";
 
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
-
-  // void propagate_power(string source) {
-  // }
-
-  // void postcreate() {
-  //   propagate_power();
-  // }
-
-  /**
-   * Override linkPortI() to automatically configure electrical power type.
-   */
-  void linkPortI(string E1, string E2) {
-    E1->refport = E2;
-    E2->refport = E1;
-    // string sourceComponents[] = { "Source", "Generator" };
-    // string converterComponents[] = { "Inverter", "Rectifier" };
-
-    // if (E1->parent.isA() == "Source" || E1->parent.isA() == "Generator") {
-    //   if (E1->powerTypeWritten == FALSE) {
-    //     cerr << "[ERROR]: " + E1->parent.isA() + " power type not specified!\n";
-    //   } else {
-    //     E2->setOption("ElectricPowerType", E1->ElectricPowerType);
-    //   }
-    // } else if (E1->parent.isA() == "Inverter") {
-    //   E2->setOption("ElectricPowerType", "AC1");
-    // }
-
-    // if (E1->parent.isA() == "Rectifier") {
-    //   E2->setOption("ElectricPowerType", "DC");
-    // } else {
-    //   E2->setOption("ElectricPowerType", E1->ElectricPowerType);
-    // }
-  }
 }
 
 class eAssembly extends ElectricAssembly;

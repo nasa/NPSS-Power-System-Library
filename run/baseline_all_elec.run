@@ -2,8 +2,8 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                     |
- | Cleveland, OH 44135 	                                                       |
+ | 21000 Brookpark Rd 		                                                 |
+ | Cleveland, OH 44135 	                                                      |
  |                                                                             |
  | File Name:     baseline_all_elec.run                                        |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
@@ -31,6 +31,7 @@
  --------------------
 **/
 
+Source.EP_O.propagatePower();
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 
@@ -41,8 +42,6 @@ cout << "=======================\n"
 run(); CASE++;
 page.display();
 printCaseStats("solver");
-
-cout << baselineElectric.listInterfaces() << endl;
 
 int i;
 real loads[] = { 10, 8, 6, 4, 2, 1, 0.5, 0.25}; // [kilowatts]
@@ -56,7 +55,7 @@ cout << "=======================\n"
 
 for (i = 0; i < loads.entries(); i++) {
   cout << "Power Demand: " << loads[i] << " kW\n\n";
-  baselineElectric.Load.Pdemand = loads[i];
+  Load.Pdemand = loads[i];
   run(); CASE++;
   page.display();
   printCaseStats("solver");

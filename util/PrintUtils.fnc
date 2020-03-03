@@ -61,7 +61,7 @@ void printCaseStats(string solverName) {
        << "\nPasses: " << solverName->passCounter
        << "\nJacobians: " << solverName->numJacobians
        << "\nBroydens: " << solverName->numBroydens
-       << "\n==================\n";
+       << "\n==================\n\n";
 }
 
 void printDesignBanner(string des) {

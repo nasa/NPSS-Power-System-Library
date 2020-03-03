@@ -17,8 +17,9 @@
 #define THERMO GasTbl
 setThermoPackage("$THERMO");
 
-ElectricAssembly baselineElectric {
+ElectricAssembly allElectric {
   Element Source Source {
+    setOption("ElectricPowerType", "DC");
     Vreal  = 1000; // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.99; // [99 %]
@@ -47,18 +48,15 @@ ElectricAssembly baselineElectric {
     pfDemand = 1;
   }
 
-  Source.EP_O.setOption("ElectricPowerType", "DC");
-
   // Source -> A1 (cable) -> Converter -> A2 (cable) -> Load
   linkPortI("Source.EP_O", "A1.EP_I");        // Source -> A1 (cable)
-
   linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
-
   linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
   linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
+  Source.EP_O.propagatePower();
 
   solverSequence = {
-      "A1", "A2", "Converter", // Power transmission components
-      "Source", "Load"         // Power components
+      "A1", "A2",                   // Power transmission components
+      "Converter", "Source", "Load" // Power components
   };
 }
