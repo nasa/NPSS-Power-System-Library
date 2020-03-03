@@ -34,8 +34,6 @@ void printElements(string type, int recursive) {
 void printSolverSetup(string solverName, int recursive) {
 
   int i;
-  cout << solverName->getPathName() << endl;
-  quit();
   string indeps[] = solverName->list("Independent", recursive);
   string deps[] = solverName->list("Dependent", recursive);
 

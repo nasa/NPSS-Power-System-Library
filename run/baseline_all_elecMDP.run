@@ -134,16 +134,9 @@ solver {
 }
 
 // add post execute sequence to track energy consumption for flight missions
-HOV {
-  allElectric {
-    void postexecute() {
-      Source.energyConsumed += Source.energy;
-      if (Source.energyConsumed > Source.energyDes) {
-        ESOreport(ESO_Id_ExceededEnergyDes,
-        "Source component's energy consumed (" + toStr(Source.energyConsumed) +
-        ") exceeded design energy (" + toStr(Source.energyDes)+").", 1);
-      }
-    }
+HOV.allElectric {
+  void postexecute() {
+    Source.trackEnergy();
   }
 }
 
