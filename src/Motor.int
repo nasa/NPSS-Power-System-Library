@@ -189,8 +189,10 @@ class Motor extends Element {
   
   /* ELECTRICAL PORTS */
 
-  ElectricPort EP_I {
+  ElectricInputPort EP_I {
     description = "Electric input port.";
+    ElectricPowerType.allowedValues = { "" };
+    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
 
   /* SOCKETS */

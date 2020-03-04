@@ -32,20 +32,20 @@
 **/
 
 
-string elements[] = list("ElectricPort", TRUE);
+string ports[] = list("ElectricPort", TRUE);
 
 cout << "Before power propagation: \n";
 
 int i;
-for (i = 0; i < elements.entries(); i++) {
-  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
+for (i = 0; i < ports.entries(); i++) {
+  cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
 }
 
 powerPropagation.S1.EP_O.propagatePower();
 cout << "\nAfter power propagation: \n";
 
-for (i = 0; i < elements.entries(); i++) {
-  cout << i+1 << ".) " << elements[i] << ": " << elements[i]->ElectricPowerType << endl;
+for (i = 0; i < ports.entries(); i++) {
+  cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
 }
 cout << endl;
 

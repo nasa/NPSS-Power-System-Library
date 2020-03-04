@@ -203,7 +203,7 @@ class Source extends Element {
   //-------------------------------------------
 
   void variableChanged(string name, any oldVal) {
-    if (name == "switchThermPort") { 
+    if (name == "switchThermPort") {
        if (switchThermPort == "TRUE") {
            create("", "ThermalInputPort", "Q_I");
        }

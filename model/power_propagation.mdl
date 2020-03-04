@@ -9,7 +9,8 @@
  | Author(s):	    Jonathan Fuzaro Alencar & George Thomas      			           |
  | Date(s):       February 2020                                                |
  |                                                                             |
- | Description:   Model to serve as automatic power propagation example.       |
+ | Description:   Model to serve a test of the automatic power propagation.    |
+ |                WARNING: Currently converges with impractical results.       |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
