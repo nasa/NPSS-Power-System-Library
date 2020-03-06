@@ -24,7 +24,6 @@
 #include "npssel.view"
 #include "PrintUtils.fnc"
 
-
 #define HP_PER_KW 0.7457 // [horsepower / kilowatt]
 
 solver.maxJacobians = 5000;

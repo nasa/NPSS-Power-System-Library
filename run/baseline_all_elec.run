@@ -31,7 +31,6 @@
  --------------------
 **/
 
-Source.EP_O.propagatePower();
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 
@@ -55,7 +54,7 @@ cout << "=======================\n"
 
 for (i = 0; i < loads.entries(); i++) {
   cout << "Power Demand: " << loads[i] << " kW\n\n";
-  Load.Pdemand = loads[i];
+  allElectric.Load.Pdemand = loads[i];
   run(); CASE++;
   page.display();
   printCaseStats("solver");

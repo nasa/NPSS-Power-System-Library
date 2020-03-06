@@ -15,28 +15,6 @@
 #ifndef __PROPAGATE_POWER__
 #define __PROPAGATE_POWER__
 
-string sourceComponents[] = { "Source", "Generator" };
-string loadComponents[] = { "Motor", "ConstantPowerLoad" };
-string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
-
-void findSourceAndPropagate() {
-
-  string portComponent;
-  string ports[] = solver.list("ElectricPort", TRUE);
-
-  int i;
-  for (i = 0; i < ports.entries(); i++) {
-
-    portComponent = ports[i]->parent.isA();
-
-    // search for undefined power source ports and propagate their subgraph
-    if (sourceComponents.contains(portComponent)
-        && ports[i]->ElectricPowerType == "UNDEF") {
-      ports[i]->propagatePower();
-    }
-  }
-}
-
 // depth-first traversal of circuit graph to populate port power type
 void propagatePower() {
 

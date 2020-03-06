@@ -1,16 +1,19 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     baseline_turboelectric.mdl
-//   Date(s):       March 18, 2019
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Model file describes baseline model (Generator, Cable, Inverter, Motor) using the electric port.
-//
-//					Gen1 -> cable1 -> motor1 (EM1)
-//
-//-------------------------------------------------------------------------------------------------
-#include "InterpretedPort.int"
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     baseline_turboelectric.mdl                                   |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       March 2019                                                   |
+ |                                                                             |
+ | Description:   Baseline model (generator, cable, inverter, motor) using     |
+ |                the elctric port.                                            |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 cout<<"======================================="<<endl;
 cout<<" Example Turbo-electric Model "<<endl;
@@ -176,23 +179,9 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_I, Sh_Turbine;	
 }
 
-setOption("ElectricPowerType","AC3");
-Rect1.EP_O.setOption("ElectricPowerType","DC");
-Breaker2.EP_O.setOption("ElectricPowerType","DC");
-Breaker2.EP_I.setOption("ElectricPowerType","DC");
-E2.EP_O.setOption("ElectricPowerType","DC");
-E2.EP_I.setOption("ElectricPowerType","DC");
-E2.ind_Vimag.autoSetup = FALSE;
-E2.dep_Iimag.autoSetup = FALSE;
-Cable2.EP_O.setOption("ElectricPowerType","DC");
-Cable2.EP_I.setOption("ElectricPowerType","DC");
-Inv1.EP_I.setOption("ElectricPowerType","DC");
-
-
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPorts( "Propulsor_Shaft.Sh1_I", "EM1.Sh_O", "Shaft_Motor1" );
 linkPortI( "Breaker1.EP_O", "E1.EP_I");
 linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
 linkPortI( "E1.EP_O", "Cable1.EP_I");
@@ -203,19 +192,9 @@ linkPortI( "E2.EP_O","Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
 linkPortI( "Inv1.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
+findSourcesAndPropagate();
 
-/*
-linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
-linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
-linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
-
-//
-linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
-linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
-linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
-linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
-*/
-
+linkPorts( "Propulsor_Shaft.Sh1_I", "EM1.Sh_O", "Shaft_Motor1" );
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
 linkPorts( "PropLoad.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");

@@ -53,7 +53,7 @@ ElectricAssembly allElectric {
   linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
   linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
   linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
-  Source.EP_O.propagatePower();
+  findSourcesAndPropagate();
 
   solverSequence = {
       "A1", "A2",                   // Power transmission components

@@ -31,22 +31,13 @@
  --------------------
 **/
 
-
 string ports[] = list("ElectricPort", TRUE);
 
 cout << "Before power propagation: \n";
-
-int i;
-for (i = 0; i < ports.entries(); i++) {
-  cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
-}
-
-powerPropagation.S1.EP_O.propagatePower();
+printPortPowerTypes();
+findSourcesAndPropagate();
 cout << "\nAfter power propagation: \n";
-
-for (i = 0; i < ports.entries(); i++) {
-  cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
-}
+printPortPowerTypes();
 cout << endl;
 
 setOption("switchDes", "DESIGN");

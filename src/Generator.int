@@ -192,7 +192,7 @@ class Generator extends Element {
       }
     }
 
-    if (name =="switchDes") {} // do nothing
+    if (name == "switchDes") {} // do nothing
   }
 
   //-----------------------------------------------

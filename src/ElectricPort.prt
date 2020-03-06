@@ -22,6 +22,10 @@ ESOregCreate(ESO_Id_NoRefPort, 1, "No refport in this port (make sure the port i
 int ESO_Id_ImagInDC = (10000 * 142) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ImagInDC, 1, "Imaginary components in DC port!");
 
+string sourceComponents[] = { "Source", "Generator" };
+string loadComponents[] = { "Motor", "ConstantPowerLoad" };
+string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
+
 class ElectricPort extends Subelement {
   #include "PropagatePower.fnc"
   
@@ -210,4 +214,24 @@ class ElectricPort extends Subelement {
 class ElectricInputPort extends ElectricPort;
 class ElectricOutputPort extends ElectricPort;
 
+void findSourcesAndPropagate() {
+
+  string portComponent;
+  string ports[] = list("ElectricOutputPort", TRUE);
+
+  int i;
+  for (i = 0; i < ports.entries(); i++) {
+
+    portComponent = ports[i]->parent.isA();
+
+    // search for undefined power source ports and propagate their subgraph
+    if (sourceComponents.contains(portComponent)) {
+      if (ports[i]->ElectricPowerType != "UNDEF") {
+        ports[i]->propagatePower();
+      } else {
+        cerr << "\n[ERROR]: Found source with undefined power type!\n";
+      }
+    }
+  }
+}
 #endif

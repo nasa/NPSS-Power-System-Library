@@ -1,13 +1,18 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     cable_test.mdl
-//   Date(s):       February 1, 2019
-//   Author:        George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
-//                  NASA Glenn Research Center
-//
-//   Description:   Run the cable element on- and off-design.
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     cable_thermal_test.mdl                                       |
+ | Author(s):	    George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       February 2019                                                |
+ |                                                                             |
+ | Description:   Run the cable element on and off-design.                     |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 
 class Source extends Element{
@@ -63,14 +68,5 @@ ACS.EP_I.setOption("ElectricPowerType","AC3");
 ACCable.EP_O.setOption("ElectricPowerType","AC3");
 ACCable.EP_I.setOption("ElectricPowerType","AC3");
 
-//--------------------------------------------------------
-// link it up
-//--------------------------------------------------------
-
-// linkEports( "ACS.EP_O", "ACCable.EP_I", "PORT" );
-// linkEports( "ACCable.EP_O", "ACS.EP_I", "NODE" );
-
 linkPortI( "ACS.EP_O", "ACCable.EP_I" );
 linkPortI( "ACCable.EP_O", "ACS.EP_I" );
-
-

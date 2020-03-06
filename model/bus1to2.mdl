@@ -1,17 +1,18 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     bus1to2.mdl
-//   Date(s):       April 27, 2018
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Model file describes model where 1 generator feeds 2 motors.
-//
-//											-> cable2a -> motor2a
-//					Gen -> cable 1 -> node  
-//											-> cable2b -> motor2b
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     bus1to2.mdl                                                  |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       April 2018                                                   |
+ |                                                                             |
+ | Description:   Model where 1 generator feeds 2 motors.                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 real defaultFrequency = 400.;
 
@@ -158,8 +159,6 @@ Element Shaft Turbine_Shaft {
 	
 }
 
-setOption("ElectricPowerType","AC3");
-
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
@@ -171,6 +170,7 @@ linkPortI( "E1.EP_O1", "Cable2a.EP_I" );
 linkPortI( "E1.EP_O2", "Cable2b.EP_I" );
 linkPortI( "Cable2a.EP_O", "EM1.EP_I" );
 linkPortI( "Cable2b.EP_O", "EM2.EP_I" );
+findSourcesAndPropagate();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 

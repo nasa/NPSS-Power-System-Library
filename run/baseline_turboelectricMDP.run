@@ -28,10 +28,6 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add in electric port
-#include "ElectricPort.prt"
-//#include "InterpretedPort.int"
-
 #include <printUtils.fnc>
 #include <print_macros2.fnc>
 
@@ -40,7 +36,7 @@ fine, imprisonment, or both.
 //----------------------------------------------------------------------------
 cout << "\nMDP Solver Setup\n"; 
 
-Element Assembly TKO { 
+ElectricAssembly TKO { 
     #include "baseline_turboelectricMDP.mdl"
 
     Solver solver { 
@@ -95,7 +91,7 @@ Element Assembly TKO {
     }
 }
 
-Element Assembly TOC { 
+ElectricAssembly TOC { 
     #include "baseline_turboelectricMDP.mdl"
     
     // Set propulsor shaft to a higher value than TKO
