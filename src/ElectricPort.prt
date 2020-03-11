@@ -230,7 +230,8 @@ void findSourcesAndPropagate() {
       if (ports[i]->ElectricPowerType != "UNDEF") {
         ports[i]->propagatePower();
       } else {
-        cerr << "\n[ERROR]: Found source with undefined power type!\n";
+        cerr << "\n[ERROR]: " << ports[i]->parent.getPathName()
+             << " is a source with undefined power type!\n";
       }
     }
   }

@@ -395,15 +395,15 @@ class AeroCable extends Element {
             voltage_drop.setrj(0, 0);
             ampacity = 0;
             cable_size = "";
-            cerr << endl << "No cables were found for these settings" 
-                 << endl << "          LL voltage            : " << voltage.mag
-                 << endl << "          Current               : " << current.mag
-                 << endl << "          parallelled conductors: " << n_parallel
-                 << endl << "          voltage drop tolerance: " << drop_tolerance
+            cerr << "\n[ERROR]: No cables were found for these settings" 
+                 << "\n         Component:              " << getPathName()
+                 << "\n         LL voltage:             " << voltage.mag
+                 << "\n         Current:                " << current.mag
+                 << "\n         Parallelled Conductors: " << n_parallel
+                 << "\n         Voltage Drop Tolerance: " << drop_tolerance
                  << endl;
           } 
         } else if (index > cable_sizes.entries()-1) {
-
           // increase the conductors and start searching again
           conductors++;
           index = 1;
@@ -531,11 +531,12 @@ class AeroCable extends Element {
             Mass = 0;
             resistance = 0;
             cable_size = "";
-            cerr << endl << "No cables were found for these settings"
-                 << endl << "          voltage                " << voltage
-                 << endl << "          current                " << current * 1000
-                 << endl << "          parallelled conductors " << n_parallel
-                 << endl << "          voltage drop tolerance " << drop_tolerance
+            cerr << "\n[ERROR]: No cables were found for these settings" 
+                 << "\n         Component:              " << getPathName()
+                 << "\n         LL voltage:             " << voltage
+                 << "\n         Current:                " << current * 1000
+                 << "\n         Parallelled Conductors: " << n_parallel
+                 << "\n         Voltage Drop Tolerance: " << drop_tolerance
                  << endl;
           }
         } else if (index > cable_sizes.entries()) {

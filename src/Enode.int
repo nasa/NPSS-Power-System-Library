@@ -42,17 +42,15 @@ class Enode extends Element {
   real IrealOut;
   real IimagIn;
   real IimagOut;
-  
-  string ElectricPorts[];
 
   //----------------------------------------------------------
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
   //----------------------------------------------------------  
   
   /* ELECTRICAL PORTS */
-
-  string Eports[];
-  Eports {
+  
+  string ElectricPorts[];
+  ElectricPorts {
     description = "Array of electric ports.";
     ptrType = "ElectricPort";
   }
