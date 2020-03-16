@@ -14,9 +14,6 @@
  -------------------------------------------------------------------------------
 ***/
 
-#ifndef __INTERPRETED_PORT__
-#define __INTERPRETED_PORT__
-
 void linkPortI(string E1, string E2) {
   (E1->getPathName())->refport = E2->getPathName();
   (E2->getPathName())->refport = E1->getPathName();
@@ -76,4 +73,3 @@ void linkEports(string portName1, string portName2, string linkType) {
     linkPortI(portName1, portName2);
   }
 }
-#endif
