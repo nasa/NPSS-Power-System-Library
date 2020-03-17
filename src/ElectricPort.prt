@@ -158,6 +158,11 @@ class ElectricPort extends Subelement {
   // set the port conditions based on complex current and voltage
   void setIVRMS(real IrRMS, real IjRMS, real VrRMS, real VjRMS) {
     
+     if (ElectricPowerType == "UNDEF") {
+      cerr << "[ERROR]: " << parent.getPathName() << " undefined!\n";
+      quit();
+    }
+       
     // unlock the parameters so they can be set
     V.lock = FALSE;
     I.lock = FALSE;
