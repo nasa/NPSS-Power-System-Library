@@ -2,7 +2,7 @@
 //         General Output DataViewer Specification
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-OutFileStream pageStream { filename = "output/engine.viewOut"; } 
+OutFileStream pageStream { filename = "output/powertrain.viewOut"; } 
 
 DataViewer PageViewer page { 
 

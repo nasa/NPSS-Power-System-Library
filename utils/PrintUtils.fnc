@@ -66,13 +66,13 @@ void printCaseStats(string solverName) {
 
 void printDesignBanner(string des) {
   if (des == "on" || des == "ON") {
-    cout << "=======================\n"
-         << "====== On-Design ======\n"
-         << "=======================\n\n";
+    cout << "\n=======================\n"
+         <<   "====== On-Design ======\n"
+         <<   "=======================\n\n";
   } else if (des == "off" || des == "OFF") {
-    cout << "=======================\n"
-         << "====== Off-Design =====\n"
-         << "=======================\n\n";
+    cout << "\n=======================\n"
+         <<   "====== Off-Design =====\n"
+         <<   "=======================\n\n";
   } else {
     cout << "[ERROR]: Not a valid design parameter.\n";
   }
