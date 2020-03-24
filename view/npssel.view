@@ -136,7 +136,7 @@ GroupBlock Electrical {
 	}
 
    DColTBlock dc_dc_converter { 
-		titleBody = "  DC-DC Converters"; 
+		titleBody = " DC-DC Converters"; 
 		compType = "DC_DC_Converter"; 
 		compTypeFormat = "????????????"; 
 		compAttr = {"pwrOut", "EP_I.S.r", "EP_O.S.r", "EP_I.V.r", "K", "EP_O.V.r", "EP_I.I.mag", "EP_O.I.mag", "Mass", "eff", "effBase", "effDes"}; 

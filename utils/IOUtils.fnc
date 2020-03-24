@@ -5,14 +5,14 @@
  | 21000 Brookpark Rd 		                                                     |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     PrintUtils.int                                               |
+ | File Name:     IOUtils.int                                                  |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
  | Date(s):       February 2020                                                |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 
-// prints an array as an enumerated list
+// Prints an array as an enumerated list.
 void printList(string list[]) {
   int i;
   for (i = 0; i < list.entries(); i++) {
@@ -20,7 +20,15 @@ void printList(string list[]) {
   }
 }
 
-// prints list of elements of certain type
+// Prints an array as an enumerated list with values.
+void printValues(string list[]) {
+  int i;
+  for (i = 0; i < list.entries(); i++) {
+    cout << " " << i+1 << ".) " << list[i] << " = " << list[i]->value << endl;
+  }
+}
+
+// Prints enumerated list of elements of certain type.
 void printElements(string type, int recursive) {
   string elements[] = list(type, recursive);
 
@@ -30,7 +38,18 @@ void printElements(string type, int recursive) {
   }
 }
 
-// prints solver independents and depedents
+// Prints enumerated list of elements of certain type with values.
+void printElementValues(string type, int recursive) {
+  string elements[] = list(type, recursive);
+
+  int i;
+  for (i = 0; i < elements.entries(); i++) {
+    cout << i+1 << ".) " << elements[i] << ": " << elements[i]->isA()
+         << " = " << list[i]->value << endl;
+  }
+}
+
+// Prints solver independents and depedents.
 void printSolverSetup(string solverName, int recursive) {
 
   int i;
@@ -46,7 +65,8 @@ void printSolverSetup(string solverName, int recursive) {
 
   cout << "\nDependent Components: \n";
   for (i = 0; i < deps.entries(); i++) {
-    cout << " " << i+1 << ".) " << deps[i] << ": " << deps[i]->eq_lhs << " = " << deps[i]->eq_rhs << endl;
+    cout << " " << i+1 << ".) " << deps[i] << ": " << deps[i]->eq_lhs
+         << " = " << deps[i]->eq_rhs << endl;
   }
 
   // cout << "\nSequence: \n";
@@ -54,7 +74,7 @@ void printSolverSetup(string solverName, int recursive) {
   cout << endl;
 }
 
-// prints information from a solver case run
+// Prints information from a solver case run.
 void printCaseStats(string solverName) {
   cout << "==== CASE: " << solverName->CASE << " ====="
        << "\nIterations: " << solverName->iterationCounter
@@ -64,6 +84,7 @@ void printCaseStats(string solverName) {
        << "\n==================\n\n";
 }
 
+// Prints on / off design banner.
 void printDesignBanner(string des) {
   if (des == "on" || des == "ON") {
     cout << "\n=======================\n"
@@ -78,6 +99,7 @@ void printDesignBanner(string des) {
   }
 }
 
+// Prints enumerated list of electrical ports and their respective power type.
 void printPortPowerTypes() {
 
   string ports[] = list("ElectricPort", TRUE);
@@ -85,5 +107,46 @@ void printPortPowerTypes() {
   int i;
   for (i = 0; i < ports.entries(); i++) {
     cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
+  }
+}
+
+// Opens new CSV file stream with fileName and prints variables list at top.
+void populateCSV(string file, string fileName, string vars[]) {
+
+  int i;
+
+  file->open(fileName);
+
+  if (vars.entries() != 0) {
+    file->print("Case, ");
+    file->print(vars[0]->getPathName() + " (sweep), ");
+    for (i = 1; i < vars.entries()-1; i++) {
+      file->print(vars[i]->getPathName() + ", ");
+    }
+    file->print(vars[i]->getPathName());
+    file->println();
+  } else {
+    cerr << "[ERROR]: populateCSV variable list empty!\n";
+  }
+}
+
+// Prints to file stream a line of values derived from variables (vars) array.
+void fillCSVLine(string file, string vars[]) {
+
+  int i;
+
+  if (file->fileExists(file->filename)) {
+    if (vars.entries() != 0) {
+      file->print(toStr(CASE) + ", ");
+      for (i = 0; i < vars.entries()-1; i++) {
+        file->print(toStr(vars[i]->value) + ", ");
+      }
+      file->print(vars[i]->value);
+      file->println();
+    } else {
+      cerr << "[ERROR]: fillCSVLine variable list empty!\n";
+    }
+  } else {
+    cerr << "[ERROR]: fillCSVLine file does not exist!\n";
   }
 }
