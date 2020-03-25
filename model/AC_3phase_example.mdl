@@ -16,15 +16,14 @@
 ***/
 
 // create a power source class 
-class Source extends Element {
+class SimpleSource extends Element {
   ElectricOutputPort EP_Oa;
   ElectricInputPort EP_Ia;
-  EP_Oa.frequency=60.;
 }
 
 real defaultFrequency = 60.;
 
-Source Source {
+SimpleSource Source {
   void postexecute() {;
     EP_Oa.setIVRMSphaseDeg(0.,0.,208.,0.);
     EP_Ia.setIVRMSphaseDeg( 0.,0.,0.,0.);
