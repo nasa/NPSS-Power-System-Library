@@ -12,6 +12,9 @@
  -------------------------------------------------------------------------------
 ***/
 
+#ifndef __IO_UTILS__
+#define __IO_UTILS__
+
 // Prints an array as an enumerated list.
 void printList(string list[]) {
   int i;
@@ -150,3 +153,4 @@ void fillCSVLine(string file, string vars[]) {
     cerr << "[ERROR]: fillCSVLine file does not exist!\n";
   }
 }
+#endif
