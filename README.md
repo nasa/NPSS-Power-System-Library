@@ -1,30 +1,37 @@
+# NPSS - Power System Library
 
-###########################################################################
-#
-# NPSS Power System Library
-# NASA Glenn Research Center
-#
-###########################################################################
+## NASA - Glenn Research Center
 
-This repository contains a power system library for NPSS, containing
-circuit components such as resistors and capacitors, electric machines,
-and ports that are used to link them together. The library also includes
-bus components that allow more than two elements to be connected to a
-single node. Several examples are included in the library to demonstrate
-the use of the various components, and how they may be connected to an
-NPSS gas-turbine engine model.
+## Introduction
 
-To run the examples, first, open a command prompt or terminal with your
-NPSS environment set up. Then, change directory to the main directory
-of the project (containing "model," "src," "view," etc), and then run
+This repository contains a power system library (PSL) for the Numerical
+Propulsion System Simulation (NPSS) software framework.
+It contains circuit components such as resistors and capacitors, electric
+machines, and ports that are used to link them together.
+The library also includes bus components that allow more than two elements to be
+connected to a single node.
+
+Several examples are included in the library to demonstrate the use of the
+various components, and how they may be connected to an NPSS gas-turbine engine
+model.
+
+## Usage
+
+If you have your NPSS environment set up, you can run a model like so:
+
+```bat
+runnpss-psl run\[file_name].run
 ```
->> runnpss -I model -I run -I src -I view [example run file]
-```
-to run any of the included models. If you run the baseline example,
-"baseline.run," you should get an output that looks like this in the
-file "engine.viewOut":
 
-```
+> NOTE: You must run this command from the project root
+directory (containing "src", "model", etc).
+
+## Example
+
+If you run the baseline example, "baseline.run," you should get an output that
+looks like this in the file "engine.viewOut":
+
+```txt
 ************************************************************************************************************************************
 Date:03/11/19    Time:13:09:14    Model:                                                                    converge = 1   CASE:   0
 Version:          NPSS_2.7.1          Gas Package: GasTbl        iter/pass/Jacb/Broy= 33/ 39/ 2/30        Run by:             jcsank

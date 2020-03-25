@@ -1,0 +1,184 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     power_propagation.mdl                                        |
+ | Author(s):	    Jonathan Fuzaro Alencar, George Thomas      			           |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Model to serve a test of the automatic power propagation.    |
+ |                WARNING: Currently converges with impractical results.       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+ElectricAssembly powerPropagation {
+  Element Source S1 { // AC source 1
+    setOption("ElectricPowerType", "AC3");
+    Vreal     = 100;  // [volts]
+    Vimag     = 0;    // [volts]
+    effDes    = 0.99; // [99 %]
+    frequency = 400;  // [Hz]
+  }
+
+  Element Source S2 { // AC source 2
+    setOption("ElectricPowerType", "AC3");
+    Vreal     = 100;  // [volts]
+    Vimag     = 0;    // [volts]
+    effDes    = 0.99; // [99 %]
+    frequency = 400;  // [Hz]
+  }
+
+  Element Source B1 { // battery 1
+    setOption("ElectricPowerType", "DC");
+    Vreal  = 134;  // [volts]
+    Vimag  = 0;    // [volts]
+    effDes = 0.99; // [99 %]
+  }
+
+  Element AeroCable C1 { // cable 1
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C2 { // cable 2
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C3 { // cable 3
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C4 { // cable 4
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C5 { // cable 5
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C6 { // cable 6
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C7 { // cable 7
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element AeroCable C8 { // cable 7
+    length = 1;  // [meters]
+    Ireal  = 10; // [amps]
+    Iimag  = 0;  // [amps]
+  }
+
+  Element Rectifier R1 {
+    Vreal     = 100;  // [volts]
+    Vimag     = 0;    // [volts]
+    effDes    = 0.95; // [95 %]
+    frequency = 400;  // [Hz]
+  }
+
+  Element ConstantPowerLoad L1 { // load 1
+    Vreal    = 100; // [volts]
+    Vimag    = 0;   // [volts]
+    Pdemand  = 5;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Element ConstantPowerLoad L2 { // load 2
+    Vreal    = 100; // [volts]
+    Vimag    = 0;   // [volts]
+    Pdemand  = 8;   // [kilowatts]
+    pfDemand = 1;
+  }
+
+  Element ConstantPowerLoad L3 { // load 3
+    Vreal    =  100; // [volts]
+    Vimag    =  0;   // [volts]
+    Pdemand  =  1;   // [kilowatts]
+    pfDemand =  1;
+  }
+
+  Element Enode E1 { // This will be an AC port once power types are propagated through the system.
+    ElectricInputPort EP_I1, EP_I2;
+    ElectricInputPort EP_O1, EP_O2, EP_O3;
+    VrealRMS  = 100;  // [volts]
+    VimagRMS  = 0;    // [volts]
+    frequency = 400;  // [Hz]
+  }
+
+  Element Enode E2 { // This will be a DC port once power types are propagated through the system.
+    ElectricInputPort EP_I1, EP_I2;
+    ElectricInputPort EP_O;
+    VrealRMS = 100;  // [volts]
+    VimagRMS = 0;    // [volts]
+  }
+
+  /**
+  -----------
+  | Diagram |
+  -----------
+  -------------------------------------------------------------------------------------------
+  |                                                                                         |
+  |                            Branch 3                                                     |
+  | Branch 1               |-> Cbl (C4) -> CPL (L1)                                         |
+  | Src (S1) -> Cbl (C1) ->|                                                                |
+  |                        |   Branch 4                                                     |
+  |              Node (E1) |-> Cbl (C5) -> CPL (L2)                                         |
+  | Branch 2               |                                                                |
+  | Src (S2) -> Cbl (C2) ->|   Branch 5                                                     |
+  |                        |-> Cbl (C6) -> Rect (R1) -> Cbl (C8) ->|                        |
+  |                                                                |   Branch 6             |
+  |                                                      Node (E2) |-> Cbl (C7) -> CPL (L3) |
+  |                                         Branch 7               |                        |
+  |                                         Src (B3) -> Cbl (C3) ->|                        |
+  |                                                                                         |
+  -------------------------------------------------------------------------------------------
+  **/
+
+  // Branch 1
+  linkPortI("S1.EP_O", "C1.EP_I");
+  linkPortI("C1.EP_O", "E1.EP_I1");
+  // Branch 2
+  linkPortI("S2.EP_O", "C2.EP_I");
+  linkPortI("C2.EP_O", "E1.EP_I2");
+  // Branch 3
+  linkPortI("E1.EP_O1", "C4.EP_I");
+  linkPortI("C4.EP_O", "L1.EP_I");
+  // Branch 4
+  linkPortI("E1.EP_O2", "C5.EP_I");
+  linkPortI("C5.EP_O", "L2.EP_I");
+  // Branch 5
+  linkPortI("E1.EP_O3", "C6.EP_I");
+  linkPortI("C6.EP_O", "R1.EP_I");
+  linkPortI("R1.EP_O", "C8.EP_I");
+  linkPortI("C8.EP_O", "E2.EP_I1");
+  // Branch 6
+  linkPortI("E2.EP_O", "C7.EP_I");
+  linkPortI("C7.EP_O", "L3.EP_I");
+  // Branch 7
+  linkPortI("B1.EP_O", "C3.EP_I");
+  linkPortI("C3.EP_O", "E2.EP_I2");
+
+  solverSequence = {
+      "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", // power transmission
+      "E1", "E2",                                     // nodes
+      "R1", "S1", "S2", "B1", "L1", "L2", "L3"        // power components
+  };
+}

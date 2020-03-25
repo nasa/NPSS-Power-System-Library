@@ -59,7 +59,7 @@ background = "";
 //     ******* SETUP VARIABLES ********
 //------------------------------------------------------------
 
-  real eff{
+  real eff {
     value = 1.0;  IOstatus = OUTPUT;  units = NONE;
     description = "Net transfer effectivness";
   }
@@ -79,7 +79,7 @@ background = "";
     value = 0;  IOstatus = INPUT;  units = NONE;
     description = "Subelement calculated dPqP";
   }
-  real Q{
+  real Q {
     value = 0;  IOstatus = INPUT;  units = BTU_PER_SEC;
     description = "Heat flow into the fluid";
   }
@@ -87,7 +87,7 @@ background = "";
     value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
     description = "Maximum heat into flow";
   }
-  real T_s{
+  real T_s {
     value = 0;  IOstatus = INPUT;  units = RANKINE;
     description = "Surface temperature of surface";
   }

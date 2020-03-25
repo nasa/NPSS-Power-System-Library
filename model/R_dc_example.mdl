@@ -1,14 +1,19 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     R_dc_example.mdl
-//   Date(s):       February 1, 2019
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Basic R circuit (DC) to demonstrate ability to use NPSS for solve for 
-//					a basic circuit.
-//-------------------------------------------------------------------------------------------------
-
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     R_dc_example.mdl                                             |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle                      |
+ | Date(s):       February 2019                                                |
+ |                                                                             |
+ | Description:   Basic resistive DC circuit to demonstrate NPSS's circuit     |
+ |                solving capability.                                          |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 class DCSource extends Element{
   ElectricOutputPort EP_O;
@@ -55,3 +60,5 @@ n1{
   VrealRMS = 10;  //guess value
   VimagRMS = 0.;  //guess value		
 }
+
+setOption( "ElectricPowerType", "DC" );

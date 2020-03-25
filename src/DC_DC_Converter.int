@@ -1,0 +1,219 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     DC_DC_Converter.int										                       |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       March 2019                                                   |
+ |                                                                             |
+ | Description:   Electrical DC to DC power converter.                         |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __DC_DC_CONVERTER__
+#define __DC_DC_CONVERTER__
+
+class DC_DC_Converter extends Element {
+
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------
+
+  // title = "";
+
+  description = "The " + isA() + " severs as an electrical DC-DC converter.";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
+
+  real eff {
+    value = 1.0; IOstatus = "input"; units = NONE;
+    description = "Efficiency of the converter.";
+  }
+
+  real effBase {
+    value = 1.;  IOstatus = "output";  units = "none";
+    description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+  }
+
+  real effDes {
+    value = 1.;  IOstatus = "input";  units = "none";
+    description = "Adiabatic efficiency at design point.";
+  }
+
+  real pwrDes {
+    value = 1.;  IOstatus = "input";  units = "kW"; // [kilowatt]
+    description = "Output power at design.";
+  }
+
+  real pwrOut {
+    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatt]
+    description = "Output power.";
+  }
+
+  real Voltage {
+    value = 1000.; IOstatus = "input"; units = "V"; // [voltage]
+    description = "Converter voltage.";
+  }
+
+  real K {
+    value = 2; IOstatus = "input"; units = "none";
+    description = "Voltage ratio (V_in * K = V_out).";
+  }
+
+  real SpecificPower {
+    value = 9; IOstatus = "input"; units = "none"; // [kW/kg]
+    description = "Power to weight ratio for the component.";
+  }
+
+  real Mass {
+    value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
+    description = "Component mass.";
+  }
+
+  real Loss_r {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Generator loss.";
+  }
+
+  real Q_heat {
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
+    description = "Power dissipation at current time.";
+  }
+
+  //------------------------------------
+  // ****** OPTION VARIABLE SETUP ******
+  //------------------------------------
+
+  Option switchDes {
+    allowedValues = { "DESIGN", "OFFDESIGN" }
+    description = "Determines if the element is in design or off-design mode.";
+    rewritableValues = FALSE;
+  }
+
+  Option switchThermPort {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if component needs thermal port.";
+    rewritableValues = FALSE;  // enables converter optimization.
+    trigger = TRUE;
+  }
+
+  //----------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
+  //----------------------------------------------------------  
+
+  /* ELECTRICAL PORTS */
+
+  ElectricInputPort EP_I {
+    description = "Electric input port.";
+    ElectricPowerType.allowedValues = { "DC" };
+    setOption("ElectricPowerType", "DC"); // only DC input allowed
+  }
+
+  ElectricOutputPort EP_O {
+    description = "Electric output port.";
+    ElectricPowerType.allowedValues = { "DC" };
+    setOption("ElectricPowerType", "DC"); // only DC output allowed
+  }
+
+  /* SOCKETS */
+
+  Socket S_map {
+    allowedValues = { "effBase" }
+    description = "Socket to calculate converter map performance.";
+    socketType = "INVERTER_RECTIFIER_MAP";
+  }
+
+  Socket S_eThermMass {
+    allowedValues = { "Q_heat", "Mass" }
+    description = "Thermal mass socket.";
+    socketType = "EThermalMass";
+  }
+  
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  Independent V { 
+    varName = "Voltage"; 
+    indepRef = "1000";
+    description = "Varies the converter voltage.";
+    autoSetup = TRUE;
+  }
+  
+  Dependent dep_Power {
+    eq_lhs = "EP_O.S.rRMS";
+    eq_rhs = "EP_I.S.rRMS * eff";
+    autoSetup = TRUE;
+  }
+  
+  void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") { 
+      if (switchThermPort == "TRUE") {
+        create("", "ThermalInputPort", "Q_I");
+      }
+    }
+
+    if (name == "switchDes") {
+      if (switchDes == OFFDESIGN) {
+        effDes.IOstatus = "output";
+      }
+    }
+  }
+
+  //-----------------------------------------------
+  // ****** PERFORM ENGINEERING CALCULATIONS ******
+  //-----------------------------------------------
+
+  void calculate() {
+    pwrOut = EP_O.S.rRMS;
+
+    if (switchDes == "DESIGN" ) {
+      // handle case where guessed design power is zero.
+      if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
+      pwrDes = pwrOut;
+      
+      // compute mass based on assumed specific power
+      // both mass and loses are based on output power (power sent)
+      Mass = pwrOut / SpecificPower;
+    }
+
+    // set efficiency value
+    if(!S_map.isEmpty()) {
+      S_map.execute();
+    } else {
+      effBase = effDes;
+    }
+    eff = effBase;
+    
+    Loss_r = EP_I.S.r - EP_O.S.r;
+
+    if (switchThermPort == "TRUE") {
+      real KW_PER_BTU_PER_SEC = 1.05505585;
+      Q_heat = Loss_r / KW_PER_BTU_PER_SEC;
+
+      // run the thermal mass model
+      if (!S_eThermMass.isEmpty()) {
+        S_eThermMass.execute();
+      }
+    }
+  }
+  
+  //-------------------------------
+  // ****** PREPASS FUNCTION ******
+  //-------------------------------
+
+  void prePass() {	
+    EP_I.setIVRMS(EP_I.I.r, 0, Voltage, 0);
+    EP_O.setIVRMS(EP_O.I.r, 0, Voltage * K, 0);
+  }
+}
+#endif

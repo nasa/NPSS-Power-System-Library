@@ -1,5 +1,7 @@
 *.lnk
 *.bad
-*.bat
 *.csv
+*.lib
 
+fort.76
+temp.out

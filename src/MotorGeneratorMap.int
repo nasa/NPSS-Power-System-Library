@@ -1,186 +1,211 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     MotorGeneratorMap.int                                        |
+ | Date(s):       April 2019                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
 #ifndef __MOTOR_GENERATOR_MAP__
 #define __MOTOR_GENERATOR_MAP__
 
-
 #include <InterpIncludes.ncp>
 
-// Variables that exist in the parent Motor or Generator element 
-// and are used in this subelement.
+// variables that exist in the parent Motor or Generator element and are used in this subelement
 extern real Speed;
 extern real trqTemp;
 extern real Ndes;
 extern real trqDes;
 extern real effDes;
-
-// Variables that exist in the parent Motor or Generator element
-// and are set by this subelement.
 extern real effBase;
 
-class MotorGeneratorMap extends Subelement{
+class MotorGeneratorMap extends Subelement {
 
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
+  //------------------------------
+  // ****** DOCUMENTATION ********
+  //------------------------------  
 
-    title = "";
+  // title = "";
 
-    description = isA() + "handles the determination of efficiency for a generator or motor. It performs calls to a map that determines the efficiency as a function of rotational speed and torque.";
+  description = "The " + isA() + " handles the determination of efficiency for a generator or motor. " +
+  "It performs calls to a map that determines the efficiency as a function of rotational speed and torque.";
 
-    usageNotes = isA() +
-    "
-    
-    -Put description of what element does, how it does it, and how to use it here.
-    ";
+  // usageNotes = isA();
 
-    background = "";
+  // background = "";
 
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
+  //--------------------------------
+  // ****** SETUP VARIABLES ********
+  //--------------------------------
 
-    real effMap{
-        value = 1.;  IOstatus = OUTPUT; units = NONE;
-        description = "Efficiency of motor or generator from unscaled map TB_eff.";
+  real effMap {
+    value = 1.;  IOstatus = OUTPUT; units = NONE;
+    description = "Efficiency of motor or generator from unscaled map TB_eff.";
+  }
+
+  real effMapDes {
+    value = 1;  IOstatus = OUTPUT;  units = NONE;
+    description = "Efficiency of motor or generator at design point." +
+    " Returned from unscaled map TB_eff at trqMapDes and NmapDes.";
+  }
+
+  real Nmap {
+    value = 0.;  IOstatus = OUTPUT;  units = "rpm"; // [rev / min]
+    description = "Speed scaled to map. " +
+    "Equal to NmapDes during design, and calculated as N / s_Ndes during off-design.";
+  }
+
+  real NmapDes {
+    value = 0.;  IOstatus = INPUT;  units = "rpm"; // [rev / min]
+    description = "Speed scaled to map at design point. Set by map itself.";
+  }
+
+  real trqMap {
+    value = 0.;  IOstatus = OUTPUT;  units = "ft*lbf";
+    description = "Torque scaled to map. " +
+    "Equal to trqMapDes during design, and calculated at T / s_trqDes during off-design.";
+  }
+
+  real trqMapDes {
+    value = 0.;  IOstatus = INPUT;  units = "ft*lbf";
+    description = "Torque scaled to map at design point. Set by map itself.";
+  }
+
+  real s_effDes {
+    value = 1.;  IOstatus = OUTPUT;  units = NONE;
+    description = "Efficiency map scalar. " +
+    "Relates actual design efficiency to scaled design efficiency (effDes / effMapDes).";
+  }
+
+  real s_Ndes {
+    value = 1.;  IOstatus = OUTPUT;  units = NONE;
+    description = "Speed map scalar. Relates actual design speed to scaled design speed (Ndes / NmapDes).";
+  }
+
+  real s_trqDes {
+    value = 1.;  IOstatus = OUTPUT;  units = NONE;
+    description = "Torque map scalar. Relates actual design torque to scaled design (trqDes / trqMapDes).";
+  }
+
+  //--------------------------------------
+  // ******* OPTION VARIABLE SETUP *******
+  //--------------------------------------
+
+  Option switchDes {
+    allowedValues = { DESIGN, OFFDESIGN };
+    description = "Determines if the subelement is in design or off-design mode.";
+    rewritableValues = FALSE; 
+  } 
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------  
+
+  /* SOCKETS */
+
+  addInterface("MOTOR_GENERATOR_MAP"); // compatible with the Motor and Generator elements' S_map socketType
+
+  Socket TB_eff {
+    description = "Efficiency vs. speed and torque. " +
+    "A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. " +
+    "The format is TB_eff(real Nmap, real trqMap), and returns effMap.";
+    socketType = "Function";
+    required = TRUE;
+    argTypes = { "real", "real" }
+    returnType = "real";
+  } 
+
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  Independent ind_trqTemp {
+    varName = "trqTemp";
+    description = "Varies temporary torque to match calculated torque for map.";
+    autoSetup = FALSE;
+  }
+
+  Dependent dep_trq_map {
+    eq_lhs = "trqTemp";
+    eq_rhs = "trq";
+    autoSetup = FALSE;
+  }
+
+  //---------------------------------------------
+  // ******* VARIABLE CHANGED METHODOLOGY *******
+  //---------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") { 
+        if (switchThermPort == "TRUE") {
+            create("", "ThermalInputPort", "Q_I" );
+        }
     }
-    real effMapDes{
-        value = 1;  IOstatus = OUTPUT;  units = NONE;
-        description = "Efficiency of motor or generator at design point. Returned from unscaled map TB_eff at trqMapDes and NmapDes.";
-    }
-    real Nmap{
-        value = 0.;  IOstatus = OUTPUT;  units = RPM;
-        description = "Speed scaled to map.  Equal to NmapDes during design, and calculated as N / s_Ndes during off-design.";
-    }
-    real NmapDes{
-        value = 0.;  IOstatus = INPUT;  units = RPM;
-        description = "Speed scaled to map at design point. Set by map itself.";
-    }
-    real trqMap{
-        value = 0.;  IOstatus = OUTPUT;  units = FT_LBF;
-        description = "Torque scaled to map.  Equal to trqMapDes during design, and calculated at T / s_trqDes during off-design.";
-    }
-    real trqMapDes{
-        value = 0.;  IOstatus = INPUT;  units = FT_LBF;
-        description = "Torque scaled to map at design point. Set by map itself.";
-    }
-    real s_effDes{
-        value = 1.;  IOstatus = OUTPUT;  units = NONE;
-        description = "Efficiency map scalar.  Relates actual design efficiency to scaled design efficiency (effDes / effMapDes)";
-    }
-    real s_Ndes{
-        value = 1.;  IOstatus = OUTPUT;  units = NONE;
-        description = "Speed map scalar.  Relates actual design speed to scaled design speed (Ndes / NmapDes)";
-    }
-    real s_trqDes{
-        value = 1.;  IOstatus = OUTPUT;  units = NONE;
-        description = "Torque map scalar. Relates actual design torque to scaled design (trqDes / trqMapDes)";
+
+    if (name == "switchDes") {
+      if (switchDes == DESIGN) {
+        NmapDes.IOstatus = INPUT;
+        trqMapDes.IOstatus = INPUT;
+        s_effDes.IOstatus = OUTPUT;
+        s_Ndes.IOstatus = OUTPUT;
+        s_trqDes.IOstatus = OUTPUT;
+
+        ind_trqTemp.autoSetup = FALSE;
+        dep_trq_map.autoSetup = FALSE;
+      } else if (switchDes == OFFDESIGN) {
+        NmapDes.IOstatus = OUTPUT;
+        trqMapDes.IOstatus = OUTPUT;
+        s_effDes.IOstatus = INPUT;
+        s_Ndes.IOstatus = INPUT;
+        s_trqDes.IOstatus = INPUT;
+        effDes.IOstatus = "output";
+
+        ind_trqTemp.autoSetup = TRUE;
+        dep_trq_map.autoSetup = TRUE;
+      }
     }
 
-    //------------------------------------------------------------
-    //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
+    if (name == "multiDes") {
+      if (switchDes == DESIGN) {
+        ind_trqDes.autoSetup = TRUE;
+        dep_trqDesSet.autoSetup = TRUE;
+        ind_Ndes.autoSetup = TRUE;
+        dep_NdesSet.autoSetup = TRUE;
+      }
+    }
+  }
+  
+  //-------------------------------------------------
+  // ******* PERFORM ENGINEERING CALCULATIONS *******
+  //-------------------------------------------------
 
-    Option switchDes{
-        allowedValues = {DESIGN, OFFDESIGN};
-        description = "Determines if the subelement is in design or off-design mode";
-        rewritableValues = FALSE; 
-    } 
+  void calculate() {
+    if(switchDes == DESIGN) {
+      // set map values at design point
+      Nmap = NmapDes;
+      trqMap = trqMapDes;
+      effMap = TB_eff(trqMap, Nmap);
+      effMapDes = effMap;
 
-    //------------------------------------------------------------
-    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-    //------------------------------------------------------------
+      // calculate map scalars
+      s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
+      s_Ndes = Ndes / NmapDes; // Ndes is from parent element, NmapDes is from map input value
+      s_trqDes = trqDes / trqMapDes;// trqDes is from parent element, trqMapDes is from map input value
 
-    // FLUID PORTS
-
-    // FUEL PORTS
-
-    // BLEED PORTS
-     
-    // THERMAL PORTS
-
-    // MECHANICAL PORTS
-
-    // FLOW STATIONS
-
-    // SOCKETS
-    // addInterface("MOTOR_GENERATOR_MAP"); // compatible with the Motor and Generator elements' S_map socketType
-    addInterface("TURBINE_EFFICIENCY_MAP"); // compatible with the Motor and Generator elements' S_map socketType
-
-    Socket TB_eff{
-        description = "Efficiency vs. speed and torque.  A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. The format is TB_eff(real Nmap, real trqMap), and returns effMap.";
-        socketType = "Function";
-        required = TRUE;
-        argTypes = {"real", "real"}
-        returnType = "real";
-    } 
-
-    // TABLES
-
-    //------------------------------------------------------------
-    // ******* INTERNAL SOLVER SETUP *******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // ******* VARIABLE CHANGED METHODOLOGY *******
-    //------------------------------------------------------------
-
-    void variableChanged(string name, any oldVal){
-
-        if(name == "switchDes"){
-            if(switchDes == DESIGN){
-
-                NmapDes.IOstatus = INPUT;
-                trqMapDes.IOstatus = INPUT;
-                s_effDes.IOstatus = OUTPUT;
-                s_Ndes.IOstatus = OUTPUT;
-                s_trqDes.IOstatus = OUTPUT;
-            } // end of DESIGN
-            else if(switchDes == OFFDESIGN){
-
-                NmapDes.IOstatus = OUTPUT;
-                trqMapDes.IOstatus = OUTPUT;
-                s_effDes.IOstatus = INPUT;
-                s_Ndes.IOstatus = INPUT;
-                s_trqDes.IOstatus = INPUT;
-            } // end of OFFDESIGN
-        } //end of switchDes
-    } // end of variableChanged
-    
-    //------------------------------------------------------------
-    //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
-
-    void calculate(){
-
-        if(switchDes == DESIGN){
-            //cout << "top " << effMapDes << endl;
-            // set map values at design point
-            Nmap = NmapDes;
-            trqMap = trqMapDes;
-            effMap = TB_eff(trqMap, Nmap);
-            effMapDes = effMap;
-
-            // calculate map scalars
-            s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
-            s_Ndes = Ndes / NmapDes; // Ndes is from parent element, NmapDes is from map input value
-            s_trqDes = trqDes / trqMapDes;// trqDes is from parent element, trqMapDes is from map input value
-
-        } // end of DESIGN calculations
-
-        // OFFDESIGN calculations:
-        // calculate map values
-        Nmap = Speed / s_Ndes;
-        trqMap = trqTemp / s_trqDes;
-        effMap = TB_eff(trqMap, Nmap);
-        
-        //set efficiency to send to parent element
-        effBase = effMap * s_effDes;
-        //cout << "bottom " << effDes << endl;
-
-    } // end of calculations
-} // end of MotorGeneratorMap subelement class
-
+    } else {
+      // calculate map values
+      Nmap = Speed / s_Ndes;
+      trqMap = trqTemp / s_trqDes;
+      effMap = TB_eff(trqMap, Nmap);
+      
+      // set efficiency to send to parent element
+      effBase = effMap * s_effDes;
+    }
+  }
+}
 #endif

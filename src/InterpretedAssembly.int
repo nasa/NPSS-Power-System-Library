@@ -1,0 +1,37 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     InterpretedAssembly.int                                      |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Interpreted assembly that extends generic NPSS assembly to   |
+ |                include interpreted port functionality.                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __INTERPRETED_ASSEMBLY__
+#define __INTERPRETED_ASSEMBLY__
+
+class InterpretedAssembly extends Assembly {
+  #include "InterpretedPort.int"
+
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------  
+  // title = "";
+
+  description = "The " + isA() + " extends the generic NPSS assembly to include 
+  interpreted port functionality.";
+
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+}
+
+class iAssembly extends InterpretedAssembly;
+#endif

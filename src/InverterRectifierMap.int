@@ -3,164 +3,130 @@
 
 #include <InterpIncludes.ncp>
 
-// Variables that exist in the parent Motor or Generator element 
-// and are used in this subelement.
-
 extern real pwrOut;
 extern real pwrDes;
 extern real effDes;
-
-// Variables that exist in the parent Motor or Generator element
-// and are set by this subelement.
-
 extern real effBase;
 
-class InverterRectifierMap extends Subelement{
+class InverterRectifierMap extends Subelement {
 
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------
 
-    title = "";
+  // title = "";
 
-    description = isA() + "handles the determination of efficiency for a generator or motor. It performs calls to a map that determines the efficiency as a function of rotational speed and torque.";
+  description = "The " + isA() + " handles the determination of efficiency for " +
+  "a generator or motor. It performs calls to a map that determines the " +
+  "efficiency as a function of rotational speed and torque.";
 
-    usageNotes = isA() +
-    "
-    
-    -Put description of what element does, how it does it, and how to use it here.
-    ";
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
 
-    background = "";
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
 
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
+  real effMap {
+    value = 1.;  IOstatus = OUTPUT; units = "none";
+    description = "Efficiency of motor or generator from unscaled map TB_eff.";
+  }
 
-    real effMap{
-        value = 1.;  IOstatus = OUTPUT; units = NONE;
-        description = "Efficiency of motor or generator from unscaled map TB_eff.";
+  real effMapDes {
+    value = 1;  IOstatus = OUTPUT;  units = "none";
+    description = "Efficiency of motor or generator at design point. " +
+    "Returned from unscaled map TB_eff at trqMapDes and NmapDes.";
+  }
+
+  real pwrMap {
+    value = 1.;  IOstatus = OUTPUT;  units = "kW"; // [kilowatt]
+    description = "Power scaled to map. " +
+    "Equal to pwrMapDes during design, and calculated as pwrOut / s_pwrDes during off-design.";
+  }
+
+  real pwrMapDes {
+    value = 1.;  IOstatus = OUTPUT;  units = "kW"; // [kilowatt]
+    description = "Power scaled to map at design point.  Set by map itself.";
+  }
+
+  real s_effDes {
+    value = 1.;  IOstatus = OUTPUT;  units = "none";
+    description = "Efficiency map scalar. " +
+    "Relates actual design efficiency to scaled design efficiency (effDes / effMapDes).";
+  }
+
+  real s_pwrDes {
+    value = 1.;  IOstatus = OUTPUT;  units = "none";
+    description = "Power map scalar.  Relates actual design power to scaled design (pwrDes / pwrMapDes).";
+  }
+
+  //------------------------------------------------------------
+  //   ******* OPTION VARIABLE SETUP *******
+  //------------------------------------------------------------
+
+  Option switchDes {
+    allowedValues = { DESIGN, OFFDESIGN }
+    description = "Determines if the subelement is in design or off-design mode.";
+    rewritableValues = FALSE; 
+  } 
+
+  //------------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+  //------------------------------------------------------------
+
+  /* SOCKETS */
+
+  addInterface("INVERTER_RECTIFIER_MAP"); // compatible with the Motor and Generator elements' S_map socketType
+
+  Socket TB_eff {
+    description = "Efficiency vs. power. " +
+    "A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. " +
+    "The format is TB_eff(real pwrMap), and returns effMap.";
+    socketType = "Function";
+    required = TRUE;
+    argTypes = { "real" }
+    returnType = "real";
+  } 
+
+  //-------------------------------------------
+  // ****** VARIABLE CHANGED METHODOLOGY ******
+  //-------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if(name == "switchDes") {
+      if(switchDes == DESIGN){
+        pwrMapDes.IOstatus = INPUT;
+        s_effDes.IOstatus = OUTPUT;
+        s_pwrDes.IOstatus = OUTPUT;
+      } else if(switchDes == OFFDESIGN){
+        pwrMapDes.IOstatus = OUTPUT;
+        s_effDes.IOstatus = INPUT;
+        s_pwrDes.IOstatus = INPUT;
+      }
     }
-    real effMapDes{
-        value = 1;  IOstatus = OUTPUT;  units = NONE;
-        description = "Efficiency of motor or generator at design point. Returned from unscaled map TB_eff at trqMapDes and NmapDes.";
-    }
-    real pwrMap{
-        value = 1.;  IOstatus = OUTPUT;  //units = KILLOWATT;
-        description = "Power scaled to map.  Equal to pwrMapDes during design, and calculated as pwrOut / s_pwrDes during off-design.";
-    }
-    real pwrMapDes{
-        value = 1.;  IOstatus = INPUT;  //units = KILLOWATT;
-        description = "Power scaled to map at design point.  Set by map itself.";
-    }
-    real s_effDes{
-        value = 1.;  IOstatus = OUTPUT;  units = NONE;
-        description = "Efficiency map scalar.  Relates actual design efficiency to scaled design efficiency (effDes / effMapDes)";
-    }
-    real s_pwrDes{
-        value = 1.;  IOstatus = OUTPUT;  units = NONE;
-        description = "Power map scalar.  Relates actual design power to scaled design (pwrDes / pwrMapDes)";
+  }
+
+  //-----------------------------------------------
+  // ****** PERFORM ENGINEERING CALCULATIONS ******
+  //-----------------------------------------------
+
+  void calculate(){
+    if(switchDes == DESIGN){
+      // set map values at design point
+      pwrMap = pwrMapDes;
+      effMap = TB_eff(pwrMap);
+      effMapDes = effMap;
+
+      // calculate map scalars
+      s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
+      s_pwrDes = pwrDes / pwrMapDes; // pwrDes is from parent element, pwrMapDes is from map input value            
     }
 
-    //------------------------------------------------------------
-    //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
+    // calculate map values
+    pwrMap = pwrOut / s_pwrDes;
+    effMap = TB_eff(pwrMap);
 
-    Option switchDes{
-        allowedValues = {DESIGN, OFFDESIGN};
-        description = "Determines if the subelement is in design or off-design mode";
-        rewritableValues = FALSE; 
-    } 
-
-    //------------------------------------------------------------
-    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-    //------------------------------------------------------------
-
-    // FLUID PORTS
-
-    // FUEL PORTS
-
-    // BLEED PORTS
-     
-    // THERMAL PORTS
-
-    //ELECTRICAL PORTS
-
-    // MECHANICAL PORTS
-
-    // FLOW STATIONS
-
-    // SOCKETS
-
-    addInterface("TURBINE_EFFICIENCY_MAP"); // compatible with the Motor and Generator elements' S_map socketType
-
-    Socket TB_eff{
-        description = "Efficiency vs. power.  A function or table with the name TB_eff must be declared at the subelement scope in order to fill this socket. The format is TB_eff(real pwrMap), and returns effMap.";
-        socketType = "Function";
-        required = TRUE;
-        argTypes = {"real"}
-        returnType = "real";
-    } 
-
-    // TABLES
-
-    //------------------------------------------------------------
-    // ******* INTERNAL SOLVER SETUP *******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // ******* VARIABLE CHANGED METHODOLOGY *******
-    //------------------------------------------------------------
-
-    void variableChanged(string name, any oldVal){
-
-        if(name == "switchDes"){
-            if(switchDes == DESIGN){
-
-                pwrMapDes.IOstatus = INPUT;
-                s_effDes.IOstatus = OUTPUT;
-                s_pwrDes.IOstatus = OUTPUT;
-            } // end of DESIGN
-            else if(switchDes == OFFDESIGN){
-
-                pwrMapDes.IOstatus = OUTPUT;
-                s_effDes.IOstatus = INPUT;
-                s_pwrDes.IOstatus = INPUT;
-            } // end of OFFDESIGN
-        } //end of switchDes
-    } // end of variableChanged
-
-    //------------------------------------------------------------
-    //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
-
-    void calculate(){
-
-        if(switchDes == DESIGN){
-
-            // set map values at design point
-            pwrMap = pwrMapDes;
-            effMap = TB_eff(pwrMap);
-            effMapDes = effMap;
-
-            // calculate map scalars
-            s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
-            s_pwrDes = pwrDes / pwrMapDes; // pwrDes is from parent element, pwrMapDes is from map input value            
-        } // end of DESIGN calculations
-
-        // OFFDESIGN calculations:
-        // calculate map values
-        pwrMap = pwrOut / s_pwrDes;
-        effMap = TB_eff(pwrMap);
-        //set efficiency to send to parent element
-        effBase = effMap * s_effDes;
-
-    } // end of calculations
-} // end of MotorGeneratorMap subelement class
-
+    effBase = effMap * s_effDes; // set efficiency to send to parent element
+  }
+}
 #endif
-

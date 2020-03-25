@@ -9,46 +9,46 @@ sTindeps = {"Tt", "Pt"};
 ThIndeps = {"ht", "Pt"};
 
 real Cp( real T, real P ){
-	T = T*5./9.;
-	return Cpt( T )/16.018;	
+  T = T*5./9.;
+  return Cpt( T )/16.018;	
 }
 
 Table Cpt( real T ){
-	T= {  260., 280., 300., 320., 340., 360., 380., 400.}
-	Cp = { 1.76, 1.83, 1.91, 1.99, 2.08, 2.16, 2.25, 2.34 }
+  T= {  260., 280., 300., 320., 340., 360., 380., 400.}
+  Cp = { 1.76, 1.83, 1.91, 1.99, 2.08, 2.16, 2.25, 2.34 }
 }
 
 real rho (real T, real P){
-	T = T*5./9.;
-	return rhot (T);
+  T = T*5./9.;
+  return rhot (T);
 }
 
 Table rhot( real T ){
-	T= {    260.,  280.,  300.,  320.,  340.,  360.,  380.,  400.}
-	Cp = { 906.5, 895.3, 884.1, 871.8, 859.9, 847.8, 836.0, 825.1 }
+  T= {    260.,  280.,  300.,  320.,  340.,  360.,  380.,  400.}
+  Cp = { 906.5, 895.3, 884.1, 871.8, 859.9, 847.8, 836.0, 825.1 }
 }
 
 
 real h_T( real T, real P ){
-	T = 5./9.*T;
-	real Tt = 260.;
-	real ht = 0;
-	do{ 
-		ht = ht + Cpt( Tt );
-		Tt = Tt + 1;
-	}while ( Tt < T );
-	ht = ht + ( T-Tt )*Cpt(T);
-	return ht*.239;
+  T = 5./9.*T;
+  real Tt = 260.;
+  real ht = 0;
+  do{ 
+    ht = ht + Cpt( Tt );
+    Tt = Tt + 1;
+  }while ( Tt < T );
+  ht = ht + ( T-Tt )*Cpt(T);
+  return ht*.239;
 }
 
 real T_h( real h, real P ){
-	SecantSolver TtSolver;
-	real Tt = 320.;
-	TtSolver.initialize(Tt);
+  SecantSolver TtSolver;
+  real Tt = 320.;
+  TtSolver.initialize(Tt);
 
-	do{
-	  real htemp = h_T( Tt*9./5., 100 );
-	  Tt = TtSolver.iterate( htemp - h );
-	}while ( !TtSolver.converged && !TtSolver.errorFound() );
-	return Tt*9./5.;
+  do{
+    real htemp = h_T( Tt*9./5., 100 );
+    Tt = TtSolver.iterate( htemp - h );
+  }while ( !TtSolver.converged && !TtSolver.errorFound() );
+  return Tt*9./5.;
 }

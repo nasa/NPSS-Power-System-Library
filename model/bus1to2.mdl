@@ -1,26 +1,26 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     bus1to2.mdl
-//   Date(s):       April 27, 2018
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Model file describes model where 1 generator feeds 2 motors.
-//
-//											-> cable2a -> motor2a
-//					Gen -> cable 1 -> node  
-//											-> cable2b -> motor2b
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     bus1to2.mdl                                                  |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       April 2018                                                   |
+ |                                                                             |
+ | Description:   Model where 1 generator feeds 2 motors.                      |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
-real defaultFrequency =400.;
+real defaultFrequency = 400.;
 
 cout<<"======================================="<<endl;
 cout<<" Example where 1 generator feeds 2 motors "<<endl;
 cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
-
 
 /**************************
 Electric Power System Components
@@ -32,42 +32,45 @@ Element Generator Gen1 {
 	frequency=400; // Hz	
 }
 
-
 Element Cable Cable1 {
 	length=28.3464; 	
 	R=4.3245e-6;
 	L=9.84e-5*length/4./60./2./PI;	
+	Loss_j = 165.;
 }
-
 
 Element Enode E1{
 	ElectricInputPort EP_I;
 	ElectricOutputPort EP_O1, EP_O2;
+	frequency = 400;
 }
 
 Element Cable Cable2a {
 	R=4.3245e-6;
 	length=28.3464; 
 	L=9.84e-5*length/4./60./2./PI;
-	
+	Loss_j = 41.;
 }
 
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
 	length=28.3464/3.; 
     L=9.84e-5*length/4./60./2./PI;
+	Loss_j = 14.;
 }
 
 Element Motor EM1 {
 	eff=0.96;
 	SpecificPower=13.0; 
 	frequency = 400.;
+	Vreal = 1200.;
 }
 
 Element Motor EM2 {
 	eff=0.96;
 	SpecificPower=13.0; 
 	frequency = 400.;
+	Vreal = 1200.;
 }
 
 /**************************
@@ -156,10 +159,6 @@ Element Shaft Turbine_Shaft {
 	
 }
 
-setOption("ElectricPowerType","AC3");
-
-E1.frequency = 400.;
-
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
@@ -171,6 +170,7 @@ linkPortI( "E1.EP_O1", "Cable2a.EP_I" );
 linkPortI( "E1.EP_O2", "Cable2b.EP_I" );
 linkPortI( "Cable2a.EP_O", "EM1.EP_I" );
 linkPortI( "Cable2b.EP_O", "EM2.EP_I" );
+findSourcesAndPropagate();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 

@@ -44,7 +44,7 @@ autoSolverSetup();
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 
-solver.maxIterations=500;
+solver.maxIterations = 500;
 //solver.clear();
 
 run();

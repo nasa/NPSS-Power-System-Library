@@ -1,15 +1,18 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     baseline.mdl
-//   Date(s):       April 27, 2018
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Model file describes baseline model (Generator, Cable, Motor) using the electric port.
-//
-//					Gen1 -> cable1 -> motor1 (EM1)
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     baseline.mdl                                                 |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       April 2018                                                   |
+ |                                                                             |
+ | Description:   Baseline model (generator, cable, motor) using electric port.|
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 cout<<"======================================="<<endl;
 cout<<" Example Model with Real and Reactive Power "<<endl;
@@ -27,11 +30,11 @@ cout<<"======================================="<<endl;
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
+	#include <STARCABLmotorGenerator.map>
 	Vbus_LL=1200;	
 	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
-	#include <STARCABLmotorGenerator.map>
 }
 
 Element AeroCable Cable1 {
@@ -39,13 +42,13 @@ Element AeroCable Cable1 {
 }
 
 Element Motor EM1 {
+	 #include <STARCABLmotorGenerator.map>
 	 effDes=0.96;
 	 powerfactor=0.98;
 	 SpecificPower=13.0; 
 	 trq=55144.0; 
 	 frequency = 400.;
 	 Vreal = 1000.;
-	 #include <STARCABLmotorGenerator.map>
 }
 
 
@@ -107,16 +110,13 @@ Element Shaft Turbine_Shaft {
 	ShaftInputPort Sh1_I, Sh_Turbine;	
 }
 
-setOption("ElectricPowerType","AC3");
-
-
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
 linkPortI( "Cable1.EP_O", "EM1.EP_I" );
-
+findSourcesAndPropagate();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");

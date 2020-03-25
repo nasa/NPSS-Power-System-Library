@@ -1,50 +1,52 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     AC_3phase_example
-//   Date(s):       February 14, 2019
-//   Author:        Tom Lavelle, David Sadey, Jeffrey Csank
-//					NASA Glenn Research Center
-//
-//   Description:   simple example of 3 phase Y circuit from fifth editon of 
-//					Power System Analysis and Design Page 67
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     AC_3phase_example.mdl                                        |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       February 2019                                                |
+ |                                                                             |
+ | Description:   Simple example of 3 phase Y circuit from Power System        |
+ |                Analysis and Design [5th Ed] Page 67.                        |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 // create a power source class 
-class Source extends Element{
+class SimpleSource extends Element {
   ElectricOutputPort EP_Oa;
   ElectricInputPort EP_Ia;
-  EP_Oa.frequency=60.;
 }
 
 real defaultFrequency = 60.;
 
-Source Source{
-    void postexecute(){;
-		EP_Oa.setIVRMSphaseDeg(0.,0.,208.,0.);
-		EP_Ia.setIVRMSphaseDeg( 0.,0.,0.,0.);
-    }
+SimpleSource Source {
+  void postexecute() {;
+    EP_Oa.setIVRMSphaseDeg(0.,0.,208.,0.);
+    EP_Ia.setIVRMSphaseDeg( 0.,0.,0.,0.);
+  }
 }
 
-Element Cable A1{
-	length = 1;
-	R = 0.01745;//0.052264;
-	L = 1.325e-3;//0.49726;
+Element Cable A1 {
+  length = 1;
+  R = 0.01745; // 0.052264;
+  L = 1.325e-3; // 0.49726;
 }
 
-Element BasicLoad A2{
-	Z.setMagPhaseDeg( 15./3., 45. );
+Element BasicLoad A2 {
+  Z.setMagPhaseDeg(15. / 3., 45.);
 }
 
-//--------------------------------------------------------
 // link it up
-//--------------------------------------------------------
-linkEports( "Source.EP_Oa", "A1.EP_I", "PORT" );
-linkEports( "A1.EP_O", "NA1", "NODE" );
-linkEports( "A2.EP_I", "NA1", "NODE" );
-linkEports( "A2.EP_O", "Source.EP_Ia", "PORT" );
+linkEports("Source.EP_Oa", "A1.EP_I", "PORT");
+linkEports("A1.EP_O", "NA1", "NODE");
+linkEports("A2.EP_I", "NA1", "NODE");
+linkEports("A2.EP_O", "Source.EP_Ia", "PORT");
 
-NA1{
-	VrealRMS = 447.3*cos( -3.78*PI/180.);
-	VimagRMS = 447.3*sin( -3.78*PI/180.);
+NA1 {
+  VrealRMS = 447.3 * cos(-3.78 * PI / 180.);
+  VimagRMS = 447.3 * sin(-3.78 * PI / 180.);
 }

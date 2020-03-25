@@ -1,0 +1,61 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                 |
+ | Cleveland, OH 44135 	                                                      |
+ |                                                                             |
+ | File Name:     baseline_all_elec.run                                        |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Run file for DC source to DC-DC converter to power load.     |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+/**
+ ---------
+ | Setup |
+ ---------
+**/
+
+#include "npssel.view"
+#include "PrintUtils.fnc"
+
+#include "baseline_all_elec.mdl"
+
+/**
+ --------------------
+ | Run Solver Cases |
+ --------------------
+**/
+
+setOption("switchDes", "DESIGN");
+autoSolverSetup();
+
+cout << "=======================\n"
+     << "====== On-Design ======\n"
+     << "=======================\n\n";
+
+run(); CASE++;
+page.display();
+printCaseStats("solver");
+
+int i;
+real loads[] = { 10, 8, 6, 4, 2, 1, 0.5, 0.25}; // [kilowatts]
+
+setOption("switchDes", "OFFDESIGN");
+autoSolverSetup();
+
+cout << "=======================\n"
+     << "====== Off-Design =====\n"
+     << "=======================\n\n";
+
+for (i = 0; i < loads.entries(); i++) {
+  cout << "Power Demand: " << loads[i] << " kW\n\n";
+  allElectric.Load.Pdemand = loads[i];
+  run(); CASE++;
+  page.display();
+  printCaseStats("solver");
+}

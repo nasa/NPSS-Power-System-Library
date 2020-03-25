@@ -1,15 +1,19 @@
-//-------------------------------------------------------------------------------------------------
-//
-//   File Name:     baseline_turboelectric.mdl
-//   Date(s):       March 18, 2019
-//   Author:        Jeffrey Csank, David Sadey, Tom Lavelle
-//					NASA Glenn Research Center
-//
-//   Description:   Model file describes baseline model (Generator, Cable, Inverter, Motor) using the electric port.
-//
-//					Gen1 -> cable1 -> motor1 (EM1)
-//
-//-------------------------------------------------------------------------------------------------
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     baseline_turboelectric.mdl                                   |
+ | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Date(s):       March 2019                                                   |
+ |                                                                             |
+ | Description:   Baseline model (generator, cable, inverter, motor) using     |
+ |                the elctric port.                                            |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
 cout<<"======================================="<<endl;
 cout<<" Example Turbo-electric Model "<<endl;
@@ -21,82 +25,82 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
-	Vbus_LL=1000;	
-	effDes=0.96;
-	SpecificPower=13.;
-	frequency=400; // Hz
-	#include <STARCABLmotorGenerator.map>
+  #include <STARCABLmotorGenerator.map>
+  Vbus_LL=1000;	
+  effDes=0.96;
+  SpecificPower=13.;
+  frequency=400; // Hz
 }
 
 Element Breaker Breaker1 {
-	effDes=0.995;
-	SpecificPower=250.0; 
+  effDes=0.995;
+  SpecificPower=250.0; 
 }
 
 Element Enode E1{
-	ElectricInputPort EP_I;
-	ElectricOutputPort EP_O;
-	frequency = 400.;
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O;
+  frequency = 400.;
 }
 
 Element AeroCable Cable1 {
-	length=28.3464;
+  length=28.3464;
 }
 
 Element Rectifier Rect1 {
-	effDes = .95;
-	pwrDes = 4000.;
-	#include <modelInverterRectifier.map>
-	frequency = 400.;
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  pwrDes = 4000.;
+  frequency = 400.;
     S_map.pwrMapDes = 0.5;
 }
 
 Element Breaker Breaker2 {
-	effDes=0.995;
-	SpecificPower=250.0; 
+  effDes=0.995;
+  SpecificPower=250.0; 
 }
 
 Element Enode E2{
-	ElectricInputPort EP_I;
-	ElectricOutputPort EP_O;
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O;
 }
 
 Element AeroCable Cable2 {
-	length=28.3464;
+  length=28.3464;
 }
 
 Element Inverter Inv1 {
-	effDes = .95;
-	pwrDes = 4000.;
-	#include <modelInverterRectifier.map>
-	frequency=400;
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  pwrDes = 4000.;
+  frequency=400;
     S_map.pwrMapDes = 0.5;
 }
 
 
 Element Breaker Breaker3 {
-	effDes=0.995;
-	SpecificPower=250.0; 
+  effDes=0.995;
+  SpecificPower=250.0; 
 }
 
 Element Enode E3{
-	ElectricInputPort EP_I;
-	ElectricOutputPort EP_O;
-	frequency = 400.;
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O;
+  frequency = 400.;
 }
 
 Element AeroCable Cable3 {
-	length=28.3464;
+  length=28.3464;
 }
 
 Element Motor EM1 {
-	 effDes=0.96;
-	 powerfactor=1.0;
-	 SpecificPower=13.0; 
-	 trqDes=3500.0; 
-	 frequency = 400.;
-	 //Vreal = 1000.;
-	 #include <STARCABLmotorGenerator.map>
+   #include <STARCABLmotorGenerator.map>
+   effDes=0.96;
+   powerfactor=1.0;
+   SpecificPower=13.0; 
+   trqDes=3500.0; 
+   frequency = 400.;
+   //Vreal = 1000.;
 }
 
 
@@ -104,22 +108,22 @@ Element Motor EM1 {
  Electric Motor Connections
 **************************/
 Element FlowStart Atm{
-	Pt=14.696;
-	Tt=518.67;
-	W=4394.74/20;
+  Pt=14.696;
+  Tt=518.67;
+  W=4394.74/20;
 }
 
 /*Element Compressor Prop{
-	#include "fanE3.map";
-	PRdes=1.4;
-	effDes=0.93;	
+  #include "fanE3.map";
+  PRdes=1.4;
+  effDes=0.93;	
 }*/
 
 Element Propeller Prop{
-	CT = 1.;
-	UtipDes = 150;
-	pwrLoadDes = 5.;
-	pwr = 3000.;
+  CT = 1.;
+  UtipDes = 150;
+  pwrLoadDes = 5.;
+  pwr = 3000.;
 }
 
 Element FlowEnd dump{
@@ -127,27 +131,27 @@ Element FlowEnd dump{
 
 
 Element Shaft Propulsor_Shaft {
-	Nmech=4000;   // rpm
-	ShaftInputPort Sh1_I, Sh_Prop;
+  Nmech=4000;   // rpm
+  ShaftInputPort Sh1_I, Sh_Prop;
 }
 
 /**************************
  Turbine Engine / Generator  Connections
 **************************/
 Element FlowStart TurbineAtm{
-	Pt=500;
-	Tt=2200;
-	W=30;
-	FAR = .02;
+  Pt=500;
+  Tt=2200;
+  W=30;
+  FAR = .02;
 }
 
 Element Turbine Turb{
-	#include "lptE3.map";	
-	PRbase=2;
-	effDes=0.9;
-	//void postexecute() {
-	//	cout << PRbase << "turb.PRbase" << endl;
-	//}
+  #include "lptE3.map";	
+  PRbase=2;
+  effDes=0.9;
+  //void postexecute() {
+  //	cout << PRbase << "turb.PRbase" << endl;
+  //}
 
 }
 
@@ -159,31 +163,17 @@ Element FlowEnd Turbinedump{
 };
 
 Independent turbPR{
-	varName="Turb.PRdes";
+  varName="Turb.PRdes";
 }
 
 Element Shaft Turbine_Shaft {
-	Nmech=4000;   // rpm
-	ShaftInputPort Sh1_I, Sh_Turbine;	
+  Nmech=4000;   // rpm
+  ShaftInputPort Sh1_I, Sh_Turbine;	
 }
 
-setOption("ElectricPowerType","AC3");
-Rect1.EP_O.setOption("ElectricPowerType","DC");
-Breaker2.EP_O.setOption("ElectricPowerType","DC");
-Breaker2.EP_I.setOption("ElectricPowerType","DC");
-E2.EP_O.setOption("ElectricPowerType","DC");
-E2.EP_I.setOption("ElectricPowerType","DC");
-E2.ind_Vimag.autoSetup = FALSE;
-E2.dep_Iimag.autoSetup = FALSE;
-Cable2.EP_O.setOption("ElectricPowerType","DC");
-Cable2.EP_I.setOption("ElectricPowerType","DC");
-Inv1.EP_I.setOption("ElectricPowerType","DC");
-
-
-//-------------------------------------------------------------------------------------------------
+//------------------------------------------------t------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
 linkPortI( "Breaker1.EP_O", "E1.EP_I");
 linkPortI( "E1.EP_O", "Cable1.EP_I");
@@ -192,12 +182,13 @@ linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
 linkPortI( "Breaker2.EP_O", "E2.EP_I");
 linkPortI( "E2.EP_O","Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
 linkPortI( "Breaker3.EP_O", "E3.EP_I");
+linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
 linkPortI( "E3.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
+findSourcesAndPropagate();
 
-
+linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
 linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
@@ -210,7 +201,7 @@ linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
 
-// Remove and re-append the elements containing nodes (or that are nodes)
+// Remove and re-append the elements containing nodes (or that are nodes) to make them execute last.
 solverSequence.remove( "Gen1" );
 solverSequence.remove( "E1" );
 solverSequence.remove( "Rect1" );

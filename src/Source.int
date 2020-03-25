@@ -1,248 +1,299 @@
-// ****************************************************************************
-// * NASA Glenn Research Center
-// * 21000 Brookpark Rd
-// * Cleveland, OH 44135
-// * George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle
-// * December 23, 2019
-// ****************************************************************************
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     Source.int										                               |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       December 2019                                                |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __SOURCE__
+#define __SOURCE__
+
+int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
+ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
 
 class Source extends Element {
+  
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------
+  
+  // title = "";
+
+  description = "The " + isA() + " serves as a voltage source with constant 
+  impedance. It also contains simplified logic for calculating energy consumed 
+  to be used with a MDP solver setup. This energy is used to compute mass via a 
+  flat assumption for specific energy. Users can also specify specific power. 
+  Mass is calculated as the larger of the two masses (design power/spc power) 
+  and (design energy/spc energy)";
+  
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+  
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
+  
+  real pfDes {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Design power factor at output of this source element.";
+  }
+
+  real effDes {
+    value = 0.95; IOstatus = "input"; units = "none";
+    description = "Design efficiency of this source element.";
+  }
+
+  real pf {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Actual (calculated) power factor at output of this source element.";
+  }
+
+  real eff {
+    value = 0.95; IOstatus = "output"; units = "none";
+    description = "Actual (calculated) efficiency of this source element.";
+  }
+
+  real R {
+    value = .01;  IOstatus = "output";  units = "ohm";
+  }
+
+  real L {
+    value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
+  }
+
+  real frequency {
+    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
+    description = "Output frequency";
+  }
+
+  real Loss_r {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Real component of losses in this load.";
+  }
+
+  real Loss_j {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Imaginary component of losses in this load.";
+  }
+
+  real Q_heat {
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
+    description = "Power dissipation in BTU/s at current time.";
+  }
+
+  real energyDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Design energy for this source.";
+  }
+
+  real energyConsumed {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Total energy consumed over mission, only use off-design.";
+  }
+
+  real energy {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Energy consumed at the current operating point.";
+  }
+
+  real segmentTime {
+    value = 0.25; IOstatus = "output"; units = "hr"; // [h]
+    description = "Hours spent running at the current operating point.";
+  }
+
+  real Vreal {
+    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Real portion of output voltage.";
+  }
+
+  real Vimag {
+    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Imaginary portion of output voltage.";
+  }
+  
+  real SpecificPower {
+    value = 13; IOstatus = "input"; units = "none"; // [kW/kg]
+    description = "Power to weight ratio for the source.";
+  }
+  
+  real SpecificEnergy {
+    value = 130; IOstatus = "input"; units = "none"; // [W-h/kg]
+    description = "Energy to weight ratio for the source.";
+  }
+
+  real Mass {
+    value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
+    description = "Mass computed on-design for the source.";
+  }
+
+  //------------------------------------
+  // ****** OPTION VARIABLE SETUP ******
+  //------------------------------------
+
+  Option switchDes {
+    allowedValues = { "DESIGN", "OFFDESIGN" }
+    description = "Determines if the element is in design or off-design mode.";
+    rewritableValues = FALSE;
+    trigger = TRUE;
+  }
+
+  Option switchThermPort {
+    allowedValues = { "TRUE", "FALSE" }
+    description = "Determines if component needs thermal port.";
+    rewritableValues = FALSE;  // enables converter optimization
+    trigger = TRUE;
+  }
+
+  Option switchTrackEnergy {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if we should track energy or not when running off-design.";
+    rewritableValues = FALSE;  // enables converter optimization
+  }
+
+  Option multiDes {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if component is undergoing multi-design point simulation.";
+    rewritableValues = FALSE;
+    trigger = TRUE;
+  }
+  
+  //----------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
+  //----------------------------------------------------------  
+  
+  /* ELECTRICAL PORTS */
+
+  ElectricOutputPort EP_O {
+    description = "Electric output port.";
+  }
+
+  /* SOCKETS */
+
+  Socket S_eThermMass {
+    allowedValues = { "Q_heat", "Mass" }
+    description = "Thermal mass socket.";
+    socketType = "EThermalMass";
+  }
+  
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  // MDP variable
+  Independent ind_energyDes {
+    varName = "energyDes";
+    description = "Varies design energy to match calculated energy at design condition.";
+  }
+
+  // MDP variable
+  Dependent dep_energyDes {
+    eq_lhs = "energyDes";
+    eq_rhs = "energy";
+  }
+  
+  //-------------------------------------------
+  // ****** VARIABLE CHANGED METHODOLOGY ******
+  //-------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") {
+       if (switchThermPort == "TRUE") {
+           create("", "ThermalInputPort", "Q_I");
+       }
+    }
+
+    if (name == "multiDes") {
+      if (switchDes == DESIGN) {
+        ind_energyDes.autoSetup = TRUE;
+        dep_energyDes.autoSetup = TRUE;
+      }
+    }
+  }
+
+  //-----------------------------------------------
+  // ****** PERFORM ENGINEERING CALCULATIONS ******
+  //-----------------------------------------------
+  
+  /** So this component expects you to set Vreal, Vimag, and effDes. It will
+   * calculate (resistive only) impedance, power factor, etc.
+   */
+  void calculate() {
     
-    //------------------------------------------------------------
-    //     ******* DOCUMENTATION *******
-    //------------------------------------------------------------
-    
-    title = "";
-    
-    description = isA() + " - Voltage source with constant impedance";
-    
-    usageNotes = isA() + "- NOTE TO USERS: This file....";
-    
-    background = "";
-    
-    //------------------------------------------------------------
-    //     ******* SETUP VARIABLES ********
-    //------------------------------------------------------------
-    
-    real pfDes {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Design power factor at output of this source element";
-    }
-    real effDes {
-        value = 0.95; IOstatus="input"; units="none";
-        description = "Design efficiency of this source element";
-    }
-    real pf {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Actual (calculated) power factor at output of this source element";
-    }
-    real eff {
-        value = 0.95; IOstatus="output"; units="none";
-        description = "Actual (calculated) efficiency of this source element";
-    }
-    real R{
-        value = .01;  IOstatus = "output";  //units = OHM;
-    }
-    real L{
-        value = .0000796;  IOstatus = "output";  //units = H;
-    }
+    /** 
+     * If we're on-design, we need to figure out the output impedance based
+     * on the design efficiency. Otherwise, calculate the loss and the 
+     * efficiency based on the impedance (which is held constant).
+     */
 
-    real frequency {
-        value = 0; IOstatus="input"; units="deg";
-        description = "Output Frequency";
-    }
+    pf = cos(EP_O.S.phase);
 
-    real Loss_r {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Real component of losses in this load";
-    }
-    real Loss_j {
-        value = 0; IOstatus="output"; units="kW";
-        description = "Imaginary component of losses in this load";
+    if (switchDes == "DESIGN") {
+      pfDes = pf;
+      eff = effDes;
+      
+      // internal power, before flowing through this component's output impedance
+      real PInternal = EP_O.S.r / eff;
+      Loss_r = PInternal - EP_O.S.r;
+      Loss_j = 0;
+      R = Loss_r / EP_O.I.mag**2;
+      L = 0;
+
+      // Energy consumed at this operating point.
+      energy = PInternal * segmentTime;
+
+      // get design values 
+      if (multiDes != "TRUE") {
+        energyDes = energy;
+      }
+
+      real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
+      real powerBasedMass = EP_O.S.r / SpecificPower;
+
+      if (energyBasedMass > powerBasedMass) {
+        Mass = energyBasedMass; // compute mass based on assumed specific energy
+      } else {
+        Mass = powerBasedMass; // compute mass based on assumed specific power
+      }
+    } else {
+      Loss_r = EP_O.I.mag**2 * R;
+      Loss_j = 0;
+      eff = EP_O.S.r / (EP_O.S.r + Loss_r);
+      
+      // energy consumed at this operating point.
+      energy = (EP_O.S.r + Loss_r) * segmentTime;
     }
 
-    real Q_heat {
-        value = 0; IOstatus="output"; //units=W;
-        description = "Power dissipation in BTU/s at current time";
+    if (switchThermPort == "TRUE") {
+      real KW_PER_BTU_PER_SEC = 1.05505585;
+      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+      Q_heat /= KW_PER_BTU_PER_SEC;
+
+      // run the thermal mass model.
+      if (!S_eThermMass.isEmpty()) {
+        S_eThermMass.execute();
+      }
     }
+  }
 
-	real Vreal{
-		value = 1000.;  IOstatus = "output";  //units = "";
-		description = "Real portion of output voltage";
-	}
+  void prePass() {
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
+  }
 
-	real Vimag{
-		value = -1.;  IOstatus = "output";  //units = "";
-		description = "Imaginary portion of output voltage";
-	}
-    
-	real SpecificPower {
-		value = 13; IOstatus="input"; //units=;
-		description = "Power to Weight ratio for the source";
-	}
-
-	real Mass {
-		value=1.; IOstatus="output"; units="kg";
-		description = "Mass computed on-design for the source";
-	}
-
-    //------------------------------------------------------------
-    //   ******* OPTION VARIABLE SETUP *******
-    //------------------------------------------------------------
-
-    Option switchDes {
-        allowedValues = { "DESIGN", "OFFDESIGN" } ;
-        description = "Determines if the element is in design or off-design mode";
-        rewritableValues = FALSE;
-        trigger=TRUE;
+  void trackEnergy() {
+    Source.energyConsumed += Source.energy;
+    if (Source.energyConsumed > Source.energyDes) {
+      ESOreport(ESO_Id_ExceededEnergyDes,
+      "Source component's energy consumed (" + toStr(Source.energyConsumed) +
+      ") exceeded design energy (" + toStr(Source.energyDes)+").", 1);
     }
-    Option switchThermPort {
-        allowedValues = { "TRUE", "FALSE" };
-        //value = "FALSE";
-        description = "Determines if component needs thermal port";
-        rewritableValues = FALSE;  // Enables converter optimization.
-        trigger=TRUE;
-    }
-    
-    //------------------------------------------------------------
-    // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
-    //------------------------------------------------------------  
-    
-    // FLUID PORTS
-
-    // FUEL PORTS
-
-    // BLEED PORTS
-
-    // THERMAL PORTS
-
-    // MECHANICAL PORTS
-
-    // ELECTRICAL PORTS
-
-    ElectricPort EP_O {
-        description = "Electric Port";
-    }
-
-    // FLOW STATIONS
-
-    // SOCKETS
-
-    Socket S_eThermMass {
-        allowedValues = { "Q_heat", "Mass" };
-        description = "Thermal mass socket";
-        socketType = "EThermalMass";
-    }
-
-    // TABLES
-    
-    //------------------------------------------------------------
-    // ******* INTERNAL SOLVER SETUP *******
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    //  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-    //------------------------------------------------------------
-    //Independent ind_R { 
-    //    varName = "R"; 
-    //    autoSetup = TRUE;
-    //    indepRef = "10000";
-    //    description = "Varies the resistive component of the output impedance";
-    //}
-    //Independent ind_L { 
-    //    varName = "L"; 
-    //    autoSetup = TRUE;
-    //    indepRef = "10000";
-    //    description = "Varies the inductive component of the output impedance";
-    //}
-    //
-    //
-    //Dependent dep_eff {
-    //    eq_lhs = "eff";
-    //    eq_rhs = "effDes";
-    //    autoSetup=TRUE;
-    //}
-    //Dependent dep_power_factor{
-    //    eq_rhs="pf";
-    //    eq_lhs="pfDes";
-    //    autoSetup=TRUE;
-    //}
-
-    //------------------------------------------------------------
-    // ******* VARIABLE CHANGED METHODOLOGY *******
-    //------------------------------------------------------------
-
-    void variableChanged(string name, any oldVal){
-        //if ( name == "switchThermPort" ){ 
-        //    if ( switchThermPort == "TRUE" ){
-        //        create("", "ThermalInputPort", "Q_I" );
-        //    }
-        //}
-        //if (name =="switchDes") {
-        //    if (EP_O.ElectricPowerType == "DC")
-        //    {
-        //        ind_Vimag.autoSetup = FALSE;
-        //        dep_power_factor.autoSetup = FALSE;
-        //    }
-        //    else {
-        //        ind_Vimag.autoSetup = TRUE;
-        //        dep_power_factor.autoSetup = TRUE;
-        //    }
-        //}
-    } // end variableChanged()
-
-    //------------------------------------------------------------
-    //   ******* PERFORM ENGINEERING CALCULATIONS *******
-    //------------------------------------------------------------
-    
-    void calculate() {
-
-        // So this component expects you to set Vreal, Vimag, and effDes.
-        // It will calculate (resistive only) impedance, power factor, etc.
-        
-        // If we're on-design, we need to figure out the output impedance
-        // based on the design efficiency. Otherwise, calculate the loss
-        // and efficiency based on the impedance (which is held constant)
-        pf = cos(EP_O.S.phase);
-        if ( switchDes == "DESIGN" ){
-            /*****************************
-            On-Design
-            *****************************/
-            pfDes = pf;
-            eff = effDes;
-            
-            // Internal power, before flowing through this component's output impedance
-            real PInternal = EP_O.S.r / eff;
-            Loss_r = PInternal - EP_O.S.r;
-            Loss_j = 0;
-            R = Loss_r / EP_O.I.mag**2;
-            L = 0;
-			// Compute mass based on assumed specific power.
-			Mass = EP_O.S.r / SpecificPower;
-        }
-        else {
-            Loss_r = EP_O.I.mag**2 * R;
-            Loss_j = 0;
-            eff = EP_O.S.r / (EP_O.S.r+Loss_r);
-        }
-        
-        if (switchThermPort=="TRUE"){
-            real KW_PER_BTU_PER_SEC = 1.05505585;
-            Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-            Q_heat /= KW_PER_BTU_PER_SEC;
-            //------------------------------------------------------------    
-            // Run the thermal mass model.
-            //------------------------------------------------------------
-            if ( !S_eThermMass.isEmpty() ) {
-              S_eThermMass.execute();
-            }
-        }
-    }
-    // end calculation section
-
-    void prePass(){
-        EP_O.setIVRMS( EP_O.I.r, EP_O.I.j, Vreal, Vimag );
-        EP_O.frequency = frequency;
-    }
-
+  }
 }
+#endif

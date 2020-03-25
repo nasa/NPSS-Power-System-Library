@@ -1,0 +1,181 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     baseline_all_elecMDP.run                                     |
+ | Author(s):     George Thomas & Jonathan Fuzaro Alencar                      |
+ | Date(s):       February 2020                                                |
+ |                                                                             |
+ | Description:   Run file for a highly simplified all-electric aircraft       |
+ |                powertrain with MDP-based logic to size the battery.         |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+/**
+ ---------
+ | Setup |
+ ---------
+**/
+
+#include "npssel.view"
+#include "PrintUtils.fnc"
+
+#define HP_PER_KW 0.7457 // [horsepower / kilowatt]
+
+solver.maxJacobians = 5000;
+solver.maxIterations = 10000;
+
+// this assembly represents the powertrain running at a hover power setting
+Assembly HOV { 
+  #include "baseline_all_elec.mdl"
+
+  allElectric {
+
+    Solver solver { 
+      maxJacobians = 5000;
+      maxIterations = 10000;
+    }
+
+    Source.segmentTime = 20./60.; // 20 minutes of hover (expressed in hours which is this var's unit)
+    Source.energyDes = Load.Pdemand * Source.segmentTime; // initial guess for design energy in kW-h.
+  }
+}
+
+// this assembly represents the powertrain running at a lower, cruise power setting
+Assembly CRZ { 
+  #include "baseline_all_elec.mdl"
+
+  allElectric {
+    Solver solver { 
+      maxJacobians = 5000;
+      maxIterations = 10000;
+    }
+
+    Source.segmentTime = 60./60.; // 60 minutes of cruise
+
+    // no need to guess design energy in the cruise assembly
+    Load.Pdemand = HOV.allElectric.Load.Pdemand * 0.5; // assume cruize load demand is 1/2 hover load demand
+
+    // pass reference point scalars to this assembly
+    void preexecute() {
+      Source.R = HOV.allElectric.Source.R;
+      A1.R = HOV.allElectric.A1.R;
+      A2.L = HOV.allElectric.A2.L;
+    }    
+  }
+}
+
+HOV {
+  setOption("switchDes", "DESIGN");
+  setOption("multiDes", "TRUE");
+
+  // turn off source internal design energy ind/dep pair 
+  allElectric.Source {
+    ind_energyDes.autoSetup = FALSE;
+    dep_energyDes.autoSetup = FALSE;
+  }
+} 
+
+CRZ {
+  setOption("switchDes", "OFFDESIGN");
+}
+
+/**
+ * Vary design assembly's (HOV's) design energy until that energy matches the
+ * sum of energies consumed in all flight segments.
+ */
+Independent ind_energyDes {
+  varName = "HOV.allElectric.Source.energyDes";
+  autoSetup = TRUE;
+}
+
+Dependent dep_energyDes {
+  eq_lhs = "HOV.allElectric.Source.energyDes";
+  eq_rhs = "HOV.allElectric.Source.energy + CRZ.allElectric.Source.energy";
+  autoSetup = TRUE;
+}
+
+/**
+ --------------------
+ | Run Solver Cases |
+ --------------------
+**/
+
+/* On-Design */
+setOption("switchDes", "DESIGN");
+HOV.autoSolverSetup();
+CRZ.autoSolverSetup();
+autoSolverSetup();
+
+run(); CASE++;
+page.display();
+printDesignBanner("on");
+printSolverSetup("HOV.allElectric.solver", FALSE);
+printCaseStats("HOV.allElectric.solver");
+cout << "====================\n\n";
+printSolverSetup("CRZ.allElectric.solver", FALSE);
+printCaseStats("CRZ.allElectric.solver");
+cout << "====================\n\n";
+printSolverSetup("solver", FALSE);
+printCaseStats("solver");
+cout << "====================\n\n";
+
+/* Off-Design */
+CRZ.allElectric.solver.clear();
+
+solver {
+  clear();
+  executionSequence.remove("CRZ");
+}
+
+// add post execute sequence to track energy consumption for flight missions
+HOV.allElectric {
+  void postexecute() {
+    Source.trackEnergy();
+  }
+}
+
+ind_energyDes.autoSetup = FALSE;
+dep_energyDes.autoSetup = FALSE;
+
+setOption("switchDes", "OFFDESIGN");
+setOption("switchTrackEnergy", "TRUE"); // source energy consumption tracker
+HOV.autoSolverSetup(); 
+
+printDesignBanner("off");
+printSolverSetup("HOV.allElectric.solver", FALSE);
+
+// power loads for each flight mission segment [kW]
+// load = HP_TO_KW * avg(front + rear)
+real loads[];
+loads.append($HP_PER_KW * (21.2 + 18.7) / 2.);
+loads.append($HP_PER_KW * (10.7 + 13.2) / 2.);
+loads.append($HP_PER_KW * (21.2 + 18.7) / 2.);
+loads.append($HP_PER_KW * ( 9.4 + 11.8) / 2.);
+
+// segment time intervals [hr]
+real segments[];
+segments.append( 2. / 60.); //  2 [min]
+segments.append(50. / 70.); //    [nm / kn = hr]
+segments.append( 2. / 60.); //  2 [min]
+segments.append(20. / 60.); // 20 [min]
+
+int i;
+CASE = 0;
+for (i = 0; i < loads.entries(); i++) {
+  HOV.allElectric.Load.Pdemand = loads[i];
+  HOV.allElectric.Source.segmentTime = segments[i];
+  run(); CASE++;
+  page.display();
+  cout << "=====================\n";
+  printCaseStats("HOV.allElectric.solver");
+  cout << "Power demand: "    << loads[i]         << " kW\n"
+       << "Flight interval: " << segments[i]      << " hr ("
+                              << segments[i] * 60 << " min)\n"
+       << "Energy Consumed: " << HOV.allElectric.Source.energyConsumed << " kW-hr\n"
+       << "=====================\n\n";
+}
