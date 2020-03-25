@@ -60,3 +60,5 @@ n1{
   VrealRMS = 10;  //guess value
   VimagRMS = 0.;  //guess value		
 }
+
+setOption( "ElectricPowerType", "DC" );
