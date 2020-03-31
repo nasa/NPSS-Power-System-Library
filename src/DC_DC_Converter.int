@@ -17,7 +17,7 @@
 #ifndef __DC_DC_CONVERTER__
 #define __DC_DC_CONVERTER__
 
-class DC_DC_Converter extends Element {
+class DC_DC_Converter extends ElectricElement {
 
   //----------------------------
   // ****** DOCUMENTATION ******

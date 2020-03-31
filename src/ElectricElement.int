@@ -5,47 +5,30 @@
  | 21000 Brookpark Rd 		                                                     |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     power_propagation.run                                        |
+ | File Name:     ElectricElement.int                                          |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
- | Date(s):       February 2020                                                |
+ | Date(s):       March 2020                                                   |
  |                                                                             |
- | Description:   Run file for automatic power propagation mode.               |
+ | Description:   Serves as an interface for all electric components in the    |
+ |                NPSS Power System Library.                                   |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 
-/**
- ---------
- | Setup |
- ---------
-**/
+#ifndef __ELECTRIC_ELEMENT__
+#define __ELECTRIC_ELEMENT__
 
-#include "npssel.view"
-#include "IOUtils.fnc"
+class ElectricElement extends Element {
+  //------------------------------
+  // ****** DOCUMENTATION ********
+  //------------------------------  
 
-#include "power_propagation.mdl"
+  // title = "";
+  // description = "The " + isA() + "";
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
 
-/**
- --------------------
- | Run Solver Cases |
- --------------------
-**/
-
-string ports[] = list("ElectricPort", TRUE);
-
-cout << "Before power propagation: \n";
-printPortPowerTypes();
-findSourcesAndPropagate();
-cout << "\nAfter power propagation: \n";
-printPortPowerTypes();
-cout << endl;
-
-setOption("switchDes", "DESIGN");
-autoSolverSetup();
-printDesignBanner("on");
-
-run(); CASE++;
-page.display();
-printCaseStats("solver");
-
-cout << diagram << endl;
+  int containsNode = FALSE;
+}
+class eElement extends ElectricElement;
+#endif

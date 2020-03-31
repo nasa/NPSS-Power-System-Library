@@ -26,6 +26,8 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
+MODELNAME = "3 Phase";
+
 // select model
 #include "AC_3phase_example.mdl"
 

@@ -16,7 +16,7 @@
 #ifndef __MOTOR__
 #define __MOTOR__
 
-class Motor extends Element {
+class Motor extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

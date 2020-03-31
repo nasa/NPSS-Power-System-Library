@@ -15,7 +15,7 @@
 #ifndef __GENERATOR__
 #define __GENERATOR__
 
-class Generator extends Element {
+class Generator extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

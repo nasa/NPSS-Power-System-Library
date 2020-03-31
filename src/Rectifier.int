@@ -15,7 +15,7 @@
 #ifndef __RECTIFIER__
 #define __RECTIFIER__
 
-class Rectifier extends Element {
+class Rectifier extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

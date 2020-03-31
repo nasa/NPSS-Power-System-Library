@@ -31,6 +31,8 @@ fine, imprisonment, or both.
 #include <IOUtils.fnc>
 #include <print_macros2.fnc>
 
+MODELNAME = "Baseline Turboelectric MDP";
+
 //----------------------------------------------------------------------------
 //{ Model Definition:  3 Assembly MDP for all architectures
 //----------------------------------------------------------------------------

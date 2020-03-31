@@ -15,7 +15,7 @@
 #ifndef __INDUCTOR__
 #define __INDUCTOR__
 
-class Inductor extends Element {
+class Inductor extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

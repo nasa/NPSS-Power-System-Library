@@ -15,7 +15,7 @@
 #ifndef __RESISTOR__
 #define __RESISTOR__
 
-class Resistor extends Element {
+class Resistor extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

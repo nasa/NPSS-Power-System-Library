@@ -29,6 +29,7 @@ fine, imprisonment, or both.
 // add circuit elements
 #include "Resistor.int"
 
+MODELNAME = "Resistive Circuit";
 
 // select model
 #include "R_dc_example.mdl"

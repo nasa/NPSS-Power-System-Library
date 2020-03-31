@@ -17,7 +17,7 @@
 
 #include <InterpIncludes.ncp>
 
-class Enode extends Element {
+class Enode extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

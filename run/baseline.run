@@ -32,6 +32,8 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+MODELNAME = "Baseline";
+
 //model file
 #include "baseline.mdl"
 Turb.PRbase = 1.0488e+000;

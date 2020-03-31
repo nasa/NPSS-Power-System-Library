@@ -1,10 +1,11 @@
-MODELNAME = "Thermal heat exchanger loop test";
 setThermoPackage("FPT");
 // setThermoPackage("GasTbl");
 #include "ThermalDuct.int"
 #include "ThermalLoad.int"
 #include "ThermalTank.int"
 #include "ThermalEff.map"
+
+MODELNAME = "Thermal heat exchanger loop test";
 
 solver.maxIterations = 200;
 solver.maxJacobians = 100;

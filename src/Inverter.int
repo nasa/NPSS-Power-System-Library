@@ -15,7 +15,7 @@
 #ifndef __INVERTER__
 #define __INVERTER__
 
-class Inverter extends Element {
+class Inverter extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

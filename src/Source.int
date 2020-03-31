@@ -18,7 +18,7 @@
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
 
-class Source extends Element {
+class Source extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

@@ -15,7 +15,7 @@
 #ifndef __BASICLOAD__
 #define __BASICLOAD__
 
-class BasicLoad extends Element {
+class BasicLoad extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

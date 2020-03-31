@@ -32,6 +32,8 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+MODELNAME = "Transient Baseline";
+
 // Transient data out to a CSV file for plotting
 OutFileStream transientCSVStream { filename = "output/transient.csv"; } 
 
@@ -184,5 +186,3 @@ eIntegral = 0;
 frac_speed_setpoint = 0.5;
 time = 0;
 CASE++; run();
-
-

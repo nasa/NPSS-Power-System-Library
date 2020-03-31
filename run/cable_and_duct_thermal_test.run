@@ -36,6 +36,8 @@ increased power to see how variables change
 #include "npssel.view"
 #include "npssel_runtime.view"
 
+MODELNAME = "Cable & Duct Thermal Test";
+
 // select model
 #include "cable_thermal_test.mdl"
 solver.maxIterations = 5000;

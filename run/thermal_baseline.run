@@ -33,6 +33,7 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+MODELNAME = "Thermal Baseline";
 
 // PowerHook data out to a CSV file for plotting
 OutFileStream PowerHookCSVStream { filename = "output/PowerHook.csv"; } 
@@ -208,4 +209,3 @@ for (i = 0 ; i < 100 ; i++)
     //page.display();  // output data to out file
     //page_runtime.display(); // output data to cmd window
 }
-

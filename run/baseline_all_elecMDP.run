@@ -24,6 +24,8 @@
 #include "npssel.view"
 #include "IOUtils.fnc"
 
+MODELNAME = "Baseline All Electric MDP";
+
 #define HP_PER_KW 0.7457 // [horsepower / kilowatt]
 
 solver.maxJacobians = 5000;

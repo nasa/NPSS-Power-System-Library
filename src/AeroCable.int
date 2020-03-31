@@ -15,7 +15,7 @@
 #ifndef __AEROCABLE__
 #define __AEROCABLE__
 
-class AeroCable extends Element {
+class AeroCable extends ElectricElement {
 
   //----------------------------
   // ****** DOCUMENTATION ******
