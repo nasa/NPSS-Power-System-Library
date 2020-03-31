@@ -44,7 +44,7 @@ ElectricAssembly allElectric {
   ConstantPowerLoad Load {
     Vreal    = 2000; // [volts]
     Vimag    = 0;    // [volts]
-    Pdemand  = 10;   // [kilowatts]
+    Pdemand  = 16.5; // [kilowatts] (22 hp)
     pfDemand = 1;
   }
 

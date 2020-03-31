@@ -160,6 +160,8 @@ transientCSVStream << "MassTemp,";
 transientCSVStream << "CASE,";
 transientCSVStream << "time" << endl;
 
+// Use a variable to print only every 100 timesteps.
+int printCounter = 0;
 void csvTransientPrint()
 {
     transientCSVStream << ACCable.Q_heat << ", ";
@@ -168,11 +170,15 @@ void csvTransientPrint()
     transientCSVStream << CASE << ", ";
     transientCSVStream << time << endl;
 
-    cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_heat << ", ";
-    cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
-    cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
-    cout << "CASE, "              << CASE << ", ";
-    cout << "time, "              << time << endl;
+    if (++printCounter >= 100)
+    {
+      printCounter = 0;
+        cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_heat << ", ";
+        cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
+        cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
+        cout << "CASE, "              << CASE << ", ";
+        cout << "time, "              << time << endl;
+    }
 }
 
 postsolverSequence = { "csvTransientPrint" };

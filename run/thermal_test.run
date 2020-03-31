@@ -166,6 +166,8 @@ if (trans_enable==TRUE){
   transientCSVStream << "effectiveness,"<< endl;
 
 
+// Use a variable to print only every 10 timesteps.
+int printCounter = 0;
   void csvTransientPrint()
   {
       transientCSVStream << time << ", ";
@@ -177,13 +179,16 @@ if (trans_enable==TRUE){
       transientCSVStream << HEX.effect << endl;
 
 
+    if (++printCounter >= 10)
+    {
+      printCounter = 0;
       cout << "time, "  << time<< ", ";
       cout << "T_in, "  << fs_coolant.Fl_O.Tt << ", ";
       cout << "T_load, "<< thermal_duct.Fl_O.Tt << ", ";
       cout << "T_vol, " << volume.Fl_O.Tt << ", ";
       cout << "T_HEX, " << HEX.Fl_O1.Tt << ", ";
       cout << "Vol_Tank, " << volume.mass << endl;
-
+    }
   }
 
   postsolverSequence = { "csvTransientPrint" };

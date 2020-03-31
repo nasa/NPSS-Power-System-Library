@@ -45,7 +45,7 @@ page.display();
 printCaseStats("solver");
 
 int i;
-real loads[] = { 10, 8, 6, 4, 2, 1, 0.5, 0.25 }; // [kilowatts]
+real loads[] = { 16.5, 13, 10, 8, 6, 4, 2, 1, 0.5, 0.25 }; // [kilowatts]
 
 setOption("switchDes", "OFFDESIGN");
 autoSolverSetup();

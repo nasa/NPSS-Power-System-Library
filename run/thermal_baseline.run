@@ -165,6 +165,8 @@ PowerHookCSVStream << "MassTemp,";
 PowerHookCSVStream << "CASE,";
 PowerHookCSVStream << "time" << endl;
 
+// Use a variable to print only every 10 timesteps.
+int printCounter = 0;
 void csvPowerHookPrint()
 {
     PowerHookCSVStream << Gen1.Speed << ", ";
@@ -180,17 +182,23 @@ void csvPowerHookPrint()
     PowerHookCSVStream << CASE << ", ";
     PowerHookCSVStream << time << endl;
 
-    cout << "Gen1.Speed, "        << Gen1.Speed << ", ";
-    cout << "Gen1.S_map.Nmap, "   << Gen1.S_map.Nmap << ", ";
-    cout << "Gen1.S_map.trqMap, " << Gen1.S_map.trqMap << ", ";
-    cout << "EM1.Speed, "         << EM1.Speed << ", ";
-    cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
-    cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
-    cout << "MotorPowerDissipated (BTU/s), "  << EM1.Q_heat << ", ";
-    cout << "HeatTransferRate (BTU/s), "  << motor_cooler.Q_O.HeatTransferRate << ", ";
-    cout << "MassTemp (deg F), "          << motor_cooler.Q_O.MassTemp-458.67 << ", ";
-    cout << "CASE, "              << CASE << ", ";
-    cout << "time, "              << time << endl;
+    if (++printCounter >= 10)
+    {
+        printCounter = 0;
+        cout << "--------------------------------" << endl;
+        cout << "Gen1.Speed, "        << Gen1.Speed << ", ";
+        cout << "Gen1.S_map.Nmap, "   << Gen1.S_map.Nmap << ", ";
+        cout << "Gen1.S_map.trqMap, " << Gen1.S_map.trqMap << ", ";
+        cout << "EM1.Speed, "         << EM1.Speed << ", ";
+        cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
+        cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
+        cout << "MotorPowerDissipated (BTU/s), "  << EM1.Q_heat << ", ";
+        cout << "HeatTransferRate (BTU/s), "  << motor_cooler.Q_O.HeatTransferRate << ", ";
+        cout << "MassTemp (deg F), "          << motor_cooler.Q_O.MassTemp-458.67 << ", ";
+        cout << "CASE, "              << CASE << ", ";
+        cout << "time, "              << time << endl;
+        cout << "--------------------------------" << endl;
+    }
 }
 
 postsolverSequence = { "csvPowerHookPrint" };
@@ -201,8 +209,6 @@ cout << endl << solver.dependentNames << endl << solver.independentNames << endl
 int i;
 for (i = 0 ; i < 100 ; i++)
 {
-    cout << "--------------------------------" << endl;
-    cout << "--------------------------------" << endl;
     motor_trq_frac -= 0.001;
     time = 0;
     CASE++; run();

@@ -84,6 +84,7 @@ void printCaseStats(string solverName) {
        << "\nPasses: " << solverName->passCounter
        << "\nJacobians: " << solverName->numJacobians
        << "\nBroydens: " << solverName->numBroydens
+       << "\nConverged?: " << solverName->converged
        << "\n==================\n\n";
 }
 

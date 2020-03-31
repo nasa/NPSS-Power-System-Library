@@ -2,7 +2,7 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                     |
+ | 21000 Brookpark Rd 		                                                   |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     power_propagation.run                                        |
@@ -48,4 +48,5 @@ run(); CASE++;
 page.display();
 printCaseStats("solver");
 
-cout << diagram << endl;
+// TODO: once diagram drawing logic is done, call it here :)
+//cout << diagram << endl;
