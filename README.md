@@ -85,3 +85,4 @@ Cable1          2291.143    2291.127    1202.045    -2.95E-002    1103.348    -4
                 EP_O.S.r  EP_O.V.mag  EP_O.V.phase  EP_O.I.mag  EP_O.I.phase        Mass      Loss_r      Loss_j
 Gen1            2291.143    1200.000         0.000    1103.348    -4.81E-001     250.944       0.000       0.000
 ```
+For more information, see the [wiki page](../../wiki/Home/).
