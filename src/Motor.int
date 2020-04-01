@@ -36,11 +36,6 @@ class Motor extends ElectricElement {
   real Current {
     value = 1.; IOstatus = "input"; units = "A"; // [amperes]
     description = "Current.";
-  } 
-
-  real CurrentAngle_Demand {
-    value = 0; IOstatus="output"; units = "deg"; // [degrees]
-    description = "Current angle for the motor.";
   }
   
   real eff {
@@ -227,10 +222,9 @@ class Motor extends ElectricElement {
     autoSetup = TRUE;
   }
 
-  Dependent dep_phase_angle {
-    eq_lhs = "CurrentAngle_Demand";
-    eq_rhs = "EP_I.I.j";
-    // eq_rhs = "EP_I.I.phaseDeg"; // this doesn't work for some reason
+  Dependent dep_power_factor {
+    eq_lhs = "EP_I.S.j";
+    eq_rhs = "EP_I.S.r * tan(acos(powerfactor))"; // reformulated constraint to avoid depending on angles or divisions.
     autoSetup = TRUE;
   }
 
@@ -331,8 +325,6 @@ class Motor extends ElectricElement {
       Loss_r = 3 * Current**2 * motorResistance;
       Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
     }
-    
-    CurrentAngle_Demand = EP_I.VLN.phaseDeg - acos(powerfactor) * 180/PI;
     
     // motor and Propulsor shaft connection
     trq = ( C_HP_PER_RPMtoFT_LBF * (Pout/ 0.745699872) / Speed );	
