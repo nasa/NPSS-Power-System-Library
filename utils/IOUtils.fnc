@@ -61,14 +61,14 @@ void printSolverSetup(string solverName, int recursive) {
 
   cout << "==== " << solverName << " ====\n";
 
-  cout << "\nIndependent Components: \n";
+  cout << "\n Independent Components: \n";
   for (i = 0; i < indeps.entries(); i++) {
-    cout << " " << i+1 << ".) " << indeps[i] << ": " << indeps[i]->varName << endl;
+    cout << "  " << i+1 << ".) " << indeps[i] << ": " << indeps[i]->varName << endl;
   }
 
-  cout << "\nDependent Components: \n";
+  cout << "\n Dependent Components: \n";
   for (i = 0; i < deps.entries(); i++) {
-    cout << " " << i+1 << ".) " << deps[i] << ": " << deps[i]->eq_lhs
+    cout << "  " << i+1 << ".) " << deps[i] << ": " << deps[i]->eq_lhs
          << " = " << deps[i]->eq_rhs << endl;
   }
 
@@ -79,13 +79,13 @@ void printSolverSetup(string solverName, int recursive) {
 
 // Prints information from a solver case run.
 void printCaseStats(string solverName) {
-  cout << "==== CASE: " << solverName->CASE << " ====="
+  cout << "===== CASE: " << solverName->CASE << " ====="
        << "\nIterations: " << solverName->iterationCounter
        << "\nPasses: " << solverName->passCounter
        << "\nJacobians: " << solverName->numJacobians
        << "\nBroydens: " << solverName->numBroydens
        << "\nConverged?: " << solverName->converged
-       << "\n==================\n\n";
+       << "\n===================\n\n";
 }
 
 // Prints on / off design banner.
@@ -122,9 +122,8 @@ void populateCSV(string file, string fileName, string vars[]) {
   file->open(fileName);
 
   if (vars.entries() != 0) {
-    file->print("Case, ");
-    file->print(vars[0]->getPathName() + " (sweep), ");
-    for (i = 1; i < vars.entries()-1; i++) {
+    file->print("CASE, ");
+    for (i = 0; i < vars.entries()-1; i++) {
       file->print(vars[i]->getPathName() + ", ");
     }
     file->print(vars[i]->getPathName());
@@ -154,4 +153,5 @@ void fillCSVLine(string file, string vars[]) {
     cerr << "[ERROR]: fillCSVLine file does not exist!\n";
   }
 }
+
 #endif
