@@ -17,7 +17,7 @@
 
 #include <InterpIncludes.ncp>
 
-class Cable extends Element {
+class Cable extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

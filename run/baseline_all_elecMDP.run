@@ -22,7 +22,9 @@
 **/
 
 #include "npssel.view"
-#include "PrintUtils.fnc"
+#include "IOUtils.fnc"
+
+MODELNAME = "Baseline All Electric MDP";
 
 #define HP_PER_KW 0.7457 // [horsepower / kilowatt]
 
@@ -40,7 +42,8 @@ Assembly HOV {
       maxIterations = 10000;
     }
 
-    Source.segmentTime = 20./60.; // 20 minutes of hover (expressed in hours which is this var's unit)
+    Source.segmentTime  = 25./60.; // Design mission includes 25 minutes of hover (expressed in hours which is this var's unit)
+    Source.segmentTime += 20./60.; // Add in reserve energy, enough to get 20 more minutes of hover
     Source.energyDes = Load.Pdemand * Source.segmentTime; // initial guess for design energy in kW-h.
   }
 }
@@ -55,7 +58,7 @@ Assembly CRZ {
       maxIterations = 10000;
     }
 
-    Source.segmentTime = 60./60.; // 60 minutes of cruise
+    Source.segmentTime = 60./60.; // Design mission has 60 minutes of cruise
 
     // no need to guess design energy in the cruise assembly
     Load.Pdemand = HOV.allElectric.Load.Pdemand * 0.5; // assume cruize load demand is 1/2 hover load demand
@@ -124,6 +127,11 @@ printSolverSetup("solver", FALSE);
 printCaseStats("solver");
 cout << "====================\n\n";
 
+cout << "====================\n";
+cout << "Design Energy: " << HOV.allElectric.Source.energyDes << " kW-hr" << endl;
+cout << "====================\n\n";
+
+
 /* Off-Design */
 CRZ.allElectric.solver.clear();
 
@@ -152,10 +160,10 @@ printSolverSetup("HOV.allElectric.solver", FALSE);
 // power loads for each flight mission segment [kW]
 // load = HP_TO_KW * avg(front + rear)
 real loads[];
-loads.append($HP_PER_KW * (21.2 + 18.7) / 2.);
-loads.append($HP_PER_KW * (10.7 + 13.2) / 2.);
-loads.append($HP_PER_KW * (21.2 + 18.7) / 2.);
-loads.append($HP_PER_KW * ( 9.4 + 11.8) / 2.);
+loads.append($HP_PER_KW * 20.);
+loads.append($HP_PER_KW * 12.);
+loads.append($HP_PER_KW * 20.);
+loads.append($HP_PER_KW * 10.);
 
 // segment time intervals [hr]
 real segments[];
@@ -176,6 +184,6 @@ for (i = 0; i < loads.entries(); i++) {
   cout << "Power demand: "    << loads[i]         << " kW\n"
        << "Flight interval: " << segments[i]      << " hr ("
                               << segments[i] * 60 << " min)\n"
-       << "Energy Consumed: " << HOV.allElectric.Source.energyConsumed << " kW-hr\n"
+       << "Cumulative Energy Consumed: " << HOV.allElectric.Source.energyConsumed << " kW-hr\n"
        << "=====================\n\n";
 }

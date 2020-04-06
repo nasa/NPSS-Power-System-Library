@@ -28,8 +28,10 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-#include <printUtils.fnc>
+#include <IOUtils.fnc>
 #include <print_macros2.fnc>
+
+MODELNAME = "Baseline Turboelectric MDP";
 
 //----------------------------------------------------------------------------
 //{ Model Definition:  3 Assembly MDP for all architectures

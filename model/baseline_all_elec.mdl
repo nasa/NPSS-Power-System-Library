@@ -18,18 +18,18 @@
 setThermoPackage("$THERMO");
 
 ElectricAssembly allElectric {
-  Element Source Source {
+  Source Source {
     setOption("ElectricPowerType", "DC");
     Vreal  = 1000; // [volts]
     Vimag  = 0;    // [volts]
     effDes = 0.99; // [99 %]
   }
 
-  Element Cable A1 {
+  Cable A1 {
     length = 1; // [meter]
   }
 
-  Element DC_DC_Converter Converter {
+  DC_DC_Converter Converter {
     // #include <InverterRectifierMap.int>
     Voltage       = 1000; // [volts]
     K             = 2.0;  // voltage ratio (V_in * K = V_out)
@@ -37,14 +37,14 @@ ElectricAssembly allElectric {
     SpecificPower = 9;    // [kW / kg]
   }
 
-  Element Cable A2 {
+  Cable A2 {
     length = 1; // [meter]
   }
 
-  Element ConstantPowerLoad Load {
+  ConstantPowerLoad Load {
     Vreal    = 2000; // [volts]
     Vimag    = 0;    // [volts]
-    Pdemand  = 10;   // [kilowatts]
+    Pdemand  = 16.5; // [kilowatts] (22 hp)
     pfDemand = 1;
   }
 

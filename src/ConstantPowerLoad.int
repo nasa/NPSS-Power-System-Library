@@ -15,7 +15,7 @@
 #ifndef __CONSTANTPOWERLOAD__
 #define __CONSTANTPOWERLOAD__
 
-class ConstantPowerLoad extends Element {
+class ConstantPowerLoad extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

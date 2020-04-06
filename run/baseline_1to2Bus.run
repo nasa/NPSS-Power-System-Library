@@ -35,6 +35,7 @@ fine, imprisonment, or both.
 //model file
 #include "bus1to2.mdl"
 
+MODELNAME = "Baseline 1to2 Bus";
 
 /************************
 On design

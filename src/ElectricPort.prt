@@ -27,8 +27,7 @@ string sourceComponents[] = { "Source", "Generator" };
 string loadComponents[] = { "Motor", "ConstantPowerLoad" };
 string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 
-class ElectricPort extends Subelement {
-  #include "PropagatePower.fnc"
+class ElectricPort extends ElectricElement {
   
   //------------------------------
   // ****** DOCUMENTATION ********
@@ -42,6 +41,8 @@ class ElectricPort extends Subelement {
   //--------------------------------
   // ****** SETUP VARIABLES ********
   //--------------------------------
+
+  #include "PropagatePower.fnc"
 
   ComplexNumber V {
     lock = TRUE;	
@@ -59,8 +60,6 @@ class ElectricPort extends Subelement {
   S.hide(1);
   I.hide(1);
   
-  socketRequired = 0;
-  
   Option ElectricPowerType {
     allowedValues = { "UNDEF", "AC1", "DC", "AC3" };
     description = "Electric power type (DC, AC1, AC3).";
@@ -69,7 +68,7 @@ class ElectricPort extends Subelement {
   }
   
   real frequency {
-    value = 0.; 
+    value = 0.;
     IOstatus = "input";
     description = "Frequency of AC current through port.";
   }

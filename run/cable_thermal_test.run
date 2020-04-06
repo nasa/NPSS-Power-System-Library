@@ -36,6 +36,8 @@ increased power to see how variables change
 #include "npssel.view"
 #include "npssel_runtime.view"
 
+MODELNAME = "Cable Thermal Test";
+
 // select model
 #include "cable_thermal_test.mdl"
 solver.maxIterations = 5000;
@@ -158,6 +160,8 @@ transientCSVStream << "MassTemp,";
 transientCSVStream << "CASE,";
 transientCSVStream << "time" << endl;
 
+// Use a variable to print only every 100 timesteps.
+int printCounter = 0;
 void csvTransientPrint()
 {
     transientCSVStream << ACCable.Q_heat << ", ";
@@ -166,11 +170,15 @@ void csvTransientPrint()
     transientCSVStream << CASE << ", ";
     transientCSVStream << time << endl;
 
-    cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_heat << ", ";
-    cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
-    cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
-    cout << "CASE, "              << CASE << ", ";
-    cout << "time, "              << time << endl;
+    if (++printCounter >= 100)
+    {
+      printCounter = 0;
+        cout << "CablePowerDissipated (BTU/s), "  << ACCable.Q_heat << ", ";
+        cout << "HeatTransferRate (BTU/s), "  << TMS.Q_O.HeatTransferRate << ", ";
+        cout << "MassTemp (deg F), "          << TMS.Q_O.MassTemp-458.67 << ", ";
+        cout << "CASE, "              << CASE << ", ";
+        cout << "time, "              << time << endl;
+    }
 }
 
 postsolverSequence = { "csvTransientPrint" };
@@ -202,4 +210,3 @@ ACS.Vreal /= 0.9999;
 ACS.Vimag *= 0.9;
 transient.stopTime = 30;
 run();
-

@@ -31,6 +31,8 @@ fine, imprisonment, or both.
 #include "Inductor.int"
 #include "Capacitor.int"
 
+MODELNAME = "RLC Circuit";
+
 // select model
 #include "PandE2019_RLC_example.mdl"
 

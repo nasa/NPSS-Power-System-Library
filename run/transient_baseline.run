@@ -32,6 +32,8 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+MODELNAME = "Transient Baseline";
+
 // Transient data out to a CSV file for plotting
 OutFileStream transientCSVStream { filename = "output/transient.csv"; } 
 
@@ -118,6 +120,8 @@ transientCSVStream << "NozFg,";
 transientCSVStream << "CASE,";
 transientCSVStream << "time" << endl;
 
+// Use a variable to print only every 100 timesteps.
+int printCounter = 0;
 void csvTransientPrint()
 {
     transientCSVStream << Gen1.Speed << ", ";
@@ -130,14 +134,18 @@ void csvTransientPrint()
     transientCSVStream << CASE << ", ";
     transientCSVStream << time << endl;
 
-    cout << "Gen1.Speed, "        << Gen1.Speed << ", ";
-    cout << "Gen1.S_map.Nmap, "   << Gen1.S_map.Nmap << ", ";
-    cout << "Gen1.S_map.trqMap, " << Gen1.S_map.trqMap << ", ";
-    cout << "EM1.Speed, "         << EM1.Speed << ", ";
-    cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
-    cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
-    cout << "CASE, "              << CASE << ", ";
-    cout << "time, "              << time << endl;
+    if (++printCounter >= 100)
+    {
+      printCounter = 0;
+      cout << "Gen1.Speed, "        << Gen1.Speed << ", ";
+      cout << "Gen1.S_map.Nmap, "   << Gen1.S_map.Nmap << ", ";
+      cout << "Gen1.S_map.trqMap, " << Gen1.S_map.trqMap << ", ";
+      cout << "EM1.Speed, "         << EM1.Speed << ", ";
+      cout << "EM1.S_map.Nmap, "    << EM1.S_map.Nmap << ", ";
+      cout << "EM1.S_map.trqMap, "  << EM1.S_map.trqMap << ", ";
+      cout << "CASE, "              << CASE << ", ";
+      cout << "time, "              << time << endl;
+    }
 }
 
 postsolverSequence = { "csvTransientPrint" };
@@ -184,5 +192,3 @@ eIntegral = 0;
 frac_speed_setpoint = 0.5;
 time = 0;
 CASE++; run();
-
-

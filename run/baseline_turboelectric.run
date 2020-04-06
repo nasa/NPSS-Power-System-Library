@@ -32,6 +32,8 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
+MODELNAME = "Baseline Turboelectric";
+
 #include <map_plotting\mapplot_V27.fnc>
 
 //model file

@@ -15,7 +15,7 @@
 #ifndef __BREAKER__
 #define __BREAKER__
 
-class Breaker extends Element {
+class Breaker extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******

@@ -15,7 +15,7 @@
 #ifndef __CAPACITOR__
 #define __CAPACITOR__
 
-class Capacitor extends Element {
+class Capacitor extends ElectricElement {
   
   //----------------------------
   // ****** DOCUMENTATION ******
@@ -46,7 +46,7 @@ class Capacitor extends Element {
   ElectricOutputPort EP_O {
     description = "Electric output port.";
   }
-  
+
   void calculate() {
 
     // calculate the current

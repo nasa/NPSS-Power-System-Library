@@ -1,0 +1,34 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     ElectricElement.int                                          |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       March 2020                                                   |
+ |                                                                             |
+ | Description:   Serves as an interface for all electric components in the    |
+ |                NPSS Power System Library.                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __ELECTRIC_ELEMENT__
+#define __ELECTRIC_ELEMENT__
+
+class ElectricElement extends Element {
+  //------------------------------
+  // ****** DOCUMENTATION ********
+  //------------------------------  
+
+  // title = "";
+  // description = "The " + isA() + "";
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+
+  int containsNode = FALSE;
+}
+class eElement extends ElectricElement;
+#endif
