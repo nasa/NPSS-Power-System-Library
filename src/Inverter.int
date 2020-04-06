@@ -38,7 +38,7 @@ class Inverter extends ElectricElement {
   ComplexNumber Vac;
   ComplexNumber Vdc;
   
-  real eff {
+  eff {
     value = 1.0; IOstatus = "input"; units = "none";
     description = "Efficiency of the inverter.";
   }
@@ -79,21 +79,21 @@ class Inverter extends ElectricElement {
   }
   
   real SpecificPower {
-    value = 13; IOstatus = "input"; units = "none"; // [kW / kg]
+    value = 13; IOstatus = "input"; units = "kW/kg"; // [kW / kg]
     description = "Power to weight ratio for the component.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Component mass.";
   }
 
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Component loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Component loss.";
   }
@@ -229,7 +229,7 @@ class Inverter extends ElectricElement {
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
 
-    if (switchThermPort=="TRUE") {
+    if (switchThermPort == "TRUE") {
       real KW_PER_BTU_PER_SEC = 1.05505585;
       Q_heat = sqrt(Loss_r**2 + Loss_j**2);
       Q_heat /= KW_PER_BTU_PER_SEC;

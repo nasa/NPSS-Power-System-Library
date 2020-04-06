@@ -5,20 +5,19 @@
  | 21000 Brookpark Rd 		                                                     |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     ElectricElement.int                                          |
+ | File Name:     ElectricSubelement.int                                       |
  | Author(s):     Jonathan Fuzaro Alencar                                      |
  | Date(s):       March 2020                                                   |
  |                                                                             |
- | Description:   Serves as an interface for all electric components in the    |
- |                NPSS Power System Library.                                   |
+ | Description:   Serves as an electric subelement.                            |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 
-#ifndef __ELECTRIC_ELEMENT__
-#define __ELECTRIC_ELEMENT__
+#ifndef __ELECTRIC_SUBELEMENT__
+#define __ELECTRIC_SUBELEMENT__
 
-class ElectricElement extends Element {
+class ElectricSubelement extends Subelement {
   //------------------------------
   // ****** DOCUMENTATION ********
   //------------------------------  
@@ -28,31 +27,6 @@ class ElectricElement extends Element {
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
 
-  int containsNode = FALSE;
-
-  //------------------------------
-  // ****** SETUP VARIABLES ******
-  //------------------------------
-
-  real Mass {
-    value = 0.0; IOstatus = "output"; units = "kg"; // [kilograms]
-    description = "Computed on-design mass.";
-  }
-
-  real eff {
-    value = 1.0; IOstatus = "input"; units = "none";
-    description = "Performance efficiency.";
-  }
-
-  real Loss_r {
-    value = 0.0; IOstatus = "output"; units = "W";
-    description = "Active power loss.";
-  }
-
-  real Loss_j {
-    value = 0.0; IOstatus = "output"; units = "W";
-    description = "Reactive power loss.";
-  }
+  socketRequired = 0;
 }
-
 #endif

@@ -34,7 +34,7 @@ class DC_DC_Converter extends ElectricElement {
   // ****** SETUP VARIABLES ******
   //------------------------------
 
-  real eff {
+  eff {
     value = 1.0; IOstatus = "input"; units = NONE;
     description = "Efficiency of the converter.";
   }
@@ -74,12 +74,12 @@ class DC_DC_Converter extends ElectricElement {
     description = "Power to weight ratio for the component.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Component mass.";
   }
 
-  real Loss_r {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Generator loss.";
   }

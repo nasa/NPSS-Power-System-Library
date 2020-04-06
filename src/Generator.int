@@ -42,7 +42,7 @@ class Generator extends ElectricElement {
     description = "Current angle.";
   }
 
-  real eff {
+  eff {
     value = 1.; IOstatus = "input"; units = "none";
     description = "Projected efficiency of the cable.";
   }
@@ -67,12 +67,12 @@ class Generator extends ElectricElement {
     description = "Resistance of generator (based on efficiency).";
   }
 
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW";
     description = "Generator loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "kW";
     description = "Generator loss.";
   }
@@ -82,7 +82,7 @@ class Generator extends ElectricElement {
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg";
     description = "Mass output of the generator.";
   }

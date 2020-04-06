@@ -52,7 +52,7 @@ class ConstantPowerLoad extends ElectricElement {
     description = "Power factor at input to this load element.";
   }
 
-  real eff {
+  eff {
     value = 0.95; IOstatus = "output"; units = "none";
     description = "Efficiency of load.";
   }
@@ -62,13 +62,13 @@ class ConstantPowerLoad extends ElectricElement {
     description = "Input frequency.";
   }
 
-  real Loss_r {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Real component of losses in this load.";
   }
 
-  real Loss_j {
-    value = 0; IOstatus="output"; units="kW";
+  Loss_j {
+    value = 0; IOstatus="output"; units = "kW";
     description = "Imaginary component of losses in this load.";
   }
 

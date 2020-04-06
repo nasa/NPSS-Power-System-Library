@@ -27,7 +27,7 @@ string sourceComponents[] = { "Source", "Generator" };
 string loadComponents[] = { "Motor", "ConstantPowerLoad" };
 string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 
-class ElectricPort extends ElectricElement {
+class ElectricPort extends Subelement {
   
   //------------------------------
   // ****** DOCUMENTATION ********
@@ -43,6 +43,8 @@ class ElectricPort extends ElectricElement {
   //--------------------------------
 
   #include "PropagatePower.fnc"
+
+  socketRequired = 0;
 
   ComplexNumber V {
     lock = TRUE;	

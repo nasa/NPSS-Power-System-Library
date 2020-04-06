@@ -45,12 +45,12 @@ class AeroCable extends ElectricElement {
   }
 
   // will add losses in future releases.
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
@@ -60,7 +60,7 @@ class AeroCable extends ElectricElement {
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 1; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Mass output of the cable.";
   }
