@@ -149,6 +149,13 @@ class DC_DC_Converter extends ElectricElement {
     autoSetup = TRUE;
   }
   
+  Independent ind_control { 
+    varName = "K"; 
+    autoSetup = FALSE;
+    indepRef = "1000";
+    description = "Varies the relationship between input and output voltage (voltage ratio)";
+  }
+  
   Dependent dep_Power {
     eq_lhs = "EP_O.S.rRMS";
     eq_rhs = "EP_I.S.rRMS * eff";
