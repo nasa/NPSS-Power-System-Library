@@ -15,7 +15,7 @@
 #ifndef __PROPAGATE_POWER__
 #define __PROPAGATE_POWER__
 
-// depth-first traversal of circuit graph to populate port power type
+// depth-first traversal of circuit graph to populate component port power type
 void propagatePower() {
 
   string powerType = ElectricPowerType;
@@ -47,7 +47,7 @@ void propagatePower() {
   port->setOption("ElectricPowerType", powerType);
 }
 
-// this is called when propagatePower() encounters a node
+// propagates power type across node branches
 void propagateNode(string originPort) {
 
   string port = originPort;
