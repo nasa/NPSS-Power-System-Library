@@ -83,9 +83,14 @@ void printCaseStats(string solverName) {
        << "\nIterations: " << solverName->iterationCounter
        << "\nPasses: " << solverName->passCounter
        << "\nJacobians: " << solverName->numJacobians
-       << "\nBroydens: " << solverName->numBroydens
-       << "\nConverged?: " << solverName->converged
-       << "\n===================\n\n";
+       << "\nBroydens: " << solverName->numBroydens;
+
+  if (solverName->converged == 1) {
+    cout << "\nConverged?: TRUE";
+  } else {
+    cout << "\nConverged?: FALSE";
+  }
+  cout << "\n===================\n\n";
 }
 
 // Prints on / off design banner.
@@ -122,11 +127,18 @@ void populateCSV(string file, string fileName, string vars[]) {
   file->open(fileName);
 
   if (vars.entries() != 0) {
-    file->print("CASE, ");
     for (i = 0; i < vars.entries()-1; i++) {
-      file->print(vars[i]->getPathName() + ", ");
+      cout << vars[i] << endl;
+      if (vars[i]->units == "" || vars[i]->units == "none") {
+        file->print(vars[i]->getPathName() + ", ");
+      } else {
+        file->print(vars[i]->getPathName() + " (" + vars[i]->units + "), ");
+      }
     }
     file->print(vars[i]->getPathName());
+    if (vars[i]->units != "" || vars[i]->units != "none") {
+      file->print(" (" + vars[i]->units + ")");
+    }
     file->println();
   } else {
     cerr << "[ERROR]: populateCSV variable list empty!\n";
@@ -140,7 +152,6 @@ void fillCSVLine(string file, string vars[]) {
 
   if (file->fileExists(file->filename)) {
     if (vars.entries() != 0) {
-      file->print(toStr(CASE) + ", ");
       for (i = 0; i < vars.entries()-1; i++) {
         file->print(toStr(vars[i]->value) + ", ");
       }
