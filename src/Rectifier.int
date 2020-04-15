@@ -77,6 +77,12 @@ class Rectifier extends ElectricElement {
     description = "Rectifier voltage (real).";
   }
   
+  real K {
+    value = 1; IOstatus = "input"; units = "none";
+    description = "Voltage ratio (V_in * K = V_out).
+                   Represents the combined effect of any internal transformer as well as the modulation index/duty cycle";
+  }
+
   real SpecificPower {
     value = 13; IOstatus = "input"; units = "none"; // [kW/kg]
     description = "Power to weight ratio for the component.";
@@ -172,6 +178,13 @@ class Rectifier extends ElectricElement {
     description = "Varies the imaginary component of the inverter voltage";
   }
   
+  Independent ind_control { 
+    varName = "K"; 
+    autoSetup = FALSE;
+    indepRef = "1000";
+    description = "Varies the relationship between input and output voltage (voltage ratio)";
+  }
+  
   Dependent dep_Power {
     eq_rhs = "EP_I.S.rRMS * eff";
     eq_lhs = "EP_O.S.rRMS";
@@ -248,7 +261,7 @@ class Rectifier extends ElectricElement {
   void prePass() {	
     EP_I.frequency = frequency;
     EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, EP_I.V.mag * 3 * sqrt(2) / PI, 0);
+    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, EP_I.V.mag * 3 * sqrt(2) / PI * K, 0);
   }
 }
 #endif

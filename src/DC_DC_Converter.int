@@ -142,11 +142,18 @@ class DC_DC_Converter extends ElectricElement {
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  Independent V { 
+  Independent ind_V { 
     varName = "Voltage"; 
     indepRef = "1000";
     description = "Varies the converter voltage.";
     autoSetup = TRUE;
+  }
+  
+  Independent ind_control { 
+    varName = "K"; 
+    autoSetup = FALSE;
+    indepRef = "1000";
+    description = "Varies the relationship between input and output voltage (voltage ratio)";
   }
   
   Dependent dep_Power {
