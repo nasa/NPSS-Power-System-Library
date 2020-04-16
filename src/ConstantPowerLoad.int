@@ -23,11 +23,57 @@ class ConstantPowerLoad extends ElectricElement {
 
   // title = "";
 
-  description = "The " + isA() + " element serves as a constant power load.";
+  description = "The " + isA() + " represents the performance of a generic constant power load (CPL). " +
+  "Both on- and off-design, the CPL draws a constant specified power with losses according to a fixed " +
+  "efficiency. Supports DC, 1-phase, and 3-phase.";
 
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
-  // background = "";
-  
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower) and design efficiency 
+(eff). This component will consider draw whatever current is needed to deliver the power it is 
+commanded to produce (Pdemand), with losses according to its design efficiency. ONDESIGN, it
+calculates its mass (Mass) by dividing its ONDESIGN input power by its specific power.
+
+- This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
+At instantiation, this component's power type is unspecified. NPSS Power System Components 
+need to have a power type in order to correctly run power calculations. For this component, 
+the power type is typically set by calling the findSourcesAndPropagate() method at the top, 
+level assembly. This method is defined in ElectricPort.prt.
+
+- This component transforms power, from electrical power at its input port, to useful output 
+(load) power. Because this component represents a transformation of power, it includes a node. 
+Being a component including a node, its voltage is an indepedent variable (or 2 variables, 
+real and imaginary if its connection to the rest of the power system dictates that it is an AC 
+component). It also features a dependent that ensures that the electrical power at the input 
+port, is sufficient to produce the output power demanded, plus the losses in this component 
+(EP_I.S.r * eff == Pdemand). Lastly, if the component is an AC component, it also features a
+dependent that ensures the power factor at the input of this load is equal to a a specified
+value.
+
+- Also note that, as a component that contains a node and has a specified voltage at the 
+beginning of the solverSequence, it uses its prePass() method to call the electrical port
+update function to pass this voltage information to electrical components that it is connected 
+to. Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, the power transmission components (cables and breakers) must be 
+run before node-bearing transformation components like this one, as the transmission 
+components will calculate and populate these current values. Note that this design is intended 
+to be analogous to a common approach taken in fluid networks within NPSS rocket models.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass.
+
+- Note, there is no sizing logic included in this component, other than the mass calculations 
+described above."
+
   //--------------------------------
   // ****** SETUP VARIABLES ********
   //--------------------------------

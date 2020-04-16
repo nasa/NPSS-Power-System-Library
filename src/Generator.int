@@ -23,10 +23,60 @@ class Generator extends ElectricElement {
   
   // title = "";
 
-  description = "The " + isA() + " determines power for a Generator";
+  description = "The " + isA() + " represents the performance of a generic 3-phase generator. " +
+  "The generator is intended to run with an efficiency map subelement, plugged into its S_map " +
+  "socket.";
 
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
-  // background = "";
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower), design efficiency 
+(effDes), frequency, and voltage (Vbus_LL). This component will produce electrical power at 
+the specified voltage and frequency, equal to the mechanical power at its shaft port. times 
+its operating efficiency.
+
+- When running ONDESIGN, this component will determine its design speed and design torque by 
+saving off the values at the shaft port. The operating efficiency will be the effDes. when 
+running OFFDESIGN, the model will call its S_map subelement (if it exists), to look up the 
+efficiency at the current operating point. It will then run with that efficiency.
+
+- This component, being a source component, must have its electricPowerType specified, and 
+will propagate this power type information to components downstream of it when 
+findSourcesAndPropagate() is called. Further, being a generator, it is expected that the 
+output power type is 3-phase AC, so this is the default value. For more information, see 
+ElectricPort.prt.
+
+- This component transforms power, from mechanical power at its shaft port, to electrical 
+output power. Because this component represents a transformation of power, it includes a node. 
+Being a component including a node, a voltage must be specified at this component. However, 
+being a source component, its voltage is typically set to a fixed value (unless the modeler 
+changes it to be otherwise), and it does not need solver variables to operate.
+
+- Also note that, as a component that contains a node and has a specified voltage at the 
+beginning of the solverSequence, it uses its prePass() method to call the electrical port
+update function to pass this voltage information to electrical components that it is connected 
+to. Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, the power transmission components (cables and breakers) must be 
+run before node-bearing transformation components like this one, as the transmission 
+components will calculate and populate these current values. Note that this design is intended 
+to be analogous to a common approach taken in fluid networks within NPSS rocket models.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass.
+
+- The " + isA() + " component does not use solver variables, however it includes sizing logic. 
+this logic calculates mass as well as calculates the design torque and speed values. These 
+values are used by a performance map (if one is plugged into the S_map socket) to calculate 
+efficiency at the current operating point. For more information about performance maps for 
+this component, see MotorGeneratorMap.int";
   
   //------------------------------
   // ****** SETUP VARIABLES ******
