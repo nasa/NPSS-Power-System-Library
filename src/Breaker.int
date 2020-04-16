@@ -27,8 +27,53 @@ class Breaker extends ElectricElement {
   "On-design, the breaker runs at the design efficiency and computes its impedance. " +
   "Off-design, it runs with the impedance. Supports DC, 1-phase, and 3-phase.";
 
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
-  // background = "";
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower) and design efficiency 
+(eff). When this component is run ONDESIGN, it will select the necessary resistance such that 
+it runs with the specified design efficiency. It then calculates its component mass (Mass) by 
+dividing its ONDESIGN input power by its specific power.
+
+- This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
+At instantiation, this component's power type is unspecified. NPSS Power System Components 
+need to have a power type in order to correctly run power calculations. For this component, 
+the power type is typically set by calling the findSourcesAndPropagate() method at the top, 
+level assembly. This method is defined in ElectricPort.prt.
+
+- Note that for purposes of mass calculation, a DC breaker is assumed to consist of two 
+physical breaker units (one protecting the positive rail, and one on the negative). Multiphase 
+AC breakers typically include 3 breakers within one physical breaker unit, and these protect 
+the three phases (no return or ground need be protected). This is why the DC breaker mass 
+calculation bookkeeps the total breaker component mass twice.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass. 
+ 
+- Solver independents and dependents are only used in the " + isA() + " component during 
+ONDESIGN. In ONDESIGN, the breaker's impedance (resistance and inductance R and L) is not
+known. Because of this, the breaker will run with only its input and output voltages specified 
+via its input and output ports (see NPSS Power Systems Library - solverSequence). With no 
+other parameters, the breaker cannot know the design power it must handle, and so cannot 
+calculate the impedance it should have such that it runs with the specified design efficiency. 
+For this reason, the breaker includes solver variables for ONDESIGN. The breaker's real 
+current (and also imaginary current if the breaker carries AC) is set up as an independent. A 
+dependent is used to ensure that the voltage seen across the breaker's ports, equals the 
+voltage drop according to the guessed current and designed impedance (dV = dVCalc = I * Z). 
+Imaginary dependents are also included if the breaker power type is AC (AC1 or AC3).
+
+- The " + isA() + " OFFDESIGN logic does not need solver variables because during OFFDESIGN, 
+the breaker knows its complex impedance (Z = R + j*2*PI*frequency*L), and knows its voltage as 
+specified at its input and output ports. Current is calculated from I = dV/Z, and this 
+current information is updated in the breaker's input and output ports.";
+  
   
   //------------------------------
   // ****** SETUP VARIABLES ******
