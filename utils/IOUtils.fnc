@@ -128,7 +128,6 @@ void populateCSV(string file, string fileName, string vars[]) {
 
   if (vars.entries() != 0) {
     for (i = 0; i < vars.entries()-1; i++) {
-      cout << vars[i] << endl;
       if (vars[i]->units == "" || vars[i]->units == "none") {
         file->print(vars[i]->getPathName() + ", ");
       } else {
