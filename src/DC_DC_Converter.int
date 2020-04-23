@@ -32,29 +32,37 @@ class DC_DC_Converter extends ElectricElement {
   usageNotes = isA() +
   "
 
-- TODO UPDATEThe input design parameters that must be specified by the modeler when creating an instance 
+- The input design parameters that must be specified by the modeler when creating an instance 
 of this " + isA() + " component are mass specific power (SpecificPower) and design efficiency 
-(eff). This component will consider draw whatever current is needed to deliver the power it is 
-commanded to produce (Pdemand), with losses according to its design efficiency. ONDESIGN, it
-calculates its mass (Mass) by dividing its ONDESIGN input power by its specific power.
+(eff). This component will transfer power from input to output, with losses according to its 
+design efficiency. Output voltage is related to input voltage by a ratio, K, which represents 
+the combined effect of the turns ratio of an integrated transformer (if it exists) as well as 
+the duty cycle. ONDESIGN, it calculates its mass (Mass) by dividing its ONDESIGN input power 
+by its specific power.
 
-- TODO UPDATEThis component transforms power, from electrical power at its input port, to useful output 
+- This component transforms power, from electrical power at its input port, to useful output 
 (load) power. Because this component represents a transformation of power, it includes a node. 
 Being a component including a node, its voltage is an indepedent variable. It also features a 
 dependent that ensures that the electrical power at the input port, is sufficient to produce 
 the output power demanded, plus the losses in this component (EP_I.S.r * eff == Pdemand). 
 
-- TODO UPDATEThis component also has logic that represents control functions (K)
+- This component also has logic that represents control functions. These are enabled by adding 
+the independent, ind_control, which will vary the Vo/Vi voltage ratio, K. This independent 
+is intended to be a 'control knob' must be matched to a dependent somewhere else in the system 
+(in the case of a hybrid power system with two sources, the dependent could represent a 
+constraint on power split, or could represent the designation of one source or another as a 
+constant power vs a constant voltage 'slack' bus).
 
-- Also note that, as a component that contains a node and has a specified voltage at the 
-beginning of the solverSequence, it uses its prePass() method to call the electrical port
-update function to pass this voltage information to electrical components that it is connected 
-to. Note that in the current implementation of the NPSS Power System Library, these components 
+- Note that, as a component that contains a node and has its voltage known at the beginning
+of the solverSequence, it uses its prePass() method to call the electrical port update 
+function to pass this voltage information to electrical components that it is connected to. 
+Note that in the current implementation of the NPSS Power System Library, these components 
 containing nodes do not know what currents are going through their ports at the beginning of 
-an iteration. Because of this, the power transmission components (cables and breakers) must be 
-run before node-bearing transformation components like this one, as the transmission 
-components will calculate and populate these current values. Note that this design is intended 
-to be analogous to a common approach taken in fluid networks within NPSS rocket models.
+an iteration. Because of this, they must be connected to power transmission components (cables 
+and breakers), and these transmission components must be run before node-bearing 
+transformation components like this one, as the transmission components will calculate and 
+populate these current values. Note that this design is intended to be analogous to a common 
+approach taken in fluid networks within NPSS rocket models.
 
 - This component, like other power system components in the NPSS Power System Library, can 
 optionally include thermal models. An optional thermal model is enabled by setting 

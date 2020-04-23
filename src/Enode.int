@@ -24,8 +24,27 @@ class Enode extends ElectricElement {
   //----------------------------
 
   // title = "";
-  // description = "The " + isA() + "";
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+
+  description = "The " + isA() + " is an abstract component representing a bus or electrical 
+  node that has an arbitrary number of electrical connections to it. It includes independents 
+  for the node voltage to be selected such that Kirchoff's current law (sum of all currents 
+  into node = 0) is satisfied using dependents that state Kirchoff's law. 
+  Supports DC, single-phase, and 3-phase AC.";
+
+  usageNotes = isA() +
+  "
+
+- Note that, as a component that contains (is) a node and has its voltage known at the
+beginning of the solverSequence, it uses its prePass() method to call the electrical port
+update function to pass this voltage information to electrical components that it is connected 
+to. Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, they must be connected to power transmission components (cables 
+and breakers), and these transmission components must be run before node-bearing 
+transformation components like this one, as the transmission components will calculate and 
+populate these current values. Note that this design is intended to be analogous to a common 
+approach taken in fluid networks within NPSS rocket models.";
+
   // background = "";
 
   //------------------------------

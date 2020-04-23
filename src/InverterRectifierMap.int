@@ -17,8 +17,8 @@ class InverterRectifierMap extends Subelement {
   // title = "";
 
   description = "The " + isA() + " handles the determination of efficiency for " +
-  "a generator or motor. It performs calls to a map that determines the " +
-  "efficiency as a function of rotational speed and torque.";
+  "a power electronic device. It performs calls to a map that determines the " +
+  "efficiency as a function of per-unit (normalized) operating power.";
 
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";

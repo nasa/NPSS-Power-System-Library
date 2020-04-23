@@ -47,10 +47,24 @@ the power type is typically set by calling the findSourcesAndPropagate() method 
 level assembly. This method is defined in ElectricPort.prt.
 
 - The data used in this design logic was obtained from lookup tables constructed using 
-realistic cable data. Note that this data is based on terrestrial high voltage power cable, 
-and not flight-weight, high voltage aircraft cable. This cable does not yet exist 
+realistic cable data. Note that this data is based on terrestrial medium voltage power cable, 
+and not flight-weight, medium voltage aircraft cable. This cable does not yet exist 
 (as of 2020), and so be aware that the cable designs produced by this sizing logic may 
 overpredict mass.
+
+- This component does not contain a node, and so starts each iteration with its port voltages 
+unknown. The concept in NPSS Power System Library is that all components that contain nodes 
+all have a prePass() method specified that pushes node voltage information, via their ports
+to all components that do not contain nodes and so do not know their voltages. The intent is 
+that after all component prePass methods are automatically called, all components in the 
+system will then have port voltages specified. Then during the normal iteration, components 
+that don't contain nodes such as this one, will execute first. These components typically 
+transmit power from one node to another and do not transform it from one kind to another 
+(e.g. cables and breaker). These execute first in the solver sequence, and inside their 
+calculate() methods, they calculate their currents, which are then passed via the ports, to 
+all other components in the circuit. So after these nodeless transmission components 
+execute, all electric port voltages and currents should be specified, and so all other 
+components are free to run.
 
 - This component, like other power system components in the NPSS Power System Library, can 
 optionally include thermal models. An optional thermal model is enabled by setting 

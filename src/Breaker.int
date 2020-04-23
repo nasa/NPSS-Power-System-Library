@@ -48,6 +48,20 @@ AC breakers typically include 3 breakers within one physical breaker unit, and t
 the three phases (no return or ground need be protected). This is why the DC breaker mass 
 calculation bookkeeps the total breaker component mass twice.
 
+- This component does not contain a node, and so starts each iteration with its port voltages 
+unknown. The concept in NPSS Power System Library is that all components that contain nodes 
+all have a prePass() method specified that pushes node voltage information, via their ports
+to all components that do not contain nodes and so do not know their voltages. The intent is 
+that after all component prePass methods are automatically called, all components in the 
+system will then have port voltages specified. Then during the normal iteration, components 
+that don't contain nodes such as this one, will execute first. These components typically 
+transmit power from one node to another and do not transform it from one kind to another 
+(e.g. cables and breaker). These execute first in the solver sequence, and inside their 
+calculate() methods, they calculate their currents, which are then passed via the ports, to 
+all other components in the circuit. So after these nodeless transmission components 
+execute, all electric port voltages and currents should be specified, and so all other 
+components are free to run.
+
 - This component, like other power system components in the NPSS Power System Library, can 
 optionally include thermal models. An optional thermal model is enabled by setting 
 switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
