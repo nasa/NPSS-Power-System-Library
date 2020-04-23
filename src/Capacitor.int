@@ -22,9 +22,42 @@ class Capacitor extends ElectricElement {
   //----------------------------  
 
   // title = "";
-  // description = "The " + isA() + "";
-  // usageNotes = isA() + "";
-  // background = "";
+  description = "The " + isA() + " model represents a capacitor with a fixed capacitance.";
+
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component is capacitance, C, in Farads.
+
+- This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
+At instantiation, this component's power type is unspecified. NPSS Power System Components 
+need to have a power type in order to correctly run power calculations. For this component, 
+the power type is typically set by calling the findSourcesAndPropagate() method at the top 
+level assembly. This method is defined in ElectricPort.prt.
+
+- Note that, as a capacitor, this component will act as an open circuit to DC. Because this 
+component does not include dynamics, expect it to act as a trivial open circuit in DC systems.
+
+- This component does not contain a node, and so starts each iteration with its port voltages 
+unknown. The concept in NPSS Power System Library is that all components that contain nodes 
+all have a prePass() method specified that pushes node voltage information, via their ports
+to all components that do not contain nodes and so do not know their voltages. The intent is 
+that after all component prePass methods are automatically called, all components in the 
+system will then have port voltages specified. Then during the normal iteration, components 
+that don't contain nodes such as this one, will execute first. These components typically 
+transmit power from one node to another and do not transform it from one kind to another 
+(e.g. cables and breaker). These execute first in the solver sequence, and inside their 
+calculate() methods, they calculate their currents, which are then passed via the ports, to 
+all other components in the circuit. So after these nodeless transmission components 
+execute, all electric port voltages and currents should be specified, and so all other 
+components are free to run.
+
+- This component is a circuit component and, at this time, has not been set up to include 
+thermal models.
+ 
+- Solver independents and dependents are not used in the " + isA() + " component, and there is 
+no sizing logic included in this component.";
   
   //------------------------------
   // ****** SETUP VARIABLES ******

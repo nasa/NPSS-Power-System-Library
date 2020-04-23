@@ -24,7 +24,8 @@ class ElectricElement extends Element {
   //------------------------------  
 
   // title = "";
-  // description = "The " + isA() + "";
+  description = "The " + isA() + " extends the generic NPSS Element class to include 
+  some useful properties specific to NPSS Power System Library components.";
   // usageNotes = isA() + "- NOTE TO USERS: This file....";
   // background = "";
 
