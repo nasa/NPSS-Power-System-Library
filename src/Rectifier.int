@@ -66,7 +66,7 @@ Doing these will add a temperature state (existing within EThermalMass) and a th
 the model. The thermal port is intended to connect this component to a second component that 
 represents the mechanism by which heat is extracted from this component. This second component 
 could represent a heat exchanger, cold plate, or just model heat transfer from the first 
-component to the surrounding environment. For more information, see EThermalMass."
+component to the surrounding environment. For more information, see EThermalMass.";
   
   //------------------------------
   // ****** SETUP VARIABLES ******
