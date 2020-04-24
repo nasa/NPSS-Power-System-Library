@@ -73,7 +73,7 @@ could represent a heat exchanger, cold plate, or just model heat transfer from t
 component to the surrounding environment. For more information, see EThermalMass.
 
 - Note, there is no sizing logic included in this component, other than the mass calculations 
-described above."
+described above.";
 
   //--------------------------------
   // ****** SETUP VARIABLES ********

@@ -54,7 +54,7 @@ components are free to run.
 thermal models.
  
 - Solver independents and dependents are not used in the " + isA() + " component, and there is 
-no sizing logic included in this component."
+no sizing logic included in this component.";
   
   
   //------------------------------
