@@ -25,10 +25,49 @@ class Cable extends ElectricElement {
 
   // title = "";
 
-  description = "The " + isA() + " determines power performance for cables.";
+  description = "The " + isA() + " is a cable model that does not include cable sizing logic. 
+It assumes a known resistance and inductance are specified and only includes performance 
+calculations.";
 
-  // usageNotes = isA() + "";
-  // background = "";
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are cable resistance and inductance (R and L), and mass 
+specific ampacity (SpecificAmperage). In other words, the cable impedance must be known to use 
+this component.
+
+- This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
+At instantiation, this component's power type is unspecified. NPSS Power System Components 
+need to have a power type in order to correctly run power calculations. For this component, 
+the power type is typically set by calling the findSourcesAndPropagate() method at the top 
+level assembly. This method is defined in ElectricPort.prt.
+
+- This component does not contain a node, and so starts each iteration with its port voltages 
+unknown. The concept in NPSS Power System Library is that all components that contain nodes 
+all have a prePass() method specified that pushes node voltage information, via their ports
+to all components that do not contain nodes and so do not know their voltages. The intent is 
+that after all component prePass methods are automatically called, all components in the 
+system will then have port voltages specified. Then during the normal iteration, components 
+that don't contain nodes such as this one, will execute first. These components typically 
+transmit power from one node to another and do not transform it from one kind to another 
+(e.g. cables and breaker). These execute first in the solver sequence, and inside their 
+calculate() methods, they calculate their currents, which are then passed via the ports, to 
+all other components in the circuit. So after these nodeless transmission components 
+execute, all electric port voltages and currents should be specified, and so all other 
+components are free to run.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass. 
+ 
+- Solver independents and dependents are not used in the " + isA() + " component, and there is 
+no sizing logic included in this component, other than the mass calculations described above.";
   
   //------------------------------
   // ****** SETUP VARIABLES ******

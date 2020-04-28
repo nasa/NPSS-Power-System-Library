@@ -24,10 +24,73 @@ class Motor extends ElectricElement {
   
   // title = "";
 
-  description = "The " + isA() + " determines motor power.";
+  description = "The " + isA() + " represents the performance of a generic motor. " +
+  "The motor is intended to run with an efficiency map subelement, plugged into its S_map " +
+  "socket.";
 
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
-  // background = "";
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower) and design efficiency 
+(effDes). This component will produce mechanical power at its shaft port equal to the input
+electrical power at the specified voltage and frequency times its operating efficiency.
+
+- When running ONDESIGN, this component will determine its design speed and design torque by 
+saving off the values at the shaft port. The operating efficiency will be effDes. When 
+running OFFDESIGN, the model will call its S_map subelement (if it exists), to look up the 
+efficiency at the current operating point. It will then run with that efficiency.
+
+- This component transforms power, from electrical power at its input port, to useful output 
+(load) power. Because this component represents a transformation of power, it includes a node. 
+Being a component including a node, its voltage is an indepedent variable. Note, there is no
+dependent to match with this independent within this component. Depending on the application, 
+users may want to add a dependent on their own, that ensures that the output shaft power is 
+equal to a demand value. Or there may be a dependent on a gas turbine component connected to
+the output shaft (a thrust, a shaft speed, or something else) that will balance the solver
+variables.
+
+- Note that, as a component that contains a node and has its voltage known at the beginning
+of the solverSequence, it uses its prePass() method to call the electrical port update 
+function to pass this voltage information to electrical components that it is connected to. 
+Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, they must be connected to power transmission components (cables 
+and breakers), and these transmission components must be run before node-bearing 
+transformation components like this one, as the transmission components will calculate and 
+populate these current values. Note that this design is intended to be analogous to a common 
+approach taken in fluid networks within NPSS rocket models.
+
+- The motor block contains variables intended to be used in a multi-design-point (MDP) 
+simulation. This MDP logic is intended to consist of several different assemblies containing 
+systems including this motor block; each one of these assemblies represents the same system 
+but running at a different design point (e.g. cruise, climb, and takeoff for a fixed wing 
+concept). To enable the solver variables that this component uses for MDP, set Option multiDes 
+to true. Then select a mission segment that represents the most important segment of the 
+mission to the design and give it initial guess values for design speed and torque. You will 
+also need to disable autoSetup in ind_NDes and dep_NDesSet or otherwise remove them from all 
+assemblies other than the main MDP one. Finally, then set up logic that copies design speed 
+and torque from the main assembly to the other MDP assemblies before each of them run, and 
+set up a solver pair at the top level that varies one or more of the design values in the main
+design assembly until conditions for that variable are met in another MDP assembly where that 
+variable must meet a constraint. This logic is intended to allow for cases where a motor must 
+be designed to support a maximum speed at one flight condition, but maximum torque at another. 
+For an example on setting up this MDP logic, see baseline_turboelectricMDP.run.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass.
+
+- The " + isA() + " component includes sizing logic in the form of its performance map. 
+this logic calculates mass as well as calculates the design torque and speed values. These 
+values are used by a performance map (if one is plugged into the S_map socket) to calculate 
+efficiency at the current operating point. For more information about performance maps for 
+this component, see MotorGeneratorMap.int";
   
   //------------------------------
   // ****** SETUP VARIABLES ******

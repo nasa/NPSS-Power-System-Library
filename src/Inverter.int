@@ -23,11 +23,51 @@ class Inverter extends ElectricElement {
   
   // title = "";
 
-  description = isA() + " Determines power for an inverter.";
+  description = "The " + isA() + " represents the performance of a generic DC-to-AC converter. " +
+  "This component is intended to run with an InverterRectifierMap subelement plugged into its " +
+  "S_map socket that represents its losses.";
 
-  // usageNotes = isA() + "- NOTE TO USERS: This file....";
-  // background = "";
-  
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower) and design efficiency 
+(eff). This component will transfer power from input to output, with losses according to its 
+design efficiency. ONDESIGN, it calculates its mass (Mass) by dividing its ONDESIGN input power 
+by its specific power.
+
+- This component transforms power, from DC power at its input port, to AC output power. 
+Because this component represents a transformation of power, it includes a node. Being a 
+component including a node, its voltage is an indepedent variable. It also features a 
+dependent that ensures that the electrical power at the input port, is sufficient to produce 
+the output power demanded, plus the losses in this component (EP_I.S.r * eff == Pdemand).
+
+- Also being a transformation component that involves AC power, this component features 
+multiple independents and dependents. The independents, ind_Vreal and ind_Vimag give the 
+solver the ability to vary the output voltage, such that the input/output power relationship, 
+dep_Power is met (Pout_real == Pin_real * eff), a well as the output voltage phase 
+relationship, dep_phase is met (Vout_phase == 0)
+
+- Note that, as a component that contains a node and has its voltage known at the beginning
+of the solverSequence, it uses its prePass() method to call the electrical port update 
+function to pass this voltage information to electrical components that it is connected to. 
+Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, they must be connected to power transmission components (cables 
+and breakers), and these transmission components must be run before node-bearing 
+transformation components like this one, as the transmission components will calculate and 
+populate these current values. Note that this design is intended to be analogous to a common 
+approach taken in fluid networks within NPSS rocket models.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass.";
+
   //------------------------------
   // ****** SETUP VARIABLES ******
   //------------------------------
