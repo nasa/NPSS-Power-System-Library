@@ -3,7 +3,6 @@ setThermoPackage("FPT");
 #include "ThermalDuct.int"
 #include "ThermalLoad.int"
 #include "ThermalTank.int"
-#include "ThermalEff.map"
 
 MODELNAME = "Thermal heat exchanger loop test";
 
@@ -24,6 +23,9 @@ Element FlowStart fs_air{
  Tt = 518.0;
  Pt = 14.504;
  W = 1.0;
+ void preexecute(){
+   W = TB_W( time );
+ }
 }
 
 Element FlowStart fs_coolant{
@@ -31,14 +33,13 @@ Element FlowStart fs_coolant{
  Tt = 550.0;
  Pt = 14.504;
  W = 0.5;
+ void preexecute(){
+   W = TB_W( time );
+ }
 }
 
 Element ThermalLoad Load{
   Q_in = 10;
-  // void preexecute(){
-  //   Q_in = TB_Q( time );
-  //   // cout<<Q_in<<endl;
-  // }
 }
 
 Element ThermalDuct thermal_duct{
@@ -55,14 +56,11 @@ Element ThermalTank volume{
 }
 
 Element ThermalHeatExchanger HEX{
-  Subelement ThermalEff S_EFFECT {}
-  // effect = 0.8;
+  #include <ThermalHEX_Air_PGW30.map>
+  // effectDes = 0.9;
 }
 
 Element FlowEnd fe_air{
-	void postexecute(){
-	  //cerr << "comp is " << Fl_I.comp << endl;
-	}
 }
 
 Element FlowEnd fe_coolant{
@@ -100,6 +98,11 @@ Table TB_Q( real time ){
     Q = { 0, 0, 10, 10 }
 }
 
+Table TB_W( real time ){
+    time = { 0.,5., 10., 15. }
+    W = { 0.5, 0.5, 0.75, 0.75 }
+}
+
 // solver.addIndependent( "ind_T" );
 // solver.addDependent( "dep_T" );
 cout << solverSequence << endl;
@@ -121,11 +124,23 @@ cout << "volume_Vol_coolant = " << (volume.mass) << endl;
 
 cout << "thermal_duct_W_coolant = " << (thermal_duct.Fl_O.W) << endl;
 cout << "volume_W_coolant = " << (volume.Fl_O.W) << endl;
-cout << "HEX_W_coolant = " << (HEX.Fl_O1.W) << endl;
+cout << "HEX_W1_coolant = " << (HEX.Fl_I1.W) << endl;
+cout << "HEX_W2_coolant = " << (HEX.Fl_I2.W) << endl;
+cout << "HEX_effectiveness = " << (HEX.effect) << endl;
+cout << "HEX_AU = " << (HEX.AU) << endl;
 
+cout << "HEX_dPqP1_map = " << (HEX.S_map.dPqP1Map) << " s_dPqP1 = " << (HEX.S_map.s_dPqP1) <<" dPqP1 = "<< HEX.dPqP1 <<endl;
+cout << "HEX_dPqP2_map = " << (HEX.S_map.dPqP2Map) << " s_dPqP2 = " << (HEX.S_map.s_dPqP2) <<" dPqP2 = "<< HEX.dPqP2 <<endl;
+cout << "HEX_W1_map = " << (HEX.S_map.W1Map) << endl;
+cout << "HEX_W2_map = " << (HEX.S_map.W2Map) << endl;
+cout << "HEX_effect_map = " << (HEX.S_map.effectMap) << endl;
+
+cout << "s_W1 = " << (HEX.S_map.s_W1) << endl;
+cout << "s_W2 = " << (HEX.S_map.s_W2) << endl;
+cout << "s_effect = " << (HEX.S_map.s_effect) << endl;
 
 cout << "Q_net = " << (Load.Q_net) << endl;
-
+cout<<"Done"<<endl;
 /////////////////////////////////////////////////////
 //
 //               Transient Runs
@@ -187,6 +202,14 @@ int printCounter = 0;
       cout << "T_load, "<< thermal_duct.Fl_O.Tt << ", ";
       cout << "T_vol, " << volume.Fl_O.Tt << ", ";
       cout << "T_HEX, " << HEX.Fl_O1.Tt << ", ";
+      cout << "effect, " << HEX.effect << ", ";
+      cout << "dPqP1, " << HEX.dPqP1 << ", ";
+      cout << "dPqP2, " << HEX.dPqP2 << ", ";
+      cout << "W1, " << HEX.Fl_I1.W << ", ";
+      cout << "W2, " << HEX.Fl_I2.W << ", ";
+      // cout << "W1Map, " << HEX.S_map.W1Map << ", ";
+      // cout << "W2Map, " << HEX.S_map.W2Map << ", ";
+      // cout << "CR, " << HEX.CR << ", ";
       cout << "Vol_Tank, " << volume.mass << endl;
     }
   }
