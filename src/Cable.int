@@ -85,12 +85,12 @@ no sizing logic included in this component, other than the mass calculations des
     value = 1;  IOstatus = "input";  units = "m"; // [meters]
   }
 
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
@@ -100,7 +100,7 @@ no sizing logic included in this component, other than the mass calculations des
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 0; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Mass output of the cable.";
   }

@@ -30,6 +30,30 @@ class ElectricElement extends Element {
   // background = "";
 
   int containsNode = FALSE;
+
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
+
+  real Mass {
+    value = 0.0; IOstatus = "output"; units = "kg"; // [kilograms]
+    description = "Computed on-design mass.";
+  }
+
+  real eff {
+    value = 1.0; IOstatus = "input"; units = "none";
+    description = "Performance efficiency.";
+  }
+
+  real Loss_r {
+    value = 0.0; IOstatus = "output"; units = "W";
+    description = "Active power loss.";
+  }
+
+  real Loss_j {
+    value = 0.0; IOstatus = "output"; units = "W";
+    description = "Reactive power loss.";
+  }
 }
-class eElement extends ElectricElement;
+
 #endif

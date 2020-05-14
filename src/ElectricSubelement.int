@@ -1,0 +1,32 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     ElectricSubelement.int                                       |
+ | Author(s):     Jonathan Fuzaro Alencar                                      |
+ | Date(s):       March 2020                                                   |
+ |                                                                             |
+ | Description:   Serves as an electric subelement.                            |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef __ELECTRIC_SUBELEMENT__
+#define __ELECTRIC_SUBELEMENT__
+
+class ElectricSubelement extends Subelement {
+  //------------------------------
+  // ****** DOCUMENTATION ********
+  //------------------------------  
+
+  // title = "";
+  // description = "The " + isA() + "";
+  // usageNotes = isA() + "- NOTE TO USERS: This file....";
+  // background = "";
+
+  socketRequired = 0;
+}
+#endif

@@ -2,7 +2,7 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                     |
+ | 21000 Brookpark Rd                                                          |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     AeroCable.int                                                |
@@ -108,12 +108,12 @@ current information is updated in the cable's input and output ports.";
   }
 
   // will add losses in future releases.
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
     description = "Cable loss.";
   }
@@ -123,7 +123,7 @@ current information is updated in the cable's input and output ports.";
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 1; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Mass output of the cable.";
   }
