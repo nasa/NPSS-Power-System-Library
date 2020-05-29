@@ -101,7 +101,7 @@ current information is updated in the breaker's input and output ports.";
     value = .0000796;  IOstatus = "input";  units = "H"; // [henrys]
   }
   
-  real eff {
+  eff {
     value = 1.;  IOstatus = "input";  units = "none";
     description = "Efficiency at current point.";
   }
@@ -116,14 +116,14 @@ current information is updated in the breaker's input and output ports.";
     description = "Power to weight ratio for the component.";
   }
   
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
-    description = "Cable loss.";
+    description = "Breaker loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "W"; // [watts]
-    description = "Cable loss.";
+    description = "Breaker loss.";
   }
 
   real Q_heat {
@@ -131,7 +131,7 @@ current information is updated in the breaker's input and output ports.";
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 0; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Mass output of the cable.";
   }

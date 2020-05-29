@@ -27,7 +27,7 @@ string sourceComponents[] = { "Source", "Generator" };
 string loadComponents[] = { "Motor", "ConstantPowerLoad" };
 string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 
-class ElectricPort extends ElectricElement {
+class ElectricPort extends Subelement {
   
   //------------------------------
   // ****** DOCUMENTATION ********
@@ -43,6 +43,8 @@ class ElectricPort extends ElectricElement {
   //--------------------------------
 
   #include "PropagatePower.fnc"
+
+  socketRequired = 0;
 
   ComplexNumber V {
     lock = TRUE;	
@@ -112,10 +114,10 @@ class ElectricPort extends ElectricElement {
   
   // copy the port information
   void copyport() {
-    V.copy(refport+".V");
-    I.copy(refport+".I");
-    S.copy(refport+".S");
-    VLN.copy(refport+".VLN");
+    V.copy(refport + ".V");
+    I.copy(refport + ".I");
+    S.copy(refport + ".S");
+    VLN.copy(refport + ".VLN");
     
     if (refport->frequency == 0) {
       refport->frequency = frequency;
@@ -219,6 +221,7 @@ class ElectricPort extends ElectricElement {
 class ElectricInputPort extends ElectricPort;
 class ElectricOutputPort extends ElectricPort;
 
+// finds valid defined sources and propagates their power type
 void findSourcesAndPropagate() {
 
   string portComponent;
@@ -240,4 +243,5 @@ void findSourcesAndPropagate() {
     }
   }
 }
+
 #endif

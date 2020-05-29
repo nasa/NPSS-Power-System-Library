@@ -93,7 +93,7 @@ this component, see MotorGeneratorMap.int";
     description = "Current angle.";
   }
 
-  real eff {
+  eff {
     value = 1.; IOstatus = "input"; units = "none";
     description = "Projected efficiency of the cable.";
   }
@@ -118,12 +118,12 @@ this component, see MotorGeneratorMap.int";
     description = "Resistance of generator (based on efficiency).";
   }
 
-  real Loss_j {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW";
     description = "Generator loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "kW";
     description = "Generator loss.";
   }
@@ -133,7 +133,7 @@ this component, see MotorGeneratorMap.int";
     description = "Power dissipation at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg";
     description = "Mass output of the generator.";
   }

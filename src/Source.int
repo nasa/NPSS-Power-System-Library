@@ -115,7 +115,7 @@ this component, see MotorGeneratorMap.int";
     description = "Actual (calculated) power factor at output of this source element.";
   }
 
-  real eff {
+  eff {
     value = 0.95; IOstatus = "output"; units = "none";
     description = "Actual (calculated) efficiency of this source element.";
   }
@@ -133,12 +133,12 @@ this component, see MotorGeneratorMap.int";
     description = "Output frequency";
   }
 
-  real Loss_r {
+  Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Real component of losses in this load.";
   }
 
-  real Loss_j {
+  Loss_j {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Imaginary component of losses in this load.";
   }
@@ -188,9 +188,9 @@ this component, see MotorGeneratorMap.int";
     description = "Energy to weight ratio for the source.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
-    description = "Mass computed on-design for the source.";
+    description = "Computed on-design mass for the source.";
   }
 
   //------------------------------------
@@ -313,7 +313,7 @@ this component, see MotorGeneratorMap.int";
         energyDes = energy;
       }
 
-      real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
+      real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
 
       if (energyBasedMass > powerBasedMass) {

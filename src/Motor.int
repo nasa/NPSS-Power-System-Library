@@ -101,7 +101,7 @@ this component, see MotorGeneratorMap.int";
     description = "Current.";
   }
   
-  real eff {
+  eff {
     value = 1.; IOstatus = "output"; units = "none";
     description = "Adiabatic efficiency.  Equal to effDes during design, and effBase during off design.";
   }
@@ -121,12 +121,12 @@ this component, see MotorGeneratorMap.int";
     description = "Generator Frequency.";
   }
   
-  real Loss_j {
+  Loss_r {
     value = 0; units = "kW"; // [kilowatts]
     description = "Motor loss.";
   }
 
-  real Loss_r {
+  Loss_j {
     value = 0; units = "kW"; // [kilowatts]
     description = "Motor loss.";
   }
@@ -136,7 +136,7 @@ this component, see MotorGeneratorMap.int";
     description = "Power dissipation in BTU/s at current time.";
   }
 
-  real Mass {
+  Mass {
     value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Mass output of the motor.";
   }
@@ -172,7 +172,7 @@ this component, see MotorGeneratorMap.int";
   }
   
   real SpecificPower {
-    value = 13; IOstatus = "input";
+    value = 13; IOstatus = "input"; units = "kW/kg";
     description = "Power to weight ratio for the motor.";
   }
   
