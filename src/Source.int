@@ -313,7 +313,7 @@ this component, see MotorGeneratorMap.int";
         energyDes = energy;
       }
 
-      real energyBasedMass = (energyDes/1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
+      real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
 
       if (energyBasedMass > powerBasedMass) {
