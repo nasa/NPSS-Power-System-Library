@@ -96,7 +96,6 @@ W. M. Kays and A. L. London, The National Press, 1984.
     value = 0;  IOstatus = INPUT;  units = NONE;
     description = "Normalized pressure loss 2 (used to temporarily store values returned from the pressure loss sockets)";
   }
-
   real dPqP2{
     value = 0;  IOstatus = INPUT;  units = NONE;
     description = "Pressure loss in stream2";
@@ -128,6 +127,10 @@ W. M. Kays and A. L. London, The National Press, 1984.
    real Q_dmd {
     value = 0;  IOstatus = OUTPUT;  units = BTU_PER_SEC;
     description = "Demand vale of Q from customer socket";
+   }
+   real weight {
+    value = 0;  IOstatus = OUTPUT;  units = LBM;
+    description = "Heat exchanger weight";
    }
 
    // Option variables
@@ -296,7 +299,12 @@ W. M. Kays and A. L. London, The National Press, 1984.
     //------------------------------------------------------------------
     // Calculate the Q
     //------------------------------------------------------------------
+
     Q = ( Fl_O2.ht - Fl_I2.ht )* Fl_I2.W;
+    if(switchDes == DESIGN) {
+      weight = (Q * 0.5207 + 1.863)*2.2;
+    }
+
   }
 }
 
