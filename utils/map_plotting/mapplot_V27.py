@@ -28,8 +28,8 @@ cdict = {'red': ( (0.0, 0.0, 0.0),
 my_cmap = matplotlib.colors.LinearSegmentedColormap('my_colormap',cdict,256)
 '''
 
-# execfile("map_plotting/mapCompList.txt")
-exec(open("map_plotting/mapCompList.txt").read())
+# execfile("output/mapCompList.txt")
+exec(open("output/mapCompList.txt").read())
 
 
 
@@ -261,7 +261,7 @@ def plot_motorgenerator_submap():
 
    # plot efficiency contours
    if overlay != 1:
-      pylab.contourf( TRQ, SPD, EFF )
+      pylab.contourf( SPD, TRQ, EFF )
       pylab.colorbar()
       #pylab.contourf( TRQ, SPD, EFF, Veff, cmap=pylab.cm.spectral )
       #pylab.contourf( TRQ, SPD, EFF, Veff, colors=linecolors )
@@ -270,13 +270,12 @@ def plot_motorgenerator_submap():
    # plot operating points
    if plot_op_points == 1:
       for pnt in op_points:
+         print('Scaling the points')
+         plot_x = pnt[2]
+         plot_y = pnt[1]
          if scaled_map == 1:
-            plot_x = pnt[1]
-            plot_y = pnt[2]
-         else:
-            plot_x = pnt[1]/scalars[0]
-            plot_y = (pnt[2]-1.)/scalars[1] + 1.
-
+            plot_x = plot_x * s_N
+            plot_y = plot_y * s_trq
          pylab.plot( plot_x, plot_y, color='black', marker='o', markersize=8. )
 
 
@@ -291,9 +290,12 @@ def plot_motorgenerator_submap():
    yloc = yMin + ( yMax - yMin )*0.90
    if scaled_map == 0:
       pylab.text( xloc, yloc, 'UNSCALED MAP', color='blue' )
+      pylab.xlabel('machine speed, per-unit')
+      pylab.ylabel('machine torque, per-unit')
+   else:
+      pylab.xlabel('machine speed, rpm')
+      pylab.ylabel('machine torque, N-m')
 
-   pylab.xlabel('machine torque, per-unit')
-   pylab.ylabel('machine speed, per-unit')
 
    if overlay == 0:
       pylab.title( mapname + ' map characteristics, alpha = ' + str(submap[0]) )
