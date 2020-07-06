@@ -188,6 +188,11 @@ this component, see MotorGeneratorMap.int";
     description = "Energy to weight ratio for the source.";
   }
 
+  real C_rate {
+    value = 130; IOstatus = "input"; units = "none"; // [-]
+    description = "Computed on-design C-rate for the source.";
+  }
+
   Mass {
     value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
     description = "Computed on-design mass for the source.";
@@ -321,6 +326,9 @@ this component, see MotorGeneratorMap.int";
       } else {
         Mass = powerBasedMass; // compute mass based on assumed specific power
       }
+
+      C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
+
     } else {
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
