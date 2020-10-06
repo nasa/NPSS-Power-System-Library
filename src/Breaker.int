@@ -161,6 +161,7 @@ current information is updated in the breaker's input and output ports.";
   ComplexNumber Z;
   ComplexNumber I;
   ComplexNumber S;
+  ComplexNumber dS;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -279,11 +280,16 @@ current information is updated in the breaker's input and output ports.";
       // do the component performance/design calculations.
       if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
 
+        // For DC, it is assumed separate 2 breaker units are included,
+        // one on the positive and one on the negative conductor.
+        // This means the efficiency must be counted twice (squared) //BPM: what?
+        // and the mass must be counted twice (multiplied by 2)
+
         // calculate this component load power
-        real dc_efficiency = effDes;
+        real dc_efficiency = effDes**2;
         S.setrj(EP_I.S.r * dc_efficiency,  0.);
         
-        // calculate mass
+        // calculate mass 
         Mass = 2.*EP_I.S.mag / SpecificPower;
         
         // calculate this component load side voltage
@@ -296,13 +302,14 @@ current information is updated in the breaker's input and output ports.";
         // calculate this component impedance
         R = (dV.r) / (EP_I.I.r);
         L = 0;
-        Z.setrj(R,  L * (2*PI*EP_I.frequency));
+        Z.setrj(R,  0);
 
       } else if (((EP_I.ElectricPowerType == "AC")  && (EP_O.ElectricPowerType == "AC")) || 
             ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3"))) {
         
         // calculate this component load power
         S.setrj(EP_I.S.r * effDes,  EP_I.S.j * effDes);
+
         
         // calculate this component mass
         Mass = EP_I.S.mag / SpecificPower;
@@ -317,8 +324,8 @@ current information is updated in the breaker's input and output ports.";
         }
         
         // calculate this component load side voltage
-        V.copy("S");
-        V.scale(1000.);
+        V.copy("S");//BPM: V=S?  GT: yes.
+        V.scale(1000.);//BPM: to make V (S) into kW instead of W?
         V.div("I"); // after this calculation, V will store the line-to-neutral voltage at the output of the breaker
         
         // get calculated voltage drop based on design efficiency (grab input side voltage and subtract off the calculated output voltage).
@@ -335,9 +342,10 @@ current information is updated in the breaker's input and output ports.";
         if (EP_I.ElectricPowerType == "AC") {
         }
         else if (EP_I.ElectricPowerType == "AC3") {
-          I.scale(1. / 3.);
+          //I.scale(1. / 3.); // BPM: was I.scale(1. / 3.)//BPM: commented this out!
         }
       }
+      
     } else { // off-design
       // calculate current from voltage drop
       Z.setrj(R,  L * (2*PI*EP_I.frequency));
@@ -345,7 +353,7 @@ current information is updated in the breaker's input and output ports.";
       dV.copy("EP_I.VLN");
       dV.minus("EP_O.VLN");	
       I.copy("dV");
-      I.div("Z");
+      I.div("Z");//BPM: dv/Z = I
     }
     
     // calculate voltage drop that may be used in solver during on-design.
