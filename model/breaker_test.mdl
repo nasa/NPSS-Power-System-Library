@@ -98,9 +98,15 @@ linkPortI( "DCBreaker.EP_O", "DCS.EP_I" );
 void printOutput() 
 {
 	cout << "CASE #" << CASE++ << endl;
-	cout << "AC R+jX = " << ACBreaker.R << "+j" << ACBreaker.L*(2*PI*ACBreaker.EP_I.frequency);
+	cout << " AC Breaker Efficiency = " << ACBreaker.eff << endl;
+	cout << " AC Breaker Designed Efficiency = " << ACBreaker.effDes << endl;
+	cout << " DC Breaker Efficiency = " << DCBreaker.eff << endl;//BPM: (DCPOut/DCPOut)^2 = DC eff
+	cout << " DC Breaker Designed Efficiency = " << DCBreaker.effDes << endl;
+	cout << "AC R+jX = " << ACBreaker.R << "+j" << ACBreaker.L*(2*PI*ACBreaker.EP_I.frequency) << endl;
 	cout << " ACS.EP_O.VLN " << ACS.EP_O.VLN.r << "+j" << ACS.EP_O.VLN.j;
-	cout << " ACS.EP_O.VLN (polar) " << ACS.EP_O.VLN.mag << " angle " << ACS.EP_O.VLN.phaseDeg;
+	cout << " ACS.EP_O.VLN (polar) " << ACS.EP_O.VLN.mag << " angle " << ACS.EP_O.VLN.phaseDeg << endl;
+	cout << " ACS.EP_I.VLN " << ACS.EP_I.VLN.r << "+j" << ACS.EP_I.VLN.j;
+	cout << " ACS.EP_I.VLN (polar) " << ACS.EP_I.VLN.mag << " angle " << ACS.EP_I.VLN.phaseDeg << endl;	
 	cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
 	cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
 	cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;

@@ -282,7 +282,7 @@ current information is updated in the breaker's input and output ports.";
 
         // For DC, it is assumed separate 2 breaker units are included,
         // one on the positive and one on the negative conductor.
-        // This means the efficiency must be counted twice (squared) //BPM: what?
+        // This means the efficiency must be counted twice (squared) 
         // and the mass must be counted twice (multiplied by 2)
 
         // calculate this component load power
@@ -290,7 +290,7 @@ current information is updated in the breaker's input and output ports.";
         S.setrj(EP_I.S.r * dc_efficiency,  0.);
         
         // calculate mass 
-        Mass = 2.*EP_I.S.mag / SpecificPower;
+        Mass = 2.*EP_I.S.mag / SpecificPower;//BPM: kW/(kW/kg) = kg
         
         // calculate this component load side voltage
         V.setrj(1000.*S.r / EP_I.I.r,  0);
