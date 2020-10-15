@@ -1,0 +1,137 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     breaker_test.mdl                                               |
+ | Author(s):	    George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       February 2019                                                |
+ |                                                                             |
+ | Description:   Run the Breaker element on and off-design.                     |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+class Source extends Element{//BPM: class defined here.
+	ElectricOutputPort EP_O;
+	ElectricInputPort EP_I;
+	real Vreal = 500.;
+	real Vimag = 0.;
+	real Pdes = 1000.;
+	real PFdes = 0.95;
+	
+	Independent ind_Vreal {//Independent variable is varied by NPSS solver. 
+		varName = "Vreal"; 
+		autoSetup = TRUE;
+		a = 10000.;//BPM: ignore "a."
+	}
+	
+	Independent ind_Vimag { 
+		varName = "Vimag"; 
+		autoSetup = TRUE;
+		a = 10000.;
+	}
+	
+	Dependent dep_Power{
+		eq_rhs="EP_O.S.rRMS";//BPM: Electric port_output_complex power_ real component
+		eq_lhs="Pdes";//BPM VReal varied by solver until eq_rhs = eq_lhs ("right side = left side")
+		autoSetup=TRUE;
+	}
+	
+	Dependent dep_PF{
+		eq_rhs="cos(EP_O.S.phase)";
+		eq_lhs="PFdes";
+		autoSetup=TRUE;
+	}
+}
+
+real defaultFrequency = 400.;
+
+Source ACS{
+	// Set up frequency
+	EP_O.frequency = defaultFrequency;
+	EP_I.frequency = defaultFrequency;
+	void prePass(){
+		//EP_O.setIVRMS( 0, 0., 15., 8.66025403784438); // This is the VLL representation of VLN = 10+j0
+		EP_O.setIVRMS( 0, 0., 1000., 0.);
+		EP_I.setIVRMS( 0, 0., Vreal, Vimag );
+	}
+}
+Element Breaker ACBreaker {//ACBreaker = instance of element Breaker
+	effDes=0.995;
+  	SpecificPower=250.0;
+}
+
+ACS.EP_O.setOption("ElectricPowerType","AC3");
+ACS.EP_I.setOption("ElectricPowerType","AC3");
+ACBreaker.EP_O.setOption("ElectricPowerType","AC3");
+ACBreaker.EP_I.setOption("ElectricPowerType","AC3");
+
+
+Source DCS{
+	// No imaginary stuff for a DC source
+	ind_Vimag.autoSetup = FALSE;
+	dep_PF.autoSetup = FALSE;
+	void postexecute(){
+		EP_O.setIVRMS( 0, 0., 1000., 0.);//BPM: Re and Im of I and Re and Im of V, respectively.
+		EP_I.setIVRMS( 0, 0., Vreal, 0. );//BPM: solver varies Vreal until dependent conditions met.
+	}
+}
+Element Breaker DCBreaker {
+	effDes=0.995;
+  	SpecificPower=250.0;
+}
+
+DCS.EP_O.setOption("ElectricPowerType","DC");
+DCS.EP_I.setOption("ElectricPowerType","DC");
+DCBreaker.EP_O.setOption("ElectricPowerType","DC");
+DCBreaker.EP_I.setOption("ElectricPowerType","DC");
+
+linkPortI( "ACS.EP_O", "ACBreaker.EP_I" );
+linkPortI( "ACBreaker.EP_O", "ACS.EP_I" );
+linkPortI( "DCS.EP_O", "DCBreaker.EP_I" );
+linkPortI( "DCBreaker.EP_O", "DCS.EP_I" );
+
+
+void printOutput() 
+{
+	cout << "CASE #" << CASE++ << endl;
+	cout << " AC Breaker Efficiency = " << ACBreaker.eff << endl;
+	cout << " AC Breaker Designed Efficiency = " << ACBreaker.effDes << endl;
+	cout << " DC Breaker Efficiency = " << DCBreaker.eff << endl;//BPM: (DCPOut/DCPOut)^2 = DC eff
+	cout << " DC Breaker Designed Efficiency = " << DCBreaker.effDes << endl;
+	cout << "AC R+jX = " << ACBreaker.R << "+j" << ACBreaker.L*(2*PI*ACBreaker.EP_I.frequency) << endl;
+	cout << " ACS.EP_O.VLN " << ACS.EP_O.VLN.r << "+j" << ACS.EP_O.VLN.j;
+	cout << " ACS.EP_O.VLN (polar) " << ACS.EP_O.VLN.mag << " angle " << ACS.EP_O.VLN.phaseDeg << endl;
+	cout << " ACS.EP_I.VLN " << ACS.EP_I.VLN.r << "+j" << ACS.EP_I.VLN.j;
+	cout << " ACS.EP_I.VLN (polar) " << ACS.EP_I.VLN.mag << " angle " << ACS.EP_I.VLN.phaseDeg << endl;	
+	cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+	cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
+	cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
+	cout << " \t PF at Breaker input = " << cos(ACS.EP_O.S.phase) << endl;
+	cout << "DC R = " << DCBreaker.R;
+	cout << " \t\t\t  DCVout = " << DCS.Vreal;
+	cout << " \t\t DCPin = " << DCS.EP_O.S.r;
+	cout << " \t\t\t DCPout = " << DCS.EP_I.S.r << endl;
+
+	cout << "AC: dV_calc =" << ACBreaker.Vreal_drop;
+	cout << "+j" << ACBreaker.Vimag_drop;
+	cout << "\t  dV_meas =" << ACBreaker.EP_I.VLN.r - (ACBreaker.EP_O.VLN.r);
+	cout << "+j" << ACBreaker.EP_I.VLN.j - (ACBreaker.EP_O.VLN.j);
+	cout << " \t dV_error =" << ACBreaker.EP_I.VLN.r - (ACBreaker.EP_O.VLN.r+ACBreaker.Vreal_drop);
+	cout << "+j" << ACBreaker.EP_I.VLN.j - (ACBreaker.EP_O.VLN.j+ACBreaker.Vimag_drop);
+	cout << " \t\t\t I =" << ACBreaker.EP_O.I.r;
+	cout << "+j" << ACBreaker.EP_O.I.j  << endl;
+
+	cout << "DC: dV_calc =" << DCBreaker.Vreal_drop;
+	cout << "+j" << DCBreaker.Vimag_drop;
+	cout << "   \t\t  dV_meas =" << DCBreaker.EP_I.VLN.r - (DCBreaker.EP_O.VLN.r);
+	cout << "+j" << DCBreaker.EP_I.VLN.j - (DCBreaker.EP_O.VLN.j);
+	cout << "   \t dV_error =" << DCBreaker.EP_I.VLN.r - (DCBreaker.EP_O.VLN.r+DCBreaker.Vreal_drop);
+	cout << "+j" << DCBreaker.EP_I.VLN.j - (DCBreaker.EP_O.VLN.j+DCBreaker.Vimag_drop);
+	cout << " \t\t\t I =" << DCBreaker.EP_O.I.r;
+	cout << "+j" << DCBreaker.EP_O.I.j  << endl << endl;
+
+}
