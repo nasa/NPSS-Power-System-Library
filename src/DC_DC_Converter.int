@@ -200,8 +200,9 @@ component to the surrounding environment. For more information, see EThermalMass
   }
   
   Dependent dep_Power {
-    eq_lhs = "EP_O.S.rRMS";
-    eq_rhs = "EP_I.S.rRMS * eff";
+    // eq_lhs = "EP_O.S.rRMS"; 
+    eq_lhs = "(EP_O.S.rRMS/EP_I.S.rRMS )**sign(EP_O.S.rRMS)";
+    eq_rhs = "eff";
     autoSetup = TRUE;
   }
   

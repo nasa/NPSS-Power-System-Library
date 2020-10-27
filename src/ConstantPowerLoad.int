@@ -193,8 +193,10 @@ described above.";
   }
 
   Dependent dep_power {
-    eq_lhs = "EP_I.S.r * eff";
-    eq_rhs = "Pdemand";
+    // eq_lhs = "EP_I.S.r * eff";
+    // eq_rhs = "Pdemand";
+    eq_lhs = "(Pdemand/EP_I.S.rRMS )**sign(Pdemand)";
+    eq_rhs = "eff";
     autoSetup = TRUE;
   }
 
@@ -232,7 +234,7 @@ described above.";
   
   void calculate() {
     pf = cos(EP_I.S.phase);
-    P = EP_I.S.r * eff;
+    P = EP_I.S.r * eff**sign(EP_I.S.r);
     Loss_r = EP_I.S.r - P;
     Loss_j = EP_I.S.j;
 
