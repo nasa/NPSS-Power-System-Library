@@ -17,6 +17,8 @@
 #ifndef __DC_DC_CONVERTER__
 #define __DC_DC_CONVERTER__
 
+#include "PSL_math.fnc"
+
 class DC_DC_Converter extends ElectricElement {
 
   //----------------------------
