@@ -14,7 +14,6 @@
 
 #ifndef __SOURCE__
 #define __SOURCE__
-
 #include "PSL_math.fnc" 
 
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
