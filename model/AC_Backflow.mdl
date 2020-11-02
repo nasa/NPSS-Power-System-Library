@@ -1,0 +1,200 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     AC_Backflow.mdl                                              |
+ | Author(s):	  George Thomas, Brian Malone              			           |
+ | Date(s):       october 2020                                                 |
+ |                                                                             |
+ | Description:   AC single-phase model with backflow                          |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+cout<<"======================================="<<endl;
+cout<<"   MODEL WITH INVERTER AND BACKFLOW    "<<endl;
+cout<<"======================================="<<endl;
+
+#ifdef THERMO
+    cout << "THERMO" << endl;
+    setThermoPackage("$THERMO");
+#elseif
+    cout << "GasTbl" << endl;
+    setThermoPackage("GasTbl");
+#endif
+
+/**************************
+Electric Power System Components
+**************************/
+Element Shaft Generator_Shaft 
+{
+	Nmech=1000;   // rpm
+    HPX = -10; 
+	ShaftInputPort Sh1_I;
+    Independent ind_HP 
+    {
+        varName = "HPX";
+        description = "Independent to vary extracted horsepower (power delivered by generator)";
+        autoSetup = TRUE;
+    }	
+}
+
+Element Generator G 
+{
+	Vbus_LL=1000;	
+	effDes=0.95;
+	SpecificPower=10.;
+	frequency=400; // Hz
+}
+
+Element AeroCable Cable1 {
+	length=1; // m
+}
+
+Element Enode Busbar
+{
+    ElectricInputPort EP_I;
+	ElectricOutputPort EP_O1;
+    ElectricOutputPort EP_O2;
+	frequency = 400;
+}
+
+Element Breaker B_CPL
+{
+  effDes=0.95;
+  SpecificPower=10.0; 
+}
+
+Element Rectifier AC_DC
+{
+  effDes = .95;
+  pwrDes = 10.; // kW
+  frequency = 400.;
+}
+
+Element AeroCable Cable1_CPL 
+{
+	// R = 0.1; //Ohms
+	// L = 0; //Henries
+    length=1; // m
+}
+
+Element Inverter Inv1 
+{
+  effDes = .95;
+  pwrDes = 10.;
+  frequency=400;
+}
+
+Element AeroCable Cable2_CPL 
+{
+	// R = 0.1; //Ohms
+	// L = 0; //Henries
+    length=1; // m
+}
+
+Element ConstantPowerLoad CLoad
+{
+    Pdemand  = 10; //kW
+    eff = 0.95;
+}	
+
+Element Breaker B_Motor
+{
+  effDes=0.95;
+  SpecificPower=10.0; 
+}
+
+Element Motor E_Motor 
+{
+	 effDes=0.95;
+	 powerfactor=0.98;
+	 SpecificPower=10.0; 
+	 frequency = 400.;
+	 Vreal = 1000.;
+     Vimag = 0;
+}
+
+Element Shaft Motor_Shaft 
+{
+	Nmech=1000;   // rpm
+    HPX = -10/0.746; // 10 kW 
+	ShaftInputPort Sh1_I;
+}				
+
+//-------------------------------------------------------------------------------------------------
+// Component Linkages
+//-------------------------------------------------------------------------------------------------
+linkPorts( "Generator_Shaft.Sh1_I", "G.Sh_O", "Generator_Shaft_Connection" );
+linkPortI( "G.EP_O", "Cable1.EP_I" );
+linkPortI( "Cable1.EP_O", "Busbar.EP_I" );
+linkPortI( "Busbar.EP_O1", "B_CPL.EP_I" );
+linkPortI( "Busbar.EP_O2", "B_Motor.EP_I" );
+linkPortI( "B_CPL.EP_O", "AC_DC.EP_I" );
+linkPortI( "AC_DC.EP_O", "Cable1_CPL.EP_I" );
+linkPortI( "Cable1_CPL.EP_O", "Inv1.EP_I" );
+linkPortI( "Inv1.EP_O", "Cable2_CPL.EP_I" );
+linkPortI( "Cable2_CPL.EP_O", "CLoad.EP_I" );
+linkPortI( "B_Motor.EP_O", "E_Motor.EP_I" );
+linkPorts( "Motor_Shaft.Sh1_I", "E_Motor.Sh_O",  "Motor_Shaft_Connection");
+
+findSourcesAndPropagate();
+cout << " This is the solver sequence " << solverSequence;
+
+solverSequence = {"Cable1",
+"B_CPL",
+"Cable1_CPL",
+"Cable2_CPL",
+"B_Motor",
+"Generator_Shaft",
+"G",
+"Busbar",
+"AC_DC",
+"Inv1",
+"CLoad",
+"E_Motor",
+"Motor_Shaft" }
+
+void AC_BFPrintOutput() 
+{
+    cout << " Case = " << CASE;
+}
+
+// Initial independent variable guesses are here. 
+Cable1_CPL.Ireal = 5;
+Cable1_CPL.Iimag = 0;
+Cable2_CPL.Ireal = 3;
+Cable2_CPL.Iimag = 0;  
+CLoad.Vreal = 940;
+CLoad.Vimag = 0;
+Cable1.Ireal = 6;
+Cable1.Iimag = 0;
+B_CPL.Ireal = 3;
+B_CPL.Iimag = 0;
+Busbar.VrealRMS = 998;
+Busbar.VimagRMS = 0;
+AC_DC.Vreal= 995;
+AC_DC.Vimag = 0;
+Inv1.Vimag = 950;
+Inv1.Vimag = 0;
+B_Motor.Ireal = 3;
+B_Motor.Iimag = 0;
+/* All of these need initial values:
+{
+"Cable1.ind_Ireal",
+"Cable1.ind_Iimag",
+"B_CPL.ind_Ireal",
+"B_CPL.ind_Iimag",
+"B_Motor.ind_Ireal",
+"B_Motor.ind_Iimag",
+"Busbar.ind_Vimag",
+"Busbar.ind_Vreal",
+"AC_DC.ind_Vimag",
+"AC_DC.ind_Vreal",
+"Inv1.ind_Vimag",
+"Inv1.ind_Vreal"
+}
+*/
