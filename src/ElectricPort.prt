@@ -221,6 +221,10 @@ class ElectricPort extends Subelement {
 class ElectricInputPort extends ElectricPort;
 class ElectricOutputPort extends ElectricPort;
 
+// Component list produced by crawling over the circuit graph in propagatePower();
+// may be used by viewer files, etc.
+string powerComponentListSourceToLoad[];
+
 // finds valid defined sources and propagates their power type
 void findSourcesAndPropagate() {
 
@@ -241,7 +245,7 @@ void findSourcesAndPropagate() {
              << " is a source with undefined power type!\n";
       }
     }
-  }
+  } cout << powerComponentListSourceToLoad << endl; quit();
 }
 
 #endif

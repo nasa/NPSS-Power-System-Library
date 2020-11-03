@@ -24,6 +24,16 @@ void propagatePower() {
 
   while (!sourceComponents.contains(portComponent)
           && !loadComponents.contains(portComponent)) {
+    string parentComponent = port->parent.getPathName();
+    // Update ordered list of components as we go as well.
+    // If the first component we've crawled, just put it straight into the list
+    if (powerComponentListSourceToLoad.entries() < 1) {
+      powerComponentListSourceToLoad.append(parentComponent);
+    }
+    // If we've already crawled a component, verify next one isn't already in the list before we put it in.
+    else if (!powerComponentListSourceToLoad.contains(parentComponent)) {
+      powerComponentListSourceToLoad.append(parentComponent);
+    }
     if (portComponent == "Enode") { // check if port is a node
       port->setOption("ElectricPowerType", powerType);
       propagateNode(port);
@@ -52,13 +62,13 @@ void propagateNode(string originPort) {
 
   string port = originPort;
   string powerType = port->ElectricPowerType;
-  string nodePorts[] = port->parent.ElectricPorts;
+  string nodePorts[] = port->parent.list("ElectricOutputPort", FALSE);
 
   (port->parent.getPathName())->setOption("ElectricPowerType", powerType);
 
   int i;
   for (i = 0; i < nodePorts.entries(); i++) {
-    port = port->parent.getPathName() + "." + nodePorts[i];
+    port = nodePorts[i];
     if (port != originPort) {
       port->setOption("ElectricPowerType", powerType);
       port->propagatePower();
