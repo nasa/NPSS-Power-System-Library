@@ -143,7 +143,7 @@ component to the surrounding environment. For more information, see EThermalMass
     description = "Generator loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }

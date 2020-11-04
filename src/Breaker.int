@@ -126,7 +126,7 @@ current information is updated in the breaker's input and output ports.";
     description = "Breaker loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }

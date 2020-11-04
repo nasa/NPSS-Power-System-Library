@@ -245,7 +245,7 @@ void findSourcesAndPropagate() {
              << " is a source with undefined power type!\n";
       }
     }
-  } cout << powerComponentListSourceToLoad << endl; quit();
+  }
 }
 
 #endif

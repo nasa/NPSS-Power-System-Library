@@ -145,7 +145,7 @@ this component, see MotorGeneratorMap.int";
     description = "Imaginary component of losses in this load.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }

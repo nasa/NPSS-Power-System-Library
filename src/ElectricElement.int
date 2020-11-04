@@ -54,6 +54,11 @@ class ElectricElement extends Element {
     value = 0.0; IOstatus = "output"; units = "W";
     description = "Reactive power loss.";
   }
+  
+  real Q_heat {
+    value = 0; IOstatus = "output";  units = "Btu/sec"; // [BTUs / sec]
+    description = "Power dissipation in BTU/s at current time.";
+  }
 }
 
 #endif

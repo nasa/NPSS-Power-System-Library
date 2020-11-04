@@ -96,6 +96,11 @@ described above.";
     description = "Power doing useful work in this load element.";
   }
 
+  real SpecificPower {
+    value = 9; IOstatus = "input"; units = "none"; // [kW/kg]
+    description = "Power to weight ratio for the component.";
+  }
+  
   real pf {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power factor at input to this load element.";
@@ -121,7 +126,7 @@ described above.";
     description = "Imaginary component of losses in this load.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }
@@ -233,6 +238,13 @@ described above.";
   //-------------------------------------------------
   
   void calculate() {
+
+    if (switchDes == "DESIGN" ) {
+      // compute mass based on assumed specific power
+      // both mass and loses are based on output power (power sent)
+      Mass = EP_I.S.mag / SpecificPower;
+    }
+
     pf = cos(EP_I.S.phase);
     P = EP_I.S.r * eff**sign(EP_I.S.r);
     Loss_r = EP_I.S.r - P;
