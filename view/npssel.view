@@ -34,31 +34,26 @@ void setupElectricalPageViewer() {
    }
 
    // Set up the page viewer filename as well, as the model name may have been set at this point.
-   pageStream.filename = "output/"+MODELNAME+".viewOut";
-
+   // Every time we change the filename, it wipes out the existing file contents, so only do it
+   // if we're in DESIGN mode.
+   if (page.switchDes == "DESIGN") {
+      pageStream.filename = "output/"+MODELNAME+".viewOut";
+   }
 }
 
 DataViewer PageViewer page { 
 
-   // Give this page viewer a switchDes, we will use it
+   // Give this page viewer a switchDes, we will use it for the setup function
    Option switchDes {
       allowedValues = { "DESIGN", "OFFDESIGN" };
       description = "Design/Off-Design switch";
       rewritableValues = FALSE;
       trigger = FALSE;
+      value = "DESIGN";
    }
 
    // Create some objects that our special power system viewer will use
    string outputPortList[];
-   // string componentList[];
-   // Option componentOrder {
-   //    allowedValues = { "POWER_LOW_TO_HIGH",   "POWER_HIGH_TO_LOW",
-   //                      "VOLTAGE_LOW_TO_HIGH", "VOLTAGE_HIGH_TO_LOW",
-   //                      "CURRENT_LOW_TO_HIGH", "CURRENT_HIGH_TO_LOW",
-   //                      "SOURCE_TO_LOAD"};
-   //    description = "Desired order of power components to print";
-   //    value = "SOURCE_TO_LOAD";
-   // }
 
    // Override the base class's display function, and do some stuff first to prepare the electric viewer
    void display() {
