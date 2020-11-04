@@ -195,10 +195,8 @@ described above.";
   }
 
   Dependent dep_power {
-    // eq_lhs = "EP_I.S.r * eff";
-    // eq_rhs = "Pdemand";
-    eq_lhs = "(Pdemand/EP_I.S.rRMS )**sign(Pdemand)";
-    eq_rhs = "eff";
+    eq_lhs = "EP_I.S.rRMS * eff**sign(Pdemand)";
+    eq_rhs = "Pdemand";
     autoSetup = TRUE;
   }
 
