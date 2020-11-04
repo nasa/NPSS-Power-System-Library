@@ -15,6 +15,8 @@
 #ifndef __SOURCE__
 #define __SOURCE__
 
+#include "PSL_math.fnc" 
+
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
 
@@ -332,8 +334,10 @@ this component, see MotorGeneratorMap.int";
     } else {
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
-      eff = EP_O.S.r / (EP_O.S.r + Loss_r);
-      
+      // eff = EP_O.S.r / (EP_O.S.r + Loss_r);
+      // eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sigmoid(EP_O.S.r);//Modified sigmoid function added for backflow calculation
+      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
+
       // energy consumed at this operating point.
       energy = (EP_O.S.r + Loss_r) * segmentTime;
     }

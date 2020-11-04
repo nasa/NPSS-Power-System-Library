@@ -131,7 +131,7 @@ GroupBlock Electrical {
 		titleBody = " ConstantPowerLoad"; 
 		compType = "ConstantPowerLoad"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
+		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","P","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
 		//showColHeader=FALSE; 	
 	}
 
