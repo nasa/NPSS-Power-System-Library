@@ -92,7 +92,7 @@ described above.";
   }
 
   real P {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 0.98; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power doing useful work in this load element.";
   }
 
