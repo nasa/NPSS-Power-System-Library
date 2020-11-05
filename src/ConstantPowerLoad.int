@@ -82,17 +82,17 @@ described above.";
   //--------------------------------
   
   real Pdemand {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 10; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power demanded by the load (you set this).";
   }
 
   real pfDemand {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 0.98; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power factor this load should run at (you set this).";
   }
 
   real P {
-    value = 0.98; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 10; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power doing useful work in this load element.";
   }
 
