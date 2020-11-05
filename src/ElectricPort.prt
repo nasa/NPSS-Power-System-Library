@@ -125,6 +125,8 @@ class ElectricPort extends Subelement {
       frequency = refport->frequency;
     }
 
+    PF = refport->PF;
+
     if (refport == "") {
       ESOreport(ESO_Id_NoRefPort, "Ref port empty!");
     }		

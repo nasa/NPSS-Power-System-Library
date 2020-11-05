@@ -30,7 +30,7 @@ On design
 ************************/
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
-// solver.solutionMode = "ONE_PASS";
+//solver.solutionMode = "ONE_PASS";
 
 solver.maxIterations=500;
 solver.maxJacobians=500;

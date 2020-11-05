@@ -32,7 +32,7 @@ Electric Power System Components
 Element Shaft Generator_Shaft 
 {
 	Nmech=1000;   // rpm
-    HPX = -10; 
+    HPX = -20/0.746; // 10 kW 
 	ShaftInputPort Sh1_I;
     Independent ind_HP 
     {
@@ -64,64 +64,60 @@ Element Enode Busbar
 
 Element Breaker B_CPL
 {
-  effDes=0.95;
-  SpecificPower=10.0; 
+    effDes=0.95;
+    SpecificPower=10.0; 
 }
 
 Element Rectifier AC_DC
 {
-  effDes = .95;
-  pwrDes = 10.; // kW
-  frequency = 400.;
+    effDes = .95;
+    frequency = 400.;
 }
 
 Element AeroCable Cable1_CPL 
 {
-	// R = 0.1; //Ohms
-	// L = 0; //Henries
     length=1; // m
 }
 
 Element Inverter Inv1 
 {
-  effDes = .95;
-  pwrDes = 10.;
-  frequency=400;
+    effDes = .95;
+    frequency=400;
 }
 
-Element AeroCable Cable2_CPL 
+Element Cable Cable2_CPL 
 {
-	// R = 0.1; //Ohms
-	// L = 0; //Henries
-    length=1; // m
+	R = 0.1; //Ohms
+	L = 0; //Henries
 }
 
 Element ConstantPowerLoad CLoad
 {
     Pdemand  = 10; //kW
+    pfDemand = 1;
     eff = 0.95;
 }	
 
 Element Breaker B_Motor
 {
-  effDes=0.95;
-  SpecificPower=10.0; 
+    effDes=0.95;
+    SpecificPower=10.0; 
 }
 
 Element Motor E_Motor 
 {
-	 effDes=0.95;
-	 powerfactor=0.98;
-	 SpecificPower=10.0; 
-	 frequency = 400.;
-	 Vreal = 1000.;
-     Vimag = 0;
+    effDes=0.95;
+    powerfactor=1;
+    SpecificPower=10.0; 
+    frequency = 400.;
+    Vreal = 1000.;
+    Vimag = 0;
 }
 
 Element Shaft Motor_Shaft 
 {
 	Nmech=1000;   // rpm
-    HPX = -10/0.746; // 10 kW 
+    HPX = 10/0.746; // 10 kW 
 	ShaftInputPort Sh1_I;
 }				
 
@@ -149,13 +145,13 @@ solverSequence = {"Cable1",
 "Cable1_CPL",
 "Cable2_CPL",
 "B_Motor",
-"Generator_Shaft",
 "G",
 "Busbar",
 "AC_DC",
 "Inv1",
 "CLoad",
 "E_Motor",
+"Generator_Shaft",
 "Motor_Shaft" }
 
 void AC_BFPrintOutput() 
@@ -164,37 +160,26 @@ void AC_BFPrintOutput()
 }
 
 // Initial independent variable guesses are here. 
-Cable1_CPL.Ireal = 5;
-Cable1_CPL.Iimag = 0;
-Cable2_CPL.Ireal = 3;
-Cable2_CPL.Iimag = 0;  
-CLoad.Vreal = 940;
-CLoad.Vimag = 0;
-Cable1.Ireal = 6;
+Cable1.Ireal = 12;
 Cable1.Iimag = 0;
-B_CPL.Ireal = 3;
-B_CPL.Iimag = 0;
 Busbar.VrealRMS = 998;
 Busbar.VimagRMS = 0;
-AC_DC.Vreal= 995;
+
+B_CPL.Ireal = 2;
+B_CPL.Iimag = 0;
+AC_DC.Vreal = 995;
 AC_DC.Vimag = 0;
-Inv1.Vimag = 950;
+Cable1_CPL.Ireal = 7;
+Cable1_CPL.Iimag = 0;
+Inv1.Vreal = 950;
 Inv1.Vimag = 0;
-B_Motor.Ireal = 3;
+Cable2_CPL.Ireal = 5;
+Cable2_CPL.Iimag = 0;
+CLoad.Vreal = 940;
+CLoad.Vimag = 0;
+
+B_Motor.Ireal = 2;
 B_Motor.Iimag = 0;
-/* All of these need initial values:
-{
-"Cable1.ind_Ireal",
-"Cable1.ind_Iimag",
-"B_CPL.ind_Ireal",
-"B_CPL.ind_Iimag",
-"B_Motor.ind_Ireal",
-"B_Motor.ind_Iimag",
-"Busbar.ind_Vimag",
-"Busbar.ind_Vreal",
-"AC_DC.ind_Vimag",
-"AC_DC.ind_Vreal",
-"Inv1.ind_Vimag",
-"Inv1.ind_Vreal"
-}
-*/
+E_Motor.Vreal = 990;
+E_Motor.Vimag = 0;
+
