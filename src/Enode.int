@@ -56,7 +56,10 @@ approach taken in fluid networks within NPSS rocket models.";
   real Vmag;
   real Vangle;
   real VrealRMS;
-  real VimagRMS;
+  real VimagRMS{
+    value = 0;  IOstatus = "output";  units = "none"; // [volts]
+    description = "Imaginary portion of voltage.";
+  };
   real IrealIn;
   real IrealOut;
   real IimagIn;

@@ -207,7 +207,7 @@ this component, see MotorGeneratorMap.int";
   }
 
   real Vimag {
-    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    value =0;  IOstatus = "output";  units = "V"; // [volts]
     description = "Imaginary portion of voltage.";
   }
   

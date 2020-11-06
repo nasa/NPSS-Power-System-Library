@@ -108,7 +108,7 @@ component to the surrounding environment. For more information, see EThermalMass
   }
 
   real Vimag {
-    value = -1.; IOstatus = "input"; units = "V"; // [voltage]
+    value = 0; IOstatus = "input"; units = "V"; // [voltage]
     description = "Rectifier voltage (imaginary).";
   }
   
