@@ -152,11 +152,11 @@ solverSequence = {"Cable1",
 "CLoad",
 "E_Motor",
 "Generator_Shaft",
-"Motor_Shaft" }
+"Motor_Shaft" };
 
 void AC_BFPrintOutput() 
 {
-    cout << " Case = " << CASE;
+    cout << " Case = " << CASE << endl;
 }
 
 // Initial independent variable guesses are here. 
@@ -173,8 +173,8 @@ Cable1_CPL.Ireal = 7;
 Cable1_CPL.Iimag = 0;
 Inv1.Vreal = 950;
 Inv1.Vimag = 0;
-Cable2_CPL.Ireal = 5;
-Cable2_CPL.Iimag = 0;
+// Cable2_CPL.Ireal = 5;
+// Cable2_CPL.Iimag = 0;
 CLoad.Vreal = 940;
 CLoad.Vimag = 0;
 
@@ -182,4 +182,5 @@ B_Motor.Ireal = 2;
 B_Motor.Iimag = 0;
 E_Motor.Vreal = 990;
 E_Motor.Vimag = 0;
+
 

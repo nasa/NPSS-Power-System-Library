@@ -32,28 +32,50 @@ setOption("switchDes","DESIGN");
 autoSolverSetup();
 //solver.solutionMode = "ONE_PASS";
 
-solver.maxIterations=500;
-solver.maxJacobians=500;
+solver.maxIterations=5000;
+solver.maxJacobians=5000;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
 run(); 
-CASE++;
 
 page.display();  // output data to out file
-quit();
+CASE++;
 /************************
 Off design
 ************************/
 
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
+solver.removeIndependent( "Generator_Shaft.ind_Nmech" );
+solver.removeIndependent( "Motor_Shaft.ind_Nmech" );
+// cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
-run(); CASE++;
+CLoad.Pdemand = 10; // Case 1: Both loads positive
+Motor_Shaft.HPX = 10/0.746;
+run(); 
 AC_BFPrintOutput();
 page.display();
+CASE++;
 
-CLoad.Pdemand = -10; //Backflow condition (current flowing "upstream" (load to source))
 
-run(); CASE++;
-void AC_BFPrintOutput(); 
+CLoad.Pdemand = 9; //Case 2: Backflow from both loads
+Motor_Shaft.HPX = 10/0.746; //0.746 HP = 1 kW
+run(); 
+AC_BFPrintOutput(); 
 page.display();
+CASE++;
+
+
+CLoad.Pdemand = 8; //Case 3: Backflow from both loads
+Motor_Shaft.HPX = 10/0.746; //0.746 HP = 1 kW
+run(); 
+AC_BFPrintOutput(); 
+page.display();
+CASE++;
+
+CLoad.Pdemand = 10; // Case 4: Backflow from motor load only
+E_Motor.Pin = -10;
+run(); 
+AC_BFPrintOutput(); 
+page.display();
+CASE++;
