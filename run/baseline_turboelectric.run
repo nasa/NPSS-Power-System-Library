@@ -42,48 +42,47 @@ MODELNAME = "Baseline Turboelectric";
 // a define statement
 #define POWER_ELECTRONICS
 #include "baseline_TMS.mdl"
-setThermoPackage("GasTbl");
 #include "baseline_turboelectric.mdl"
 
 OutFileStream csvStream { filename = "output/out.csv"; } 
 
 
-Gen1 {
-    setOption("switchThermPort","TRUE");
-    // Subelement 
-    Subelement EThermalMass S_eThermMass {
-        Cp = 0.0923; // specific heat of copper
-        T = 490;
-    }
-}
-Rect1 {
-    setOption("switchThermPort","TRUE");
-    // Subelement 
-    Subelement EThermalMass S_eThermMass {
-        Cp = 0.215; // specific heat of copper
-        T = 495;
-    }
-}
-Inv1 {
-    setOption("switchThermPort","TRUE");
-    // Subelement 
-    Subelement EThermalMass S_eThermMass {
-        Cp = 0.215; // specific heat of aluminum
-        T = 500;
-    }
-}
-EM1 {
-    setOption("switchThermPort","TRUE");
-    // Subelement 
-    Subelement EThermalMass S_eThermMass {
-        Cp = 0.0923; // specific heat of copper
-        T = 505;
-    }
-}
-linkPorts("generator_cooler.Q_O", "Gen1.Q_I", "Q1");
-linkPorts("rectifier_cooler.Q_O", "Rect1.Q_I", "Q2");
-linkPorts("inverter_cooler.Q_O", "Inv1.Q_I", "Q3");
-linkPorts("motor_cooler.Q_O", "EM1.Q_I", "Q4");
+// Gen1 {
+//     setOption("switchThermPort","TRUE");
+//     // Subelement 
+//     Subelement EThermalMass S_eThermMass {
+//         Cp = 0.0923; // specific heat of copper
+//         T = 490;
+//     }
+// }
+// Rect1 {
+//     setOption("switchThermPort","TRUE");
+//     // Subelement 
+//     Subelement EThermalMass S_eThermMass {
+//         Cp = 0.215; // specific heat of copper
+//         T = 495;
+//     }
+// }
+// Inv1 {
+//     setOption("switchThermPort","TRUE");
+//     // Subelement 
+//     Subelement EThermalMass S_eThermMass {
+//         Cp = 0.215; // specific heat of aluminum
+//         T = 500;
+//     }
+// }
+// EM1 {
+//     setOption("switchThermPort","TRUE");
+//     // Subelement 
+//     Subelement EThermalMass S_eThermMass {
+//         Cp = 0.0923; // specific heat of copper
+//         T = 505;
+//     }
+// }
+// linkPorts("generator_cooler.Q_O", "Gen1.Q_I", "Q1");
+// linkPorts("rectifier_cooler.Q_O", "Rect1.Q_I", "Q2");
+// linkPorts("inverter_cooler.Q_O", "Inv1.Q_I", "Q3");
+// linkPorts("motor_cooler.Q_O", "EM1.Q_I", "Q4");
 
 
 /************************
