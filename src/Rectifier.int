@@ -15,6 +15,8 @@
 #ifndef __RECTIFIER__
 #define __RECTIFIER__
 
+#include "PSL_math.fnc"
+
 class Rectifier extends ElectricElement {
   
   //----------------------------
@@ -226,14 +228,14 @@ component to the surrounding environment. For more information, see EThermalMass
   }
   
   Dependent dep_Power {
-    eq_rhs = "EP_I.S.rRMS * eff";
+    eq_rhs = "EP_I.S.rRMS * eff**sign(EP_I.S.r)";
     eq_lhs = "EP_O.S.rRMS";
     autoSetup = TRUE;
   }
   
   Dependent dep_phase {
-    eq_rhs = "EP_I.VLN.phaseDeg";
-    eq_lhs = "EP_I.I.phaseDeg";
+    eq_lhs = "EP_I.S.j";
+    eq_rhs = "0";
     autoSetup = TRUE;
   }
 

@@ -119,11 +119,11 @@ class InverterRectifierMap extends Subelement {
 
       // calculate map scalars
       s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
-      s_pwrDes = pwrDes / pwrMapDes; // pwrDes is from parent element, pwrMapDes is from map input value            
+      s_pwrDes = abs(pwrDes) / pwrMapDes; // pwrDes is from parent element, pwrMapDes is from map input value            
     }
 
     // calculate map values
-    pwrMap = pwrOut / s_pwrDes;
+    pwrMap = abs(pwrOut) / s_pwrDes;
     effMap = TB_eff(pwrMap);
 
     effBase = effMap * s_effDes; // set efficiency to send to parent element

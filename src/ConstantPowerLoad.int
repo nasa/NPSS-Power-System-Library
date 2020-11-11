@@ -188,26 +188,29 @@ described above.";
   Independent ind_Vreal { 
     varName = "Vreal"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the real component of the load voltage.";
   }
 
   Independent ind_Vimag { 
     varName = "Vimag"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the imaginary component of the load voltage.";
   }
 
   Dependent dep_power {
     eq_lhs = "EP_I.S.rRMS * eff**sign(Pdemand)";
+    //eq_lhs = "EP_I.S.rRMS * eff";
     eq_rhs = "Pdemand";
     autoSetup = TRUE;
   }
 
-  Dependent dep_power_factor{
-    eq_rhs = "pf";
-    eq_lhs = "pfDemand";
+  Dependent dep_power_factor{    
+    eq_lhs = "EP_I.S.j";
+    eq_rhs = "EP_I.S.r * tan(acos(pfDemand))"; // reformulated constraint to avoid depending on angles or divisions.
+    // eq_rhs = "pf";
+    // eq_lhs = "pfDemand";
     autoSetup = TRUE;
   }
 

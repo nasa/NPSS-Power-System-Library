@@ -38,6 +38,7 @@ Element Shaft Generator_Shaft
     {
         varName = "HPX";
         description = "Independent to vary extracted horsepower (power delivered by generator)";
+        indepRef = "10";
         autoSetup = TRUE;
     }	
 }
@@ -127,13 +128,15 @@ Element Shaft Motor_Shaft
 linkPorts( "Generator_Shaft.Sh1_I", "G.Sh_O", "Generator_Shaft_Connection" );
 linkPortI( "G.EP_O", "Cable1.EP_I" );
 linkPortI( "Cable1.EP_O", "Busbar.EP_I" );
+
 linkPortI( "Busbar.EP_O1", "B_CPL.EP_I" );
-linkPortI( "Busbar.EP_O2", "B_Motor.EP_I" );
 linkPortI( "B_CPL.EP_O", "AC_DC.EP_I" );
 linkPortI( "AC_DC.EP_O", "Cable1_CPL.EP_I" );
 linkPortI( "Cable1_CPL.EP_O", "Inv1.EP_I" );
 linkPortI( "Inv1.EP_O", "Cable2_CPL.EP_I" );
 linkPortI( "Cable2_CPL.EP_O", "CLoad.EP_I" );
+
+linkPortI( "Busbar.EP_O2", "B_Motor.EP_I" );
 linkPortI( "B_Motor.EP_O", "E_Motor.EP_I" );
 linkPorts( "Motor_Shaft.Sh1_I", "E_Motor.Sh_O",  "Motor_Shaft_Connection");
 
@@ -173,8 +176,6 @@ Cable1_CPL.Ireal = 7;
 Cable1_CPL.Iimag = 0;
 Inv1.Vreal = 950;
 Inv1.Vimag = 0;
-// Cable2_CPL.Ireal = 5;
-// Cable2_CPL.Iimag = 0;
 CLoad.Vreal = 940;
 CLoad.Vimag = 0;
 

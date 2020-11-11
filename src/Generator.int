@@ -15,6 +15,8 @@
 #ifndef __GENERATOR__
 #define __GENERATOR__
 
+#include "PSL_math.fnc"
+
 class Generator extends ElectricElement {
   
   //----------------------------
@@ -263,7 +265,7 @@ this component, see MotorGeneratorMap.int";
       eff = effDes;
     
       // compute power to the generator
-      Pin = Pout / eff;
+      Pin = Pout / eff**sign(Pout);
 
       // get design values 
       Ndes = Sh_O.Nmech;
@@ -294,7 +296,7 @@ this component, see MotorGeneratorMap.int";
     if (switchDes == "OFFDESIGN") { 
       
       // supply power is load power + losses
-      Pin = Pout / eff;
+      Pin = Pout / eff**sign(Pout);
       
       // determine loss in the generator
       Loss_r = 3 * Current**2 * genResistance;

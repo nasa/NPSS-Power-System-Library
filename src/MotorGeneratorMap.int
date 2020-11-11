@@ -189,18 +189,18 @@ class MotorGeneratorMap extends Subelement {
       // set map values at design point
       Nmap = NmapDes;
       trqMap = trqMapDes;
-      effMap = TB_eff(trqMap, Nmap);
+      effMap = TB_eff(abs(trqMap), Nmap);
       effMapDes = effMap;
 
       // calculate map scalars
       s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
       s_Ndes = Ndes / NmapDes; // Ndes is from parent element, NmapDes is from map input value
-      s_trqDes = trqDes / trqMapDes;// trqDes is from parent element, trqMapDes is from map input value
+      s_trqDes = abs(trqDes) / trqMapDes;// trqDes is from parent element, trqMapDes is from map input value
 
     } else {
       // calculate map values
       Nmap = Speed / s_Ndes;
-      trqMap = trqTemp / s_trqDes;
+      trqMap = abs(trqTemp) / s_trqDes;
       effMap = TB_eff(trqMap, Nmap);
       
       // set efficiency to send to parent element

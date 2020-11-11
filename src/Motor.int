@@ -16,6 +16,8 @@
 #ifndef __MOTOR__
 #define __MOTOR__
 
+#include "PSL_math.fnc"
+
 class Motor extends ElectricElement {
   
   //----------------------------
@@ -273,14 +275,14 @@ this component, see MotorGeneratorMap.int";
 
   Independent ind_Vreal { 
     varName = "Vreal"; 
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the real component of the motor voltage.";
     autoSetup = TRUE;
   }
   
   Independent ind_Vimag { 
     varName = "Vimag"; 
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the imaginary component of the motor voltage.";
     autoSetup = TRUE;
   }
@@ -347,7 +349,7 @@ this component, see MotorGeneratorMap.int";
     
     if (switchDes == "DESIGN") {
       eff = effDes;
-      Pout = Pin * eff; // compute power to the load 
+      Pout = Pin * eff**sign(Pin); // compute power to the load 
       Mass = Pout / SpecificPower; // compute mass based on assumed specific power 
 
       // get design values 
@@ -364,8 +366,8 @@ this component, see MotorGeneratorMap.int";
       }
 
       // compute losses
-      Loss_r = Pin * (1.0 / eff - 1.0);
-      Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
+      Loss_r = Pin - Pout;
+      Loss_j = EP_I.S.j;
     
       // determine resistance 
       motorResistance =  Loss_r / 3 / Current**2;
@@ -382,11 +384,11 @@ this component, see MotorGeneratorMap.int";
 
     if (switchDes == "OFFDESIGN") {	
       // power to the load 
-      Pout = Pin * eff;
+      Pout = Pin * eff**sign(Pin);
       
       // calculate loss
-      Loss_r = 3 * Current**2 * motorResistance;
-      Loss_j = sqrt((Pin / powerfactor)**2 - Pin**2);
+      Loss_r = Pin - Pout;
+      Loss_j = EP_I.S.j;
     }
     
     // motor and Propulsor shaft connection
