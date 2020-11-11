@@ -649,6 +649,8 @@ current information is updated in the cable's input and output ports.";
       cable_size = cable_sizes[optimal_wire-1];
       voltage_drop = current * (2 * cable_resistivities[optimal_wire-1] * length / paralleled); // [ohms]
       Mass = 2 * cable_mass[optimal_wire-1] * length * paralleled;
+      ampacity = cable_ampacities[optimal_wire-1] * paralleled;
+      
       R = resistance;
     }   
   }
