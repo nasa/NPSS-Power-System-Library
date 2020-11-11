@@ -2,17 +2,30 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                    |
- | Cleveland, OH 44135 	                                                       |
+ | 21000 Brookpark Rd                                                          |
+ | Cleveland, OH 44135                                                         |
  |                                                                             |
- | File Name:     npssel.view							                               |
+ | File Name:     npssel.view                                                  |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
  | Date(s):       November 2020                                                |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 
-OutFileStream pageStream { filename = "output/powertrain.viewOut"; } 
+OutFileStream pageStream { filename = "output/powertrain.viewOut"; }
+
+// A couple of 
+// Round to a specified number of digits (after the decimal point)
+real roundTo(real x, real digits)
+{
+   return round(x*10**digits)*10**-digits;
+}
+// Rounds to specfied digits, and if the angle is just about at -180, then make it 180 (less confusing)
+real roundDeg(real x, real digits)
+{
+   if (x < -179.999) { x += 360; } // -179.999 is closest NPSS "real" above -180
+   return roundTo(x,digits);
+}
 
 // This function is called at the beginning of each run of page.display(), in order
 // to set up things relevant to NPSS Power System Library components
@@ -120,14 +133,14 @@ DataViewer PageViewer page {
          titleBody = "                                   Complex Power Data           |               Misc Data"; 
          compType = "ElectricPort"; 
          compTypeFormat = "????????????????????????"; 
-         compAttr = {"S.mag:????.??=|S|, kVA","S.phaseDeg:???.???=/_S, deg","S.r:????.??=P, kW","S.j:????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:?.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         compAttr = {"roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
          defSNFormat = "?.?e???";
       }
       DColTBlock elecPortVIData { 
          titleBody = "\n                                   Complex Voltage Data  (V_LL)   |     Complex Current Data  (I_Line)"; 
          compType = "ElectricPort"; 
          compTypeFormat = "????????????????????????"; 
-         compAttr = {"V.mag:???????.??=|V|, V","V.phaseDeg:???.???=/_V, deg","V.r:????.??","V.j:????.??","I.mag:???????.??=|I|, A","I.phaseDeg:???.???=/_I, deg","I.r:????.??","I.j:????.??"}; 
+         compAttr = {"roundTo(V.mag,2):???????.??=|V|, V","roundDeg(V.phaseDeg,3):????.???=/_V, deg","roundTo(V.r,2):????.??=V.r","roundTo(V.j,2):????.??=V.j","roundTo(I.mag,2):???????.??=|I|, A","roundDeg(I.phaseDeg,3):????.???=/_I, deg","roundTo(I.r,2):????.??=I.r","roundTo(I.j,2):????.??=I.j"}; 
          defSNFormat = "?.?e???";
       }
 
