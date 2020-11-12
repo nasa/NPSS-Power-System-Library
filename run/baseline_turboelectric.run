@@ -41,7 +41,6 @@ MODELNAME = "Baseline Turboelectric";
 // Tell the TMS model that we have power electronics we need to cool using
 // a define statement
 #define POWER_ELECTRONICS
-#include "baseline_TMS.mdl"
 #include "baseline_turboelectric.mdl"
 
 OutFileStream csvStream { filename = "output/out.csv"; } 
