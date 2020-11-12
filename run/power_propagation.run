@@ -25,6 +25,8 @@
 
 #include "power_propagation.mdl"
 
+MODELNAME = "Power Type Propagation Test";
+
 /**
  --------------------
  | Run Solver Cases |

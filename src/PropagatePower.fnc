@@ -31,10 +31,12 @@ void propagatePower() {
           && !loadComponents.contains(portComponent)) {
 
     // Update ordered list of components as we go as well.
-    // If we've already crawled a component, verify next one isn't already in the list before we put it in.
-    if (!powerComponentListSourceToLoad.contains(port->parent.getPathName())) {
-      powerComponentListSourceToLoad.append(port->parent.getPathName());
+    // If we've already crawled a component, move it back to the top
+    // (makes the display order in the viewOut files look better).
+    if (powerComponentListSourceToLoad.contains(port->parent.getPathName())) {
+      powerComponentListSourceToLoad.remove(port->parent.getPathName());
     }
+    powerComponentListSourceToLoad.append(port->parent.getPathName());
     if (portComponent == "Enode") { // check if port is a node
       port->setOption("ElectricPowerType", powerType);
       propagateNode(port);
@@ -63,18 +65,18 @@ void propagatePower() {
   port->setOption("ElectricPowerType", powerType);
 }
 
-// propagates power type across node branches
+// this is called when propagatePower() encounters a node
 void propagateNode(string originPort) {
 
   string port = originPort;
   string powerType = port->ElectricPowerType;
-  string nodePorts[] = port->parent.list("ElectricOutputPort", FALSE);
+  string nodePorts[] = port->parent.ElectricPorts;
 
   (port->parent.getPathName())->setOption("ElectricPowerType", powerType);
 
   int i;
   for (i = 0; i < nodePorts.entries(); i++) {
-    port = nodePorts[i];
+    port = port->parent.getPathName() + "." + nodePorts[i];
     if (port != originPort) {
       port->setOption("ElectricPowerType", powerType);
       port->propagatePower();
