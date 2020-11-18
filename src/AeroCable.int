@@ -15,6 +15,8 @@
 #ifndef __AEROCABLE__
 #define __AEROCABLE__
 
+#include "PSL_math.fnc"
+
 class AeroCable extends ElectricElement {
 
   //----------------------------
@@ -118,7 +120,7 @@ current information is updated in the cable's input and output ports.";
     description = "Cable loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
@@ -245,14 +247,14 @@ current information is updated in the cable's input and output ports.";
   Independent ind_Ireal { 
     varName = "Ireal"; 
     autoSetup = TRUE;   // only set up for on-design to help size cable
-    a = 10000;          // bias to help with solver variable crossing zero
+    indepRef = "1000";
     description = "Varies the real component of cable current.";
   }
   
   Independent ind_Iimag { 
     varName = "Iimag"; 
     autoSetup = TRUE;   // only set up for on-design to help size cable
-    a = 10000;          // bias to help with solver variable crossing zero
+    indepRef = "1000";
     description = "Varies the imaginary component of cable current.";
   }
 
@@ -647,6 +649,8 @@ current information is updated in the cable's input and output ports.";
       cable_size = cable_sizes[optimal_wire-1];
       voltage_drop = current * (2 * cable_resistivities[optimal_wire-1] * length / paralleled); // [ohms]
       Mass = 2 * cable_mass[optimal_wire-1] * length * paralleled;
+      ampacity = cable_ampacities[optimal_wire-1] * paralleled;
+      
       R = resistance;
     }   
   }
@@ -700,6 +704,8 @@ current information is updated in the cable's input and output ports.";
     EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
     EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
     
+    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
+
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
 

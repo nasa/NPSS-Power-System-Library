@@ -80,7 +80,7 @@ component to the surrounding environment. For more information, see EThermalMass
   //------------------------------
 
   eff {
-    value = 1.0; IOstatus = "input"; units = NONE;
+    value = 1.0; IOstatus = "input"; units = "none";
     description = "Efficiency of the converter.";
   }
 
@@ -129,7 +129,7 @@ component to the surrounding environment. For more information, see EThermalMass
     description = "Generator loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
@@ -211,12 +211,6 @@ component to the surrounding environment. For more information, see EThermalMass
     if (name == "switchThermPort") { 
       if (switchThermPort == "TRUE") {
         create("", "ThermalInputPort", "Q_I");
-      }
-    }
-
-    if (name == "switchDes") {
-      if (switchDes == OFFDESIGN) {
-        effDes.IOstatus = "output";
       }
     }
   }

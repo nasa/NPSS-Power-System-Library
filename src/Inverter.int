@@ -15,6 +15,8 @@
 #ifndef __INVERTER__
 #define __INVERTER__
 
+#include "PSL_math.fnc"
+
 class Inverter extends ElectricElement {
   
   //----------------------------
@@ -138,7 +140,7 @@ component to the surrounding environment. For more information, see EThermalMass
     description = "Component loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
@@ -199,20 +201,20 @@ component to the surrounding environment. For more information, see EThermalMass
   Independent ind_Vreal { 
     varName = "Vreal"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the real component of the inverter voltage.";
   }
   
   Independent ind_Vimag { 
     varName = "Vimag"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the imaginary component of the inverter voltage.";
   }
   
   Dependent dep_Power {
-    eq_lhs = "EP_O.S.rRMS";
-    eq_rhs = "EP_I.S.rRMS * eff";
+    eq_lhs = "EP_O.S.mag * sign(EP_O.S.r)";
+    eq_rhs = "EP_I.S.r * eff**sign(EP_I.S.r)";
     autoSetup = TRUE;
   }
   

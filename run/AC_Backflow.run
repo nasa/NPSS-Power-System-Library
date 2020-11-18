@@ -1,0 +1,79 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     AC_Backflow.run                                              |
+ | Author(s):	  George Thomas, Brian Malone              			           |
+ | Date(s):       october 2020                                                 |
+ |                                                                             |
+ | Description:   AC single-phase run file with backflow                       |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+// add in electric port
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+MODELNAME = "ACBackflow";
+
+//model file
+#include "model/AC_Backflow.mdl"
+
+/************************
+On design
+************************/
+setOption("switchDes","DESIGN"); 
+autoSolverSetup();
+//solver.solutionMode = "ONE_PASS";
+
+solver.maxIterations=1000;
+solver.maxJacobians=1000;
+
+run();
+page.display();  // output data to out file
+CASE++;
+/************************
+Off design
+************************/
+
+setOption("switchDes","OFFDESIGN"); 
+autoSolverSetup();
+solver.removeIndependent( "Generator_Shaft.ind_Nmech" );
+solver.removeIndependent( "Motor_Shaft.ind_Nmech" );
+// cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+CLoad.Pdemand = 10; // Case 1: Both loads positive
+Motor_Shaft.HPX = 10/0.746;
+run(); 
+AC_BFPrintOutput();
+page.display();
+CASE++;
+
+CLoad.Pdemand = 10; // Case 2: First load positive, second negative
+Motor_Shaft.HPX = -10/0.746;
+run(); 
+AC_BFPrintOutput();
+page.display();
+CASE++;
+
+CLoad.Pdemand = -10; // Case 3: First load negative, second positive
+Motor_Shaft.HPX = 10/0.746;
+run(); 
+AC_BFPrintOutput();
+page.display();
+CASE++;
+
+CLoad.Pdemand = -10; // Case 4: Both loads negative
+Motor_Shaft.HPX = -10/0.746;
+run(); 
+AC_BFPrintOutput();
+page.display();
+CASE++;

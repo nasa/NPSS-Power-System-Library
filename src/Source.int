@@ -14,7 +14,6 @@
 
 #ifndef __SOURCE__
 #define __SOURCE__
-
 #include "PSL_math.fnc" 
 
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
@@ -145,7 +144,7 @@ this component, see MotorGeneratorMap.int";
     description = "Imaginary component of losses in this load.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }

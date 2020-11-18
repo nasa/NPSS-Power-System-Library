@@ -15,6 +15,8 @@
 #ifndef __BREAKER__
 #define __BREAKER__
 
+#include "PSL_math.fnc"
+
 class Breaker extends ElectricElement {
   
   //----------------------------
@@ -126,7 +128,7 @@ current information is updated in the breaker's input and output ports.";
     description = "Breaker loss.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
@@ -210,14 +212,14 @@ current information is updated in the breaker's input and output ports.";
   Independent ind_Ireal {
     varName = "Ireal"; 
     autoSetup = TRUE;   // only set up for on-design to help size cable
-    a = 10000;          // bias to help with solver variable crossing zero
+    indepRef = "1000";
     description = "Varies the real component of cable current.";
   }
 
   Independent ind_Iimag {
     varName = "Iimag"; 
     autoSetup = TRUE;   // only set up for on-design to help size cable
-    a = 10000;          // bias to help with solver variable crossing zero
+    indepRef = "1000";
     description = "Varies the imaginary component of cable current.";
   }
 
@@ -276,7 +278,7 @@ current information is updated in the breaker's input and output ports.";
       EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
       EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
       S.copy("EP_I.S");	
-      
+     
       // do the component performance/design calculations.
       if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
 
@@ -287,10 +289,10 @@ current information is updated in the breaker's input and output ports.";
 
         // calculate this component load power
         real dc_efficiency = effDes**2;
-        S.setrj(EP_I.S.r * dc_efficiency,  0.);
+        S.setrj(EP_I.S.r * dc_efficiency**sign(EP_I.S.r),  0.);
         
         // calculate mass 
-        Mass = 2.*EP_I.S.mag / SpecificPower;//BPM: kW/(kW/kg) = kg
+        Mass = 2.*EP_I.S.mag / SpecificPower;
         
         // calculate this component load side voltage
         V.setrj(1000.*S.r / EP_I.I.r,  0);
@@ -308,7 +310,7 @@ current information is updated in the breaker's input and output ports.";
             ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3"))) {
         
         // calculate this component load power
-        S.setrj(EP_I.S.r * effDes,  EP_I.S.j * effDes);
+        S.setrj(EP_I.S.r * effDes**sign(EP_I.S.r),  EP_I.S.j * effDes**sign(EP_I.S.r));
 
         
         // calculate this component mass
@@ -324,8 +326,8 @@ current information is updated in the breaker's input and output ports.";
         }
         
         // calculate this component load side voltage
-        V.copy("S");//BPM: V=S?  GT: yes.
-        V.scale(1000.);//BPM: to make V (S) into kW instead of W?
+        V.copy("S");
+        V.scale(1000.);
         V.div("I"); // after this calculation, V will store the line-to-neutral voltage at the output of the breaker
         
         // get calculated voltage drop based on design efficiency (grab input side voltage and subtract off the calculated output voltage).
@@ -339,11 +341,6 @@ current information is updated in the breaker's input and output ports.";
         // calculate this component impedance
         R = Z.r;
         L = Z.j / (2*PI*EP_I.frequency);
-        if (EP_I.ElectricPowerType == "AC") {
-        }
-        else if (EP_I.ElectricPowerType == "AC3") {
-          //I.scale(1. / 3.); // BPM: was I.scale(1. / 3.)//BPM: commented this out!
-        }
       }
       
     } else { // off-design
@@ -353,7 +350,7 @@ current information is updated in the breaker's input and output ports.";
       dV.copy("EP_I.VLN");
       dV.minus("EP_O.VLN");	
       I.copy("dV");
-      I.div("Z");//BPM: dv/Z = I
+      I.div("Z");
     }
     
     // calculate voltage drop that may be used in solver during on-design.
@@ -362,9 +359,9 @@ current information is updated in the breaker's input and output ports.";
 
     // set the conditions in the ports
     EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS); 
-    EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS); 	
-    eff = EP_O.S.r / EP_I.S.r;	
+    EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
+    EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
+    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
     
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;

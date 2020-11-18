@@ -29,7 +29,6 @@ fine, imprisonment, or both.
 #include "npssel_runtime.view"
 
 #include <IOUtils.fnc>
-#include <print_macros2.fnc>
 
 MODELNAME = "Baseline Turboelectric MDP";
 
@@ -310,9 +309,5 @@ TKO.EM1.Vimag    = 0;
 //cout << solverSequence << endl;
 //cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 // printSolverSetup("solver", FALSE);
-run();
-printPride();
-printPrideTKO();
-printPrideTOC();
 
 page.display();  // output data to out file

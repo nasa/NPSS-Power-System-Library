@@ -1,402 +1,211 @@
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-//         General Output DataViewer Specification
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd                                                          |
+ | Cleveland, OH 44135                                                         |
+ |                                                                             |
+ | File Name:     npssel.view                                                  |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Date(s):       November 2020                                                |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
 
-OutFileStream pageStream { filename = "output/powertrain.viewOut"; } 
+OutFileStream pageStream { filename = "output/powertrain.viewOut"; }
+
+// A couple of 
+// Round to a specified number of digits (after the decimal point)
+real roundTo(real x, real digits)
+{
+   return round(x*10**digits)*10**-digits;
+}
+// Rounds to specfied digits, and if the angle is just about at -180, then make it 180 (less confusing)
+real roundDeg(real x, real digits)
+{
+   if (x < -179.999) { x += 360; } // -179.999 is closest NPSS "real" above -180
+   return roundTo(x,digits);
+}
+
+// This function is called at the beginning of each run of page.display(), in order
+// to set up things relevant to NPSS Power System Library components
+void setupElectricalPageViewer() {
+
+   // If we use the default component print order (based on order the propagate power
+   // code crawls over the circuit) then we don't have to do much.
+   // if (page.componentOrder == "SOURCE_TO_LOAD") {
+   page.outputPortList = {};
+   int idxComp;
+   for (idxComp = 0; idxComp < powerComponentListSourceToLoad.entries(); idxComp++) {
+      
+      string compName = powerComponentListSourceToLoad[idxComp];
+      string compPorts[] = compName->list("ElectricPort", TRUE);
+      
+      if (compPorts.entries() > 0) {
+         page.outputPortList.append(compPorts);
+      }
+   }
+
+   // Set up the page viewer filename as well, as the model name may have been set at this point.
+   // Every time we change the filename, it wipes out the existing file contents, so only do it
+   // if we're in DESIGN mode.
+   if (page.switchDes == "DESIGN") {
+      pageStream.filename = "output/"+MODELNAME+".viewOut";
+   }
+}
 
 DataViewer PageViewer page { 
 
-GroupBlock TnBGroup {
-
-   SimpleBlock title { 
-body =   "\f************************************************************************************************************************************\n" +
-         "Date:????????    Time:????????    Model:????????????????????????????????????????????????????????????????    converge = ?   CASE:????\n" +
-         "Version:????????????????????          Gas Package:???????        iter/pass/Jacb/Broy=???/???/??/??        Run by:???????????????????";
-vars = { "date", "timeOfDay", "MODELNAME", "solver.converged", "CASE", "VERSION", "THERMPACKAGE", 
-           "solver.iterationCounter", "solver.passCounter", "solver.numJacobians", "solver.numBroydens", "USER" }
-   } 
-
-  
-   anchor = "title"; 
-   addGutter = TRUE;
-} // end TnBGroup
-
-LinkColTBlock inputs { 
-   titleBody = "                                        FLOW STATION DATA";
-   titleVars = { }
-   compType = "FluidOutputPort";
-   compTypeFormat = "????????????????????????";
-   excludeCompTypes = { "InterStageBleedOutPort", "BleedOutPort" }     //remove to include bleed ports 
-   compAttr = { "W:????.??", "Pt:????.???", "Tt:?????.??", "ht:????.??", "FAR:?.????", 
-                "Wc:????.??", "Ps:????.???", "Ts:?????.??", "rhos:?.??????", "Aphy:?????.?", "MN:?.????", "gamt:??.?????" }
-} 
-
-GroupBlock Turbomachinery { 
-   DColTBlock comps { 
-      titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
-      compType = "Compressor"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
-                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
-   } 
-   DColTBlock turbs { 
-      compType = "Turbine"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
-                   "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
-      showColHeader=FALSE; 
-   } 
-   anchor = "comps"; 
-   comps.bottom = "turbs"; 
-   addGutter = FALSE; 
-}  //end of Turbomachinery block
-
-
-GroupBlock Electrical { 
-
-
-   SimpleBlock title { 
-		body = "                          ELECTRICAL POWER SYSTEM"; 
-   } 
-	
-   DColTBlock source { 
-		titleBody = " Sources"; 
-		compType = "Source"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_O.S.r","EP_O.S.j","eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","energy","energyDes","Loss_r","Loss_j"}; 
-		//showColHeader=FALSE; 	
-   }
-	
-   DColTBlock generator { 
-		titleBody = " Generators"; 
-		compType = "Generator"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"Pin","Pout","eff","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
-		//showColHeader=FALSE; 	
+   // Give this page viewer a switchDes, we will use it for the setup function
+   Option switchDes {
+      allowedValues = { "DESIGN", "OFFDESIGN" };
+      description = "Design/Off-Design switch";
+      rewritableValues = FALSE;
+      trigger = FALSE;
+      value = "DESIGN";
    }
 
-   DColTBlock inverter { 
-		titleBody = " Inverters"; 
-		compType = "Inverter"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","pwrOut", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","eff","effBase","effDes"}; 
-		//showColHeader=FALSE; 	
+   // Create some objects that our special power system viewer will use
+   string outputPortList[];
+
+   // Override the base class's display function, and do some stuff first to prepare the electric viewer
+   void display() {
+      setupElectricalPageViewer();
+      elecPorts.elecPortPowerData.componentList = outputPortList;
+      elecPorts.elecPortVIData.componentList = outputPortList;
+      elecComponents.elecComponentData.componentList = powerComponentListSourceToLoad;
+      PageViewer::display();
    }
 
-   DColTBlock rectifier { 
-		titleBody = " Rectifiers"; 
-		compType = "Rectifier"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut","EP_I.S.r","EP_O.S.r", "EP_I.V.r","EP_I.V.j","EP_O.V.r","EP_O.V.j","EP_I.I.mag","EP_I.I.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg","EP_I.S.r","Mass","eff","effBase","effDes"}; 
-		//showColHeader=FALSE; 	
-   }
+   GroupBlock TnBGroup {
 
-   DColTBlock motor { 	
-		titleBody = " Motors"; 
-		compType = "Motor"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_I.S.j","Pout","eff","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg","Mass","Loss_r","Loss_j"};
-   }
-      
-   DColTBlock cable { 
-		titleBody = " Cables"; 
-		compType = "Cable"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","EP_O.I.mag","EP_O.I.phaseDeg","Mass","Loss_r","Loss_j"}; 
-   } 
-      
-   DColTBlock aerocable { 
-		titleBody = " AeroCables"; 
-		compType = "AeroCable"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
-   } 
-      
-   DColTBlock breaker { 
-		titleBody = " Breakers"; 
-		compType = "Breaker"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_I.V.r","EP_I.V.j", "EP_O.V.r","EP_O.V.j","dV.r","dV.j","EP_O.I.mag","EP_O.I.phaseDeg","R","L","Z.r","Z.j","Mass","Loss_r","Loss_j"}; 
-   } 
-    
-	DColTBlock threephasecable { 
-		titleBody = " 3 Phase Cable"; 
-		compType = "ThreePhaseCable"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
-		//showColHeader=FALSE; 	
-	}
-   
-   DColTBlock constantpowerload { 
-		titleBody = " ConstantPowerLoad"; 
-		compType = "ConstantPowerLoad"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","P","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
-		//showColHeader=FALSE; 	
-	}
-
-   DColTBlock dc_dc_converter { 
-		titleBody = " DC-DC Converters"; 
-		compType = "DC_DC_Converter"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"pwrOut", "EP_I.S.r", "EP_O.S.r", "EP_I.V.r", "K", "EP_O.V.r", "EP_I.I.mag", "EP_O.I.mag", "Mass", "eff", "effBase", "effDes"}; 
-   }
-
-   anchor = "title"; 
-   title.bottom = "source"; 
-   source.bottom = "generator";
-   generator.bottom = "rectifier";
-   rectifier.bottom = "inverter";
-   inverter.bottom = "dc_dc_converter";
-   dc_dc_converter.bottom = "motor"; 
-   motor.bottom = "cable"; 
-   cable.bottom =  "aerocable";
-   aerocable.bottom =  "breaker";
-   breaker.bottom =  "constantpowerload";
-   addGutter = TRUE; 
-}  //end of Electrical Block
-
-/*
-GroupBlock ElectricalTherm { 
-   SimpleBlock title { 
-		body = "                          ELECTRICAL POWER SYSTEM - THERMAL DATA"; 
-   } 
-   DColTBlock motor { 	
-		titleBody = " Motor Thermal Mass"; 
-		compType = "Motor.S_eThermMass"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"T", "Cp", "Q_in", "Q_out"};
-   }
-   DColTBlock generator { 	
-		titleBody = " Generator Thermal Mass"; 
-		compType = "Generator"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-   DColTBlock rectifier { 	
-		titleBody = " Rectifier Thermal Mass"; 
-		compType = "Rectifier"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-   DColTBlock inverter { 	
-		titleBody = " Inverter Thermal Mass"; 
-		compType = "Inverter"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-   DColTBlock cable { 	
-		titleBody = " Cable Thermal Mass"; 
-		compType = "Cable"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-   DColTBlock aerocable { 	
-		titleBody = " AeroCable Thermal Mass"; 
-		compType = "AeroCable"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-   DColTBlock breaker { 	
-		titleBody = " Breaker Thermal Mass"; 
-		compType = "Breaker"; 
-		compTypeFormat = "????????????"; 
-		compAttr = {"S_eThermMass.T", "S_eThermMass.Cp", "S_eThermMass.Q_in", "S_eThermMass.Q_out"};
-   }
-
-   anchor = "title"; 
-   title.bottom = "motor"; 
-   motor.bottom =  "generator";
-   generator.bottom = "rectifier";
-   rectifier.bottom = "inverter";
-   inverter.bottom = "cable"; 
-   cable.bottom =  "aerocable";
-   aerocable.bottom =  "breaker";
-   addGutter = TRUE; 
-}  //end of ElectricalTherm Block
-*/
-
-GroupBlock CircuitsGroup { 
-
-   DColTBlock resistor { 
-		titleBody = "\n"; 
-		compType = "Resistor"; 
-		compTypeFormat = "????????"; 
-		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-   }
-   
-   DColTBlock inductor { 
-		titleBody = "\n"; 
-		compType = "Inductor"; 
-		compTypeFormat = "????????????"; 
-		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-   } 
-   
-   DColTBlock capacitor { 
-		titleBody = "\n"; 
-		compType = "Capacitor"; 
-		compTypeFormat = "????????????"; 
-		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-   }
-   anchor = "resistor"; 
-   resistor.bottom = "inductor"; 
-   inductor.bottom = "capacitor";
-   addGutter = FALSE; 
-} 
-
-
-
-
-
-
-GroupBlock MapsGroup { 
-   DColTBlock compMaps { 
-      titleBody = "TURBOMACHINERY MAP DATA"; 
-      compType = "Compressor"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "S_map.WcMap:????.??=WcMap", "S_map.PRmap:??.???=PRmap", "S_map.effMap:??.????=effMap", 
-                   "S_map.NcMap:?????.???=NcMap", "S_map.RlineMap:???.????=R/Parm", "S_map.s_WcDes:?????.????=s_WcDes", 
-                   "S_map.s_PRdes:???.????=s_PRdes", "S_map.s_effDes:?.????=s_effDes", "S_map.s_NcDes:?????.???=s_NcDes" } 
-   }
+      SimpleBlock title { 
+   body = "*******************************************************************************\n" +
+         "NCP ????????????????????????????    model:?????????????????   run by:?????????????   solutionMode=?????????????     converge=?????    CASE:?????\n" +
+         "time:???.????   timeStep:?.?????    therm_package:?????????   Mode:???????????????   itr/pas/Jac/Bry=????/????/???/???    run: ???????? ????????" ;
+   vars = {"VERSION","MODELNAME","USER","solver.solutionMode","solver.converged", "CASE",
+           "time","timeStep","THERMPACKAGE","page.switchDes","solver.iterationCounter","solver.passCounter","solver.numJacobians","solver.numBroydens","date","timeOfDay"}
+      } 
 
    
-   DColTBlock turbMaps { 
-      compType = "Turbine"; 
-      compTypeFormat = "????????"; 
-      compAttr = { "S_map.WpMap:????.??=WcMap", "S_map.PRmap:??.???=PRmap", "S_map.effMap:??.????=effMap", 
-                   "S_map.NpMap:?????.???=NcMap", "S_map.PRmap:???.????=parmMap", "S_map.s_WpDes:?????.????=s_WcDes", 
-                   "S_map.s_PRdes:???.????=s_PRdes", "S_map.s_effDes:?.????=s_effDes", "S_map.s_NpDes:?????.???=s_NcDes" } 
-      showColHeader=FALSE; 
+      anchor = "title"; 
+      addGutter = TRUE;
+   } // end TnBGroup
+
+   LinkColTBlock inputs { 
+      titleBody = "                                        FLOW STATION DATA";
+      titleVars = { }
+      compType = "FluidOutputPort";
+      compTypeFormat = "????????????????????????";
+      excludeCompTypes = { "InterStageBleedOutPort", "BleedOutPort" }     //remove to include bleed ports 
+      compAttr = { "W:????.??", "Pt:????.???", "Tt:?????.??", "ht:????.??", "FAR:?.????", 
+                  "Wc:????.??", "Ps:????.???", "Ts:?????.??", "rhos:?.??????", "Aphy:?????.?", "MN:?.????", "gamt:??.?????" }
    } 
-   anchor = "compMaps"; 
-   compMaps.bottom = "turbMaps"; 
-   addGutter = FALSE; 
-}  //end of MapsGroup
 
-
-GroupBlock ABblock {  //========================================================================================
-
-   GroupBlock Components {   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      DColTBlock inlets { 
-         titleBody = "===INLETS====    eRam       Afs      Fram"; 
-         compType = "Inlet"; 
-         compTypeFormat = "????????????"; 
-         compAttr = { "eRam:??.????", "Afs:?????.??", "Fram:??????.?" } 
-         showColHeader = FALSE; 
+   GroupBlock Turbomachinery { 
+      DColTBlock comps { 
+         titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
+         compType = "Compressor"; 
+         compTypeFormat = "????????"; 
+         compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
+                     "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
       } 
-      DColTBlock ducts { 
-         titleBody = "====DUCTS====  dPnorm        MN      Aphy"; 
-         compType = "Duct"; 
-         compTypeFormat = "????????????"; 
-         compAttr = { "dPqP:??.????", "Fl_I.MN:???.????=MNin", "Fl_I.Aphy:?????.??=Aphy" } 
-         showColHeader = FALSE; 
-      } 
-      DColTBlock splitters { 
-         titleBody = "==SPLITTERS==     BPR    dP/P 1    dP/P 2"; 
-         compType = "Splitter"; 
-         compTypeFormat = "????????????"; 
-         compAttr = { "BPR:??.????", "dPqP1:???.????=dPpri/P", "dPqP2:???.????=dPsec/P" } 
-         showColHeader = FALSE; 
-      } 
-      DColTBlock shafts { 
-         titleBody = "===SHAFTS====   Nmech    trq in    pwr in"; 
-         compType = "Shaft"; 
-         compTypeFormat = "????????????"; 
-         compAttr = { "Nmech:?????.?", "trqIn:??????.?", "pwrIn:??????.?" } 
-         showColHeader = FALSE; 
-      } 
-      DColTBlock loads { 
-         titleBody = "====LOADS====   Nload    Nratio   trqLoad      pwr"; 
-         compType = "Load"; 
-         compTypeFormat = "????????????"; 
-         compAttr = { "Nload:?????.?", "NR:??.?????", "trqLoad:??????.?", "pwr:??????.?" } 
-         showColHeader = FALSE; 
-      } 
-      anchor = "inlets"; 
-      inlets.bottom = "ducts"; 
-      ducts.bottom = "splitters"; 
-      splitters.bottom = "shafts"; 
-      shafts.bottom = "loads"; 
-   }  //end of Components 
-
-   GroupBlock BleedGroup {  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      LinkColTBlock interStageBleeds { 
-         titleBody = "\nBLEEDS - interstg  Wb/Win    BldWk     BldP          W        Tt       ht        Pt"; 
-         compType = "InterStageBleedOutPort"; 
-         compTypeFormat = "????????????????"; 
-         compAttr = { "fracBldW:??.????=Wb/Win", "fracBldWork:??.????=dhb/dh", "fracBldP:??.????=dPb/dP", 
-                      "W:????.????", "Tt:?????.??", "ht:????.??", "Pt:????.???" } 
-         showColHeader = FALSE; 
-      } 
-      LinkColTBlock outletBleeds { 
-         titleBody = "\nBLEEDS - output    Wb/Win   hscale   Pscale          W        Tt       ht        Pt"; 
-         compType = "BleedOutPort"; 
-         compTypeFormat = "????????????????"; 
-         excludeCompTypes = { "InterStageBleedOutPort" } 
-         compAttr = { "fracW:??.????=Wb/Win", "hscale:??.????", "Pscale:??.????", 
-                      "W:????.????", "Tt:?????.??", "ht:????.??", "Pt:????.???" } 
+      DColTBlock turbs { 
+         compType = "Turbine"; 
+         compTypeFormat = "????????"; 
+         compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
+                     "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
          showColHeader=FALSE; 
       } 
-      interStageBleeds.bottom = "outletBleeds"; 
+      anchor = "comps"; 
+      comps.bottom = "turbs"; 
       addGutter = FALSE; 
-   }  //end of BleedGroup
+   }  //end of Turbomachinery block
 
-   EmptyTextBlock space {  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      width = 4; 
-      height = 0;
+
+   GroupBlock elecPorts { 
+
+      SimpleBlock title { 
+         body = "                                        ELECTRICAL PORT DATA"; 
+      } 
+      
+      DColTBlock elecPortPowerData { 
+         titleBody = "                                   Complex Power Data           |               Misc Data"; 
+         compType = "ElectricPort";
+         compAttr = {"roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         defSNFormat = "?.?e???";
+      }
+      DColTBlock elecPortVIData { 
+         titleBody = "\n                                   Complex Voltage Data  (V_LL)   |     Complex Current Data  (I_Line)"; 
+         compType = "ElectricPort";
+         compAttr = {"roundTo(V.mag,2):???????.??=|V|, V","roundDeg(V.phaseDeg,3):????.???=/_V, deg","roundTo(V.r,2):????.??=V.r","roundTo(V.j,2):????.??=V.j","roundTo(I.mag,2):???????.??=|I|, A","roundDeg(I.phaseDeg,3):????.???=/_I, deg","roundTo(I.r,2):????.??=I.r","roundTo(I.j,2):????.??=I.j"}; 
+         defSNFormat = "?.?e???";
+      }
+
+      anchor = "title";
+      title.bottom = "elecPortPowerData";
+      elecPortPowerData.bottom = "elecPortVIData";
+      addGutter = FALSE; 
+   }
+
+   GroupBlock elecComponents { 
+      SimpleBlock title { 
+         body = "                                        ELECTRICAL POWER SYSTEM COMPONENT DATA"; 
+      } 
+
+      DColTBlock elecComponentData { 
+         titleBody = "";
+         compType = "ElectricElement"; 
+         compAttr = {"eff:?.?????","Mass:????.??=Mass, kg", "Loss_r:????.??=Loss_r, kW", "Loss_j:????.??=Loss_j, kVAR", "Q_heat:????.??=Q_heat, BTU/s"}; 
+         defSNFormat = "?.?e???";
+      }
+
+      GroupBlock cableAndBreakerData {
+         SimpleBlock title { 
+            body = "\n                            ELECTRICAL POWER SYSTEM -- COMPONENT SPECIFIC DATA"; 
+         } 
+         DColTBlock aeroCableData { 
+            titleBody = "AeroCable Data";
+            compType = "AeroCable"; 
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.j=X, Reactance", "cable_size", "paralleled=#parallel", "ampacity"}
+
+         }
+         DColTBlock cableData { 
+            titleBody = "Cable Data";
+            compType = "Cable"; 
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
+         }
+         DColTBlock breakerData { 
+            titleBody = "Breaker Data";
+            compType = "Breaker"; 
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
+         }
+         anchor = "title"; 
+         title.bottom = "aeroCableData";
+         aeroCableData.bottom = "cableData";
+         cableData.bottom = "breakerData";         
+      }
+      anchor = "title"; 
+      title.bottom = "elecComponentData"; 
+      elecComponentData.bottom = "cableAndBreakerData";
+      addGutter = FALSE; 
+   }
+
+   LinkColTBlock thermalPorts { 
+      titleBody = "                                        THERMAL PORT DATA";
+      titleVars = { }
+      compType = "ThermalOutputPort";
+      compTypeFormat = "????????????????????????";
+      compAttr = { "MassTemp", "HeatTransferRate" }
    } 
-   anchor = "Components"; 
-   Components.right = "space"; 
-   space.right = "BleedGroup"; 
-}  //end of ABblock
 
+   anchor = "TnBGroup"; 
+   TnBGroup.bottom = "inputs"; 
+   inputs.bottom = "thermalPorts";
+   thermalPorts.bottom = "elecPorts"; 
+   elecPorts.bottom = "elecComponents"; 
 
-
-GroupBlock Cblock {   //========================================================================================
-
-   DColTBlock burners { 
-      titleBody = "===BURNERS===   TtOut       eff    dPnorm      Wfuel       FAR    EINOx"; 
-      compType = "Burner"; 
-      compTypeFormat = "????????????"; 
-      compAttr = { "TtCombOut:????.??=TtOut", "eff:???.????", "dPqP:???.????=dPnorm", 
-                   "Wfuel:???.?????", "FAR:??.?????", "Emissions.EINOx:???.???=EINOx" } 
-      showColHeader = FALSE; 
-   } 
-   DColTBlock mixers { 
-      titleBody = "===MIXERS====    Aout   PtRatio      MN 1     MN 2"; 
-      compType = "Mixer2"; 
-      compTypeFormat = "????????????"; 
-      compAttr = { "Aout:?????.??", "PtRatio:?.????", "Fl_I1.MN:?.???=MN_I1", "Fl_I2.MN:?.???=MN_I2" } 
-      showColHeader = FALSE; 
-   } 
-    
-   anchor = "burners"; 
-   burners.bottom = "mixers"; 
-   //mixers.bottom  = "nozzles"; 
-}  //end of Cblock
-
-
-LinkColTBlock thermalPorts { 
-   titleBody = "                                        THERMAL PORT DATA";
-   titleVars = { }
-   compType = "ThermalOutputPort";
-   compTypeFormat = "????????????????????????";
-   compAttr = { "MassTemp", "HeatTransferRate" }
-} 
-
-anchor = "TnBGroup"; 
-TnBGroup.bottom = "inputs"; 
-inputs.bottom = "thermalPorts";
-thermalPorts.bottom = "Electrical"; 
-Electrical.bottom = "CircuitsGroup";
-CircuitsGroup.bottom = "MapsGroup";
-MapsGroup.bottom = "ABblock"; 
-ABblock.bottom = "Cblock"; 
-
-pageWidth = 0; 
-pageHeight = 0; 
-outStreamHandle = "pageStream"; 
+   pageWidth = 0; 
+   pageHeight = 0; 
+   outStreamHandle = "pageStream"; 
 }

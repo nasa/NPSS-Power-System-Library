@@ -152,13 +152,7 @@ run();
 saveOpPoints("DES");
 
 saveOpPoints("DONE");
-//system( "start python Map_plotting\mapplot_V27.py" );
 
-//#include "print_macros.fnc"
-// printData(Cable1.list("Variable",FALSE));
-// printData(Cable2.list("Variable",FALSE));
-// printData(Cable3.list("Variable",FALSE));
-//printData(Breaker1.list("Variable",FALSE));
 
 csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
 csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;

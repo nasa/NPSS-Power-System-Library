@@ -82,20 +82,25 @@ described above.";
   //--------------------------------
   
   real Pdemand {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 10; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power demanded by the load (you set this).";
   }
 
   real pfDemand {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 0.98; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power factor this load should run at (you set this).";
   }
 
   real P {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    value = 10; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power doing useful work in this load element.";
   }
 
+  real SpecificPower {
+    value = 9; IOstatus = "input"; units = "none"; // [kW/kg]
+    description = "Power to weight ratio for the component.";
+  }
+  
   real pf {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Power factor at input to this load element.";
@@ -121,7 +126,7 @@ described above.";
     description = "Imaginary component of losses in this load.";
   }
 
-  real Q_heat {
+  Q_heat {
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation in BTU/s at current time.";
   }
@@ -132,7 +137,7 @@ described above.";
   }
 
   real Vimag{
-    value = -1.;  IOstatus = "output";  units = "none"; // [volts]
+    value = 0;  IOstatus = "output";  units = "none"; // [volts]
     description = "Imaginary portion of voltage.";
   }
 
@@ -183,26 +188,29 @@ described above.";
   Independent ind_Vreal { 
     varName = "Vreal"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the real component of the load voltage.";
   }
 
   Independent ind_Vimag { 
     varName = "Vimag"; 
     autoSetup = TRUE;
-    indepRef = "10000";
+    indepRef = "1000";
     description = "Varies the imaginary component of the load voltage.";
   }
 
   Dependent dep_power {
     eq_lhs = "EP_I.S.rRMS * eff**sign(Pdemand)";
+    //eq_lhs = "EP_I.S.rRMS * eff";
     eq_rhs = "Pdemand";
     autoSetup = TRUE;
   }
 
-  Dependent dep_power_factor{
-    eq_rhs = "pf";
-    eq_lhs = "pfDemand";
+  Dependent dep_power_factor{    
+    eq_lhs = "EP_I.S.j";
+    eq_rhs = "EP_I.S.r * tan(acos(pfDemand))"; // reformulated constraint to avoid depending on angles or divisions.
+    // eq_rhs = "pf";
+    // eq_lhs = "pfDemand";
     autoSetup = TRUE;
   }
 
@@ -233,6 +241,13 @@ described above.";
   //-------------------------------------------------
   
   void calculate() {
+
+    if (switchDes == "DESIGN" ) {
+      // compute mass based on assumed specific power
+      // both mass and loses are based on output power (power sent)
+      Mass = EP_I.S.mag / SpecificPower;
+    }
+
     pf = cos(EP_I.S.phase);
     P = EP_I.S.r * eff**sign(EP_I.S.r);
     Loss_r = EP_I.S.r - P;

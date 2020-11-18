@@ -9,9 +9,8 @@
  | Author(s):	  George Thomas, Brian Malone                   			   |
  | Date(s):       October 2020                                                 |
  |                                                                             |
- | Description:   Low power test bed model                                     |
- |               (DC power supply, DC and AC cables, inverter, motor, dyno)    |
- |               using electric port.										   |
+ | Description:   DC model with backflow                                       |
+ |             									                               |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
