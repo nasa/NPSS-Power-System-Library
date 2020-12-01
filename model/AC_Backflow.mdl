@@ -65,7 +65,7 @@ Element Enode Busbar
 
 Element Breaker B_CPL
 {
-    effDes=0.95;
+    effDes=0.995;
     SpecificPower=10.0; 
 }
 
@@ -101,7 +101,7 @@ Element ConstantPowerLoad CLoad
 
 Element Breaker B_Motor
 {
-    effDes=0.95;
+    effDes=0.995;
     SpecificPower=10.0; 
 }
 
