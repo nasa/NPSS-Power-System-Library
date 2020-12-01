@@ -2,14 +2,16 @@
  -------------------------------------------------------------------------------
  |                                                                             |
  | NASA Glenn Research Center                                                  |
- | 21000 Brookpark Rd 		                                                     |
+ | 21000 Brookpark Rd 		                                                   |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     cable_thermal_test.mdl                                       |
- | Author(s):	    George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle       |
+ | Author(s):	    George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle     |
  | Date(s):       February 2019                                                |
  |                                                                             |
  | Description:   Run the cable element on and off-design.                     |
+ |                The purpose is to demonstrate thermal connection to          |
+ |                power components.                                             |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/

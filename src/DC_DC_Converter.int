@@ -86,12 +86,12 @@ component to the surrounding environment. For more information, see EThermalMass
 
   real effBase {
     value = 1.;  IOstatus = "output";  units = "none";
-    description = "Adiabatic efficiency.  Calculated and set by S_map socket during off design.";
+    description = "Converter efficiency.  Calculated and set by S_map socket during off design.";
   }
 
   real effDes {
     value = 1.;  IOstatus = "input";  units = "none";
-    description = "Adiabatic efficiency at design point.";
+    description = "Converter efficiency at design point.";
   }
 
   real pwrDes {

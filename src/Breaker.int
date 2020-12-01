@@ -145,17 +145,17 @@ current information is updated in the breaker's input and output ports.";
 
   real Iimag {
     value = 0; IOstatus = "input"; units = "A"; // [amps]
-    description = "Guess value for imaginary current component in cable.";
+    description = "Guess value for imaginary current component in breaker.";
   }
 
   real Vreal_drop {
     value = 0; IOstatus = "output"; units = "none";
-    description = "Voltage dropped across cable given operating current.";
+    description = "Voltage dropped across breaker given operating current.";
   }
 
   real Vimag_drop {
     value = 0; IOstatus = "output"; units = "none";
-    description = "Imaginary component of voltage dropped across cable, given operating current.";
+    description = "Imaginary component of voltage dropped across breaker, given operating current.";
   }
   
   ComplexNumber dV;
