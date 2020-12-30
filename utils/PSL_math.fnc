@@ -5,7 +5,7 @@
  | 21000 Brookpark Rd 		                                                   |
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
- | File Name:     Source.int										           |
+ | File Name:     PSL_math.fnc										           |
  | Author(s):     George Thomas, Brian Malone                                  |
  | Date(s):       October 2020                                                 |
  |                                                                             |
@@ -15,14 +15,7 @@
 #ifndef __PSLMATH__
 #define __PSLMATH__
 
-real SIGMOID_TUNING_PARAMETER = 1000;
-
-real sigmoid (real x)
-{
-    return (2*1/(1+E**(-SIGMOID_TUNING_PARAMETER * x))-1);
-}
-
-real sign (real x)
+real sign(real x)
 {
     if (x < 0) //negative function input
     {
@@ -37,4 +30,13 @@ real sign (real x)
         return (0);
     }
 }
+
+// Create a sigmoidal function that represents a smooth version of the sign function
+real SIGMOID_TUNING_PARAMETER = 1000;
+
+real sigmoid(real x)
+{
+    return (2*1/(1+E**(-SIGMOID_TUNING_PARAMETER * x))-1);
+}
+
 #endif

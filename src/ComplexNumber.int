@@ -285,5 +285,13 @@ class ComplexNumber extends VariableContainer {
     }
   }
   
+void ll2ln() {
+    setMagPhase( sqrt(1. / 3.) * mag, phase - (30. * PI/180.) );
+}
+
+void ln2ll() {
+    setMagPhase( sqrt(3.) * mag, phase + (30. * PI/180.) );
+}
+  
 }
 #endif

@@ -129,11 +129,6 @@ this component, see MotorGeneratorMap.int";
     value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
   }
 
-  real frequency {
-    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Output frequency";
-  }
-
   Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Real component of losses in this load.";
@@ -169,14 +164,23 @@ this component, see MotorGeneratorMap.int";
     description = "Hours spent running at the current operating point.";
   }
 
-  real Vreal {
-    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real portion of output voltage.";
+  real Ireal {
+    value = 1000.;  IOstatus = "output";  units = "A"; // [amps]
+    description = "Real portion of output current.";
   }
 
-  real Vimag {
-    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Imaginary portion of output voltage.";
+  real Iimag {
+    value = 0;  IOstatus = "output";  units = "A"; // [amps]
+    description = "Imaginary portion of output current.";
+  }
+
+  real Vrms {
+    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "RMS value of output line-to-line voltage.";
+  }
+  real Vphase {
+    value = 1000.;  IOstatus = "output";  units = "deg"; // [volts]
+    description = "Phase angle of of output line-to-line voltage.";
   }
   
   real SpecificPower {
@@ -252,6 +256,20 @@ this component, see MotorGeneratorMap.int";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
+  Independent ind_Ireal { 
+    varName = "Ireal"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the real component of this component's current.";
+  }
+  
+  Independent ind_Iimag { 
+    varName = "Iimag"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the imaginary component of this component's current.";
+  }
+
   // MDP variable
   Independent ind_energyDes {
     varName = "energyDes";
@@ -274,7 +292,15 @@ this component, see MotorGeneratorMap.int";
            create("", "ThermalInputPort", "Q_I");
        }
     }
-
+    if (name =="switchDes") {
+      if (switchDes == "DESIGN") {
+        ind_Ireal.autoSetup = TRUE;
+        ind_Iimag.autoSetup = TRUE;
+        if (EP_O.ElectricPowerType == "DC") {
+          ind_Iimag.autoSetup = FALSE;
+        }
+      }
+    }
     if (name == "multiDes") {
       if (switchDes == DESIGN) {
         ind_energyDes.autoSetup = TRUE;
@@ -291,6 +317,19 @@ this component, see MotorGeneratorMap.int";
    * calculate (resistive only) impedance, power factor, etc.
    */
   void calculate() {
+    
+    // Compute the output voltage value
+    ComplexNumber Vo;
+    if (EP_O.ElectricPowerType == "DC") {
+      Vo.setMagPhase( Vrms, 0 );
+    }
+    else {
+      Vo.setMagPhase( Vrms, Vphase * PI/180. );
+    }
+    
+    // Set output port power variables
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(Ireal, Iimag, Vo.r, Vo.j);
     
     /** 
      * If we're on-design, we need to figure out the output impedance based
@@ -349,11 +388,6 @@ this component, see MotorGeneratorMap.int";
         S_eThermMass.execute();
       }
     }
-  }
-
-  void prePass() {
-    EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
   }
 
   void trackEnergy() {

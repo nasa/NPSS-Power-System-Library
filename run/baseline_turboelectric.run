@@ -62,16 +62,6 @@ Dependent target_pwr{
   eq_lhs = "TurbPowDesired";
   eq_rhs = "Turb.pwr";
 }
-// <GLT> Add biases to solver variables so that if you guess the wrong sign,
-// or solver independents otherwise need to cross zero, you won't die by div/0.
-real bias_value = 0*2*Gen1.Vbus_LL;
-Rect1.ind_Vimag.a  = bias_value;
-Rect1.ind_Vimag.a  = bias_value;
-Inv1.ind_Vreal.a   = bias_value;
-Inv1.ind_Vimag.a   = bias_value;
-EM1.ind_Vreal.a    = bias_value;
-EM1.ind_Vimag.a    = bias_value;
-prop_pwr.a 		   = bias_value;
 
 //solver.solutionMode = "ONE_PASS";
 solver.addIndependent("prop_pwr");
@@ -80,19 +70,6 @@ solver.diagnosticFile = "output/mySolverOutput";
 solver.debugLevel = "ITERATION_DETAILS";
 //solver.clear();
 
-// <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
-// Looks like the only thing that botches this up now is guessing them such that you get currents
-// with the wrong sign...
-E1.VrealRMS    = 999;
-E1.VimagRMS    = 0;
-Rect1.Vreal    = 998;
-Rect1.Vimag    = 0;
-E2.VrealRMS   = 1390;
-E2.VimagRMS   = 0;
-Inv1.Vreal   = 997;
-Inv1.Vimag   = 0;
-EM1.Vreal    = 996;
-EM1.Vimag    = 0;
 
 Turb.S_map {
    int SCALED_MAP = TRUE;

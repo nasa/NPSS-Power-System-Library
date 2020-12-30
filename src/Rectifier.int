@@ -93,20 +93,20 @@ component to the surrounding environment. For more information, see EThermalMass
     value = 1.;  IOstatus = "input";  units = "none";
     description = "Adiabatic efficiency at design point.";
   }
-  
-  real frequency {
-    value = 60.; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Frequency of AC output power.";
-  }
 
   real pwrDes {
-    value = 1.;  IOstatus = "input";  units = "kW"; // [kilowatt]
-    description = "Output power at design.";
+    value = 1.;  IOstatus = "input";  units = "kW"; // [kilowatts]
+    description = "Input power at design.";
   }
 
   real pwrOut {
-    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatt]
+    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatts]
     description = "Output power.";
+  }
+
+  real pwrIn {
+    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatts]
+    description = "Input power.";
   }
 
   real Vimag {
@@ -205,32 +205,12 @@ component to the surrounding environment. For more information, see EThermalMass
   //-----------------------------------------------------
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
-
-  Independent ind_Vreal { 
-    varName = "Vreal"; 
-    autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the real component of the inverter voltage";
-  }
-  
-  Independent ind_Vimag { 
-    varName = "Vimag"; 
-    autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the imaginary component of the inverter voltage";
-  }
   
   Independent ind_control { 
     varName = "K"; 
     autoSetup = FALSE;
     indepRef = "1000";
     description = "Varies the relationship between input and output voltage (voltage ratio)";
-  }
-  
-  Dependent dep_Power {
-    eq_rhs = "EP_I.S.rRMS * eff**sign(EP_I.S.r)";
-    eq_lhs = "EP_O.S.rRMS";
-    autoSetup = TRUE;
   }
   
   Dependent dep_phase {
@@ -262,16 +242,19 @@ component to the surrounding environment. For more information, see EThermalMass
   //-----------------------------------------------
 
   void calculate() {
-    pwrOut = EP_O.S.rRMS;
+
+    // Get data from input port
+    frequency = EP_I.frequency;
+    pwrIn = EP_I.S.r;
 
     if (switchDes == "DESIGN" ) {
-      // handle case where guessed design power is zero.
-      if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
-      pwrDes = pwrOut;
+      // handle case where guessed design power is close to zero.
+      if (abs(pwrIn) < 1e-4) { pwrIn = 1e-4; }
+      pwrDes = pwrIn;
       
       // compute mass based on assumed specific power
       // Both mass and loses are based on output power (power sent)
-      Mass = pwrOut / SpecificPower;
+      Mass = pwrIn / SpecificPower;
     }
 
     // set efficiency value
@@ -281,6 +264,18 @@ component to the surrounding environment. For more information, see EThermalMass
       effBase = effDes;
     }
     eff = effBase;
+
+    // Calculate this component's real output power
+    real pwrOut = pwrIn * eff**sign(pwrIn);
+
+    // Ideal output DC voltage
+    real Vo = EP_I.V.mag * 3 * sqrt(2) / PI * K;
+
+    // Output DC current (w/ losses)
+    real Io = 1000.*pwrOut / Vo;
+
+    // Populate data in output port
+    EP_O.setIVRMS(Io, 0., Vo, 0.);
     
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
@@ -295,15 +290,6 @@ component to the surrounding environment. For more information, see EThermalMass
         S_eThermMass.execute();
       }
     }
-  }
-  
-  //------------------------------------------------------------
-  // ******* PREPASS FUNCTION *******
-  //------------------------------------------------------------
-  void prePass() {	
-    EP_I.frequency = frequency;
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, EP_I.V.mag * 3 * sqrt(2) / PI * K, 0);
   }
 }
 #endif

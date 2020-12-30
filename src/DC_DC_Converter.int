@@ -96,7 +96,12 @@ component to the surrounding environment. For more information, see EThermalMass
 
   real pwrDes {
     value = 1.;  IOstatus = "input";  units = "kW"; // [kilowatt]
-    description = "Output power at design.";
+    description = "Input power at design.";
+  }
+
+  real pwrIn {
+    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatt]
+    description = "Input power.";
   }
 
   real pwrOut {
@@ -186,25 +191,12 @@ component to the surrounding environment. For more information, see EThermalMass
   //-----------------------------------------------------
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
-
-  Independent ind_V { 
-    varName = "Voltage"; 
-    indepRef = "1000";
-    description = "Varies the converter voltage.";
-    autoSetup = TRUE;
-  }
   
   Independent ind_control { 
     varName = "K"; 
     autoSetup = FALSE;
     indepRef = "1000";
     description = "Varies the relationship between input and output voltage (voltage ratio)";
-  }
-  
-  Dependent dep_Power {
-    eq_lhs = "EP_O.S.rRMS";
-    eq_rhs = "EP_I.S.rRMS * eff**sign(EP_O.S.rRMS)";
-    autoSetup = TRUE;
   }
   
   void variableChanged(string name, any oldVal) {
@@ -220,16 +212,16 @@ component to the surrounding environment. For more information, see EThermalMass
   //-----------------------------------------------
 
   void calculate() {
-    pwrOut = EP_O.S.rRMS;
+    pwrIn = EP_I.S.rRMS;
 
     if (switchDes == "DESIGN" ) {
       // handle case where guessed design power is zero.
-      if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
-      pwrDes = pwrOut;
+      if (abs(pwrIn) < 1e-4) { pwrIn = 1e-4; }
+      pwrDes = pwrIn;
       
       // compute mass based on assumed specific power
       // both mass and loses are based on output power (power sent)
-      Mass = pwrOut / SpecificPower;
+      Mass = pwrIn / SpecificPower;
     }
 
     // set efficiency value
@@ -240,6 +232,14 @@ component to the surrounding environment. For more information, see EThermalMass
     }
     eff = effBase;
     
+    // Calculate power
+    pwrOut = pwrIn * eff**sign(pwrIn);
+
+    // Update output port power variables.
+    real Vo = EP_I.I.r * K;
+    real Io = 1000.*pwrOut / Vo;
+    EP_O.setIVRMS(Io, 0, Vo, 0);
+
     Loss_r = EP_I.S.r - EP_O.S.r;
 
     if (switchThermPort == "TRUE") {
@@ -251,15 +251,6 @@ component to the surrounding environment. For more information, see EThermalMass
         S_eThermMass.execute();
       }
     }
-  }
-  
-  //-------------------------------
-  // ****** PREPASS FUNCTION ******
-  //-------------------------------
-
-  void prePass() {	
-    EP_I.setIVRMS(EP_I.I.r, 0, Voltage, 0);
-    EP_O.setIVRMS(EP_O.I.r, 0, Voltage * K, 0);
   }
 }
 #endif

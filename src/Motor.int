@@ -116,11 +116,6 @@ this component, see MotorGeneratorMap.int";
   real effDes {
     value = 1.;  IOstatus = "input";  units = "none";
     description = "Electrical-to-mechanical power conversion efficiency at design point.";
-  } 
-
-  real frequency {
-    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Generator Frequency.";
   }
   
   Loss_r {
@@ -272,20 +267,6 @@ this component, see MotorGeneratorMap.int";
   //-----------------------------------------------------
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
-
-  Independent ind_Vreal { 
-    varName = "Vreal"; 
-    indepRef = "1000";
-    description = "Varies the real component of the motor voltage.";
-    autoSetup = TRUE;
-  }
-  
-  Independent ind_Vimag { 
-    varName = "Vimag"; 
-    indepRef = "1000";
-    description = "Varies the imaginary component of the motor voltage.";
-    autoSetup = TRUE;
-  }
 
   Dependent dep_power_factor {
     eq_lhs = "EP_I.S.j";
