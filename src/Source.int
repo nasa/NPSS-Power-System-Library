@@ -102,12 +102,12 @@ this component, see MotorGeneratorMap.int";
   //------------------------------
   
   real actualSpecificPower {
-    value = 0; IOstatus = "output"; units = "kW/kg"; // [kw/kg]
+    value = 0; IOstatus = "output"; // [kw/kg]
     description = "Specific power used during on-design.";
   }
 
   real actualSpecificEnergy {
-    value = 0; IOstatus = "output"; units = "Wh/kg"; // [wh/kg]
+    value = 0; IOstatus = "output"; // [wh/kg]
     description = "Specific energy used during on-design.";
   }
 
