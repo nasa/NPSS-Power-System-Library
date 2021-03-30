@@ -101,6 +101,16 @@ this component, see MotorGeneratorMap.int";
   // ****** SETUP VARIABLES ******
   //------------------------------
   
+  real actualSpecificPower {
+    value = 0; IOstatus = "output"; // [kw/kg]
+    description = "Specific power used during on-design.";
+  }
+
+  real actualSpecificEnergy {
+    value = 0; IOstatus = "output"; // [wh/kg]
+    description = "Specific energy used during on-design.";
+  }
+
   real pfDes {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Design power factor at output of this source element.";
@@ -162,6 +172,11 @@ this component, see MotorGeneratorMap.int";
   real energy {
     value = 0; IOstatus = "output"; units = "none"; // [kW-h]
     description = "Energy consumed at the current operating point.";
+  }
+
+  real powerDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW]
+    description = "Design power for this source.";
   }
 
   real segmentTime {
@@ -311,6 +326,9 @@ this component, see MotorGeneratorMap.int";
       R = Loss_r / EP_O.I.mag**2;
       L = 0;
 
+      // Declare design point power.
+      powerDes = EP_O.S.r;
+
       // Energy consumed at this operating point.
       energy = PInternal * segmentTime;
 
@@ -327,6 +345,10 @@ this component, see MotorGeneratorMap.int";
       } else {
         Mass = powerBasedMass; // compute mass based on assumed specific power
       }
+
+      actualSpecificEnergy = 1000 * energyDes/Mass; // [Wh/kg]
+      actualSpecificPower = powerDes/Mass; // [kW/kg]
+
 
       C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
 
