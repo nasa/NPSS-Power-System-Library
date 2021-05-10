@@ -253,11 +253,11 @@ described above.";
     Loss_r = EP_I.S.r - P;
     Loss_j = EP_I.S.j;
 
-    if (switchThermPort == "TRUE") {
-      real KW_PER_BTU_PER_SEC = 1.05505585;
-      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
-      Q_heat /= KW_PER_BTU_PER_SEC;
+    real KW_PER_BTU_PER_SEC = 1.05505585;
+    Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+    Q_heat /= KW_PER_BTU_PER_SEC;
 
+    if (switchThermPort == "TRUE") {
       // run the thermal mass model.
       if (!S_eThermMass.isEmpty()) {
         S_eThermMass.execute();

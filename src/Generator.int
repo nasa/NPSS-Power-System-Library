@@ -307,11 +307,11 @@ this component, see MotorGeneratorMap.int";
     trq =  C_HP_PER_RPMtoFT_LBF * (Pin / 0.745699872) / Speed;
     Sh_O.trq = -trq;
 
-    if (switchThermPort == "TRUE") {
-      real KW_PER_BTU_PER_SEC = 1.05505585;
-      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
-      Q_heat /= KW_PER_BTU_PER_SEC;
+    real KW_PER_BTU_PER_SEC = 1.05505585;
+    Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+    Q_heat /= KW_PER_BTU_PER_SEC;
 
+    if (switchThermPort == "TRUE") {
       // run the thermal mass model.
       if (!S_eThermMass.isEmpty()) {
         S_eThermMass.execute();

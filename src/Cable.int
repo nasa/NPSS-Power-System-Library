@@ -203,10 +203,11 @@ no sizing logic included in this component, other than the mass calculations des
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
 
+    real KW_PER_BTU_PER_SEC = 1.05505585;
+    Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
+    Q_heat /= KW_PER_BTU_PER_SEC;
+    
     if (switchThermPort == "TRUE") {
-      real KW_PER_BTU_PER_SEC = 1.05505585;
-      Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
-      Q_heat /= KW_PER_BTU_PER_SEC;
       // run the thermal mass model
       if (!S_eThermMass.isEmpty()) {
         S_eThermMass.execute();
