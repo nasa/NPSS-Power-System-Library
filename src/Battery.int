@@ -1,0 +1,405 @@
+/***
+ --------------------------------------------------------------------------------------------
+ |                                                                                           |
+ | NASA Glenn Research Center                                                                |
+ | 21000 Brookpark Rd 		                                                                 |
+ | Cleveland, OH 44135 	                                                                     |
+ |                                                                                           |
+ | File Name:     Source.int										                         |
+ | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle, Brian Malone       |
+ | Date(s):       August 2021                                                                |
+ |                                                                                           |
+ --------------------------------------------------------------------------------------------
+***/
+
+#ifndef __SOURCE__
+#define __SOURCE__
+#include "PSL_math.fnc" 
+
+int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
+ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
+
+class Battery extends ElectricElement {
+  
+  //----------------------------
+  // ****** DOCUMENTATION ******
+  //----------------------------
+  
+  // title = "";
+
+  description = "The " + isA() + " serves as a voltage source with constant 
+  impedance. It also contains simplified logic for calculating energy consumed 
+  to be used with a MDP solver setup. This energy is used to compute mass via a 
+  flat assumption for specific energy. Users can also specify specific power. 
+  Mass is calculated as the larger of the two masses (design power/spc power) 
+  and (design energy/spc energy)";
+  
+  usageNotes = isA() +
+  "
+
+- The input design parameters that must be specified by the modeler when creating an instance 
+of this " + isA() + " component are mass specific power (SpecificPower), design efficiency 
+(effDes), frequency, and voltage (Vreal and Vimag). This component will produce electrical 
+power at the specified voltage and frequency, with losses according to its design efficiency.
+
+- When running ONDESIGN, this component will determine its output impedance, which is 
+calculated such that the component operates with the specified design efficiency value.
+When running OFFDESIGN, the model will run with losses according to the impedance calculated 
+from the ONDESIGN run.
+
+- This component, being a source component, must have its electricPowerType specified, and 
+will propagate this power type information to components downstream of it when 
+findSourcesAndPropagate() is called. This component supports DC, single phase, and 3 phase AC. 
+
+- This component produces power and includes a node. Being a component including a node, a 
+voltage must be specified at this component. However, being a source component, its voltage is 
+typically set to a fixed value (unless the modeler changes it to be otherwise), and it does 
+not need solver variables to operate (except when running in MDP mode).
+
+- Note that, as a component that contains a node and has its voltage known at the beginning
+of the solverSequence, it uses its prePass() method to call the electrical port update 
+function to pass this voltage information to electrical components that it is connected to. 
+Note that in the current implementation of the NPSS Power System Library, these components 
+containing nodes do not know what currents are going through their ports at the beginning of 
+an iteration. Because of this, they must be connected to power transmission components (cables 
+and breakers), and these transmission components must be run before node-bearing 
+transformation components like this one, as the transmission components will calculate and 
+populate these current values. Note that this design is intended to be analogous to a common 
+approach taken in fluid networks within NPSS rocket models.
+
+- The battery block contains variables intended to be used in a multi-design-point (MDP) 
+simulation. This MDP logic is intended to consist of several different assemblies containing 
+systems including this source block; each one of these assemblies represents the same system 
+but running at a different design point (e.g. cruise, climb, and hover for an eVTOL concept). 
+To enable the solver variables that this component uses for MDP, set Option multiDes to true. 
+Then for each of the design point assemblies, set the appropriate value for segmentTime (how 
+long the mission segment is, in hours, that this assembly represents. Also select a segment 
+that represents the most important segment and give it an initial guess value for design 
+energy (energyDes). You will also need to disable autoSetup in ind_energyDes and dep_energyDes 
+or otherwise remove them from all assemblies other than the main MDP one. Finally, then set up 
+logic that copies energyDes from the main assembly to the other MDP assemblies before each of 
+them run, and set up a solver pair at the top level that varies the design energy for the main 
+mission segment, until the sum of the energies consumed in all of the segments is less than 
+the design energy. For an example on setting up this MDP logic, see baseline_all_elecMDP.run.
+
+- This component, like other power system components in the NPSS Power System Library, can 
+optionally include thermal models. An optional thermal model is enabled by setting 
+switchThermPort to TRUE, and plugging an EThermalMass subelement into the S_eThermMass socket. 
+Doing these will add a temperature state (existing within EThermalMass) and a thermal port to 
+the model. The thermal port is intended to connect this component to a second component that 
+represents the mechanism by which heat is extracted from this component. This second component 
+could represent a heat exchanger, cold plate, or just model heat transfer from the first 
+component to the surrounding environment. For more information, see EThermalMass.
+
+- The " + isA() + " component does not use solver variables, however it includes sizing logic. 
+this logic calculates mass as well as calculates the design torque and speed values. These 
+values are used by a performance map (if one is plugged into the S_map socket) to calculate 
+efficiency at the current operating point. For more information about performance maps for 
+this component, see MotorGeneratorMap.int";
+  
+  //------------------------------
+  // ****** SETUP VARIABLES ******
+  //------------------------------
+  
+  real actualSpecificPower {
+    value = 0; IOstatus = "output"; // [kw/kg]
+    description = "Specific power used during on-design.";
+  }
+
+  real actualSpecificEnergy {
+    value = 0; IOstatus = "output"; // [wh/kg]
+    description = "Specific energy used during on-design.";
+  }
+
+  real pfDes {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Design power factor at output of this source element.";
+  }
+
+//   real effDes {
+//     value = 0.95; IOstatus = "input"; units = "none";
+//     description = "Design efficiency of this source element.";
+//   }
+
+  real pf {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Actual (calculated) power factor at output of this source element.";
+  }
+
+  eff {
+    value = 0.95; IOstatus = "output"; units = "none";
+    description = "Actual (calculated) efficiency of this source element.";
+  }
+
+  real R {
+    value = .01;  IOstatus = "output";  units = "ohm";
+  }
+
+  real L {
+    value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
+  }
+
+  real frequency {
+    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
+    description = "Output frequency";
+  }
+
+  Loss_r {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Real component of losses in this load.";
+  }
+
+  Loss_j {
+    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
+    description = "Imaginary component of losses in this load.";
+  }
+
+  Q_heat {
+    value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
+    description = "Power dissipation in BTU/s at current time.";
+  }
+
+  real energyDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Design energy for this source.";
+  }
+
+  real energyConsumed {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Total energy consumed over mission, only use off-design.";
+  }
+
+  real energy {
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
+    description = "Energy consumed at the current operating point.";
+  }
+
+  real powerDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW]
+    description = "Design power for this source.";
+  }
+
+  real resistor_R0 {
+    value = 0; IOstatus = "output"; units = "none"; // [Ohm]
+    description = "Design upstream battery resistance.";
+  }
+
+  real resistor_R1 {
+    value = 0; IOstatus = "output"; units = "none"; // [Ohm]
+    description = "Design downstream battery resistance.";
+  }
+
+  real segmentTime {
+    value = 0.25; IOstatus = "output"; units = "hr"; // [h]
+    description = "Hours spent running at the current operating point.";
+  }
+
+  real Vreal {
+    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Real portion of output voltage.";
+  }
+
+  real Vimag {
+    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Imaginary portion of output voltage.";
+  }
+
+  real Voc {
+    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Real source voltage of equivalent battery circuit.";
+  }
+  
+  real SpecificPower {
+    value = 13; IOstatus = "input"; units = "none"; // [kW/kg]
+    description = "Power to weight ratio for the source.";
+  }
+  
+  real SpecificEnergy {
+    value = 130; IOstatus = "input"; units = "none"; // [W-h/kg]
+    description = "Energy to weight ratio for the source.";
+  }
+
+  real C_rate {
+    value = 130; IOstatus = "input"; units = "none"; // [-]
+    description = "Computed on-design C-rate for the source.";
+  }
+
+  Mass {
+    value = 1.; IOstatus = "output"; units = "kg"; // [kilograms]
+    description = "Computed on-design mass for the source.";
+  }
+
+  //------------------------------------
+  // ****** OPTION VARIABLE SETUP ******
+  //------------------------------------
+
+  Option switchDes {
+    allowedValues = { "DESIGN", "OFFDESIGN" }
+    description = "Determines if the element is in design or off-design mode.";
+    rewritableValues = FALSE;
+    trigger = TRUE;
+  }
+
+  Option switchThermPort {
+    allowedValues = { "TRUE", "FALSE" }
+    description = "Determines if component needs thermal port.";
+    rewritableValues = FALSE;  // enables converter optimization
+    trigger = TRUE;
+  }
+
+  Option switchTrackEnergy {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if we should track energy or not when running off-design.";
+    rewritableValues = FALSE;  // enables converter optimization
+  }
+
+  Option multiDes {
+    allowedValues = { "FALSE", "TRUE" }
+    description = "Determines if component is undergoing multi-design point simulation.";
+    rewritableValues = FALSE;
+    trigger = TRUE;
+  }
+  
+  //----------------------------------------------------------
+  // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
+  //----------------------------------------------------------  
+  
+  /* ELECTRICAL PORTS */
+
+  ElectricOutputPort EP_O {
+    description = "Electric output port.";
+  }
+
+  /* SOCKETS */
+
+  Socket S_eThermMass {
+    allowedValues = { "Q_heat", "Mass" }
+    description = "Thermal mass socket.";
+    socketType = "EThermalMass";
+  }
+  
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+
+  // MDP variable
+  Independent ind_energyDes {
+    varName = "energyDes";
+    description = "Varies design energy to match calculated energy at design condition.";
+  }
+
+  // MDP variable
+  Dependent dep_energyDes {
+    eq_lhs = "energyDes";
+    eq_rhs = "energy";
+  }
+  
+  //-------------------------------------------
+  // ****** VARIABLE CHANGED METHODOLOGY ******
+  //-------------------------------------------
+
+  void variableChanged(string name, any oldVal) {
+    if (name == "switchThermPort") {
+       if (switchThermPort == "TRUE") {
+           create("", "ThermalInputPort", "Q_I");
+       }
+    }
+
+    if (name == "multiDes") {
+      if (switchDes == DESIGN) {
+        ind_energyDes.autoSetup = TRUE;
+        dep_energyDes.autoSetup = TRUE;
+      }
+    }
+  }
+
+  //-----------------------------------------------
+  // ****** PERFORM ENGINEERING CALCULATIONS ******
+  //-----------------------------------------------
+  
+  /** So this component expects you to set Vreal and Vimag. It will
+   * calculate (resistive only) impedance, power factor, etc.
+   */
+  void calculate() {
+    
+    /** 
+     * If we're on-design, we need to figure out the output impedance based
+     * on the design efficiency. Otherwise, calculate the loss and the 
+     * efficiency based on the impedance (which is held constant).
+     */
+
+    pf = cos(EP_O.S.phase);
+
+    if (switchDes == "DESIGN") {
+      pfDes = pf;
+    //   eff = effDes;
+      
+      // internal power, before flowing through this component's output impedance
+      real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
+      Loss_r = PInternal - EP_O.S.r;
+      Loss_j = 0;
+      R = Loss_r / EP_O.I.mag**2;
+      L = 0;
+
+      // Declare design point power.
+      powerDes = EP_O.S.r;
+
+      // Energy consumed at this operating point.
+      energy = PInternal * segmentTime;
+
+      // get design values 
+      if (multiDes != "TRUE") {
+        energyDes = energy;
+      }
+
+      real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
+      real powerBasedMass = EP_O.S.r / SpecificPower;
+
+      if (energyBasedMass > powerBasedMass) {
+        Mass = energyBasedMass; // compute mass based on assumed specific energy
+      } else {
+        Mass = powerBasedMass; // compute mass based on assumed specific power
+      }
+
+      actualSpecificEnergy = 1000 * energyDes/Mass; // [Wh/kg]
+      actualSpecificPower = powerDes/Mass; // [kW/kg]
+
+
+      C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
+
+    } else {
+      Loss_r = EP_O.I.mag**2 * R;
+      Loss_j = 0;
+      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
+
+      // energy consumed at this operating point.
+      energy = (EP_O.S.r + Loss_r) * segmentTime;
+    }
+
+    real KW_PER_BTU_PER_SEC = 1.05505585;
+    Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+    Q_heat /= KW_PER_BTU_PER_SEC;
+
+    if (switchThermPort == "TRUE") {
+      // run the thermal mass model.
+      if (!S_eThermMass.isEmpty()) {
+        S_eThermMass.execute();
+      }
+    }
+  }
+
+  void prePass() {
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
+  }
+
+  void trackEnergy() {
+    Source.energyConsumed += Source.energy;
+    if (Source.energyConsumed > Source.energyDes) {
+      ESOreport(ESO_Id_ExceededEnergyDes,
+      "Source component's energy consumed (" + toStr(Source.energyConsumed) +
+      ") exceeded design energy (" + toStr(Source.energyDes)+").", 1);
+    }
+  }
+}
+#endif
