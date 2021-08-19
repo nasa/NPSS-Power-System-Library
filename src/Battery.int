@@ -189,6 +189,11 @@ this component, see MotorGeneratorMap.int";
     description = "Design downstream battery resistance.";
   }
 
+  real RTotal {
+    value = 0; IOstatus = "output"; units = "none"; // [Ohm]; tR_Th in Python boring amprius_battery
+    description = "Design toal battery resistance.";
+  }
+
   real segmentTime {
     value = 0.25; IOstatus = "output"; units = "hr"; // [h]
     description = "Hours spent running at the current operating point.";
@@ -333,13 +338,13 @@ this component, see MotorGeneratorMap.int";
     if (switchDes == "DESIGN") {
       pfDes = pf;
       // eff = effDes;
-      RTotal = resistor_R0 + resistor_Rth; 
+      RTotal = resistor_R0 + resistor_R_Th; 
       Voc = Vreal + (Vreal/RTotal) * RTotal;
       // internal power, before flowing through this component's output impedance
       real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
       Loss_r = PInternal - EP_O.S.r;
       Loss_j = 0;
-    //   R = Loss_r / EP_O.I.mag**2;
+      //  R = Loss_r / EP_O.I.mag**2;
       R = RTotal;
       L = 0;
       eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
@@ -371,7 +376,7 @@ this component, see MotorGeneratorMap.int";
       C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
 
     } else {
-      RTotal = resistor_R0 + resistor_Rth; 
+      RTotal = resistor_R0 + resistor_R_Th; 
       R = RTotal;
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
