@@ -180,12 +180,12 @@ this component, see MotorGeneratorMap.int";
   }
 
   real resistor_R0 {
-    value = 0; IOstatus = "output"; units = "none"; // [Ohm]
+    value = 0.6339; IOstatus = "output"; units = "none"; // [Ohm]; tR_0 in Python boring amprius_battery
     description = "Design upstream battery resistance.";
   }
 
-  real resistor_R1 {
-    value = 0; IOstatus = "output"; units = "none"; // [Ohm]
+  real resistor_R_Th {
+    value = 0.1578; IOstatus = "output"; units = "none"; // [Ohm]; tR_Th in Python boring amprius_battery
     description = "Design downstream battery resistance.";
   }
 
@@ -195,17 +195,17 @@ this component, see MotorGeneratorMap.int";
   }
 
   real Vreal {
-    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
+    value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
     description = "Real portion of output voltage.";
   }
 
   real Vimag {
-    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    value = 0;  IOstatus = "output";  units = "V"; // [volts]
     description = "Imaginary portion of output voltage.";
   }
 
   real Voc {
-    value = -1.;  IOstatus = "output";  units = "V"; // [volts]
+    value = 0;  IOstatus = "output";  units = "V"; // [volts]
     description = "Real source voltage of equivalent battery circuit.";
   }
   
@@ -332,14 +332,17 @@ this component, see MotorGeneratorMap.int";
 
     if (switchDes == "DESIGN") {
       pfDes = pf;
-    //   eff = effDes;
-      
+      // eff = effDes;
+      RTotal = resistor_R0 + resistor_Rth; 
+      Voc = Vreal + (Vreal/RTotal) * RTotal;
       // internal power, before flowing through this component's output impedance
       real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
       Loss_r = PInternal - EP_O.S.r;
       Loss_j = 0;
-      R = Loss_r / EP_O.I.mag**2;
+    //   R = Loss_r / EP_O.I.mag**2;
+      R = RTotal;
       L = 0;
+      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
 
       // Declare design point power.
       powerDes = EP_O.S.r;
@@ -368,6 +371,8 @@ this component, see MotorGeneratorMap.int";
       C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
 
     } else {
+      RTotal = resistor_R0 + resistor_Rth; 
+      R = RTotal;
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;
       eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);

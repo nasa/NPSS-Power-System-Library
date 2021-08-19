@@ -1,0 +1,91 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     SW13.mdl                                                     |
+ | Author(s):	  George Thomas, Brian Malone                   			   |
+ | Date(s):       October 2020                                                 |
+ |                                                                             |
+ | Description:   DC model with backflow                                       |
+ |             									                               |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+cout<<"======================================="<<endl;
+cout<<" MODEL WITH DC-DC CONVERTER AND BACKFLOW"<<endl;
+cout<<"======================================="<<endl;
+
+#ifdef THERMO
+    cout << "THERMO" << endl;
+    setThermoPackage("$THERMO");
+#elseif
+    cout << "GasTbl" << endl;
+    setThermoPackage("GasTbl");
+#endif
+
+/**************************
+Electric Power System Components
+**************************/
+Element Battery Si_cell { //Amprius battery ELD214
+    setOption("ElectricPowerType", "DC");
+    Vreal  = 3.414; // [volts] 
+    Vimag  = 0;    // [volts]
+    // effDes = 0.95; 
+}
+
+Element Cable CableLeft 
+{
+	R = 0.1; //Ohms
+	L = 0; //Henries
+}
+
+Element DC_DC_Converter DeltaDC
+{
+    K = 1; //K = Vout/Vin
+    SpecificPower = 10; // kW/kg
+    effDes = 0.95;
+}
+
+Element Cable CableRight 
+{
+	R = 0.1; //Ohms
+	L = 0; //Henries
+}
+
+Element ConstantPowerLoad CLoad
+{
+    Pdemand  = 10; //kW
+    eff = 0.95;
+}					
+
+
+
+//-------------------------------------------------------------------------------------------------
+// Component Linkages
+//-------------------------------------------------------------------------------------------------
+linkPortI( "Si_cell.EP_O", "CableLeft.EP_I" );
+linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
+linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
+linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
+
+findSourcesAndPropagate();
+
+solverSequence = { "CableLeft", "CableRight", "Si_cell", "DeltaDC", "CLoad" }; 
+
+void BFPrintOutput() 
+{
+    cout << " Case = " << CASE;
+    cout << " Calculated DC-DC eff = " << DeltaDC.EP_O.S.r/DeltaDC.EP_I.S.r << endl;
+    cout << " DC-DC eff = " <<  DeltaDC.eff << endl; 
+    cout << " Calculated load eff = "  << CLoad.P/CLoad.EP_I.S.r << endl;
+    cout << " Load eff = " << CLoad.eff << endl;
+}
+
+// Initial independent variable guesses are here.
+DeltaDC.Voltage = 80; 
+CLoad.Vreal = 60;
+CLoad.Vimag = 0;
