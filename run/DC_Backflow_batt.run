@@ -48,7 +48,9 @@ solver.maxIterations=500;
 solver.maxJacobians=500;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
-run(); 
+// Constant power load 10 kW for Case 0 and 1
+run();
+BFPrintOutput(); 
 CASE++;
 
 page.display();  // output data to out file
@@ -59,12 +61,15 @@ Off design
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
-run(); CASE++;
+run(); 
 BFPrintOutput();
+CASE++;
 page.display();
 
 CLoad.Pdemand = -10; //Backflow condition (current flowing "upstream" (load to source))
 
-run(); CASE++;
-void BFPrintOutput(); 
+// Constant power load -10 kW for Case 2
+run(); 
+BFPrintOutput();
+CASE++; 
 page.display();

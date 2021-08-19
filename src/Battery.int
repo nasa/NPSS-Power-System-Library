@@ -64,7 +64,8 @@ containing nodes do not know what currents are going through their ports at the 
 an iteration. Because of this, they must be connected to power transmission components (cables 
 and breakers), and these transmission components must be run before node-bearing 
 transformation components like this one, as the transmission components will calculate and 
-populate these current values. Note that this design is intended to be analogous to a common 
+populate these current values. When calculate() is called, this component's voltage and current 
+will be known at its ports.  Note that this design is intended to be analogous to a common 
 approach taken in fluid networks within NPSS rocket models.
 
 - The battery block contains variables intended to be used in a multi-design-point (MDP) 
