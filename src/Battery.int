@@ -179,6 +179,11 @@ this component, see MotorGeneratorMap.int";
     description = "Design power for this source.";
   }
 
+  real PDirection {
+      value = 0; IOstatus = "output"; units = "none"; //-
+      description = "+1 for source to load power flow, -1 for load to source.";
+  }
+
   real resistor_R0 {
     value = 0.6339; IOstatus = "output"; units = "none"; // [Ohm]; tR_0 in Python boring amprius_battery
     description = "Design upstream battery resistance.";
@@ -200,8 +205,8 @@ this component, see MotorGeneratorMap.int";
   }
 
   real Vreal {
-    value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real portion of output voltage.";
+    value = 0;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Real portion of battery output voltage.";
   }
 
   real Vimag {
@@ -210,7 +215,7 @@ this component, see MotorGeneratorMap.int";
   }
 
   real Voc {
-    value = 0;  IOstatus = "output";  units = "V"; // [volts]
+    value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
     description = "Real source voltage of equivalent battery circuit.";
   }
   
@@ -336,10 +341,17 @@ this component, see MotorGeneratorMap.int";
     pf = cos(EP_O.S.phase);
 
     if (switchDes == "DESIGN") {
+      PDirection = sign(EP_O.S.r);
       pfDes = pf;
       // eff = effDes;
-      RTotal = resistor_R0 + resistor_R_Th; 
-      Voc = Vreal + (Vreal/RTotal) * RTotal;
+      RTotal = resistor_R0 + resistor_R_Th;
+      if (sign(EP_O.S.r) < 0){
+        cout << "BPM: Hi!  You made it." << endl;
+        Vreal = Voc;
+        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
+      } else {   
+        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
+      }
       // internal power, before flowing through this component's output impedance
       real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
       Loss_r = PInternal - EP_O.S.r;
@@ -376,7 +388,15 @@ this component, see MotorGeneratorMap.int";
       C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
 
     } else {
-      RTotal = resistor_R0 + resistor_R_Th; 
+      PDirection = sign(EP_O.S.r);
+      RTotal = resistor_R0 + resistor_R_Th;
+      if (sign(EP_O.S.r) < 0){
+        cout << "BPM: Hi!  You made it." << endl;
+        Vreal = Voc;
+        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
+      } else {   
+        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
+      } 
       R = RTotal;
       Loss_r = EP_O.I.mag**2 * R;
       Loss_j = 0;

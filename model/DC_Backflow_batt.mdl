@@ -79,13 +79,16 @@ solverSequence = { "Cable_Single", "Li_ion_cell", "CLoad" };
 
 void BFPrintOutput() 
 {
-    cout << " Case = " << CASE;
-    cout << " Battery voltage = " << Li_ion_cell.Vreal << endl; 
+    cout << " Case = " << CASE << endl;
+    cout << " Battery output voltage = " << Li_ion_cell.Vreal << endl; 
+    cout << " Battery input voltage = " << Li_ion_cell.Voc << endl;
+    cout << " Battery current = " << Li_ion_cell.Voc/Li_ion_cell.RTotal << endl;
+    cout << " PDirection = " << Li_ion_cell.PDirection << endl;
     cout << " Calculated load eff = "  << CLoad.P/CLoad.EP_I.S.r << endl;
     cout << " Load eff = " << CLoad.eff << endl;
 }
 
 // Initial independent variable guesses are here.
 // DeltaDC.Voltage = 80; 
-CLoad.Vreal = 2;
+CLoad.Vreal = 3;
 CLoad.Vimag = 0;
