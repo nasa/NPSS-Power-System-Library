@@ -143,12 +143,12 @@ this component, see MotorGeneratorMap.int";
   }
 
   real desired_energyDes {
-    value = 100; IOstatus = "input"; units = "none"; // [kW-h]
+    value = 10; IOstatus = "input"; units = "none"; // [kW-h]
     description = "Desired design energy capacity for this battery.";
   }
 
   real energyDes {
-    value = 100; IOstatus = "output"; units = "none"; // [kW-h]
+    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
     description = "Actual design energy capacity for this battery.";
   }
 
@@ -177,14 +177,19 @@ this component, see MotorGeneratorMap.int";
     description = "Total battery resistance.";
   }
 
+  real Vout_des {
+    value = 4.2;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Design value for battery output voltage.";
+  }
+
   real Vout {
     value = 3.6;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Battery output voltage.";
+    description = "Battery output voltage at current operating point.";
   }
 
   real Vout_guess {
     value = 3.6;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Guess value for battery output voltage.";
+    description = "Guess value for battery output voltage at current operating point.";
   }
 
   real Voc {
@@ -250,7 +255,7 @@ this component, see MotorGeneratorMap.int";
   /* SOCKETS */
 
   Socket S_map {
-    allowedValues = { "T_batt", "SOC", "Vout_guess", "desired_energyDes" }
+    allowedValues = { "T_batt", "SOC", "Vout_des", "desired_energyDes" }
     description = "Socket for battery cell data map and logic to size pack from cells.";
     socketType = "BatteryCellSoCTemperatureMap"; 
   }
@@ -287,13 +292,6 @@ this component, see MotorGeneratorMap.int";
        if (switchThermPort == "TRUE") {
            create("", "ThermalInputPort", "Q_I");
        }
-    }
-
-    if (name == "multiDes") {
-      if (switchDes == DESIGN) {
-        ind_energyDes.autoSetup = TRUE;
-        dep_energyDes.autoSetup = TRUE;
-      }
     }
   }
 

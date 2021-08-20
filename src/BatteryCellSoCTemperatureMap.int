@@ -6,7 +6,7 @@
  | Cleveland, OH 44135                                                                       |
  |                                                                                           |
  | File Name:     BatteryCellSoCTemperatureMap.int                                           |
- | Author(s):     George Thomas and Brian Malone                                             |
+ | Author(s):     George Thomas                                                              |
  | Date(s):       August 2021                                                                |
  |                                                                                           |
  --------------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 extern real SOC;
 extern real T_batt;
 // Used for pack sizing
-extern real Vout_guess;
+extern real Vout_des;
 extern real desired_energyDes;
 
 // Variables that exist in the parent element
@@ -154,15 +154,15 @@ class BatteryCellSoCTemperatureMap extends Subelement {
     if ( switchDes == DESIGN ) {
       //----------------------------------------------------------------------
       // On design, we need to size the pack. That is, figure out number of
-      // series and parallel cells in the pack. BPM to write this logic.
+      // series and parallel cells in the pack.
       //----------------------------------------------------------------------
-      num_parallel = 1;
-      num_series = 1;
+      num_parallel = ceil(desired_energyDes / energyDes_cell);
+      num_series = ceil(Vout_des/Voc_cell);
     } // end (switchDes == DESIGN)
     
     //----------------------------------------------------------------------
     // Now that we've sized the pack and we have cell level Voc/R_0/R_Th, 
-    // let's calculate the pack level quantities. BPM to revisit.
+    // let's calculate the pack level quantities.
     //----------------------------------------------------------------------
     Voc  = Voc_cell*num_series;
     R_0  = R_0_cell*num_series / num_parallel;

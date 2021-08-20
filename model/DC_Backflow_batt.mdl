@@ -72,6 +72,8 @@ void BFPrintOutput()
     cout << " Battery output voltage (guess value)  = " << Li_ion_cell.Vout_guess << endl; 
     cout << " Battery current (calc)                = " << (Li_ion_cell.Voc-Li_ion_cell.Vout)/Li_ion_cell.RTotal << endl;
     cout << " Battery current (output port)         = " << Li_ion_cell.EP_O.I.r << endl;
+    cout << " Number of series cells in battery     = " << Li_ion_cell.S_map.num_series << endl;
+    cout << " Number of parallel cells in battery   = " << Li_ion_cell.S_map.num_parallel << endl;
     cout << " Cable current (output port)           = " << Cable_Single.EP_O.I.r << endl;
     cout << " Load input voltage                    = " << CLoad.EP_I.V.r << endl;
     cout << " Load input power                      = " << CLoad.EP_I.S.r << endl;
