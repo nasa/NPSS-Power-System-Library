@@ -117,11 +117,6 @@ this component, see MotorGeneratorMap.int";
     description = "Design power factor at output of this source element.";
   }
 
-//   real effDes {
-//     value = 0.95; IOstatus = "input"; units = "none";
-//     description = "Design efficiency of this source element.";
-//   }
-
   real pf {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Actual (calculated) power factor at output of this source element.";
@@ -205,19 +200,24 @@ this component, see MotorGeneratorMap.int";
     description = "Hours spent running at the current operating point.";
   }
 
-  real Vreal {
+  real Vout {
     value = 0;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real portion of battery output voltage.";
+    description = "Battery output voltage.";
   }
 
-  real Vimag {
+  real Vout_guess {
     value = 0;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Imaginary portion of output voltage.";
+    description = "Guess value for battery output voltage.";
   }
 
   real Voc {
     value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real source voltage of equivalent battery circuit.";
+    description = "Open circuit battery voltage (before battery's output impedance).";
+  }
+
+  real Vdrop {
+    value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Voltage drop across battery's output impedance.";
   }
   
   real SpecificPower {
@@ -293,6 +293,19 @@ this component, see MotorGeneratorMap.int";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
+  Independent ind_Vout { 
+    varName = "Vout_guess"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the battery output voltage to match Vout = Voc - Vdrop.";
+  }
+  
+  Dependent dep_Power {
+    eq_lhs = "Vout";
+    eq_rhs = "Vout_guess";
+    autoSetup = TRUE;
+  }
+
   // MDP variable
   Independent ind_energyDes {
     varName = "energyDes";
@@ -328,44 +341,28 @@ this component, see MotorGeneratorMap.int";
   // ****** PERFORM ENGINEERING CALCULATIONS ******
   //-----------------------------------------------
   
-  /** So this component expects you to set Vreal and Vimag. It will
-   * calculate (resistive only) impedance, power factor, etc.
-   */
   void calculate() {
     
-    /** 
-     * If we're on-design, we need to figure out the output impedance based
-     * on the design efficiency. Otherwise, calculate the loss and the 
-     * efficiency based on the impedance (which is held constant).
-     */
+    // Need to calculate Vout = Voc - Vdrop (Vdrop is drop across the output impedance)
+    // Output impedance and Voc are map lookup parameters
+    
+    // Get output impedance (needs to be a map lookup)
+    // resistor_R0 = ;
+    // resistor_R_Th = ;
+    RTotal = resistor_R0 + resistor_R_Th;
 
-    pf = cos(EP_O.S.phase);
+    // Get open circuit voltage
+    // Voc = ;
+
+    // Calculate output voltage (which the solver will force to be equal to the guess value)
+    Vout = Voc - EP_O.I.r*RTotal;
 
     if (switchDes == "DESIGN") {
-      PDirection = sign(EP_O.S.r);
-      pfDes = pf;
-      // eff = effDes;
-      RTotal = resistor_R0 + resistor_R_Th;
-      if (sign(EP_O.S.r) < 0){
-        cout << "BPM: Hi!  You made it." << endl;
-        Vreal = Voc;
-        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
-      } else {   
-        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
-      }
-      // internal power, before flowing through this component's output impedance
-      real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
-      Loss_r = PInternal - EP_O.S.r;
-      Loss_j = 0;
-      //  R = Loss_r / EP_O.I.mag**2;
-      R = RTotal;
-      L = 0;
-      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
-
+      
       // Declare design point power.
       powerDes = EP_O.S.r;
 
-      // Energy consumed at this operating point.
+      // Energy design value.
       energy = PInternal * segmentTime;
 
       // get design values 
@@ -384,29 +381,18 @@ this component, see MotorGeneratorMap.int";
 
       actualSpecificEnergy = 1000 * energyDes/Mass; // [Wh/kg]
       actualSpecificPower = powerDes/Mass; // [kW/kg]
-
-
-      C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
-
-    } else {
-      PDirection = sign(EP_O.S.r);
-      RTotal = resistor_R0 + resistor_R_Th;
-      if (sign(EP_O.S.r) < 0){
-        cout << "BPM: Hi!  You made it." << endl;
-        Vreal = Voc;
-        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
-      } else {   
-        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
-      } 
-      R = RTotal;
-      Loss_r = EP_O.I.mag**2 * R;
-      Loss_j = 0;
-      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
-
+    }
+     
       // energy consumed at this operating point.
       energy = (EP_O.S.r + Loss_r) * segmentTime;
     }
 
+    // Output params common to both on and off design cases.
+    C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h)
+    R = RTotal;
+    Loss_r = EP_O.I.mag**2 * R;
+    Loss_j = 0;
+    eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);
     Q_heat /= KW_PER_BTU_PER_SEC;
@@ -421,7 +407,7 @@ this component, see MotorGeneratorMap.int";
 
   void prePass() {
     EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
+    EP_O.setIVRMS(EP_O.I.r, 0, Vout_guess, 0);
   }
 
   void trackEnergy() {
