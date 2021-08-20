@@ -1,0 +1,113 @@
+/***
+ --------------------------------------------------------------------------------------------
+ |                                                                                           |
+ | NASA Glenn Research Center                                                                |
+ | 21000 Brookpark Rd                                                                        |
+ | Cleveland, OH 44135                                                                       |
+ |                                                                                           |
+ | File Name:     amprius_cell.map                                                           |
+ | Author(s):     George Thomas and Brian Malone                                             |
+ | Date(s):       August 2021                                                                |
+ |                                                                                           |
+ --------------------------------------------------------------------------------------------
+***/
+
+//  ---------------------------------------------------------------
+//  |    Amprius silicon nanowire Li-ion battery cell map
+//  ---------------------------------------------------------------
+//  |    Declaration of a new Subelement instance called S_map
+//  |    that is of the type BatteryCellSoCTemperatureMap
+//  ---------------------------------------------------------------
+
+Subelement BatteryCellSoCTemperatureMap S_map {
+
+	// Constant parameters specific to this battery cell.
+	energyDes_cell = 12.75; // W-h (3.75 V nominal * 3.4 Ah tested at C/5 discharge)
+
+	//  ----------------------------------------------------------------------
+	//  |    Declare a table (or function) named TB_Wp(real SPED, real PR)
+	//  |    To satisfy the TB_Wp socket requirement. BPM to fill in
+	//  ---------------------------------------------------------------------- 
+	 
+	// Voc vs Temperature and SOC data
+	Table TB_Voc(real T, real SOC){
+	
+		T = 0.0 {
+		  SOC = { 0.2, 0.4, 0.6, 0.8 }
+		  Voc = { 3.6, 3.8, 4.0, 4.2 }
+		}
+		T = 20.0 {
+		  SOC = { 0.2, 0.4, 0.6, 0.8 }
+		  Voc = { 3.5, 3.7, 3.9, 4.1 }
+		}
+		T = 40.0 {
+		  SOC = { 0.2, 0.4, 0.6, 0.8 }
+		  Voc = { 3.4, 3.6, 3.8, 4.0 }
+		}
+  
+		T.interp = "linear" ;
+		T.extrap = "linear" ;
+		  
+		SOC.interp = "linear" ;
+		SOC.extrap = "linear" ;
+		  
+		extrapIsError = 0;		
+		printExtrap = 0;
+		  
+	}  // end TB_Voc
+	 
+	// Static output resistance vs Temperature and SOC data
+	Table TB_R_0(real T, real SOC){
+	
+		T = 0.0 {
+		  SOC = {   0.2,   0.4,   0.6,   0.8 }
+		  R_0 = { 0.009, 0.009, 0.009, 0.009 }
+		}
+		T = 20.0 {
+		  SOC = {   0.2,   0.4,   0.6,   0.8 }
+		  R_0 = { 0.009, 0.009, 0.009, 0.009 }
+		}
+		T = 40.0 {
+		  SOC = {   0.2,   0.4,   0.6,   0.8 }
+		  R_0 = { 0.009, 0.009, 0.009, 0.009 }
+		}
+  
+		T.interp = "linear" ;
+		T.extrap = "linear" ;
+		  
+		SOC.interp = "linear" ;
+		SOC.extrap = "linear" ;
+		  
+		extrapIsError = 0;		
+		printExtrap = 0;
+		  
+	}  // end TB_R_0
+	 
+	// Static output resistance vs Temperature and SOC data
+	Table TB_R_Th(real T, real SOC){
+	
+		T = 0.0 {
+		  SOC  = {   0.2,   0.4,   0.6,   0.8 }
+		  R_Th = { 0.002, 0.002, 0.002, 0.002 }
+		}
+		T = 20.0 {
+		  SOC  = {   0.2,   0.4,   0.6,   0.8 }
+		  R_Th = { 0.002, 0.002, 0.002, 0.002 }
+		}
+		T = 40.0 {
+		  SOC  = {   0.2,   0.4,   0.6,   0.8 }
+		  R_Th = { 0.002, 0.002, 0.002, 0.002 }
+		}
+  
+		T.interp = "linear" ;
+		T.extrap = "linear" ;
+		  
+		SOC.interp = "linear" ;
+		SOC.extrap = "linear" ;
+		  
+		extrapIsError = 0;		
+		printExtrap = 0;
+		  
+	}  // end TB_R_Th
+	 
+}  // end S_map (subelement)

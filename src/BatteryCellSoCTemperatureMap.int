@@ -1,0 +1,176 @@
+/***
+ --------------------------------------------------------------------------------------------
+ |                                                                                           |
+ | NASA Glenn Research Center                                                                |
+ | 21000 Brookpark Rd                                                                        |
+ | Cleveland, OH 44135                                                                       |
+ |                                                                                           |
+ | File Name:     BatteryCellSoCTemperatureMap.int                                           |
+ | Author(s):     George Thomas and Brian Malone                                             |
+ | Date(s):       August 2021                                                                |
+ |                                                                                           |
+ --------------------------------------------------------------------------------------------
+***/
+
+#ifndef __BATTERY_CELL_SOC_TEMPERATURE_MAP__
+#define __BATTERY_CELL_SOC_TEMPERATURE_MAP__
+
+#include <InterpIncludes.ncp>
+
+// Variables that exist in the parent element
+// and are used in this subelement. AKA input params.
+extern real SOC;
+extern real T_batt;
+// Used for pack sizing
+extern real Vout_guess;
+extern real desired_energyDes;
+
+// Variables that exist in the parent element
+// and are set by this subelement. AKA output params.
+extern real Voc;
+extern real R_0;
+extern real R_Th;
+// Output to tell user what the ACTUAL capacity is.
+extern real energyDes;
+
+class BatteryCellSoCTemperatureMap extends Subelement {
+
+//------------------------------------------------------------
+//     ******* DOCUMENTATION *******
+//------------------------------------------------------------
+
+  title = "";
+
+  description = isA() + " manages the calculation of battery performance
+  map variables. The battery parameters output from these maps are open-
+  circuit voltage and internal resistance parameters. Inputs to these
+  maps are state of charge (SOC) and battery temperature";
+
+
+  usageNotes = isA() + 
+" 
+
+- Revisit, we may need usage notes... For now, see description.
+";
+
+  background = "";
+
+//------------------------------------------------------------
+//     ******* SETUP VARIABLES ********
+//------------------------------------------------------------
+
+  real Voc_cell {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Open circuit voltage for one cell.";
+  }
+  real R_0_cell {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Static output resistance for one cell.";
+  }
+  real R_Th_cell {
+    value = 0;  IOstatus = OUTPUT;  units = NONE;
+    description = "Dynamic output resistance for one cell.";
+  }
+  real energyDes_cell {
+    value = 10;  IOstatus = OUTPUT;  units = NONE; // W-h
+    description = "Energy design capacity for one cell.";
+  }
+
+  real num_series {
+    value = 1;  IOstatus = OUTPUT;  units = NONE;
+    description = "Number of series cells in a string";
+  }
+  real num_parallel {
+    value = 1;  IOstatus = OUTPUT;  units = NONE;
+    description = "Number of parallel sets of series cell strings.";
+  }
+//------------------------------------------------------------
+//   ******* OPTION VARIABLE SETUP *******
+//------------------------------------------------------------
+
+  Option switchDes {
+    allowedValues = { DESIGN, OFFDESIGN };
+    description = "Determines if the subelement is in design or off-design mode";
+    rewritableValues = FALSE;  // Enables converter optimization.
+    trigger = FALSE;
+  }
+
+
+//------------------------------------------------------------
+// ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ********
+//------------------------------------------------------------
+
+  Socket TB_Voc {  
+    description = "Voc versus Temperature and SOC.  A function or table with the name TB_Voc must be declared at the subelement scope in order to fill this socket.  The format is TB_Voc (real T, real SOC).";
+    socketType = "Function";
+    required = TRUE;
+    argTypes = { "real", "real" }
+    returnType = "real";
+  }
+
+  Socket TB_R_0 {  
+    description = "R_0 versus Temperature and SOC.  A function or table with the name TB_R_0 must be declared at the subelement scope in order to fill this socket.  The format is TB_R_0 (real T, real SOC).";
+    socketType = "Function";
+    required = TRUE;
+    argTypes = { "real", "real" }
+    returnType = "real";
+  }
+
+  Socket TB_R_Th {  
+    description = "R_Th versus Temperature and SOC.  A function or table with the name TB_R_Th must be declared at the subelement scope in order to fill this socket.  The format is TB_R_Th (real T, real SOC).";
+    socketType = "Function";
+    required = TRUE;
+    argTypes = { "real", "real" }
+    returnType = "real";
+  }
+
+// TABLES
+
+//------------------------------------------------------------
+// ******* INTERNAL SOLVER SETUP *******
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+//  ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+// ******* VARIABLE CHANGED METHODOLOGY *******
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+//   ******* PERFORM ENGINEERING CALCULATIONS *******
+//------------------------------------------------------------
+  
+  void calculate() {
+	 
+		//-------------------------------------------------------------------
+		// execute the maps: get cell open circuit voltage and resistances
+		//-------------------------------------------------------------------
+		Voc_cell  = TB_Voc(T_batt, SOC);
+    R_0_cell  = TB_R_0(T_batt, SOC);
+    R_Th_cell = TB_R_Th(T_batt, SOC);
+
+    if ( switchDes == DESIGN ) {
+      //----------------------------------------------------------------------
+      // On design, we need to size the pack. That is, figure out number of
+      // series and parallel cells in the pack. BPM to write this logic.
+      //----------------------------------------------------------------------
+      num_parallel = 1;
+      num_series = 1;
+    } // end (switchDes == DESIGN)
+    
+    //----------------------------------------------------------------------
+    // Now that we've sized the pack and we have cell level Voc/R_0/R_Th, 
+    // let's calculate the pack level quantities. BPM to revisit.
+    //----------------------------------------------------------------------
+    Voc  = Voc_cell*num_series;
+    R_0  = R_0_cell*num_series / num_parallel;
+    R_Th = R_Th_cell*num_series / num_parallel;
+    energyDes = energyDes_cell * num_parallel;
+    
+  } // end calculate() function
+  
+} // end subelement class
+
+#endif

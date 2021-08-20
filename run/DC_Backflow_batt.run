@@ -48,12 +48,11 @@ solver.maxIterations=500;
 solver.maxJacobians=500;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
-// Constant power load 10 kW for Case 0 and 1
+// Constant power load 14 W for Case 0 and 1
 run();
-BFPrintOutput(); 
-CASE++;
-
+BFPrintOutput();
 page.display();  // output data to out file
+
 /************************
 Off design
 ************************/
@@ -61,15 +60,13 @@ Off design
 setOption("switchDes","OFFDESIGN"); 
 autoSolverSetup();
 
-run(); 
+CASE++; run();
 BFPrintOutput();
-CASE++;
-page.display();
+page.display(); 
 
-CLoad.Pdemand = -10; //Backflow condition (current flowing "upstream" (load to source))
+CLoad.Pdemand = -14./1000.; // Charge the battery roughly at 1 C (14 W)
 
-// Constant power load -10 kW for Case 2
-run(); 
+// Constant power load -14 W for Case 2
+CASE++; run();
 BFPrintOutput();
-CASE++; 
 page.display();
