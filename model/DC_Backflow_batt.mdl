@@ -31,34 +31,19 @@ cout<<"======================================="<<endl;
 Electric Power System Components
 **************************/
 Element Battery Li_ion_cell { //Amprius battery ELD214
-    setOption("ElectricPowerType", "DC");
-    Vreal  = 3.414; // [volts] 
-    Vimag  = 0;    // [volts]
-    // effDes = 0.95; 
+    #include <amprius_cell.map>
 }
 
 Element Cable Cable_Single
 {
-	R = 0.1; //Ohms
+	R = 0.001; //Ohms
 	L = 0; //Henries
 }
 
-// Element DC_DC_Converter DeltaDC
-// {
-//     K = 1; //K = Vout/Vin
-//     SpecificPower = 10; // kW/kg
-//     effDes = 0.95;
-// }
-
-// Element Cable CableRight 
-// {
-// 	R = 0.1; //Ohms
-// 	L = 0; //Henries
-// }
 
 Element ConstantPowerLoad CLoad
 {
-    Pdemand  = 10; //kW
+    Pdemand  = 14./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
     eff = 0.95;
 }					
 
@@ -80,15 +65,22 @@ solverSequence = { "Cable_Single", "Li_ion_cell", "CLoad" };
 void BFPrintOutput() 
 {
     cout << " Case = " << CASE << endl;
-    cout << " Battery output voltage = " << Li_ion_cell.Vreal << endl; 
-    cout << " Battery input voltage = " << Li_ion_cell.Voc << endl;
-    cout << " Battery current = " << Li_ion_cell.Voc/Li_ion_cell.RTotal << endl;
-    cout << " PDirection = " << Li_ion_cell.PDirection << endl;
-    cout << " Calculated load eff = "  << CLoad.P/CLoad.EP_I.S.r << endl;
-    cout << " Load eff = " << CLoad.eff << endl;
+    cout << " Battery open circuit voltage          = " << Li_ion_cell.Voc << endl; 
+    cout << " Battery output voltage (actual value) = " << Li_ion_cell.Vout << endl; 
+    cout << " Battery output voltage (guess value)  = " << Li_ion_cell.Vout_guess << endl; 
+    cout << " Battery output Resistance (R_0, R_Th) = " << Li_ion_cell.R_0 << ", " << Li_ion_cell.R_Th << endl; 
+    cout << " Battery output voltage (guess value)  = " << Li_ion_cell.Vout_guess << endl; 
+    cout << " Battery current (calc)                = " << (Li_ion_cell.Voc-Li_ion_cell.Vout)/Li_ion_cell.RTotal << endl;
+    cout << " Battery current (output port)         = " << Li_ion_cell.EP_O.I.r << endl;
+    cout << " Number of series cells in battery     = " << Li_ion_cell.S_map.num_series << endl;
+    cout << " Number of parallel cells in battery   = " << Li_ion_cell.S_map.num_parallel << endl;
+    cout << " Cable current (output port)           = " << Cable_Single.EP_O.I.r << endl;
+    cout << " Load input voltage                    = " << CLoad.EP_I.V.r << endl;
+    cout << " Load input power                      = " << CLoad.EP_I.S.r << endl;
+    cout << " Calculated load eff                   = " << (CLoad.P/CLoad.EP_I.S.r)**sign(CLoad.P) << endl; // GLT: account for negative power flow
+    cout << " Load eff                              = " << CLoad.eff << endl;
 }
 
 // Initial independent variable guesses are here.
-// DeltaDC.Voltage = 80; 
 CLoad.Vreal = 3;
 CLoad.Vimag = 0;

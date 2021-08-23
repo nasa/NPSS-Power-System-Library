@@ -2,18 +2,18 @@
  --------------------------------------------------------------------------------------------
  |                                                                                           |
  | NASA Glenn Research Center                                                                |
- | 21000 Brookpark Rd 		                                                                 |
- | Cleveland, OH 44135 	                                                                     |
+ | 21000 Brookpark Rd                                                                        |
+ | Cleveland, OH 44135                                                                       |
  |                                                                                           |
- | File Name:     Source.int										                         |
+ | File Name:     Battery.int                                                                 |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle, Brian Malone       |
  | Date(s):       August 2021                                                                |
  |                                                                                           |
  --------------------------------------------------------------------------------------------
 ***/
 
-#ifndef __SOURCE__
-#define __SOURCE__
+#ifndef __BATTERY__
+#define __BATTERY__
 #include "PSL_math.fnc" 
 
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
@@ -112,32 +112,9 @@ this component, see MotorGeneratorMap.int";
     description = "Specific energy used during on-design.";
   }
 
-  real pfDes {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
-    description = "Design power factor at output of this source element.";
-  }
-
-//   real effDes {
-//     value = 0.95; IOstatus = "input"; units = "none";
-//     description = "Design efficiency of this source element.";
-//   }
-
-  real pf {
-    value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
-    description = "Actual (calculated) power factor at output of this source element.";
-  }
-
   eff {
     value = 0.95; IOstatus = "output"; units = "none";
     description = "Actual (calculated) efficiency of this source element.";
-  }
-
-  real R {
-    value = .01;  IOstatus = "output";  units = "ohm";
-  }
-
-  real L {
-    value = .0000796;  IOstatus = "output";  units = "H"; // [henrys]
   }
 
   real frequency {
@@ -160,19 +137,24 @@ this component, see MotorGeneratorMap.int";
     description = "Power dissipation in BTU/s at current time.";
   }
 
+  real T_batt {
+    value = 20; IOstatus = "input"; units = "C"; // [degrees C]
+    description = "Battery Temperature.";
+  }
+
+  real desired_energyDes {
+    value = 10; IOstatus = "input"; units = "none"; // [kW-h]
+    description = "Desired design energy capacity for this battery.";
+  }
+
   real energyDes {
     value = 0; IOstatus = "output"; units = "none"; // [kW-h]
-    description = "Design energy for this source.";
+    description = "Actual design energy capacity for this battery.";
   }
 
-  real energyConsumed {
-    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
-    description = "Total energy consumed over mission, only use off-design.";
-  }
-
-  real energy {
-    value = 0; IOstatus = "output"; units = "none"; // [kW-h]
-    description = "Energy consumed at the current operating point.";
+  real SOC {
+    value = 1; IOstatus = "output"; units = "none"; // [fraction]
+    description = "State of charge for this battery.";
   }
 
   real powerDes {
@@ -180,44 +162,39 @@ this component, see MotorGeneratorMap.int";
     description = "Design power for this source.";
   }
 
-  real PDirection {
-      value = 0; IOstatus = "output"; units = "none"; //-
-      description = "+1 for source to load power flow, -1 for load to source.";
+  real R_0 {
+    value = 0.01; IOstatus = "output"; units = "none"; // [Ohm]; tR_0 in Python boring amprius_battery
+    description = "Static battery output resistance.";
   }
 
-  real resistor_R0 {
-    value = 0.6339; IOstatus = "output"; units = "none"; // [Ohm]; tR_0 in Python boring amprius_battery
-    description = "Design upstream battery resistance.";
-  }
-
-  real resistor_R_Th {
-    value = 0.1578; IOstatus = "output"; units = "none"; // [Ohm]; tR_Th in Python boring amprius_battery
-    description = "Design downstream battery resistance.";
+  real R_Th {
+    value = 0.01578; IOstatus = "output"; units = "none"; // [Ohm]; tR_Th in Python boring amprius_battery
+    description = "Dynamic battery output resistance.";
   }
 
   real RTotal {
-    value = 0; IOstatus = "output"; units = "none"; // [Ohm]; tR_Th in Python boring amprius_battery
-    description = "Design toal battery resistance.";
+    value = 0; IOstatus = "output"; units = "none"; // [Ohm]
+    description = "Total battery resistance.";
   }
 
-  real segmentTime {
-    value = 0.25; IOstatus = "output"; units = "hr"; // [h]
-    description = "Hours spent running at the current operating point.";
+  real Vout_des {
+    value = 4.2;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Design value for battery output voltage.";
   }
 
-  real Vreal {
-    value = 0;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real portion of battery output voltage.";
+  real Vout {
+    value = 3.6;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Battery output voltage at current operating point.";
   }
 
-  real Vimag {
-    value = 0;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Imaginary portion of output voltage.";
+  real Vout_guess {
+    value = 3.6;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Guess value for battery output voltage at current operating point.";
   }
 
   real Voc {
-    value = 3.414;  IOstatus = "output";  units = "V"; // [volts]
-    description = "Real source voltage of equivalent battery circuit.";
+    value = 3.7;  IOstatus = "output";  units = "V"; // [volts]
+    description = "Open circuit battery voltage (before battery's output impedance).";
   }
   
   real SpecificPower {
@@ -230,9 +207,14 @@ this component, see MotorGeneratorMap.int";
     description = "Energy to weight ratio for the source.";
   }
 
+  real C_rate_des {
+    value = 1; IOstatus = "input"; units = "none"; // [-]
+    description = "C-rate at design point (discharge rate normalized to capacity).";
+  }
+
   real C_rate {
-    value = 130; IOstatus = "input"; units = "none"; // [-]
-    description = "Computed on-design C-rate for the source.";
+    value = 1; IOstatus = "input"; units = "none"; // [-]
+    description = "C-rate at current operating point (discharge rate normalized to capacity).";
   }
 
   Mass {
@@ -257,19 +239,6 @@ this component, see MotorGeneratorMap.int";
     rewritableValues = FALSE;  // enables converter optimization
     trigger = TRUE;
   }
-
-  Option switchTrackEnergy {
-    allowedValues = { "FALSE", "TRUE" }
-    description = "Determines if we should track energy or not when running off-design.";
-    rewritableValues = FALSE;  // enables converter optimization
-  }
-
-  Option multiDes {
-    allowedValues = { "FALSE", "TRUE" }
-    description = "Determines if component is undergoing multi-design point simulation.";
-    rewritableValues = FALSE;
-    trigger = TRUE;
-  }
   
   //----------------------------------------------------------
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
@@ -279,9 +248,17 @@ this component, see MotorGeneratorMap.int";
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
+    ElectricPowerType.allowedValues = { "DC" };
+    setOption("ElectricPowerType", "DC"); // only DC output allowed as this is a battery pack
   }
 
   /* SOCKETS */
+
+  Socket S_map {
+    allowedValues = { "T_batt", "SOC", "Vout_des", "desired_energyDes" }
+    description = "Socket for battery cell data map and logic to size pack from cells.";
+    socketType = "BatteryCellSoCTemperatureMap"; 
+  }
 
   Socket S_eThermMass {
     allowedValues = { "Q_heat", "Mass" }
@@ -293,16 +270,17 @@ this component, see MotorGeneratorMap.int";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  // MDP variable
-  Independent ind_energyDes {
-    varName = "energyDes";
-    description = "Varies design energy to match calculated energy at design condition.";
+  Independent ind_Vout { 
+    varName = "Vout_guess"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the battery output voltage to match Vout = Voc - Vdrop.";
   }
-
-  // MDP variable
-  Dependent dep_energyDes {
-    eq_lhs = "energyDes";
-    eq_rhs = "energy";
+  
+  Dependent dep_Vout {
+    eq_lhs = "Vout";
+    eq_rhs = "Vout_guess";
+    autoSetup = TRUE;
   }
   
   //-------------------------------------------
@@ -315,63 +293,34 @@ this component, see MotorGeneratorMap.int";
            create("", "ThermalInputPort", "Q_I");
        }
     }
-
-    if (name == "multiDes") {
-      if (switchDes == DESIGN) {
-        ind_energyDes.autoSetup = TRUE;
-        dep_energyDes.autoSetup = TRUE;
-      }
-    }
   }
 
   //-----------------------------------------------
   // ****** PERFORM ENGINEERING CALCULATIONS ******
   //-----------------------------------------------
   
-  /** So this component expects you to set Vreal and Vimag. It will
-   * calculate (resistive only) impedance, power factor, etc.
-   */
   void calculate() {
     
-    /** 
-     * If we're on-design, we need to figure out the output impedance based
-     * on the design efficiency. Otherwise, calculate the loss and the 
-     * efficiency based on the impedance (which is held constant).
-     */
+    // Run the battery map if it is present
+    if(!S_map.isEmpty()) {
+      S_map.execute();
+    }
+    else {    
+      // Map logic will calculate number of parallel/series cells and also calculates energy design capacity.
+      // However if we have no map (no pack building logic), just say our capacity is equal to the desired value.
+      if (switchDes == "DESIGN") {
+        energyDes = desired_energyDes;
+      }
+    }
 
-    pf = cos(EP_O.S.phase);
+    // Calculate output voltage (which the solver will force to be equal to the guess value)
+    RTotal = R_0 + R_Th;
+    Vout = Voc - EP_O.I.r*RTotal;
 
     if (switchDes == "DESIGN") {
-      PDirection = sign(EP_O.S.r);
-      pfDes = pf;
-      // eff = effDes;
-      RTotal = resistor_R0 + resistor_R_Th;
-      if (sign(EP_O.S.r) < 0){
-        cout << "BPM: Hi!  You made it." << endl;
-        Vreal = Voc;
-        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
-      } else {   
-        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
-      }
-      // internal power, before flowing through this component's output impedance
-      real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
-      Loss_r = PInternal - EP_O.S.r;
-      Loss_j = 0;
-      //  R = Loss_r / EP_O.I.mag**2;
-      R = RTotal;
-      L = 0;
-      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
-
-      // Declare design point power.
+      
+      // Declare design point power. Energy is calculated in the map logic.
       powerDes = EP_O.S.r;
-
-      // Energy consumed at this operating point.
-      energy = PInternal * segmentTime;
-
-      // get design values 
-      if (multiDes != "TRUE") {
-        energyDes = energy;
-      }
 
       real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
@@ -384,29 +333,15 @@ this component, see MotorGeneratorMap.int";
 
       actualSpecificEnergy = 1000 * energyDes/Mass; // [Wh/kg]
       actualSpecificPower = powerDes/Mass; // [kW/kg]
-
-
-      C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
-
-    } else {
-      PDirection = sign(EP_O.S.r);
-      RTotal = resistor_R0 + resistor_R_Th;
-      if (sign(EP_O.S.r) < 0){
-        cout << "BPM: Hi!  You made it." << endl;
-        Vreal = Voc;
-        Voc = Vreal - (Vreal/RTotal)*sign(EP_O.S.r) * resistor_R0;
-      } else {   
-        Vreal = Voc - (Voc/RTotal)*sign(EP_O.S.r) * resistor_R_Th; 
-      } 
-      R = RTotal;
-      Loss_r = EP_O.I.mag**2 * R;
-      Loss_j = 0;
-      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
-
-      // energy consumed at this operating point.
-      energy = (EP_O.S.r + Loss_r) * segmentTime;
+    }
+    else {
     }
 
+    // Output params common to both on and off design cases.
+    C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h)
+    Loss_r = EP_O.I.mag**2 * RTotal;
+    Loss_j = 0;
+    eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);
     Q_heat /= KW_PER_BTU_PER_SEC;
@@ -421,16 +356,7 @@ this component, see MotorGeneratorMap.int";
 
   void prePass() {
     EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
-  }
-
-  void trackEnergy() {
-    Source.energyConsumed += Source.energy;
-    if (Source.energyConsumed > Source.energyDes) {
-      ESOreport(ESO_Id_ExceededEnergyDes,
-      "Source component's energy consumed (" + toStr(Source.energyConsumed) +
-      ") exceeded design energy (" + toStr(Source.energyDes)+").", 1);
-    }
+    EP_O.setIVRMS(EP_O.I.r, 0, Vout_guess, 0);
   }
 }
 #endif
