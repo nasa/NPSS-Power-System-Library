@@ -32,6 +32,8 @@ Electric Power System Components
 **************************/
 Element Battery Li_ion_cell { //Amprius battery ELD214
     #include <amprius_cell.map>
+
+    
 }
 
 Element Cable Cable_Single
