@@ -9,14 +9,14 @@
  | Author(s):	  George Thomas, Brian Malone                   			   |
  | Date(s):       October 2020                                                 |
  |                                                                             |
- | Description:   DC model with backflow                                       |
+ | Description:   Battery test model with backflow                             |          
  |             									                               |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
 
 cout<<"======================================="<<endl;
-cout<<" MODEL WITH DC-DC CONVERTER AND BACKFLOW"<<endl;
+cout<<" MODEL WITH BATTERY AND BACKFLOW"       <<endl;
 cout<<"======================================="<<endl;
 
 #ifdef THERMO

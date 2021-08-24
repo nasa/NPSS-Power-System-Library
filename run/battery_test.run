@@ -32,10 +32,10 @@ fine, imprisonment, or both.
 #include "ElectricPort.prt"
 #include "InterpretedPort.int"
 
-MODELNAME = "Backflow_batt";
+MODELNAME = "battery_test";
 
 //model file
-#include "model/DC_Backflow_batt.mdl"
+#include "model/battery_test.mdl"
 
 /************************
 On design
