@@ -43,9 +43,12 @@ On design
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 //solver.solutionMode = "ONE_PASS";
+//solver.switchUBC = "ON";
 
-solver.maxIterations=500;
-solver.maxJacobians=500;
+solver.maxIterations=5000;
+solver.maxJacobians=5000;
+solver.defaultPerturbation = 0.00035; // tell the solver not to perturb so far when calcing jacobian. default: 0.001
+//solver.defaultDxLimit = 0.03;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
 // Constant power load 14 W for Case 0 and 1
@@ -70,3 +73,88 @@ CLoad.Pdemand = -14./1000.; // Charge the battery roughly at 1 C (14 W)
 CASE++; run();
 BFPrintOutput();
 page.display();
+
+// Setup a transient run to match JCC's Simulink data
+CLoad.Pdemand = 6./1000.; // discharge such that we get 6 W to load.
+run(); // do another steady-state run just to initialize us.
+
+// BTW the Simulink model has NO cooling, so to represent that, just zero out the heat transfer resistance
+TMS.R_cool = 0;
+
+// Also start out the temperature at 20 C to match the data
+Li_ion_cell.T_batt = 20;
+Li_ion_cell.S_eThermMass.T = 20. * 9./5. + 491.67; // 20 C converted to R
+
+// Turn on integrator for battery SOC
+Li_ion_cell.ind_SOC.autoSetup = TRUE;
+Li_ion_cell.integ_SOC.autoSetup = TRUE;
+
+setOption("switchDes","OFFDESIGN"); 
+setOption("solutionMode", "TRANSIENT");
+transient.stopTime = 6560.0;
+transient.baseTimeStep = 0.5;
+transient.setup();
+initializeHistory();
+autoSolverSetup();
+
+solver.defaultPerturbation = 0.00001;
+solver.defaultDxLimit = 0.001;
+//solver.solutionMode = "ONE_PASS";
+
+cout << "Transient Solver Vars = " << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+// Transient data out to a CSV file for plotting
+OutFileStream transientCSVStream { filename = "output/batt_transient.csv"; } 
+
+// Write the CSV headers
+transientCSVStream << "Li_ion_cell.Voc,";
+transientCSVStream << "Li_ion_cell.Vout,";
+transientCSVStream << "Li_ion_cell.Q_heat,";
+transientCSVStream << "Li_ion_cell.R_0,";
+transientCSVStream << "Li_ion_cell.R_Th,";
+transientCSVStream << "Li_ion_cell.EP_O.I.r,";
+transientCSVStream << "Li_ion_cell.EP_O.S.r,";
+transientCSVStream << "Li_ion_cell.T_batt,";
+transientCSVStream << "Li_ion_cell.S_eThermMass.T,";
+transientCSVStream << "Li_ion_cell.SOC,";
+transientCSVStream << "Li_ion_cell.dSOCqdt,";
+transientCSVStream << "Li_ion_cell.C_rate,";
+transientCSVStream << "time" << endl;
+
+// Use a variable to print only every 100 timesteps.
+int printCounter = 0;
+void csvTransientPrint()
+{
+    if (++printCounter >= 600)
+    {
+      printCounter = 0;
+        transientCSVStream << Li_ion_cell.Voc << ", ";
+        transientCSVStream << Li_ion_cell.Vout << ", ";
+        transientCSVStream << Li_ion_cell.Q_heat << ", ";
+        transientCSVStream << Li_ion_cell.R_0 << ", ";
+        transientCSVStream << Li_ion_cell.R_Th << ", ";
+        transientCSVStream << Li_ion_cell.EP_O.I.r << ", ";
+        transientCSVStream << Li_ion_cell.EP_O.S.r << ", ";
+        transientCSVStream << Li_ion_cell.T_batt << ", ";
+        transientCSVStream << Li_ion_cell.S_eThermMass.T << ", ";
+        transientCSVStream << Li_ion_cell.SOC << ", ";
+        transientCSVStream << Li_ion_cell.dSOCqdt << ", ";
+        transientCSVStream << Li_ion_cell.C_rate << ", ";
+        transientCSVStream << time << endl;
+
+        cout << "T_batt (oC), "       << Li_ion_cell.T_batt << ", ";
+        //cout << "HeatRate (BTU/s), "  << Li_ion_cell.Q_heat << ", ";
+        cout << "BattCurrent (A), "   << Li_ion_cell.EP_O.I.r << ", ";
+        cout << "BattSOC, "           << Li_ion_cell.SOC << ", ";
+        cout << "BattdSOCqdt, "       << Li_ion_cell.dSOCqdt << ", ";
+        cout << "C-rate, "            << Li_ion_cell.C_rate << ", ";
+        cout << "CASE, "              << CASE << ", ";
+        cout << "time (s), "              << time << endl;
+    }
+    if (Li_ion_cell.SOC <= 0) {
+        quit();
+    }
+}
+
+postsolverSequence = { "csvTransientPrint" };
+run();

@@ -22,7 +22,7 @@
 Subelement BatteryCellSoCTemperatureMap S_map {
 
 	// Constant parameters specific to this battery cell.
-	energyDes_cell = 12.75; // W-h (3.75 V nominal * 3.4 Ah tested at C/5 discharge)
+	energyDes_cell = 12.75/1000.; // kW-h (3.75 V nominal * 3.4 Ah tested at C/5 discharge)
 
 	//  ----------------------------------------------------------------------
 	//  |    Declare a table (or function) named TB_Wp(real SPED, real PR)
@@ -87,10 +87,10 @@ Subelement BatteryCellSoCTemperatureMap S_map {
 		}		
   
 		T.interp = "linear" ;
-		T.extrap = "linear" ;
+		T.extrap = "none" ;
 		  
 		SOC.interp = "linear" ;
-		SOC.extrap = "linear" ;
+		SOC.extrap = "none" ;
 		  
 		extrapIsError = 0;		
 		printExtrap = 0;
@@ -154,10 +154,10 @@ Subelement BatteryCellSoCTemperatureMap S_map {
 		}		
   
 		T.interp = "linear" ;
-		T.extrap = "linear" ;
+		T.extrap = "none" ;
 		  
 		SOC.interp = "linear" ;
-		SOC.extrap = "linear" ;
+		SOC.extrap = "none" ;
 		  
 		extrapIsError = 0;		
 		printExtrap = 0;
@@ -221,10 +221,10 @@ Subelement BatteryCellSoCTemperatureMap S_map {
 		}		
   
 		T.interp = "linear" ;
-		T.extrap = "linear" ;
+		T.extrap = "none" ;
 		  
 		SOC.interp = "linear" ;
-		SOC.extrap = "linear" ;
+		SOC.extrap = "none" ;
 		  
 		extrapIsError = 0;		
 		printExtrap = 0;

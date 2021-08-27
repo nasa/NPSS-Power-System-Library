@@ -143,7 +143,7 @@ this component, see MotorGeneratorMap.int";
   }
 
   real desired_energyDes {
-    value = 10; IOstatus = "input"; units = "none"; // [kW-h]
+    value = 10./1000.; IOstatus = "input"; units = "none"; // [kW-h]
     description = "Desired design energy capacity for this battery.";
   }
 
@@ -155,6 +155,11 @@ this component, see MotorGeneratorMap.int";
   real SOC {
     value = 1; IOstatus = "output"; units = "none"; // [fraction]
     description = "State of charge for this battery.";
+  }
+
+  real dSOCqdt {
+    value = 0; IOstatus = "output"; units = "none"; // [fraction/s]
+    description = "Time derivative of state of charge for this battery (calculated in map file).";
   }
 
   real powerDes {
@@ -270,17 +275,45 @@ this component, see MotorGeneratorMap.int";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
+  // Solver pair to allow output voltage to sag as current and other vars vary.
   Independent ind_Vout { 
     varName = "Vout_guess"; 
     autoSetup = TRUE;
     indepRef = "1000";
     description = "Varies the battery output voltage to match Vout = Voc - Vdrop.";
   }
-  
   Dependent dep_Vout {
     eq_lhs = "Vout";
     eq_rhs = "Vout_guess";
     autoSetup = TRUE;
+  }
+
+  // SOC state variable.
+  Independent ind_SOC {
+    varName = "SOC";
+    autoSetup = FALSE;
+    description = "Varies state of charge (intended to be used with SOC integrator).";
+  }
+  Integrator integ_SOC {
+    stateName = "SOC";
+    derivativeName = "dSOCqdt";
+    eq_lhs = "0";
+    eq_rhs = "1";
+    autoSetup = FALSE;
+    description = "Balances normalized capacity increments in the battery. Only intended to be used transiently.";
+  }
+
+  // Solver pair to link up battery temperature variable used for performance and the temperature state.
+  Independent ind_T_batt { 
+    varName = "T_batt"; 
+    autoSetup = FALSE;
+    indepRef = "10000";
+    description = "Varies the battery temperature to match the eThermalMass temperature state variable.";
+  }
+  Dependent dep_T_batt {
+    eq_lhs = "T_batt*9./5. + 491.67"; // deg C to deg R
+    eq_rhs = "S_eThermMass.T";        // deg R
+    autoSetup = FALSE;
   }
   
   //-------------------------------------------
@@ -290,7 +323,13 @@ this component, see MotorGeneratorMap.int";
   void variableChanged(string name, any oldVal) {
     if (name == "switchThermPort") {
        if (switchThermPort == "TRUE") {
-           create("", "ThermalInputPort", "Q_I");
+          create("", "ThermalInputPort", "Q_I");
+          ind_T_batt.autoSetup = TRUE;
+          dep_T_batt.autoSetup = TRUE;
+       }
+       else {
+          ind_T_batt.autoSetup = FALSE;
+          dep_T_batt.autoSetup = FALSE;
        }
     }
   }
@@ -339,6 +378,9 @@ this component, see MotorGeneratorMap.int";
 
     // Output params common to both on and off design cases.
     C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h)
+    dSOCqdt = -C_rate/3600.;
+    C_rate = abs(C_rate); // C-rate actually does not typically have an associated sign.
+    EP_O.S.r;
     Loss_r = EP_O.I.mag**2 * RTotal;
     Loss_j = 0;
     eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);

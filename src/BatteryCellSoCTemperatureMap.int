@@ -43,8 +43,11 @@ class BatteryCellSoCTemperatureMap extends Subelement {
 
   description = isA() + " manages the calculation of battery performance
   map variables. The battery parameters output from these maps are open-
-  circuit voltage and internal resistance parameters. Inputs to these
-  maps are state of charge (SOC) and battery temperature";
+  circuit voltage and internal resistance parameters. This subelement also
+  abstracts away all cell-level calculations (i.e., they live here and not
+  in battery.int)
+  
+  Inputs to these maps are state of charge (SOC) and battery temperature.";
 
 
   usageNotes = isA() + 
@@ -72,7 +75,7 @@ class BatteryCellSoCTemperatureMap extends Subelement {
     description = "Dynamic output resistance for one cell.";
   }
   real energyDes_cell {
-    value = 10;  IOstatus = OUTPUT;  units = NONE; // W-h
+    value = 10;  IOstatus = OUTPUT;  units = NONE; // kW-h
     description = "Energy design capacity for one cell.";
   }
 
@@ -158,6 +161,7 @@ class BatteryCellSoCTemperatureMap extends Subelement {
       //----------------------------------------------------------------------
       num_parallel = ceil(desired_energyDes / energyDes_cell);
       num_series = ceil(Vout_des/Voc_cell);
+      energyDes = energyDes_cell * num_parallel;
     } // end (switchDes == DESIGN)
     
     //----------------------------------------------------------------------
@@ -167,7 +171,6 @@ class BatteryCellSoCTemperatureMap extends Subelement {
     Voc  = Voc_cell*num_series;
     R_0  = R_0_cell*num_series / num_parallel;
     R_Th = R_Th_cell*num_series / num_parallel;
-    energyDes = energyDes_cell * num_parallel;
     
   } // end calculate() function
   
