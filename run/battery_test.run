@@ -125,7 +125,7 @@ transientCSVStream << "time" << endl;
 int printCounter = 0;
 void csvTransientPrint()
 {
-    if (++printCounter >= 600)
+    if (++printCounter >= 120)
     {
       printCounter = 0;
         transientCSVStream << Li_ion_cell.Voc << ", ";
@@ -151,10 +151,21 @@ void csvTransientPrint()
         cout << "CASE, "              << CASE << ", ";
         cout << "time (s), "              << time << endl;
     }
-    if (Li_ion_cell.SOC <= 0) {
+}
+
+void transient_profile() {
+
+    // Based time points
+    if ( time < 1000 ) { CLoad.Pdemand = 6./1000.; }
+    else if ( time < 1500 ) { CLoad.Pdemand = 1./1000.; }
+    else if ( time < 2000 ) { CLoad.Pdemand = 6./1000.; }
+
+
+    // Stop if battery gets fully drained (or close to it)
+    if (Li_ion_cell.SOC <= 0.01) {
         quit();
     }
 }
 
-postsolverSequence = { "csvTransientPrint" };
+postsolverSequence = { "csvTransientPrint", "transient_profile" };
 run();
