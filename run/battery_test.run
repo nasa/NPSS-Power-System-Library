@@ -154,12 +154,18 @@ void csvTransientPrint()
 }
 
 void transient_profile() {
-
     // Based time points
-    if ( time < 1000 ) { CLoad.Pdemand = 6./1000.; }
-    else if ( time < 1500 ) { CLoad.Pdemand = 1./1000.; }
-    else if ( time < 2000 ) { CLoad.Pdemand = 6./1000.; }
-
+    if ( time < 570 ) { CLoad.Pdemand = 10.; }
+    else if ( time < 855 ) { CLoad.Pdemand = 0.1; } // BPM: if 0 causes failure, put in a small value (0.1)
+    else if ( time < 1000 ) { CLoad.Pdemand = 119.5 ; }
+    else if ( time < 1415 ) { CLoad.Pdemand = 0.; }
+    else if ( time < 1565 ) { CLoad.Pdemand = 120.; }
+    else if ( time < 3640 ) { CLoad.Pdemand = 60.; }
+    else if ( time < 4100 ) { CLoad.Pdemand = 18.5; }
+    else if ( time < 4620 ) { CLoad.Pdemand = 0.5; }
+    else if ( time < 4760 ) { CLoad.Pdemand = 79.5; }
+    else if ( time < 5680 ) { CLoad.Pdemand = 6.5; }
+    else { CLoad.Pdemand = 0;}
 
     // Stop if battery gets fully drained (or close to it)
     if (Li_ion_cell.SOC <= 0.01) {

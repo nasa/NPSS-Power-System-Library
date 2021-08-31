@@ -38,8 +38,14 @@ Element Battery Li_ion_cell { //Amprius battery ELD214
     // Set up the thermal port and thermal mass submodel/socket
     setOption("switchThermPort", "TRUE");
     Subelement EThermalMass S_eThermMass {
-        Cp = 0.5*10;
+        Cp = 0.5; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5   
+
     }
+
+    Vout_des = 524;
+    SpecificEnergy = 200; //Wh/kg
+                          //BPM TODO: change SE until NPSS temperature data matches Simulink curve
+
 }
 
 Element Cable Cable_Single
