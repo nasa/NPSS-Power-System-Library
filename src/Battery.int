@@ -5,7 +5,7 @@
  | 21000 Brookpark Rd                                                                        |
  | Cleveland, OH 44135                                                                       |
  |                                                                                           |
- | File Name:     Battery.int                                                                 |
+ | File Name:     Battery.int                                                                |
  | Author(s):     George Thomas, Jeffrey Csank, David Sadey, Tom Lavelle, Brian Malone       |
  | Date(s):       August 2021                                                                |
  |                                                                                           |
@@ -340,6 +340,9 @@ this component, see MotorGeneratorMap.int";
   
   void calculate() {
     
+    // Declare design point power. Energy is calculated in the map logic.
+    powerDes = EP_O.S.r;
+
     // Run the battery map if it is present
     if(!S_map.isEmpty()) {
       S_map.execute();
@@ -358,9 +361,6 @@ this component, see MotorGeneratorMap.int";
 
     if (switchDes == "DESIGN") {
       
-      // Declare design point power. Energy is calculated in the map logic.
-      powerDes = EP_O.S.r;
-
       real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
       real powerBasedMass = EP_O.S.r / SpecificPower;
 

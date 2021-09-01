@@ -24,6 +24,7 @@ extern real T_batt;
 // Used for pack sizing
 extern real Vout_des;
 extern real desired_energyDes;
+extern real powerDes;
 
 // Variables that exist in the parent element
 // and are set by this subelement. AKA output params.
@@ -77,6 +78,11 @@ class BatteryCellSoCTemperatureMap extends Subelement {
   real energyDes_cell {
     value = 10;  IOstatus = OUTPUT;  units = NONE; // kW-h
     description = "Energy design capacity for one cell.";
+  }
+
+    real powerDes_cell {
+    value = 10;  IOstatus = OUTPUT;  units = NONE; // kW
+    description = "Power design for one cell.";
   }
 
   real num_series {
@@ -158,9 +164,11 @@ class BatteryCellSoCTemperatureMap extends Subelement {
       //----------------------------------------------------------------------
       // On design, we need to size the pack. That is, figure out number of
       // series and parallel cells in the pack.
-      //----------------------------------------------------------------------
-      num_parallel = ceil(desired_energyDes / energyDes_cell);
-      num_series = ceil(Vout_des/Voc_cell);
+      //---------------------------------------------------------------------- 
+      // num_parallel = max(ceil(powerDes / powerDes_cell),ceil(desired_energyDes / energyDes_cell));
+      num_parallel = max((powerDes / powerDes_cell),(desired_energyDes / energyDes_cell));      
+      // num_series = ceil(Vout_des/Voc_cell);
+      num_series = Vout_des/Voc_cell;      
       energyDes = energyDes_cell * num_parallel;
     } // end (switchDes == DESIGN)
     
@@ -169,7 +177,7 @@ class BatteryCellSoCTemperatureMap extends Subelement {
     // let's calculate the pack level quantities.
     //----------------------------------------------------------------------
     Voc  = Voc_cell*num_series;
-    R_0  = R_0_cell*num_series / num_parallel;
+    R_0  = R_0_cell*num_series / num_parallel; 
     R_Th = R_Th_cell*num_series / num_parallel;
     
   } // end calculate() function

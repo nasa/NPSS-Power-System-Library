@@ -38,12 +38,13 @@ Element Battery Li_ion_cell { //Amprius battery ELD214
     // Set up the thermal port and thermal mass submodel/socket
     setOption("switchThermPort", "TRUE");
     Subelement EThermalMass S_eThermMass {
-        Cp = 0.5; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5   
+         Cp = 0.5; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
 
     }
 
     Vout_des = 524;
-    SpecificEnergy = 200; //Wh/kg
+    Vout_guess = 520;
+    SpecificEnergy = 100; //Wh/kg
                           //BPM TODO: change SE until NPSS temperature data matches Simulink curve
 
 }
@@ -57,7 +58,7 @@ Element Cable Cable_Single
 
 Element ConstantPowerLoad CLoad
 {
-    Pdemand  = 14./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
+    Pdemand  = 14./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W) BPM: was 14./1000
     eff = 0.999;
 }
 
@@ -111,6 +112,6 @@ void BFPrintOutput()
 }
 
 // Initial independent variable guesses are here.
-CLoad.Vreal = 3.59;
+CLoad.Vreal = 519.9; //BPM was 3.59
 CLoad.Vimag = 0;
 
