@@ -58,7 +58,7 @@ Element Cable Cable_Single
 
 Element ConstantPowerLoad CLoad
 {
-    Pdemand  = 14./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W) BPM: was 14./1000
+    Pdemand  = 120; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
     eff = 0.999;
 }
 

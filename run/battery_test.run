@@ -42,13 +42,13 @@ On design
 ************************/
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
-// solver.solutionMode = "ONE_PASS";
+//solver.solutionMode = "ONE_PASS";
 //solver.switchUBC = "ON";
 
-solver.maxIterations=50000;
+solver.maxIterations=5000;
 solver.maxJacobians=5000;
-solver.defaultPerturbation = 0.00035; // tell the solver not to perturb so far when calcing jacobian. default: 0.001
-solver.defaultDxLimit = 0.03;
+solver.defaultPerturbation = 0.0001; // tell the solver not to perturb so far when calcing jacobian. default: 0.001
+//solver.defaultDxLimit = 0.03;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
 // Constant power load 14 W for Case 0 and 1
@@ -67,12 +67,12 @@ CASE++; run();
 BFPrintOutput();
 page.display(); 
 
-// CLoad.Pdemand = -120.; // kw Charge the battery roughly at 1 C (14 W) BPM: was 14./1000
+CLoad.Pdemand = -120.; // kw Charge the battery roughly at 1 C (14 W) BPM: was 14./1000
 
-// // Constant power load -14 W for Case 2
-// CASE++; run();
-// BFPrintOutput();
-// page.display();
+// Constant power load -14 W for Case 2
+CASE++; run();
+BFPrintOutput();
+page.display();
 
 // // Setup a transient run to match JCC's Simulink data
 // CLoad.Pdemand = 6./1000.; // discharge such that we get 6 W to load.
