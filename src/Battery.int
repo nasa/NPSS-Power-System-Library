@@ -167,6 +167,11 @@ this component, see MotorGeneratorMap.int";
     description = "Design power for this source.";
   }
 
+  real QDes {
+    value = 0; IOstatus = "output"; units = "none"; // [kW]
+    description = "Design Ah for this battery.";
+  }
+
   real R_0 {
     value = 0.01; IOstatus = "output"; units = "none"; // [Ohm]; tR_0 in Python boring amprius_battery
     description = "Static battery output resistance.";
@@ -377,10 +382,12 @@ this component, see MotorGeneratorMap.int";
     }
 
     // Output params common to both on and off design cases.
-    C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h)
-    dSOCqdt = -C_rate/3600.;
+    //C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) kW/kWh
+    //dSOCqdt = -C_rate/3600.; //(kW/kWh) / (1h/3600s)
+    C_rate = EP_O.I.r / QDes; // (design power kW * 1 hour) / (design energy in kW-h) kW/kWh
+    dSOCqdt = -EP_O.I.r/(QDes*3600.); //(kW/kWh) / (1h/3600s)
+    
     C_rate = abs(C_rate); // C-rate actually does not typically have an associated sign.
-    EP_O.S.r;
     Loss_r = EP_O.I.mag**2 * RTotal;
     Loss_j = 0;
     eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);

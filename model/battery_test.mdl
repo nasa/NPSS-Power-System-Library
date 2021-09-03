@@ -30,10 +30,10 @@ cout<<"======================================="<<endl;
 /**************************
 Electric Power System Components
 **************************/
-Element Battery Li_ion_cell { //Amprius battery ELD214
+Element Battery Li_ion_cell { //BPM TODO: rename Li_ion_cell to something generic - we're doing a pack, not a cell
 
     // Load in the battery map
-    #include <amprius_cell.map>
+    #include <18650_cell.map>
     
     // Set up the thermal port and thermal mass submodel/socket
     setOption("switchThermPort", "TRUE");
@@ -44,7 +44,7 @@ Element Battery Li_ion_cell { //Amprius battery ELD214
 
     Vout_des = 524;
     Vout_guess = 520;
-    SpecificEnergy = 100; //Wh/kg
+    SpecificEnergy = 200; //Wh/kg
                           //BPM TODO: change SE until NPSS temperature data matches Simulink curve
 
 }
@@ -58,7 +58,7 @@ Element Cable Cable_Single
 
 Element ConstantPowerLoad CLoad
 {
-    Pdemand  = 120; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
+    Pdemand  = 120./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
     eff = 0.999;
 }
 
@@ -69,7 +69,7 @@ Element TMS{
     // Assume cold side of TMS is ISA temperature
     //real T_cool = 518.67, Q_cool;
     real T_cool = 500, Q_cool;
-    real R_cool = 1; // cooling heat transfer resistance to ambient.
+    real R_cool = 500.; // cooling heat transfer "admittance" to ambient.
 
     void calculate() {
         Q_cool = R_cool*(Q_O.MassTemp-T_cool);
@@ -100,7 +100,7 @@ void BFPrintOutput()
     // cout << " Battery output Resistance (R_0, R_Th) = " << Li_ion_cell.R_0 << ", " << Li_ion_cell.R_Th << endl; 
     // cout << " Battery current (calc)                = " << (Li_ion_cell.Voc-Li_ion_cell.Vout)/Li_ion_cell.RTotal << endl;
     cout << " Battery current/power                 = " << Li_ion_cell.EP_O.I.r << "/" << Li_ion_cell.EP_O.S.r << endl;
-    cout << " Load power/depVal                     = " << CLoad.P << "/" << 14./1000. << endl;
+    cout << " Load power                            = " << CLoad.P << endl;
     cout << " Number of series cells in battery     = " << Li_ion_cell.S_map.num_series << endl;
     cout << " Number of parallel cells in battery   = " << Li_ion_cell.S_map.num_parallel << endl;
     cout << " Battery temperature/temp state (oC)   = " << Li_ion_cell.T_batt << "/" << (Li_ion_cell.S_eThermMass.T - 491.67)*5./9. << endl;

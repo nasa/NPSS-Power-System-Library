@@ -22,8 +22,9 @@
 Subelement BatteryCellSoCTemperatureMap S_map {
 
 	// Constant parameters specific to this battery cell.
-	energyDes_cell = 10.8/1000.; // kW-h (3.6 V nominal * 3.0 Ah tested at C/5 discharge)
-
+	energyDes_cell = 13./1000.; // kW-h (3.6 V nominal * 3.0 Ah tested at C/5 discharge)
+	powerDes_cell = 3./1000.; //kW
+	QDes_cell = 3./1000.; //Ah
 	//  ----------------------------------------------------------------------
 	//  |    Declare a table (or function) named TB_Wp(real SPED, real PR)
 	//  |    To satisfy the TB_Wp socket requirement. 

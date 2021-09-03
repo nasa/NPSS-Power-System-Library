@@ -33,6 +33,7 @@ extern real R_0;
 extern real R_Th;
 // Output to tell user what the ACTUAL capacity is.
 extern real energyDes;
+extern real QDes;
 
 class BatteryCellSoCTemperatureMap extends Subelement {
 
@@ -79,8 +80,11 @@ class BatteryCellSoCTemperatureMap extends Subelement {
     value = 10;  IOstatus = OUTPUT;  units = NONE; // kW-h
     description = "Energy design capacity for one cell.";
   }
-
-    real powerDes_cell {
+  real QDes_cell {
+    value = 10;  IOstatus = OUTPUT;  units = NONE; // kW-h
+    description = "Ah design capacity for one cell.";
+  }
+  real powerDes_cell {
     value = 10;  IOstatus = OUTPUT;  units = NONE; // kW
     description = "Power design for one cell.";
   }
@@ -170,6 +174,7 @@ class BatteryCellSoCTemperatureMap extends Subelement {
       // num_series = ceil(Vout_des/Voc_cell);
       num_series = Vout_des/Voc_cell;      
       energyDes = energyDes_cell * num_parallel;
+      QDes = QDes_cell * num_parallel;
     } // end (switchDes == DESIGN)
     
     //----------------------------------------------------------------------

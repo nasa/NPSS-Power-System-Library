@@ -67,7 +67,7 @@ CASE++; run();
 BFPrintOutput();
 page.display(); 
 
-CLoad.Pdemand = -120.; // kw Charge the battery roughly at 1 C (14 W) BPM: was 14./1000
+CLoad.Pdemand = -120./1000.; // kw Charge the battery roughly at 1 C (14 W) 
 
 // Constant power load -14 W for Case 2
 CASE++; run();
@@ -75,7 +75,7 @@ BFPrintOutput();
 page.display();
 
 // Setup a transient run to match JCC's Simulink data
-CLoad.Pdemand = 6./1000.; // discharge such that we get 6 W to load.
+CLoad.Pdemand = 10./1000.; // initial power point in profile
 run(); // do another steady-state run just to initialize us.
 
 // BTW the Simulink model has NO cooling, so to represent that, just zero out the heat transfer resistance
@@ -92,7 +92,7 @@ Li_ion_cell.integ_SOC.autoSetup = TRUE;
 setOption("switchDes","OFFDESIGN"); 
 setOption("solutionMode", "TRANSIENT");
 transient.stopTime = 6560.0;
-transient.baseTimeStep = 0.5;
+transient.baseTimeStep = 0.1;
 transient.setup();
 initializeHistory();
 autoSolverSetup();
@@ -122,12 +122,11 @@ transientCSVStream << "Li_ion_cell.C_rate,";
 transientCSVStream << "time" << endl;
 
 // Use a variable to print only every 100 timesteps.
-int printCounter = 0;
+real time_old = 0;
 void csvTransientPrint()
 {
-    if (++printCounter >= 120)
+    if (time-time_old >= 300)
     {
-      printCounter = 0;
         transientCSVStream << Li_ion_cell.Voc << ", ";
         transientCSVStream << Li_ion_cell.Vout << ", ";
         transientCSVStream << Li_ion_cell.Q_heat << ", ";
@@ -150,22 +149,23 @@ void csvTransientPrint()
         cout << "C-rate, "            << Li_ion_cell.C_rate << ", ";
         cout << "CASE, "              << CASE << ", ";
         cout << "time (s), "              << time << endl;
+        time_old = time;
     }
 }
 
 void transient_profile() {
     // Based time points
-    if ( time < 570 ) { CLoad.Pdemand = 10.; }
-    else if ( time < 855 ) { CLoad.Pdemand = 0.; } // BPM: if 0 causes failure, put in a small value (0.1)
-    else if ( time < 1000 ) { CLoad.Pdemand = 119.5 ; }
-    else if ( time < 1415 ) { CLoad.Pdemand = 0.; }
-    else if ( time < 1565 ) { CLoad.Pdemand = 120.; }
-    else if ( time < 3640 ) { CLoad.Pdemand = 60.; }
-    else if ( time < 4100 ) { CLoad.Pdemand = 18.5; }
-    else if ( time < 4620 ) { CLoad.Pdemand = 0.5; }
-    else if ( time < 4760 ) { CLoad.Pdemand = 79.5; }
-    else if ( time < 5680 ) { CLoad.Pdemand = 6.5; }
-    else { CLoad.Pdemand = 0.;}
+    if ( time < 570 ) { CLoad.Pdemand = 10./1000.; }
+    else if ( time < 855 ) { CLoad.Pdemand = 0./1000.; } // BPM: if 0 causes failure, put in a small value (0.1)
+    else if ( time < 1000 ) { CLoad.Pdemand = 119.5/1000. ; }
+    else if ( time < 1415 ) { CLoad.Pdemand = 0./1000.; }
+    else if ( time < 1565 ) { CLoad.Pdemand = 120./1000.; }
+    else if ( time < 3640 ) { CLoad.Pdemand = 60./1000.; }
+    else if ( time < 4100 ) { CLoad.Pdemand = 18.5/1000.; }
+    else if ( time < 4620 ) { CLoad.Pdemand = 0.5/1000.; }
+    else if ( time < 4760 ) { CLoad.Pdemand = 79.5/1000.; }
+    else if ( time < 5680 ) { CLoad.Pdemand = 6.5/1000.; }
+    else { CLoad.Pdemand = 0./1000.;}
 
     // Stop if battery gets fully drained (or close to it)
     if (Li_ion_cell.SOC <= 0.01) {
