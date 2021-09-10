@@ -169,10 +169,10 @@ class BatteryCellSoCTemperatureMap extends Subelement {
       // On design, we need to size the pack. That is, figure out number of
       // series and parallel cells in the pack.
       //---------------------------------------------------------------------- 
-      // num_parallel = max(ceil(powerDes / powerDes_cell),ceil(desired_energyDes / energyDes_cell));
-      num_parallel = max((powerDes / powerDes_cell),(desired_energyDes / energyDes_cell));      
-      // num_series = ceil(Vout_des/Voc_cell);
-      num_series = Vout_des/Voc_cell;      
+      num_parallel = max(ceil(powerDes / powerDes_cell),ceil(desired_energyDes / energyDes_cell));
+      //num_parallel = max((powerDes / powerDes_cell),(desired_energyDes / energyDes_cell));      
+      num_series = ceil(Vout_des/Voc_cell);
+      //num_series = Vout_des/Voc_cell;      
       energyDes = energyDes_cell * num_parallel;
       QDes = QDes_cell * num_parallel;
     } // end (switchDes == DESIGN)
