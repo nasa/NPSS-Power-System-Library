@@ -81,9 +81,9 @@ run(); // do another steady-state run just to initialize us.
 // BTW the Simulink model has NO cooling, so to represent that, just zero out the heat transfer resistance
 TMS.R_cool = 0;
 
-// Also start out the temperature at 20 C to match the data
-Li_ion_cell.T_batt = 20;
-Li_ion_cell.S_eThermMass.T = 20. * 9./5. + 491.67; // 20 C converted to R
+// Also start out the temperature at 22 C to match the data
+Li_ion_cell.T_batt = 22;
+Li_ion_cell.S_eThermMass.T = 22. * 9./5. + 491.67; // 20 C converted to R
 
 // Turn on integrator for battery SOC
 Li_ion_cell.ind_SOC.autoSetup = TRUE;
