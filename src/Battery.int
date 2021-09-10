@@ -388,7 +388,7 @@ this component, see MotorGeneratorMap.int";
     dSOCqdt = -EP_O.I.r/(QDes*3600.); //(kW/kWh) / (1h/3600s)
     
     C_rate = abs(C_rate); // C-rate actually does not typically have an associated sign.
-    Loss_r = EP_O.I.mag**2 * RTotal;
+    Loss_r = EP_O.I.mag**2 * RTotal / 1000.;
     Loss_j = 0;
     eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
     real KW_PER_BTU_PER_SEC = 1.05505585;

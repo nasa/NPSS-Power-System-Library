@@ -39,12 +39,13 @@ Element Battery Li_ion_cell { //BPM TODO: rename Li_ion_cell to something generi
     setOption("switchThermPort", "TRUE");
     Subelement EThermalMass S_eThermMass {
          Cp = 0.5; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
+         //Cp = 1020.; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
 
     }
 
     Vout_des = 524;
     Vout_guess = 520;
-    SpecificEnergy = 200; //Wh/kg
+    SpecificEnergy = 2; // Wh/kg
                           //BPM TODO: change SE until NPSS temperature data matches Simulink curve
 
 }
@@ -58,7 +59,7 @@ Element Cable Cable_Single
 
 Element ConstantPowerLoad CLoad
 {
-    Pdemand  = 120./1000.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
+    Pdemand  = 120.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
     eff = 0.999;
 }
 
