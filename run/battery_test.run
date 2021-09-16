@@ -83,7 +83,7 @@ TMS.R_cool = 0;
 
 // Also start out the temperature at 22 C to match the data
 Li_ion_cell.T_batt = 22;
-Li_ion_cell.S_eThermMass.T = 22. * 9./5. + 491.67; // 20 C converted to R
+Li_ion_cell.S_eThermMass.T = 22. * 9./5. + 491.67; // 22 C converted to R
 
 // Turn on integrator for battery SOC
 Li_ion_cell.ind_SOC.autoSetup = TRUE;
@@ -165,11 +165,11 @@ void transient_profile() {
     else if ( time < 4620 ) { CLoad.Pdemand = 0.5; }
     else if ( time < 4760 ) { CLoad.Pdemand = 79.5; }
     else if ( time < 5680 ) { CLoad.Pdemand = 6.5; }
-    else { CLoad.Pdemand = 0.;}
+    else if ( time < 6600 ){ CLoad.Pdemand = 0.;}
 
     // Stop if battery gets fully drained (or close to it)
     if (Li_ion_cell.SOC <= 0.01) {
-        quit();
+        // quit();
     }
 }
 
