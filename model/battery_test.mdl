@@ -38,7 +38,7 @@ Element Battery Li_ion_cell { //BPM TODO: rename Li_ion_cell to something generi
     // Set up the thermal port and thermal mass submodel/socket
     setOption("switchThermPort", "TRUE");
     Subelement EThermalMass S_eThermMass {
-         Cp = 0.78; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
+         Cp = 0.95; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
          //Cp = 1020.; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
 
     }
