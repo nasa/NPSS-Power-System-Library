@@ -82,12 +82,12 @@ run(); // do another steady-state run just to initialize us.
 TMS.R_cool = 0;
 
 // Also start out the temperature at 22 C to match the data
-Li_ion_cell.T_batt = 22;
-Li_ion_cell.S_eThermMass.T = 22. * 9./5. + 491.67; // 22 C converted to R
+Li_ion_battery.T_batt = 22;
+Li_ion_battery.S_eThermMass.T = 22. * 9./5. + 491.67; // 22 C converted to R
 
 // Turn on integrator for battery SOC
-Li_ion_cell.ind_SOC.autoSetup = TRUE;
-Li_ion_cell.integ_SOC.autoSetup = TRUE;
+Li_ion_battery.ind_SOC.autoSetup = TRUE;
+Li_ion_battery.integ_SOC.autoSetup = TRUE;
 
 setOption("switchDes","OFFDESIGN"); 
 setOption("solutionMode", "TRANSIENT");
@@ -107,46 +107,46 @@ cout << "Transient Solver Vars = " << endl << solver.dependentNames << endl << s
 OutFileStream transientCSVStream { filename = "output/batt_transient.csv"; } 
 
 // Write the CSV headers
-transientCSVStream << "Li_ion_cell.Voc,";
-transientCSVStream << "Li_ion_cell.Vout,";
-transientCSVStream << "Li_ion_cell.Q_heat,";
-transientCSVStream << "Li_ion_cell.R_0,";
-transientCSVStream << "Li_ion_cell.R_Th,";
-transientCSVStream << "Li_ion_cell.EP_O.I.r,";
-transientCSVStream << "Li_ion_cell.EP_O.S.r,";
-transientCSVStream << "Li_ion_cell.T_batt,";
-transientCSVStream << "Li_ion_cell.S_eThermMass.T,";
-transientCSVStream << "Li_ion_cell.SOC,";
-transientCSVStream << "Li_ion_cell.dSOCqdt,";
-transientCSVStream << "Li_ion_cell.C_rate,";
+transientCSVStream << "Li_ion_battery.Voc,";
+transientCSVStream << "Li_ion_battery.Vout,";
+transientCSVStream << "Li_ion_battery.Q_heat,";
+transientCSVStream << "Li_ion_battery.R_0,";
+transientCSVStream << "Li_ion_battery.R_Th,";
+transientCSVStream << "Li_ion_battery.EP_O.I.r,";
+transientCSVStream << "Li_ion_battery.EP_O.S.r,";
+transientCSVStream << "Li_ion_battery.T_batt,";
+transientCSVStream << "Li_ion_battery.S_eThermMass.T,";
+transientCSVStream << "Li_ion_battery.SOC,";
+transientCSVStream << "Li_ion_battery.dSOCqdt,";
+transientCSVStream << "Li_ion_battery.C_rate,";
 transientCSVStream << "time" << endl;
 
 // Use a variable to print only every 100 timesteps.
 real time_old = 0;
 void csvTransientPrint()
 {
-    transientCSVStream << Li_ion_cell.Voc << ", ";
-    transientCSVStream << Li_ion_cell.Vout << ", ";
-    transientCSVStream << Li_ion_cell.Q_heat << ", ";
-    transientCSVStream << Li_ion_cell.R_0 << ", ";
-    transientCSVStream << Li_ion_cell.R_Th << ", ";
-    transientCSVStream << Li_ion_cell.EP_O.I.r << ", ";
-    transientCSVStream << Li_ion_cell.EP_O.S.r << ", ";
-    transientCSVStream << Li_ion_cell.T_batt << ", ";
-    transientCSVStream << Li_ion_cell.S_eThermMass.T << ", ";
-    transientCSVStream << Li_ion_cell.SOC << ", ";
-    transientCSVStream << Li_ion_cell.dSOCqdt << ", ";
-    transientCSVStream << Li_ion_cell.C_rate << ", ";
+    transientCSVStream << Li_ion_battery.Voc << ", ";
+    transientCSVStream << Li_ion_battery.Vout << ", ";
+    transientCSVStream << Li_ion_battery.Q_heat << ", ";
+    transientCSVStream << Li_ion_battery.R_0 << ", ";
+    transientCSVStream << Li_ion_battery.R_Th << ", ";
+    transientCSVStream << Li_ion_battery.EP_O.I.r << ", ";
+    transientCSVStream << Li_ion_battery.EP_O.S.r << ", ";
+    transientCSVStream << Li_ion_battery.T_batt << ", ";
+    transientCSVStream << Li_ion_battery.S_eThermMass.T << ", ";
+    transientCSVStream << Li_ion_battery.SOC << ", ";
+    transientCSVStream << Li_ion_battery.dSOCqdt << ", ";
+    transientCSVStream << Li_ion_battery.C_rate << ", ";
     transientCSVStream << time << endl;
 
     if (time-time_old >= 300)
     {
-        cout << "T_batt (oC), "       << Li_ion_cell.T_batt << ", ";
-        //cout << "HeatRate (BTU/s), "  << Li_ion_cell.Q_heat << ", ";
-        cout << "BattCurrent (A), "   << Li_ion_cell.EP_O.I.r << ", ";
-        cout << "BattSOC, "           << Li_ion_cell.SOC << ", ";
-        cout << "BattVoltage (V), "   << Li_ion_cell.EP_O.V.r << ", ";
-        cout << "C-rate, "            << Li_ion_cell.C_rate << ", ";
+        cout << "T_batt (oC), "       << Li_ion_battery.T_batt << ", ";
+        //cout << "HeatRate (BTU/s), "  << Li_ion_battery.Q_heat << ", ";
+        cout << "BattCurrent (A), "   << Li_ion_battery.EP_O.I.r << ", ";
+        cout << "BattSOC, "           << Li_ion_battery.SOC << ", ";
+        cout << "BattVoltage (V), "   << Li_ion_battery.EP_O.V.r << ", ";
+        cout << "C-rate, "            << Li_ion_battery.C_rate << ", ";
         cout << "CASE, "              << CASE << ", ";
         cout << "time (s), "              << time << endl;
         time_old = time;
@@ -168,7 +168,7 @@ void transient_profile() {
     else if ( time < 6600 ){ CLoad.Pdemand = 0.;}
 
     // Stop if battery gets fully drained (or close to it)
-    if (Li_ion_cell.SOC <= 0.01) {
+    if (Li_ion_battery.SOC <= 0.01) {
         // quit();
     }
 }

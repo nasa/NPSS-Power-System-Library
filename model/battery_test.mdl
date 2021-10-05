@@ -77,12 +77,12 @@ Element TMS{
         Q_O.HeatTransferRate = Q_cool;
     }
 }
-linkPorts("TMS.Q_O","Li_ion_cell.Q_I","Q1");
+linkPorts("TMS.Q_O","Li_ion_battery.Q_I","Q1");
 
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "Li_ion_cell.EP_O", "Cable_Single.EP_I" );
+linkPortI( "Li_ion_battery.EP_O", "Cable_Single.EP_I" );
 linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
 // linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
 // linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
@@ -90,21 +90,21 @@ linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
 
 findSourcesAndPropagate();
 
-solverSequence = { "Cable_Single", "Li_ion_cell", "CLoad", "TMS" }; 
+solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
 
 void BFPrintOutput() 
 {
     cout << " Case = " << CASE << endl;
-    cout << " Battery open circuit voltage          = " << Li_ion_cell.Voc << endl; 
-    cout << " Battery output voltage (actual/guess) = " << Li_ion_cell.Vout << "/" << Li_ion_cell.Vout_guess << endl; 
-    cout << " Battery heat balance (Qin/Oout)       = " << Li_ion_cell.Q_heat << "/" << Li_ion_cell.Q_I.HeatTransferRate << endl; 
-    // cout << " Battery output Resistance (R_0, R_Th) = " << Li_ion_cell.R_0 << ", " << Li_ion_cell.R_Th << endl; 
-    // cout << " Battery current (calc)                = " << (Li_ion_cell.Voc-Li_ion_cell.Vout)/Li_ion_cell.RTotal << endl;
-    cout << " Battery current/power                 = " << Li_ion_cell.EP_O.I.r << "/" << Li_ion_cell.EP_O.S.r << endl;
+    cout << " Battery open circuit voltage          = " << Li_ion_battery.Voc << endl; 
+    cout << " Battery output voltage (actual/guess) = " << Li_ion_battery.Vout << "/" << Li_ion_battery.Vout_guess << endl; 
+    cout << " Battery heat balance (Qin/Oout)       = " << Li_ion_battery.Q_heat << "/" << Li_ion_battery.Q_I.HeatTransferRate << endl; 
+    // cout << " Battery output Resistance (R_0, R_Th) = " << Li_ion_battery.R_0 << ", " << Li_ion_battery.R_Th << endl; 
+    // cout << " Battery current (calc)                = " << (Li_ion_battery.Voc-Li_ion_battery.Vout)/Li_ion_battery.RTotal << endl;
+    cout << " Battery current/power                 = " << Li_ion_battery.EP_O.I.r << "/" << Li_ion_battery.EP_O.S.r << endl;
     cout << " Load power                            = " << CLoad.P << endl;
-    cout << " Number of series cells in battery     = " << Li_ion_cell.S_map.num_series << endl;
-    cout << " Number of parallel cells in battery   = " << Li_ion_cell.S_map.num_parallel << endl;
-    cout << " Battery temperature/temp state (oC)   = " << Li_ion_cell.T_batt << "/" << (Li_ion_cell.S_eThermMass.T - 491.67)*5./9. << endl;
+    cout << " Number of series cells in battery     = " << Li_ion_battery.S_map.num_series << endl;
+    cout << " Number of parallel cells in battery   = " << Li_ion_battery.S_map.num_parallel << endl;
+    cout << " Battery temperature/temp state (oC)   = " << Li_ion_battery.T_batt << "/" << (Li_ion_battery.S_eThermMass.T - 491.67)*5./9. << endl;
     // cout << " Cable current (output port)           = " << Cable_Single.EP_O.I.r << endl;
     // cout << " Load input voltage                    = " << CLoad.EP_I.V.r << endl;
     // cout << " Load input power                      = " << CLoad.EP_I.S.r << endl;
