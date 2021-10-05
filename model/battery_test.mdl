@@ -30,7 +30,7 @@ cout<<"======================================="<<endl;
 /**************************
 Electric Power System Components
 **************************/
-Element Battery Li_ion_cell { //BPM TODO: rename Li_ion_cell to something generic - we're doing a pack, not a cell
+Element Battery Li_ion_battery { 
 
     // Load in the battery map
     #include <18650_cell.map>
