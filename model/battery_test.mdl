@@ -1,0 +1,118 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     SW13.mdl                                                     |
+ | Author(s):	  George Thomas, Brian Malone                   			   |
+ | Date(s):       October 2020                                                 |
+ |                                                                             |
+ | Description:   Battery test model with backflow                             |          
+ |             									                               |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+cout<<"======================================="<<endl;
+cout<<" MODEL WITH BATTERY AND BACKFLOW"       <<endl;
+cout<<"======================================="<<endl;
+
+#ifdef THERMO
+    cout << "THERMO" << endl;
+    setThermoPackage("$THERMO");
+#elseif
+    cout << "GasTbl" << endl;
+    setThermoPackage("GasTbl");
+#endif
+
+/**************************
+Electric Power System Components
+**************************/
+Element Battery Li_ion_battery { 
+
+    // Load in the battery map
+    #include <18650_cell.map>
+    
+    // Set up the thermal port and thermal mass submodel/socket
+    setOption("switchThermPort", "TRUE");
+    Subelement EThermalMass S_eThermMass {
+         Cp = 0.95; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
+         //Cp = 1020.; // 	J/(kg°C)= (°C)/(1.8∗°R)∗kg/2.205lb∗0.000948BTU/J=0.000239∗ J/(kg°C) -> Simulink: 1020*2*0.000239 = 0.48756, or ~0.5  
+
+    }
+
+    // Vout_des = 524;
+    Vout_des = 528.5;
+    Vout_guess = 520;
+    SpecificEnergy = 2; // Wh/kg
+
+}
+
+Element Cable Cable_Single
+{
+	R = 0.001; //Ohms
+	L = 0; //Henries
+}
+
+
+Element ConstantPowerLoad CLoad
+{
+    Pdemand  = 120.; // kW (single cell 1 C current is 3.5 Amps, roughly 14 W)
+    eff = 0.999;
+}
+
+// Create a magic thermal output port that represents the heat extraction
+// from the battery. 
+Element TMS{
+    ThermalOutputPort Q_O;
+    // Assume cold side of TMS is ISA temperature
+    //real T_cool = 518.67, Q_cool;
+    real T_cool = 500, Q_cool;
+    real R_cool = 500.; // cooling heat transfer "admittance" to ambient.
+
+    void calculate() {
+        Q_cool = R_cool*(Q_O.MassTemp-T_cool);
+        Q_O.HeatTransferRate = Q_cool;
+    }
+}
+linkPorts("TMS.Q_O","Li_ion_battery.Q_I","Q1");
+
+//-------------------------------------------------------------------------------------------------
+// Component Linkages
+//-------------------------------------------------------------------------------------------------
+linkPortI( "Li_ion_battery.EP_O", "Cable_Single.EP_I" );
+linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
+// linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
+// linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
+// linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
+
+findSourcesAndPropagate();
+
+solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
+
+void BFPrintOutput() 
+{
+    cout << " Case = " << CASE << endl;
+    cout << " Battery open circuit voltage          = " << Li_ion_battery.Voc << endl; 
+    cout << " Battery output voltage (actual/guess) = " << Li_ion_battery.Vout << "/" << Li_ion_battery.Vout_guess << endl; 
+    cout << " Battery heat balance (Qin/Oout)       = " << Li_ion_battery.Q_heat << "/" << Li_ion_battery.Q_I.HeatTransferRate << endl; 
+    // cout << " Battery output Resistance (R_0, R_Th) = " << Li_ion_battery.R_0 << ", " << Li_ion_battery.R_Th << endl; 
+    // cout << " Battery current (calc)                = " << (Li_ion_battery.Voc-Li_ion_battery.Vout)/Li_ion_battery.RTotal << endl;
+    cout << " Battery current/power                 = " << Li_ion_battery.EP_O.I.r << "/" << Li_ion_battery.EP_O.S.r << endl;
+    cout << " Load power                            = " << CLoad.P << endl;
+    cout << " Number of series cells in battery     = " << Li_ion_battery.S_map.num_series << endl;
+    cout << " Number of parallel cells in battery   = " << Li_ion_battery.S_map.num_parallel << endl;
+    cout << " Battery temperature/temp state (oC)   = " << Li_ion_battery.T_batt << "/" << (Li_ion_battery.S_eThermMass.T - 491.67)*5./9. << endl;
+    // cout << " Cable current (output port)           = " << Cable_Single.EP_O.I.r << endl;
+    // cout << " Load input voltage                    = " << CLoad.EP_I.V.r << endl;
+    // cout << " Load input power                      = " << CLoad.EP_I.S.r << endl;
+    // cout << " Calculated load eff                   = " << (CLoad.P/CLoad.EP_I.S.r)**sign(CLoad.P) << endl; // GLT: account for negative power flow
+    // cout << " Load eff                              = " << CLoad.eff << endl;
+}
+
+// Initial independent variable guesses are here.
+CLoad.Vreal = 519.9; //BPM was 3.59
+CLoad.Vimag = 0;
+

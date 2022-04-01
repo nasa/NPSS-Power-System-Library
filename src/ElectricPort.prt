@@ -23,7 +23,7 @@ ESOregCreate(ESO_Id_NoRefPort, 1, "No refport in this port (make sure the port i
 int ESO_Id_ImagInDC = (10000 * 142) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ImagInDC, 1, "Imaginary components in DC port!");
 
-string sourceComponents[] = { "Source", "Generator" };
+string sourceComponents[] = { "Source", "Generator", "Battery" };
 string loadComponents[] = { "Motor", "ConstantPowerLoad" };
 string converterComponents[] = { "Inverter", "Rectifier", "DC_DC_Converter" };
 
