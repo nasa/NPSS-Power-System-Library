@@ -14,7 +14,7 @@
 
 OutFileStream pageStream { filename = "output/powertrain.viewOut"; }
 
-// A couple of 
+// A couple of functions to do rounding
 // Round to a specified number of digits (after the decimal point)
 real roundTo(real x, real digits)
 {
@@ -39,7 +39,7 @@ void setupElectricalPageViewer() {
    for (idxComp = 0; idxComp < powerComponentListSourceToLoad.entries(); idxComp++) {
       
       string compName = powerComponentListSourceToLoad[idxComp];
-      string compPorts[] = compName->list("ElectricPort", TRUE);
+      string compPorts[] = compName->list("ElectricOutputPort", TRUE);
       
       if (compPorts.entries() > 0) {
          page.outputPortList.append(compPorts);
@@ -92,37 +92,6 @@ DataViewer PageViewer page {
       addGutter = TRUE;
    } // end TnBGroup
 
-   LinkColTBlock inputs { 
-      titleBody = "                                        FLOW STATION DATA";
-      titleVars = { }
-      compType = "FluidOutputPort";
-      compTypeFormat = "????????????????????????";
-      excludeCompTypes = { "InterStageBleedOutPort", "BleedOutPort" }     //remove to include bleed ports 
-      compAttr = { "W:????.??", "Pt:????.???", "Tt:?????.??", "ht:????.??", "FAR:?.????", 
-                  "Wc:????.??", "Ps:????.???", "Ts:?????.??", "rhos:?.??????", "Aphy:?????.?", "MN:?.????", "gamt:??.?????" }
-   } 
-
-   GroupBlock Turbomachinery { 
-      DColTBlock comps { 
-         titleBody = "TURBOMACHINERY PERFORMANCE DATA"; 
-         compType = "Compressor"; 
-         compTypeFormat = "????????"; 
-         compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Nc:?????.???", 
-                     "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?", "SMN:???.??", "SMW:???.??" } 
-      } 
-      DColTBlock turbs { 
-         compType = "Turbine"; 
-         compTypeFormat = "????????"; 
-         compAttr = { "Fl_I.Wc:????.??=Wc", "PR:??.???", "eff:??.????", "Np:?????.???", 
-                     "TR:??.????", "effPoly:??.????=efPoly", "pwr:???????.?" } 
-         showColHeader=FALSE; 
-      } 
-      anchor = "comps"; 
-      comps.bottom = "turbs"; 
-      addGutter = FALSE; 
-   }  //end of Turbomachinery block
-
-
    GroupBlock elecPorts { 
 
       SimpleBlock title { 
@@ -130,9 +99,12 @@ DataViewer PageViewer page {
       } 
       
       DColTBlock elecPortPowerData { 
-         titleBody = "                                   Complex Power Data           |               Misc Data"; 
+         titleBody = "                                   Complex Power Data                   |               Misc Data"; 
          compType = "ElectricPort";
-         compAttr = {"roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         // An experiment for later:
+         //compAttr = {"strFmt(\"%-50s\",refport->refport+\" - \"+refport):??????????????????????????????????????????????????=Ports", "roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         //compTypeFormat = "?"; 
+         compAttr = {"roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","roundTo(S.r/0.746,2):????.??=P, hp","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
          defSNFormat = "?.?e???";
       }
       DColTBlock elecPortVIData { 
@@ -160,34 +132,70 @@ DataViewer PageViewer page {
          defSNFormat = "?.?e???";
       }
 
-      GroupBlock cableAndBreakerData {
+      GroupBlock elecComponentDataGroup {
          SimpleBlock title { 
             body = "\n                            ELECTRICAL POWER SYSTEM -- COMPONENT SPECIFIC DATA"; 
-         } 
+         }
+         DColTBlock motorData { 
+            //titleBody = "Motor Data";
+            compType = "Motor"; 
+            compAttr = {"Pout","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            defSNFormat = "???.????";
+         }
+         DColTBlock generatorData { 
+            //titleBody = "Generator Data";
+            compType = "Generator"; 
+            compAttr = {"Pin","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            defSNFormat = "???.????";
+         }
+         DColTBlock DCDCData {
+            //titleBody = "DC_DC_Converter Data";
+            compType = "DC_DC_Converter"; 
+            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            defSNFormat = "???.????";
+         }
+         DColTBlock inverterData { 
+            //titleBody = "Inverter Data";
+            compType = "Inverter"; 
+            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            defSNFormat = "???.????";
+         }
+         DColTBlock rectifierData { 
+            //titleBody = "Rectifier Data";
+            compType = "Rectifier"; 
+            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            defSNFormat = "???.????";
+         }
+         
+         
          DColTBlock aeroCableData { 
-            titleBody = "AeroCable Data";
+            //titleBody = "AeroCable Data";
             compType = "AeroCable"; 
             compAttr = {"R=R, Ohms","L=L, Henries", "Z.j=X, Reactance", "cable_size", "paralleled=#parallel", "ampacity"}
-
          }
          DColTBlock cableData { 
-            titleBody = "Cable Data";
+            //titleBody = "Cable Data";
             compType = "Cable"; 
             compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
          }
          DColTBlock breakerData { 
-            titleBody = "Breaker Data";
+            //titleBody = "Breaker Data";
             compType = "Breaker"; 
             compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
          }
          anchor = "title"; 
-         title.bottom = "aeroCableData";
+         title.bottom = "motorData";
+         motorData.bottom = "generatorData";
+         generatorData.bottom = "inverterData";
+         inverterData.bottom = "rectifierData";
+         rectifierData.bottom = "DCDCData";
+         DCDCData.bottom = "aeroCableData";
          aeroCableData.bottom = "cableData";
-         cableData.bottom = "breakerData";         
+         cableData.bottom = "breakerData";
       }
       anchor = "title"; 
       title.bottom = "elecComponentData"; 
-      elecComponentData.bottom = "cableAndBreakerData";
+      elecComponentData.bottom = "elecComponentDataGroup";
       addGutter = FALSE; 
    }
 
@@ -200,10 +208,9 @@ DataViewer PageViewer page {
    } 
 
    anchor = "TnBGroup"; 
-   TnBGroup.bottom = "inputs"; 
-   inputs.bottom = "thermalPorts";
-   thermalPorts.bottom = "elecPorts"; 
-   elecPorts.bottom = "elecComponents"; 
+   TnBGroup.bottom = "elecPorts"; 
+   elecPorts.bottom = "elecComponents";
+   elecComponents.bottom = "thermalPorts";
 
    pageWidth = 0; 
    pageHeight = 0; 
