@@ -1,0 +1,56 @@
+
+//Set the thermo package
+setThermoPackage("GasTbl");
+
+#include "view/ncpSpecial.view" // default page viewer
+#include "npssel.view"          // electrical viewer
+#include <bleed_macros.fnc>;    // bleed macros
+#include "hybrid_example.mdl"   // model file
+#include "print_macros.fnc"     // nice printing features
+
+// Solver setup
+//solver.solutionMode = "ONE_PASS";
+solver.maxIterations = 200;
+solver.maxJacobians = 200;
+solver.defaultTolerance *= 10;
+
+// Run the on-design case
+setOption( "switchDes", "DESIGN" );
+autoSolverSetup();
+run();
+
+// Print outputs
+//printPride();
+ncpView.display();
+page.display();
+printHybrid();
+
+// Run an off-design case at a lower power setting (back off on fuel flow and LP shaft motor power).
+CASE++;
+setOption( "switchDes", "OFFDESIGN" );
+Burner.switchBurn = "FUEL";
+Burner.Wfuel *= 0.95;
+LowSpoolMotor.Pout_setpoint *= 0.95;
+autoSolverSetup();
+run();
+
+// Print outputs
+//printPride();
+ncpView.display();
+page.display();
+printHybrid();
+
+// Run one last off-design case at new flight condition.
+CASE++;
+setOption( "switchDes", "OFFDESIGN" );
+Amb.alt_in *= 0.9;
+Amb.dTs_in += 5.;
+Amb.MN_in  *= 0.9;
+autoSolverSetup();
+run();
+
+// Print outputs
+//printPride()
+ncpView.display();
+page.display();
+printHybrid();

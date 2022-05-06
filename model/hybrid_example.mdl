@@ -1,0 +1,495 @@
+
+AUTHOR = "George L. Thomas -- NASA GRC-LEM";
+MODELNAME = "hybrid_example";
+string Model_ID = "hybrid_example_0.0.0";
+
+#include "ElectricPort.prt"
+#include "InterpretedPort.int"
+
+Element Ambient Amb {
+  switchMode = "ALDTMN";
+  alt_in      = 35000.;
+  dTs_in      = 0.;
+  MN_in       = 0.8;
+} // END Amb
+
+Element InletStart Start {
+  AmbientName = "Amb";
+  W_in = 100.;
+}
+
+Element Inlet Inlet { 
+   Afs = 500.0;
+   Fl_O.MN = 0.4000;
+
+} 
+
+Element Duct IGVDuct { 
+   Fl_O.MN = 0.40; 
+   dPqP_in = 0.010; 
+} 
+
+Element Compressor Fan { 
+   #include <fanE3.map>
+   //#include <PW_GTF_proprietary.map>
+
+   Fl_O.MN = 0.40;
+   effDes = 0.92; 
+   PRdes = 1.45;
+
+  
+} 
+
+Element Splitter Splitter { 
+   BPRdes = 1.5; 
+   Fl_O1.MN = 0.40; // swan neck duct inlet Mach number
+   Fl_O2.MN = 0.40;  // bypass duct inlet Mach number
+} 
+
+Element Compressor LPC { // from GT model to include stability bleed
+   #include <lpcE3.map>
+
+   Fl_O.MN = 0.35;
+   effDes = 0.92; 
+   PRdes = 1.45;
+   //S_map.RlineMap = 2.0;  
+   //S_map.NcMapDes = 1.0;
+
+   InterStageBleedOutPort  OpBleed {    // first HPT vane cooling flow
+      fracBldWork = 0.0;  // 0.00 - front end bleed to 1.0 - rear end bleed
+      fracBldP = 1.0;  // pressure guess
+      fracBldW = 0.0; // % of flow to bleed off
+   }
+} 
+
+Element Duct SwanNeckDuct { 
+   Fl_O.MN = 0.35; 
+   dPqP_in = 0.010; 
+} 
+
+Element Compressor HPC { 
+   #include <hpcE3.map>
+
+   Fl_O.MN = 0.20; // OGV inlet Mach number
+
+   effDes = 0.85;  
+   S_map.NcMapDes = 1.;
+   PRdes = 25.0; 
+   S_map.RlineMap = 2.0782;
+   
+   InterStageBleedOutPort  NonCharge_Bleed {    // first HPT vane cooling flow
+   //0.00 - front end bleed to 1.0 - rear end bleed
+      fracBldWork = 1.0;  // exit HPC bleed
+      fracBldP = 1.0;  // pressure guess
+      fracBldW = 0.055; // % of flow to bleed off
+   } 
+   
+   InterStageBleedOutPort  Charge_Bleed {    // back-end HPT cooling flow
+      fracBldWork = 0.0; // front HPC bleed
+      fracBldP = 1.0;   
+      fracBldW = 0.07;
+   }
+   
+  InterStageBleedOutPort  Charge_Bleed2 {    // back-end HPT cooling flow
+      fracBldWork = 0.50; // mid HPC bleed
+      fracBldP = 1.0;   
+      fracBldW = 0.03;
+   }
+
+   InterStageBleedOutPort  CustomerBld { 
+     fracBldWork = 0.5; 
+     fracBldW = 0.0; 
+   }
+} 
+
+Element Duct OGVduct { 
+   Fl_O.MN = 0.20;  // burner inlet Mach number
+   dPqP_in = 0.010;
+} 
+
+Element FuelStart Fuel { 
+   Tref = 518.67;
+   Tfuel = 518.67;
+   Carbon = 1;	//Needed for JANAF
+   Hydrogen = 0.16786;	//Needed for JANAF
+   LHV = 18450.0;
+} 
+
+Element Burner Burner { 
+   FAR = 0.020; 
+   effBase = 0.997;
+   dPqP_dmd = 0.035;
+   Fl_O.MN = 0.10;
+   
+   switchBurn = "FAR"; 
+
+} 
+
+Element Turbine HPT { 
+   #include <hptE3.map>
+   
+   FlowStation FS41; 
+   real PREF_DES;
+   real TREF_DES;
+
+   Fl_O.MN = 0.20;   
+
+   PRbase = 4;   
+   effDes = 0.90;  
+
+
+   InterStageBleedInPort  NC_Bleed { // from HPC back end
+     Pfract = 1.00; 
+   } 
+   InterStageBleedInPort  Charge_Bleed { // from HPC mid stream
+     Pfract = 0.00; 
+   }
+   InterStageBleedInPort  Charge_Bleed2 { // from HPC mid stream
+     Pfract = 0.00; 
+   }
+   void postexecute() { 
+     FS41.copyFlow("Fl_I");
+     FS41.add( "NC_Bleed" );
+   } 
+}
+
+
+Element Duct ITTduct {
+   Fl_O.MN = 0.2;
+   dPqP_in = 0.01;
+} 
+
+
+Element Turbine LPT { 
+   #include <lptE3.map>
+   
+   FlowStation FS49; 
+   real PREF_DES;
+   real TREF_DES;
+   
+
+   Fl_O.MN = 0.30;   // TEGV inlet Mach number
+
+   PRbase = 2; 
+   effDes = 0.90;
+}
+
+Element Duct TEGVduct { 
+   Fl_O.MN = 0.30;   // per Termap model
+   dPqP_in = 0.010;
+} 
+
+Element Nozzle Core_Nozz { 
+   real Cmix_exp = 1.0; 
+   switchType = "CONIC";
+   switchCoef = "CFG";
+   Cang = 1.0;
+   Cfg = 0.985;
+
+   PsExhName = "Start.Fl_O.Ps";
+}
+
+Element Bleed FanBld { 
+   Fl_O.MN = 0.40;  // bypass duct inlet Mach number
+
+   WrefName = "HPC.Fl_I.W";
+   
+   BleedInPort LPCin;
+}
+
+Element Duct BPduct { 
+   Fl_O.MN = 0.40;
+   dPqP_in = 0.00; //set to zero to try to match hFan more closely
+} 
+
+Element Nozzle Byp_Nozz { 
+   real Cmix_exp = 1.0; 
+   switchType = "CONIC";
+   switchCoef = "CFG";
+   Cang = 1.0;
+	Cfg = 0.985;
+    
+   PsExhName = "Start.Fl_O.Ps";
+}
+
+Element FlowEnd Byp_Nozz_End { 
+} 
+
+Element FlowEnd Core_Nozz_End { 
+} 
+
+Element FlowEnd OBsink1 { }  // flow ends for customer bleed
+
+Element Shaft HPShaft { 
+   ShaftInputPort Sh_HPC, Sh_HPT, Sh_Mot; 
+   HPX = 0;
+   Nmech = 15000.0;
+} 
+
+Element Shaft LPShaft { 
+   ShaftInputPort Sh_Fan, Sh_LPC, Sh_LPT, Sh_Mot; 
+   HPX = 0;
+   Nmech = 4600.0;
+} 
+
+// -------------------------------
+//      Power System
+// -------------------------------
+Element Source MainBusBattery {
+   setOption("ElectricPowerType", "DC");
+   Vreal  = 1000; // [volts]
+   Vimag  = 0;    // [volts]
+   effDes = 0.99; // [99 %]
+}
+// Element Battery MainBusBattery { 
+
+//   // Cell performance data mapped to pack level within component
+//   #include <18650_cell.map>
+  
+//   Vout_des = 1000;
+//   Vout_guess = 1000; // guess value [volts]
+//   SpecificEnergy = 2; // Wh/kg
+// }
+
+Element Breaker MainBusBreaker {
+  effDes=0.995;
+  SpecificPower=250.0; 
+  Ireal  = 1000;                // guess value [amps]
+  Iimag  = 0;                   // guess value [amps]
+}
+
+Element Enode MainBus{
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O_LPS;
+  ElectricOutputPort EP_O_HPS;
+  ComplexNumber IaddionalLoad;
+
+  VrealRMS  = 990;            // guess value [volts]
+  VimagRMS  = 0;              // guess value [volts]
+
+  // Override the normal calculate routine with one where we take care
+  // of the unmodeled output strings
+  void calculate() {
+
+    // sum up the current components at node
+    // solver will drive to zero
+    Inet.setrj(0., 0.);
+
+    // We get one input current, needs to be enough to supply to the outputs plus
+    // an additional constant current load
+    Inet.plus("EP_I.I");
+    Inet.minus("EP_O_LPS.I");
+    Inet.minus("EP_O_HPS.I");
+    IaddionalLoad.setrj(100., 0.);
+    Inet.minus("IaddionalLoad");
+    // Alternatively instead of having a dummy load of 10 A,
+    // we could connect multiple additional secondary load strings here
+  }
+}
+
+Element Breaker LowSpoolBusBreaker {
+  effDes=0.95;
+  SpecificPower=250.0;
+  Ireal  = 1000;                // guess value [amps]
+  Iimag  = 0;                   // guess value [amps]
+}
+
+Element Enode LowSpoolBus{
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O;
+  VrealRMS  = 970;            // guess value [volts]
+  VimagRMS  = 0;              // guess value [volts]
+}
+
+Element AeroCable LowSpoolBusCable {
+  length = 25;
+  Ireal  = 1000;                // guess value [amps]
+  Iimag  = 0;                   // guess value [amps]
+}
+
+Element Inverter LowSpoolInv {
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  frequency = 400;
+  Vreal  = 670;  // guess value [volts]
+  Vimag  = 0;    // guess value [volts]
+}
+
+Element AeroCable LowSpoolMotorCable {
+  length = 0.2;
+  Ireal  = 600;                // guess value [amps]
+  Iimag  = -350;               // guess value [amps]
+}
+
+Element Motor LowSpoolMotor {
+  real Pout_setpoint = 1000; // kW
+  #include <STARCABLmotorGenerator.map>
+  effDes = 0.96;
+  SpecificPower = 13;
+  Vreal  = 650;  // guess value [volts]
+  Vimag  = 0;    // guess value [volts]
+  powerfactor = 0.99;
+  Dependent dep_motor_power { 
+    eq_lhs = "Pout";
+    eq_rhs = "Pout_setpoint";
+    autoSetup = TRUE;
+  }
+}
+
+Element Breaker HighSpoolBusBreaker {
+  effDes=0.95;
+  SpecificPower=250.0;
+  Ireal  = -100;                // guess value [amps]
+  Iimag  = 0;                   // guess value [amps]
+}
+
+Element Enode HighSpoolBus{
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O;
+  VrealRMS  = 970;            // guess value [volts]
+  VimagRMS  = 0;              // guess value [volts]
+}
+
+Element AeroCable HighSpoolBusCable {
+  length = 25;
+  Ireal  = -100;                // guess value [amps]
+  Iimag  = 0;                   // guess value [amps]
+}
+
+Element Inverter HighSpoolInv {
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  frequency = 400;
+  Vreal  = 670;  // guess value [volts]
+  Vimag  = 0;    // guess value [volts]
+}
+
+Element AeroCable HighSpoolMotorCable {
+  length = 0.2;
+  Ireal  = -60;                // guess value [amps]
+  Iimag  = 35;               // guess value [amps]
+}
+
+Element Motor HighSpoolMotor {
+  real Pout_setpoint = -100; // kW
+  #include <STARCABLmotorGenerator.map>
+  effDes = 0.96;
+  SpecificPower = 13;
+  Vreal  = 650;  // guess value [volts]
+  Vimag  = 0;    // guess value [volts]
+  powerfactor = 0.99;
+  Dependent dep_motor_power { 
+    eq_lhs = "Pout";
+    eq_rhs = "Pout_setpoint";
+    autoSetup = TRUE;
+  }
+}
+
+// -------------------------------
+//  Flow Station and Shaft Links
+// -------------------------------
+
+linkPorts( "Start.Fl_O"            , "Inlet.Fl_I"          , "FS0"   ); 
+linkPorts( "Inlet.Fl_O"            , "IGVDuct.Fl_I"        , "FS1"   ); 
+linkPorts( "IGVDuct.Fl_O"          , "Fan.Fl_I"            , "FS2"   ); 
+linkPorts( "Fan.Fl_O"              , "Splitter.Fl_I"       , "FS21"  ); 
+linkPorts( "Splitter.Fl_O1"        , "LPC.Fl_I"		        , "FS23"  );
+linkPorts( "LPC.Fl_O"			     , "SwanNeckDuct.Fl_I"   , "FS23a" );
+linkPorts( "SwanNeckDuct.Fl_O"     , "HPC.Fl_I"            , "FS25"  );
+linkPorts( "HPC.Fl_O"              , "OGVduct.Fl_I"        , "FS3"  );
+linkPorts( "OGVduct.Fl_O"          , "Burner.Fl_I"         , "FS32"  ); 
+linkPorts( "Fuel.Fu_O"             , "Burner.Fu_I"         , "FS36"  ); 
+linkPorts( "Burner.Fl_O"           , "HPT.Fl_I"            , "FS41"  ); 
+linkPorts( "HPT.Fl_O"		        , "ITTduct.Fl_I"	     , "FS45"  );
+linkPorts( "ITTduct.Fl_O"          , "LPT.Fl_I"            , "FS48"  );
+linkPorts( "LPT.Fl_O"              , "TEGVduct.Fl_I"       , "FS5"   ); 
+linkPorts( "TEGVduct.Fl_O"         , "Core_Nozz.Fl_I"      , "FS6"   ); 
+linkPorts( "Core_Nozz.Fl_O"        , "Core_Nozz_End.Fl_I"  , "FS9"   );
+
+// BYPASS linkPorts
+linkPorts( "Splitter.Fl_O2"        , "FanBld.Fl_I"         , "FS13"  ); 
+linkPorts( "FanBld.Fl_O"           , "BPduct.Fl_I"         , "FS14"  );  
+linkPorts( "BPduct.Fl_O"           , "Byp_Nozz.Fl_I"       , "FS16"  ); 
+linkPorts( "Byp_Nozz.Fl_O"         , "Byp_Nozz_End.Fl_I"   , "FS19"  ); 
+ 
+// BLEED linkPorts
+linkPorts( "HPC.Charge_Bleed"      , "HPT.Charge_Bleed"    , "Cbleed"  );
+linkPorts( "HPC.Charge_Bleed2"     , "HPT.Charge_Bleed2"   , "Cbleed2" );
+//linkPorts( "HPC.Charge_Bleed2"     , "LPT.Charge_Bleed2"   , "Cbleed2" );
+linkPorts( "HPC.NonCharge_Bleed"   , "HPT.NC_Bleed"        , "NCbleed" );
+linkPorts( "HPC.CustomerBld"       , "OBsink1.Fl_I"        , "CustBld" );
+linkPorts( "LPC.OpBleed"	       , "FanBld.LPCin"        , "LPCOP" );
+//linkPorts( "LPCOPBleed.OpBleed"	   , "FanBld.LPCin"        , "LPCOP" );
+
+// Shaft linkPorts
+linkPorts( "Fan.Sh_O"              , "LPShaft.Sh_Fan"        , "ShFan" ); 
+linkPorts( "LPC.Sh_O"              , "LPShaft.Sh_LPC"        , "ShLPC" ); 
+linkPorts( "LPT.Sh_O"              , "LPShaft.Sh_LPT"        , "ShLPT" ); 
+linkPorts( "HPT.Sh_O"              , "HPShaft.Sh_HPT"        , "ShHPT" );
+linkPorts( "HPC.Sh_O"              , "HPShaft.Sh_HPC"        , "ShHPC" );
+linkPorts( "LowSpoolMotor.Sh_O"    , "LPShaft.Sh_Mot"        , "ShLPMot" );
+linkPorts( "HighSpoolMotor.Sh_O"   , "HPShaft.Sh_Mot"        , "ShHPMot" );
+
+// -------------------------------
+//  Electrical Power Connections
+// -------------------------------
+// Main (Primary) Bus Connections
+linkPortI( "MainBusBattery.EP_O",      "MainBusBreaker.EP_I");
+linkPortI( "MainBusBreaker.EP_O",      "MainBus.EP_I");
+
+// Low Spool Secondary Bus Connections
+linkPortI( "MainBus.EP_O_LPS",         "LowSpoolBusBreaker.EP_I");
+linkPortI( "LowSpoolBusBreaker.EP_O",  "LowSpoolBus.EP_I" );
+linkPortI( "LowSpoolBus.EP_O",         "LowSpoolBusCable.EP_I" );
+linkPortI( "LowSpoolBusCable.EP_O",    "LowSpoolInv.EP_I" );
+linkPortI( "LowSpoolInv.EP_O",         "LowSpoolMotorCable.EP_I" );
+linkPortI( "LowSpoolMotorCable.EP_O",  "LowSpoolMotor.EP_I" );
+
+// Low Spool Secondary Bus Connections
+linkPortI( "MainBus.EP_O_HPS",         "HighSpoolBusBreaker.EP_I");
+linkPortI( "HighSpoolBusBreaker.EP_O",  "HighSpoolBus.EP_I" );
+linkPortI( "HighSpoolBus.EP_O",         "HighSpoolBusCable.EP_I" );
+linkPortI( "HighSpoolBusCable.EP_O",    "HighSpoolInv.EP_I" );
+linkPortI( "HighSpoolInv.EP_O",         "HighSpoolMotorCable.EP_I" );
+linkPortI( "HighSpoolMotorCable.EP_O",  "HighSpoolMotor.EP_I" );
+findSourcesAndPropagate();
+
+// Put all power components with a node voltage at end of list.
+solverSequence.remove( "MainBusBattery" );
+solverSequence.remove( "MainBus" );
+solverSequence.remove( "LowSpoolBus" );
+solverSequence.remove( "LowSpoolInv" );
+solverSequence.remove( "LowSpoolMotor" );
+solverSequence.remove( "HighSpoolBus" );
+solverSequence.remove( "HighSpoolInv" );
+solverSequence.remove( "HighSpoolMotor" );
+
+solverSequence.append( "MainBusBattery" );
+solverSequence.append( "MainBus" );
+solverSequence.append( "LowSpoolBus" );
+solverSequence.append( "LowSpoolInv" );
+solverSequence.append( "LowSpoolMotor" );
+solverSequence.append( "HighSpoolBus" );
+solverSequence.append( "HighSpoolInv" );
+solverSequence.append( "HighSpoolMotor" );
+
+void printHybrid() {
+   cout << HPC.switchDes << ": CASE = " << CASE << solver.converged?" Converged":" Did Not Converge" << endl;
+   cout << "  Inputs" << endl;
+   cout << "    Alt = "      << Amb.alt_in << endl;
+   cout << "    dTs = "      << Amb.dTs_in << endl;
+   cout << "    MN = "       << Amb.MN_in << endl;
+   cout << "    Wf = "       << Burner.Wfuel << endl;
+   cout << "    P_LPMotor = "<< LowSpoolMotor.Pout_setpoint << endl;
+   cout << "    P_HPMotor = "<< HighSpoolMotor.Pout_setpoint << endl;
+   
+   cout << "  Measurable Outputs" << endl;
+   cout << "    N1 = "       << LPShaft.Nmech << endl;
+   cout << "    N2 = "       << HPShaft.Nmech << endl;
+   cout << "    Ps3 = "      << HPC.Fl_O.Ps << endl;
+   cout << "    T5 = "       << LPT.Fl_O.Tt << endl;
+   cout << "  Non-measurable Outputs" << endl;
+   cout << "    LPC SMW = "  << LPC.SMW << endl;
+   cout << "    HPC SMW = "  << HPC.SMW << endl;
+   cout << "    T4 = "       << HPT.Fl_I.Tt << endl;
+}
