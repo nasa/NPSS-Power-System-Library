@@ -79,7 +79,7 @@ void printSolverSetup(string solverName, int recursive) {
 
 // Prints information from a solver case run.
 void printCaseStats(string solverName) {
-  cout << "===== CASE: " << solverName->CASE << " ====="
+  cout //<< "===== CASE: " << solverName->CASE << " ====="
        << "\nIterations: " << solverName->iterationCounter
        << "\nPasses: " << solverName->passCounter
        << "\nJacobians: " << solverName->numJacobians
