@@ -131,7 +131,7 @@ DataViewer PageViewer page {
          compAttr = {"eff:?.?????","Mass:????.??=Mass, kg", "Loss_r:????.??=Loss_r, kW", "Loss_j:????.??=Loss_j, kVAR", "Q_heat:????.??=Q_heat, BTU/s"}; 
          defSNFormat = "?.?e???";
       }
-
+      //Remove all s_map
       GroupBlock elecComponentDataGroup {
          SimpleBlock title { 
             body = "\n                            ELECTRICAL POWER SYSTEM -- COMPONENT SPECIFIC DATA"; 
@@ -139,31 +139,36 @@ DataViewer PageViewer page {
          DColTBlock motorData { 
             //titleBody = "Motor Data";
             compType = "Motor"; 
-            compAttr = {"Pout","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            //compAttr = {"Pout","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            compAttr = {"Pout"}
             defSNFormat = "???.????";
          }
          DColTBlock generatorData { 
             //titleBody = "Generator Data";
             compType = "Generator"; 
-            compAttr = {"Pin","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            //compAttr = {"Pin","S_map.Nmap","S_map.trqMap","S_map.effMap","S_map.NmapDes","S_map.trqMapDes","S_map.effMapDes"}
+            compAttr = {"Pin"}
             defSNFormat = "???.????";
          }
          DColTBlock DCDCData {
             //titleBody = "DC_DC_Converter Data";
             compType = "DC_DC_Converter"; 
-            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            //compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            compAttr = {"pwrOut"}
             defSNFormat = "???.????";
          }
          DColTBlock inverterData { 
             //titleBody = "Inverter Data";
             compType = "Inverter"; 
-            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            //compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            compAttr = {"pwrOut"}
             defSNFormat = "???.????";
          }
          DColTBlock rectifierData { 
             //titleBody = "Rectifier Data";
             compType = "Rectifier"; 
-            compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            //compAttr = {"pwrOut","S_map.pwrMap","S_map.effMap","S_map.pwrMapDes","S_map.effMapDes"}
+            compAttr = {"pwrOut"}
             defSNFormat = "???.????";
          }
          
