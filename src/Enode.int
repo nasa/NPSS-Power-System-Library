@@ -52,11 +52,13 @@ approach taken in fluid networks within NPSS rocket models.";
   //------------------------------
 
   ComplexNumber Inet;
-  real frequency;
   real Vmag;
   real Vangle;
-  real VrealRMS;
-  real VimagRMS{
+  real Vreal {
+    value = 1000;  IOstatus = "output";  units = "none"; // [volts]
+    description = "Real portion of voltage.";
+  };
+  real Vimag {
     value = 0;  IOstatus = "output";  units = "none"; // [volts]
     description = "Imaginary portion of voltage.";
   };
@@ -73,26 +75,53 @@ approach taken in fluid networks within NPSS rocket models.";
   
   string ElectricPorts[];
   ElectricPorts {
-    description = "Array of electric ports.";
+    description = "Array of electric port names.";
     ptrType = "ElectricPort";
+  }
+  string ElectricInputPorts[];
+  ElectricInputPorts {
+    description = "Array of electric input port names.";
+    ptrType = "ElectricInputPort";
+  }
+  string ElectricOutputPorts[];
+  ElectricOutputPorts {
+    description = "Array of electric output port names.";
+    ptrType = "ElectricOutputPort";
+  }
+
+  string PortDeps[];
+  PortDeps {
+    description = "Array of solver dependent names associated with ports.";
+    ptrType = "Dependent";
+  }
+
+  string PortIndeps[];
+  PortIndeps {
+    description = "Array of solver independent names associated with ports.";
+    ptrType = "Independent";
+  }
+  string PortIndepCurrents[];
+  PortIndepCurrents {
+    description = "Array of real number variable names for holding current guesses associated with ports.";
+    ptrType = "real";
   }
   
   //-----------------------------------------------------
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  Independent ind_Vreal { 
-    varName = "VrealRMS"; 
+  Independent ind_Vreal {
+    varName = "Vreal";
     autoSetup = TRUE;
-    indepRef = "1200";
-    description = "Varies the volume total pressure.";
+    indepRef = "1000";
+    description = "Varies the real portion of node voltage.";
   }
   
-  Independent ind_Vimag { 
-    varName = "VimagRMS"; 
+  Independent ind_Vimag {
+    varName = "Vimag";
     autoSetup = TRUE;
-    indepRef = "1200";
-    description = "Varies the volume total specific enthalpy.";
+    indepRef = "1000";
+    description = "Varies the imaginary portion of node voltage.";
   }
   
   Dependent dep_Ireal {
@@ -125,22 +154,7 @@ approach taken in fluid networks within NPSS rocket models.";
   void variableChanged(string name, any oldVal) {
     // change solver setup depending on power type
     if (name =="ElectricPowerType") {
-      if (ElectricPowerType == "DC") {
-        ind_Vreal.autoSetup = TRUE;
-        ind_Vimag.autoSetup = FALSE;
-        dep_Ireal.autoSetup = TRUE;
-        dep_Iimag.autoSetup = FALSE;
-      } else if (ElectricPowerType == "AC1") {
-        ind_Vreal.autoSetup = TRUE;
-        ind_Vimag.autoSetup = TRUE;
-        dep_Ireal.autoSetup = TRUE;
-        dep_Iimag.autoSetup = TRUE;
-      } else if (ElectricPowerType == "AC3") {
-        ind_Vreal.autoSetup = TRUE;
-        ind_Vimag.autoSetup = TRUE;
-        dep_Ireal.autoSetup = TRUE;
-        dep_Iimag.autoSetup = TRUE;
-      } 
+      setupPortSolverVars();
     } 
   } 
 
@@ -156,16 +170,14 @@ approach taken in fluid networks within NPSS rocket models.";
 
     int i;
     string Iname;
-    for (i = 0; i < ElectricPorts.entries(); i++) {
-      if (ElectricPorts[i]->hasInterface("ElectricInputPort")) {
-        Iname = ElectricPorts[i] + ".I"; 
-        Inet.plus(Iname);			    
-      }
+    for (i = 0; i < ElectricInputPorts.entries(); i++) {
+      Iname = ElectricInputPorts[i] + ".I"; 
+      Inet.plus(Iname);			    
+    }
 
-      if (ElectricPorts[i]->hasInterface("ElectricOutputPort")) {
-        Iname = ElectricPorts[i] + ".I";
-        Inet.minus(Iname);
-      }
+    for (i = 0; i < ElectricOutputPorts.entries(); i++) {
+      Iname = ElectricOutputPorts[i] + ".I";
+      Inet.minus(Iname);
     }
   }
   
@@ -174,10 +186,37 @@ approach taken in fluid networks within NPSS rocket models.";
   //-------------------------------
 
   void prePass() {
-    int i; // push the voltage from the solver out to the ports
-    for (i = 0; i < ElectricPorts.entries(); i++) {
-      ElectricPorts[i]->frequency = frequency;	
-      ElectricPorts[i]->setIVRMS(0., 0., VrealRMS, VimagRMS);
+    
+    int i;
+    
+    // Verify Enode actually has ports
+    if (ElectricInputPorts.entries() < 1) {
+      cerr << "No input ports in this Enode component! This cannot work!";
+    }
+    
+    // If we're here, we must have at least one electric input port
+    frequency = ElectricInputPorts[0]->frequency;
+
+    // Verify all input frequencies are the same
+    for (i = 0; i < ElectricInputPorts.entries(); i++) {
+      if (ElectricInputPorts[i]->frequency != frequency) {
+        cerr << "Frequency mismatch in this Enode component! This cannot work!";
+      }
+    }
+
+    // push the voltage from the solver out to the output ports
+    for (i = 0; i < ElectricOutputPorts.entries(); i++) {
+      ElectricOutputPorts[i]->frequency = frequency;
+      
+      if (ElectricPowerType == "DC") {
+        real Ireal = PortIndepCurrents[i]->value;
+        ElectricOutputPorts[i]->setIVRMS(Ireal, 0., Vreal, Vimag);
+      }
+      else {
+        real Ireal = PortIndepCurrents[i*2]->value;
+        real Iimag = PortIndepCurrents[i*2 + 1]->value;
+        ElectricOutputPorts[i]->setIVRMS(Ireal, Iimag, Vreal, Vimag);
+      }
     }
   }
   
@@ -186,10 +225,108 @@ approach taken in fluid networks within NPSS rocket models.";
   // ----------------------------------
 
   void postcreate(string name) {
-    // allow for the creation of ports at run time
-    if (name->hasInterface("ElectricPort")) {
+    // Add electric port objects created by user to a list of electric ports.
+    if (name->hasInterface("ElectricInputPort")) {
+      ElectricInputPorts.append(name);
+      ElectricPorts.append(name);
+    }
+    if (name->hasInterface("ElectricOutputPort")) {
+      ElectricOutputPorts.append(name);
       ElectricPorts.append(name);
     }
   }
-}
+  
+  // ----------------------------------
+  //  ****** MISC FUNCTIONS ******
+  // ----------------------------------
+
+  // This function sets up solver variables needed per each input/output port.
+  void setupPortSolverVars(){
+
+    // Do any setup needed on indeps/deps associated with the node itself (and not its ports).
+    if (ElectricPowerType == "DC") {
+      ind_Vreal.autoSetup = TRUE;
+      ind_Vimag.autoSetup = FALSE;
+      dep_Ireal.autoSetup = TRUE;
+      dep_Iimag.autoSetup = FALSE;
+    } else if ( (ElectricPowerType == "AC1") || (ElectricPowerType == "AC3") ) {
+      ind_Vreal.autoSetup = TRUE;
+      ind_Vimag.autoSetup = TRUE;
+      dep_Ireal.autoSetup = TRUE;
+      dep_Iimag.autoSetup = TRUE;
+    } 
+    
+    // Now do the solver variable setup needed for the ports
+    int i;
+
+    // Start this off by removing any existing port solver variables
+    for (i = 0; i < PortDeps.entries(); i++) {
+      delete(PortDeps[i]);
+    }
+    for (i = 0; i < PortIndeps.entries(); i++) {
+      delete(PortIndeps[i]);
+    }
+    for (i = 0; i < PortIndepCurrents.entries(); i++) {
+      delete(PortIndepCurrents[i]);
+    }
+    PortDeps = {}; PortIndeps = {}; PortIndepCurrents = {};
+
+    // Continue by going through and setting up each port's solver variables
+    for (i = 0; i < ElectricInputPorts.entries(); i++) {
+      // All input ports must have voltage dependents
+      string solverVarName, indepCurrentName;
+
+      solverVarName = "dep_Vreal_" + ElectricInputPorts[i];
+      create("", "Dependent", solverVarName);
+      PortDeps.append(solverVarName);
+      solverVarName->eq_lhs = ElectricInputPorts[i]+".V.r";
+      solverVarName->eq_rhs = "Vreal";
+      solverVarName->autoSetup = TRUE;
+
+      // If this is an AC component, set up imaginary parts as well.
+      if (ElectricPowerType != "DC") {
+        solverVarName = "dep_Vimag_" + ElectricInputPorts[i];
+        create("", "Dependent", solverVarName);
+        PortDeps.append(solverVarName);
+        solverVarName->eq_lhs = ElectricInputPorts[i]+".V.j";
+        solverVarName->eq_rhs = "Vimag";
+        solverVarName->autoSetup = TRUE;
+      }
+    }
+      
+    for (i = 0; i < ElectricOutputPorts.entries(); i++) {
+      // All output ports must have current independents
+
+      // Create a real number variable to hold this current.
+      indepCurrentName = "Ireal_" + ElectricOutputPorts[i];
+      create("", "real", indepCurrentName);
+      PortIndepCurrents.append(indepCurrentName);
+      indepCurrentName->value = 1000.;
+
+      // Create the solver variable to vary it.
+      solverVarName = "ind_Ireal_" + ElectricOutputPorts[i];
+      create("", "Independent", solverVarName);
+      PortIndeps.append(solverVarName);
+      solverVarName->varName = indepCurrentName;
+      solverVarName->autoSetup = TRUE;
+      solverVarName->indepRef = "1000";
+
+      // If this is an AC component, set up imaginary parts as well.
+      if (ElectricPowerType != "DC") {
+        indepCurrentName = "Iimag_" + ElectricOutputPorts[i];
+        create("", "real", indepCurrentName);
+        PortIndepCurrents.append(indepCurrentName);
+        indepCurrentName->value = 0.;
+
+        // Create the solver variable to vary it.
+        solverVarName = "ind_Iimag_" + ElectricOutputPorts[i];
+        create("", "Independent", solverVarName);
+        PortIndeps.append(solverVarName);
+        solverVarName->varName = indepCurrentName;
+        solverVarName->autoSetup = TRUE;
+        solverVarName->indepRef = "1000";
+      }
+    } // end "for all electric ports..."
+  }   // end setupPortSolverVars
+}     // end Enode classdef
 #endif

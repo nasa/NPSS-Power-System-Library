@@ -54,6 +54,13 @@ class ElectricElement extends Element {
     value = 0.0; IOstatus = "output"; units = "W";
     description = "Reactive power loss.";
   }
+
+  real frequency {
+    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
+    description = "Frequency of current through this component. "+
+                  "If this component carries AC on one side, this "+
+                  "variable will hold the AC side's frequency.";
+  }
   
   real Q_heat {
     value = 0; IOstatus = "output";  units = "Btu/sec"; // [BTUs / sec]

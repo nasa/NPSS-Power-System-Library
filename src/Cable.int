@@ -110,9 +110,8 @@ no sizing logic included in this component, other than the mass calculations des
     description = "Amps to weight/length ratio for the cable.";
   }
 
-  ComplexNumber dV;
+  ComplexNumber dV, Vo;
   ComplexNumber Z;
-  ComplexNumber I;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -187,18 +186,26 @@ no sizing logic included in this component, other than the mass calculations des
   
   void calculate() {
     
-    // calculate current from voltage drop
-    Z.setrj(R,  L * (2*PI*EP_I.frequency));
+    // get frequency from input port
+    frequency = EP_I.frequency;
     
-    dV.copy("EP_I.VLN");
-    dV.minus("EP_O.VLN");	
-    I.copy("dV");
-    I.div("Z");
+    // dV = I * Z
+    Z.setrj(R,  L * (2*PI*frequency));
+    dV.copy("EP_I.I");
+    dV.times("Z");
+
+    // Vo_ln = Vi_ln - dV_ln
+    Vo.copy("EP_I.VLN");
+    Vo.minus("dV");
+
+    if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+      // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
+      Vo.ln2ll();
+    } // If not AC3, then we do not need to convert, because VLL = VLN
 
     // set the conditions in the port
     EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS); 
-    EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS); 		
+    EP_O.setIVRMS(EP_I.I.r, EP_I.I.j, Vo.r, Vo.j);
     
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
@@ -213,6 +220,8 @@ no sizing logic included in this component, other than the mass calculations des
         S_eThermMass.execute();
       }
     }
+    
+    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
 
     if (switchDes == "DESIGN") {
       Mass = EP_I.I.mag / SpecificAmperage * length * 3; // calculate the mass of the cable

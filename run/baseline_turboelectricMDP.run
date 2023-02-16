@@ -131,7 +131,7 @@ ElectricAssembly TOC {
     }    
     
     void postexecute() {
-        /*
+
         cout << "TOC Motor Design Speed: " << TOC.EM1.Ndes << endl;
         cout << "TOC Motor Design Torque: " << TOC.EM1.trqDes << endl;
         
@@ -150,7 +150,6 @@ ElectricAssembly TOC {
         cout << "TOC Propeller Shaft Torque Net: " << TOC.Propulsor_Shaft.trqNet << " ft-lbf" << endl;
         
         cout << "-----------------------------------------------------------------------------------" << endl;
-        */
     }
 }
 //}
@@ -231,46 +230,23 @@ solver.defaultDxLimit = 0.2;
 // solver.diagnosticFile = "mySolver.Output";
 
 TKO.autoSolverSetup(); 
-// printSolverSetup("TKO.solver", FALSE);
+printSolverSetup("TKO.solver", FALSE);
 TOC.autoSolverSetup(); 
-// printSolverSetup("TOC.solver", FALSE);
+printSolverSetup("TOC.solver", FALSE);
 autoSolverSetup(); 
 //}
-
-
-
-
-
 
 /************************
 On design
 ************************/
 
-//setOption("switchDes","DESIGN"); 
+setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
 solver.maxIterations=10000;
 solver.maxJacobians=5000;
-
-// <GLT> Add biases to solver variables so that if you guess the wrong sign,
-// or solver independents otherwise need to cross zero, you won't die by div/0.
-real bias_value = 10*TKO.Gen1.Vbus_LL;
-
-TOC.Rect1.ind_Vimag.a  = bias_value;
-TOC.Rect1.ind_Vimag.a  = bias_value;
-TOC.Inv1.ind_Vreal.a   = bias_value;
-TOC.Inv1.ind_Vimag.a   = bias_value;
-TOC.EM1.ind_Vreal.a    = bias_value;
-TOC.EM1.ind_Vimag.a    = bias_value;
-
-TKO.Rect1.ind_Vimag.a  = bias_value;
-TKO.Rect1.ind_Vimag.a  = bias_value;
-TKO.Inv1.ind_Vreal.a   = bias_value;
-TKO.Inv1.ind_Vimag.a   = bias_value;
-TKO.EM1.ind_Vreal.a    = bias_value;
-TKO.EM1.ind_Vimag.a    = bias_value;
 
 //solver.solutionMode = "ONE_PASS";
 
@@ -281,33 +257,6 @@ TKO.solver.debugLevel = "ITERATION_DETAILS";
 TOC.solver.diagnosticFile = "output/TOCSolverOutput";
 TOC.solver.debugLevel = "ITERATION_DETAILS";
 
-// <GLT> Try changing these solver ICs to different values. Convergence is a lot more robust now.
-// Looks like the only thing that botches this up now is guessing them such that you get currents
-// with the wrong sign...
-TOC.E1.VrealRMS    = 999;
-TOC.E1.VimagRMS    = 0;
-TOC.Rect1.Vreal    = 998;
-TOC.Rect1.Vimag    = 0;
-TOC.E2.VrealRMS   = 1390;
-TOC.E2.VimagRMS   = 0;
-TOC.Inv1.Vreal   = 997;
-TOC.Inv1.Vimag   = 0;
-TOC.EM1.Vreal    = 996;
-TOC.EM1.Vimag    = 0;
-
-TKO.E1.VrealRMS    = 999;
-TKO.E1.VimagRMS    = 0;
-TKO.Rect1.Vreal    = 998;
-TKO.Rect1.Vimag    = 0;
-TKO.E2.VrealRMS   = 1390;
-TKO.E2.VimagRMS   = 0;
-TKO.Inv1.Vreal   = 997;
-TKO.Inv1.Vimag   = 0;
-TKO.EM1.Vreal    = 996;
-TKO.EM1.Vimag    = 0;
-
-//cout << solverSequence << endl;
-//cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
-// printSolverSetup("solver", FALSE);
+run();
 
 page.display();  // output data to out file

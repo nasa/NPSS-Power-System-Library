@@ -14,25 +14,12 @@
  -------------------------------------------------------------------------------
 ***/
 
-class Source extends Element{//BPM: class defined here.
+class SimpleSource extends Element{//BPM: class defined here.
 	ElectricOutputPort EP_O;
 	ElectricInputPort EP_I;
-	real Vreal = 500.;
-	real Vimag = 0.;
+	real Vrms = 500.;
 	real Pdes = 1000.;
 	real PFdes = 0.95;
-	
-	Independent ind_Vreal {//Independent variable is varied by NPSS solver. 
-		varName = "Vreal"; 
-		autoSetup = TRUE;
-		a = 10000.;//BPM: ignore "a."
-	}
-	
-	Independent ind_Vimag { 
-		varName = "Vimag"; 
-		autoSetup = TRUE;
-		a = 10000.;
-	}
 	
 	Dependent dep_Power{
 		eq_rhs="EP_O.S.rRMS";//BPM: Electric port_output_complex power_ real component
@@ -49,7 +36,7 @@ class Source extends Element{//BPM: class defined here.
 
 real defaultFrequency = 400.;
 
-Source ACS{
+SimpleSource ACS{
 	// Set up frequency
 	EP_O.frequency = defaultFrequency;
 	EP_I.frequency = defaultFrequency;

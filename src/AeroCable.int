@@ -134,33 +134,8 @@ current information is updated in the cable's input and output ports.";
     value = 170; IOstatus = "input"; units = "none"; // [A * m / kg]
     description = "Amps to weight/length ratio for the cable.";
   }
-
-  real frequency {
-    value = 400; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Frequency of AC current through cable.";
-  }
   
-  real Ireal {
-    value = 100; IOstatus = "input"; units = "A"; // [amps]
-    description = "Guess value for real current component in cable.";
-  }
-
-  real Iimag {
-    value = 0; IOstatus = "input"; units = "A"; // [amps]
-    description = "Guess value for imaginary current component in cable.";
-  }
-
-  real Vreal_drop {
-    value = 0; IOstatus = "output"; units = "none";
-    description = "Voltage dropped across cable given operating current.";
-  }
-
-  real Vimag_drop {
-    value = 0; IOstatus = "output"; units = "none";
-    description = "Imaginary component of voltage dropped across cable, given operating current.";
-  }
-  
-  ComplexNumber dV;
+  ComplexNumber dV, Vo;
   ComplexNumber Z;
   ComplexNumber I;
   
@@ -240,36 +215,6 @@ current information is updated in the cable's input and output ports.";
     socketType = "EThermalMass";
   }
 
-  //-----------------------------------------------------
-  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-  //-----------------------------------------------------
-  
-  Independent ind_Ireal { 
-    varName = "Ireal"; 
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-    indepRef = "1000";
-    description = "Varies the real component of cable current.";
-  }
-  
-  Independent ind_Iimag { 
-    varName = "Iimag"; 
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-    indepRef = "1000";
-    description = "Varies the imaginary component of cable current.";
-  }
-
-  Dependent dep_Vreal_err {
-    eq_lhs = "EP_I.VLN.r";
-    eq_rhs = "EP_O.VLN.r + Vreal_drop";
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-  }
-
-  Dependent dep_Vimag_err {
-    eq_lhs = "EP_I.VLN.j";
-    eq_rhs = "EP_O.VLN.j + Vimag_drop";
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-  }
-  
   //-------------------------------------------
   // ****** VARIABLE CHANGED METHODOLOGY ******
   //-------------------------------------------
@@ -281,25 +226,11 @@ current information is updated in the cable's input and output ports.";
       }
     } else if (name =="switchDes") {
       if (switchDes == "DESIGN") {
-        ind_Ireal.autoSetup = TRUE;
-        ind_Iimag.autoSetup = TRUE;
-        dep_Vreal_err.autoSetup = TRUE;
-        dep_Vimag_err.autoSetup = TRUE;
-
-        if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC")) {
-          ind_Iimag.autoSetup = FALSE;
-          dep_Vimag_err.autoSetup = FALSE;
-        }
-
         R.IOstatus = "input";
         L.IOstatus = "input";
         length.IOstatus = "input";
         SpecificAmperage.IOstatus = "input";
       } else if (switchDes == "OFFDESIGN") {
-        ind_Ireal.autoSetup = FALSE;
-        ind_Iimag.autoSetup = FALSE;
-        dep_Vreal_err.autoSetup = FALSE;
-        dep_Vimag_err.autoSetup = FALSE;
         R.IOstatus = "output";
         L.IOstatus = "output";
         length.IOstatus = "output";
@@ -482,7 +413,7 @@ current information is updated in the cable's input and output ports.";
           reactance = (frequency/60) * cable_reactances[index]; // [ohms/m]
           impedance.setrj(resistance, reactance);
           impedance.setMagPhase(impedance.mag * length / conductors, impedance.phase); // [ohms]
-          current.setrj(Ireal, Iimag);
+          current.copy("EP_I.I");
           
           percent = 100. * voltage_drop.mag / voltage.mag;
             
@@ -582,7 +513,7 @@ current information is updated in the cable's input and output ports.";
     int index = 1;
     
     real voltage = EP_I.V.r;
-    real current = Ireal;
+    real current = EP_I.I.r;
     real percent;
           
     while (search_stop == 0) {
@@ -661,53 +592,40 @@ current information is updated in the cable's input and output ports.";
   
   void calculate() {
     
-    // get frequency from input port, propagate through to output port.
+    // get frequency from input port
     frequency = EP_I.frequency;
-    EP_O.frequency = EP_I.frequency;
     
+    // If on-design mode, must select the cable
     if (switchDes == "DESIGN") {
-
-      // no knowlegdge of R/L yet, so required to guess something
-
-      // solver should be set up to guess current so that the observed output
-      // voltage matches input, minus the drop
       if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
         dc_cable_metrics();
       } else {
         ac_cable_metrics();
       }
-      
-      I.setrj(Ireal, Iimag);
-      Z.setrj(R, L * (2*PI * EP_I.frequency));
-      
-      // calculate voltage drop = dV = IZ
-      dV.copy("I");
-      dV.times("Z");
-    } else { // off-design
-        
-      // get voltage across cable
-      dV.copy("EP_I.VLN");
-      dV.minus("EP_O.VLN");
-    
-      // calculate current from voltage drop
-      Z.setrj(R,  L * (2*PI*EP_I.frequency));
-      
-      I.copy("dV");
-      I.div("Z");
     }
     
-    // calculate voltage drop that may be used in solver during on-design.
-    Vreal_drop = dV.r;
-    Vimag_drop = dV.j;
-    
-    // set the conditions in the ports
-    EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
-    EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
-    
-    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
+    // dV = I * Z
+    Z.setrj(R,  L * (2*PI*EP_I.frequency));
+    dV.copy("EP_I.I");
+    dV.times("Z");
 
+    // Vo_ln = Vi_ln - dV_ln
+    Vo.copy("EP_I.VLN");
+    Vo.minus("dV");
+
+    if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+      // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
+      Vo.ln2ll();
+    } // If not AC3, then we do not need to convert, because VLL = VLN
+
+    // set the conditions in the port
+    EP_O.frequency = EP_I.frequency;
+    EP_O.setIVRMS(EP_I.I.r, EP_I.I.j, Vo.r, Vo.j);
+    
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
+    
+    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
 
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);

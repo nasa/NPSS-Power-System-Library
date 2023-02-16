@@ -43,8 +43,11 @@ On design
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
 
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
+//solver.solutionMode = "ONE_PASS";
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;
@@ -52,11 +55,11 @@ solver.maxJacobians = 1000;
 
 run();
 
-
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
+quit();
 
 
 /************************
@@ -76,12 +79,13 @@ Propulsor_Shaft.Nmech*=.9;
 // EM1.ind_Vreal.dxLimit = 0.01; // default: 0.1
 // EM2.ind_Vreal.dxLimit = 0.01; // default: 0.1
 
-cout << solver.list( "Independent" ) << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
 
 
 run();
 
 page.display();  // output data to out file
-page_runtime.display(); // output data to cmd window
+//page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;

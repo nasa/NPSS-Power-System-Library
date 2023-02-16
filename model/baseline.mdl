@@ -31,7 +31,7 @@ Electric Power System Components
 **************************/
 Element Generator Gen1 {
 	#include <STARCABLmotorGenerator.map>
-	Vbus_LL=1200;	
+	Vrms=1200;	
 	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
@@ -129,16 +129,3 @@ linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
 linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
-
-solverSequence.remove( "Gen1" );
-solverSequence.remove( "EM1" );
-solverSequence.remove( "Turbine_Shaft" );
-solverSequence.remove( "Propulsor_Shaft" );
-
-solverSequence.append( "Gen1" );
-solverSequence.append( "EM1" );
-solverSequence.append( "Turbine_Shaft" );
-solverSequence.append( "Propulsor_Shaft" );
-
-//solver.debugLevel = "ITERATION_DETAILS";
-//solver.diagnosticFile = "soler.bad";

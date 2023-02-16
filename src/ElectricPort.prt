@@ -196,9 +196,7 @@ class ElectricPort extends Subelement {
     } else if (ElectricPowerType == "AC3") {
       
       // calculate VLN
-      VLN.copy("V");
-      VLN.setMagPhase( V.mag, V.phase - (30. * PI/180.));
-      VLN.scale(sqrt(1. / 3.));
+      VLN.setMagPhase( V.mag * sqrt(1. / 3.), V.phase - (30. * PI/180.));
 
       // calculate power based off VLN (since VLN is already scaled)
       S.copy("I");

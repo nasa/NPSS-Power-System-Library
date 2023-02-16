@@ -94,31 +94,34 @@ component to the surrounding environment. For more information, see EThermalMass
     value = 1.;  IOstatus = "input"; units = "none";
     description = "Converter efficiency at design point.";
   }
-  
-  real frequency {
-    value = 60.; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Frequency of AC output power.";
-  }
 
   real pwrDes {
     value = 1.;  IOstatus = "input";  units = "kW"; // [kilowatts]
-    description = "Output power at design.";
+    description = "Input power at design.";
   }
 
   real pwrOut {
     value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatts]
     description = "Output power.";
   }
-  
-  real Vimag {
-    value = 1.; IOstatus = "input"; units = "V"; // [volts]
-    description = "Rectifier voltage (imaginary).";
+
+  real pwrIn {
+    value = 1.;  IOstatus = "output";  units = "kW"; // [kilowatts]
+    description = "Input power.";
   }
 
-  real Vreal {
-    value = 1000.; IOstatus = "input"; units = "V"; // [volts]
-    description = "Rectifier voltage (real).";
+  real Ro {
+    value = 1.;  IOstatus = "output";  units = "ohm";
+    description = "Output resistance.";
   }
+
+  real Xo {
+    value = 0.01;  IOstatus = "output";  units = "ohm";
+    description = "Output reactance.";
+  }
+
+  // Set default frequency for an inverter.
+  frequency = 400.;
   
   real SpecificPower {
     value = 13; IOstatus = "input"; units = "kW/kg"; // [kW / kg]
@@ -144,6 +147,9 @@ component to the surrounding environment. For more information, see EThermalMass
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
+  
+  ComplexNumber dV;
+  ComplexNumber Z;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -176,7 +182,7 @@ component to the surrounding environment. For more information, see EThermalMass
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
-    ElectricPowerType.allowedValues = { "AC3" };
+    ElectricPowerType.allowedValues = { "AC1", "AC3" };
     setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
 
@@ -198,32 +204,13 @@ component to the surrounding environment. For more information, see EThermalMass
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  Independent ind_Vreal { 
-    varName = "Vreal"; 
+  Independent ind_Xo { 
+    varName = "Xo"; 
     autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the real component of the inverter voltage.";
+    indepRef = "10";
+    description = "Varies the inverter output reactance (to get whatever output voltage phase needed).";
   }
   
-  Independent ind_Vimag { 
-    varName = "Vimag"; 
-    autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the imaginary component of the inverter voltage.";
-  }
-  
-  Dependent dep_Power {
-    eq_lhs = "EP_O.S.mag * sign(EP_O.S.r)";
-    eq_rhs = "EP_I.S.r * eff**sign(EP_I.S.r)";
-    autoSetup = TRUE;
-  }
-  
-  Dependent dep_phase {
-    eq_rhs = "0";
-    eq_lhs = "EP_O.V.phaseDeg";
-    autoSetup = TRUE;
-  }
-
   //------------------------------------------------------------
   // ******* VARIABLE CHANGED METHODOLOGY *******
   //------------------------------------------------------------
@@ -234,11 +221,6 @@ component to the surrounding environment. For more information, see EThermalMass
         create("", "ThermalInputPort", "Q_I" );
       }
     }
-    if (name == "switchDes") {
-      if (switchDes == OFFDESIGN) {
-        effDes.IOstatus = "output";
-      }
-    }
   }
   
   //-----------------------------------------------
@@ -247,17 +229,18 @@ component to the surrounding environment. For more information, see EThermalMass
   
   void calculate() {
 
-    pwrOut = EP_O.S.rRMS;
+    // Run the map first with input power as the input param
+    pwrIn = EP_I.S.r;
     
     if (switchDes == "DESIGN" ) {
 
-      // handle case guessed design power is zero.
-      if (abs(pwrOut) < 1e-4) { pwrOut = 1e-4; }
-      pwrDes = pwrOut;
+      // handle case where guessed design power is zero.
+      if (abs(pwrIn) < 1e-4) { pwrIn = 1e-4; }
+      pwrDes = pwrIn;
 
       // compute mass based on assumed specific power
       // both mass and losses are based on output power (power sent)
-      Mass = pwrOut / SpecificPower;
+      Mass = pwrIn / SpecificPower;
     }
 
     // set efficiency value
@@ -267,6 +250,41 @@ component to the surrounding environment. For more information, see EThermalMass
       effBase = effDes;
     }
     eff = effBase;
+            
+    // Calculate this component's real output power
+    real pwrOut = pwrIn * eff**sign(pwrIn);
+
+    // Calculate ideal output voltage, VAC line-to-neutral
+    ComplexNumber VoIdeal; VoIdeal.setMagPhase( EP_I.V.r/sqrt(2)/sqrt(3), 0);
+    
+    // Calculate current, AC line current = conj(S*1000/(numPhases*VoIdeal));
+    ComplexNumber Io;
+    if (EP_O.ElectricPowerType == "AC3") {
+      Io.setrj( pwrOut*1000./3., 0.);
+    }
+    else {
+      Io.setrj( pwrOut*1000., 0. );
+    }
+    Io.div("VoIdeal"); Io.conjugate();
+  
+    
+    // dV = I * Z
+    Z.setrj(0, Xo);
+    dV.setrj(Io.r, Io.j);
+    dV.times("Z");
+    
+    // Vo_ln = Vi_ln - dV_ln
+    ComplexNumber Vo; Vo.copy("VoIdeal");
+    Vo.minus("dV");
+
+    if (EP_O.ElectricPowerType == "AC3") {
+      // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
+      Vo.ln2ll();
+    } // If not AC3, then we do not need to convert, because VLL = VLN
+    
+    // Send output quantities to next downstream component
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(Io.r, Io.j, Vo.r, Vo.j);
     
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
@@ -281,17 +299,6 @@ component to the surrounding environment. For more information, see EThermalMass
         S_eThermMass.execute();
       }
     }
-  }
-  
-  
-  
-  //-------------------------------
-  // ****** PREPASS FUNCTION ******
-  //-------------------------------
-  void prePass() {
-    EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vreal, Vimag);
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, EP_O.V.mag * sqrt(2), 0);
   }
 }
 #endif
