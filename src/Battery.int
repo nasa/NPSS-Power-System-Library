@@ -117,11 +117,6 @@ this component, see MotorGeneratorMap.int";
     description = "Actual (calculated) efficiency of this source element.";
   }
 
-  real frequency {
-    value = 0; IOstatus = "input"; units = "Hz"; // [hertz]
-    description = "Output frequency";
-  }
-
   Loss_r {
     value = 0; IOstatus = "output"; units = "kW"; // [kilowatts]
     description = "Real component of losses in this load.";
@@ -200,6 +195,11 @@ this component, see MotorGeneratorMap.int";
   real Vout_guess {
     value = 3.6;  IOstatus = "output";  units = "V"; // [volts]
     description = "Guess value for battery output voltage at current operating point.";
+  }
+
+  real Iout_guess{
+    value = 1;  IOstatus = "output";  units = "A"; // [AMPS]
+    description = "Guess value for battery output current.";
   }
 
   real Voc {
@@ -293,6 +293,13 @@ this component, see MotorGeneratorMap.int";
     autoSetup = TRUE;
   }
 
+  Independent ind_Iout { 
+    varName = "Iout_guess"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the battery output current to match load power.";
+  }
+
   // SOC state variable.
   Independent ind_SOC {
     varName = "SOC";
@@ -345,6 +352,9 @@ this component, see MotorGeneratorMap.int";
   
   void calculate() {
     
+    EP_O.frequency = frequency;
+    EP_O.setIVRMS(Iout_guess, 0, Vout_guess, 0);
+
     // Declare design point power. Energy is calculated in the map logic.
     powerDes = EP_O.S.r;
 
@@ -401,11 +411,6 @@ this component, see MotorGeneratorMap.int";
         S_eThermMass.execute();
       }
     }
-  }
-
-  void prePass() {
-    EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, 0, Vout_guess, 0);
   }
 }
 #endif
