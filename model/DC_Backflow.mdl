@@ -32,8 +32,7 @@ Electric Power System Components
 **************************/
 Element Source DCSupply { //Ametek SGA DC power supply M550129-01
     setOption("ElectricPowerType", "DC");
-    Vreal  = 100; // [volts] 
-    Vimag  = 0;    // [volts]
+    Vrms = 100; // [volts] 
     effDes = 0.95; 
 }
 
@@ -74,7 +73,7 @@ linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
 
 findSourcesAndPropagate();
 
-solverSequence = { "CableLeft", "CableRight", "DCSupply", "DeltaDC", "CLoad" }; 
+//solverSequence = { "CableLeft", "CableRight", "DCSupply", "DeltaDC", "CLoad" }; 
 
 void BFPrintOutput() 
 {

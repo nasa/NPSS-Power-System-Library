@@ -45,8 +45,8 @@ solver.maxJacobians = 1000;
 
 ACCable {
     // Initial guesses
-    Ireal = 1100;
-    Iimag = 0;
+    // Ireal = 1100;
+    // Iimag = 0;
 
     // Subelement 
     Subelement EThermalMass S_eThermMass {
@@ -81,17 +81,21 @@ cout << endl << solver.dependentNames << endl << solver.independentNames << endl
 cout << "CASE #" << CASE++ << endl;
 run();
 cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
-cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+cout << "   ACVout = " << ACS.Ireal << "+j" << ACS.Iimag;
 cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
 cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
 cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
 
-cout << "AC: dV_calc =" << ACCable.Vreal_drop;
-cout << "+j" << ACCable.Vimag_drop;
+cout << "AC: dV_calc =" << ACCable.dV.r;
+//cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.dV.j;
+//cout << "+j" << ACCable.Vimag_drop;
 cout << "\t  dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
 cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
-cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
-cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.dV.r);
+//cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.dV.j);
+//cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
 cout << " \t\t\t I =" << ACCable.EP_O.I.r;
 cout << "+j" << ACCable.EP_O.I.j  << endl;
         cout << "TMS.Q_O.HeatTransferRate = " << TMS.Q_O.HeatTransferRate << ", ";
@@ -104,9 +108,9 @@ cout << "+j" << ACCable.EP_O.I.j  << endl;
 cout << "--- Off Design ---" << endl;
 setOption("switchDes","OFFDESIGN");
 // For off design, stop varying the source.
-ACS.ind_Vimag.autoSetup = FALSE;
+ACS.ind_Iimag.autoSetup = FALSE;
 ACS.dep_PF.autoSetup    = FALSE;
-ACS.ind_Vreal.autoSetup = FALSE;
+ACS.ind_Ireal.autoSetup = FALSE;
 ACS.dep_Power.autoSetup = FALSE;
 autoSolverSetup();
 cout << solverSequence << endl;
@@ -116,17 +120,21 @@ cout << endl << solver.dependentNames << endl << solver.independentNames << endl
 cout << "CASE #" << CASE++ << endl;
 run();
 cout << "AC R+jX = " << ACCable.R << "+j" << ACCable.L*(2*PI*ACCable.EP_I.frequency);
-cout << "   ACVout = " << ACS.Vreal << "+j" << ACS.Vimag;
+cout << "   ACVout = " << ACS.Ireal << "+j" << ACS.Iimag;
 cout << " \t ACPin = " << ACS.EP_O.S.r << "+j" << ACS.EP_O.S.j;
 cout << " \t\t ACPout = " << ACS.EP_I.S.r << "+j" << ACS.EP_I.S.j;
 cout << " \t PF at cable input = " << cos(ACS.EP_O.S.phase) << endl;
 
-cout << "AC: dV_calc =" << ACCable.Vreal_drop;
-cout << "+j" << ACCable.Vimag_drop;
+cout << "AC: dV_calc =" << ACCable.dV.r;
+//cout << "AC: dV_calc =" << ACCable.Vreal_drop;
+cout << "+j" << ACCable.dV.j;
+//cout << "+j" << ACCable.Vimag_drop;
 cout << "   dV_meas =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r);
 cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j);
-cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
-cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
+cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.dV.r);
+//cout << " \t dV_error =" << ACCable.EP_I.VLN.r - (ACCable.EP_O.VLN.r+ACCable.Vreal_drop);
+cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.dV.j);
+//cout << "+j" << ACCable.EP_I.VLN.j - (ACCable.EP_O.VLN.j+ACCable.Vimag_drop);
 cout << " \t\t\t I =" << ACCable.EP_O.I.r;
 cout << "+j" << ACCable.EP_O.I.j  << endl;
         cout << "TMS.Q_O.HeatTransferRate = " << TMS.Q_O.HeatTransferRate << ", ";
@@ -147,8 +155,8 @@ initializeHistory();
 autoSolverSetup();
 
 // Run off-design, increase power by increasing voltage drop (decrease voltage on output side of cable).
-ACS.Vreal *= 0.9999;
-ACS.Vimag /= 0.9;
+ACS.Ireal *= 0.9999;
+ACS.Iimag /= 0.9;
 
 // Transient data out to a CSV file for plotting
 OutFileStream transientCSVStream { filename = "output/T_transient.csv"; } 
@@ -206,7 +214,7 @@ run();
 
 
 // Run back to the original operating point.
-ACS.Vreal /= 0.9999;
-ACS.Vimag *= 0.9;
+ACS.Ireal /= 0.9999;
+ACS.Iimag *= 0.9;
 transient.stopTime = 30;
 run();
