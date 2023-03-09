@@ -16,75 +16,90 @@
 ***/
 
 ElectricAssembly powerPropagation {
+  
+  Element Enode E1 { // This will be an AC port once power types are propagated through the system.
+  ElectricInputPort EP_I1, EP_I2;
+  ElectricOutputPort EP_O1, EP_O2, EP_O3;
+  //VrealRMS  = 100;  // [volts]
+  //VimagRMS  = 0;    // [volts]
+  frequency = 400;  // [Hz]
+  }
+
+  Element Enode E2 { // This will be a DC port once power types are propagated through the system.
+    ElectricInputPort EP_I1, EP_I2;
+    ElectricOutputPort EP_O;
+    //VrealRMS = 100;  // [volts]
+    //VimagRMS = 0;    // [volts]
+  }
   Element Source S1 { // AC source 1
     setOption("ElectricPowerType", "AC3");
-    Vreal     = 100;  // [volts]
-    Vimag     = 0;    // [volts]
+    Vrms     = 100;  // [volts]
+    Vphase     = 0;    // [volts]
     effDes    = 0.99; // [99 %]
     frequency = 400;  // [Hz]
   }
 
   Element Source S2 { // AC source 2
     setOption("ElectricPowerType", "AC3");
-    Vreal     = 100;  // [volts]
-    Vimag     = 0;    // [volts]
+    Vrms     = 100;  // [volts]
+    Vphase     = 0;    // [volts]
     effDes    = 0.99; // [99 %]
     frequency = 400;  // [Hz]
   }
 
   Element Source B1 { // battery 1
     setOption("ElectricPowerType", "DC");
-    Vreal  = 134;  // [volts]
-    Vimag  = 0;    // [volts]
+    Vrms  = 134;  // [volts]
+    Vphase  = 0;    // [volts]
     effDes = 0.99; // [99 %]
   }
 
   Element AeroCable C1 { // cable 1
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C2 { // cable 2
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C3 { // cable 3
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C4 { // cable 4
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C5 { // cable 5
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C6 { // cable 6
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element AeroCable C7 { // cable 7
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
-  Element AeroCable C8 { // cable 7
+  Element AeroCable C8 { // cable 8
     length = 1;  // [meters]
-    Ireal  = 10; // [amps]
-    Iimag  = 0;  // [amps]
+    //Ireal  = 10; // [amps]
+    //Iimag  = 0;  // [amps]
   }
 
   Element Rectifier R1 {
@@ -115,21 +130,6 @@ ElectricAssembly powerPropagation {
     pfDemand =  1;
   }
 
-  Element Enode E1 { // This will be an AC port once power types are propagated through the system.
-    ElectricInputPort EP_I1, EP_I2;
-    ElectricInputPort EP_O1, EP_O2, EP_O3;
-    VrealRMS  = 100;  // [volts]
-    VimagRMS  = 0;    // [volts]
-    frequency = 400;  // [Hz]
-  }
-
-  Element Enode E2 { // This will be a DC port once power types are propagated through the system.
-    ElectricInputPort EP_I1, EP_I2;
-    ElectricInputPort EP_O;
-    VrealRMS = 100;  // [volts]
-    VimagRMS = 0;    // [volts]
-  }
-
   /**
   -----------
   | Diagram |
@@ -147,9 +147,31 @@ ElectricAssembly powerPropagation {
   |                                                                |   Branch 6             |
   |                                                      Node (E2) |-> Cbl (C7) -> CPL (L3) |
   |                                         Branch 7               |                        |
-  |                                         Src (B3) -> Cbl (C3) ->|                        |
+  |                                         Src (B1) -> Cbl (C3) ->|                        |
   |                                                                                         |
   -------------------------------------------------------------------------------------------
+  
+  How to set up the solver sequence(If propagateEpsSolverListAndPowerTypes() cannot automatically set up the solverSequence string):
+  1.	Declare all parts/sources/cables/nodes in a branch or by themselves that do not require input from other components in solverSequence.
+    solverSequence = {
+      "S1","C1",      // Branch 1
+      "S2","C2",      // Branch 2
+      "B1","C3",      // Branch 7
+    };
+  2. In the order you want the components to run, declare all components that require input from the previous branches/components declared. 
+     If a branch/component requires input that has not yet been declared in solverSequence do not declare that component in solverSequence 
+     until all the necessary branches/components have been declared beforehand.
+    solverSequence = {
+      "S1","C1",      // Branch 1
+      "S2","C2",      // Branch 2
+      "B1","C3",      // Branch 7
+      "E1",           // Node
+      "C4","L1",      // Branch 3
+      "C5","L2",      // Branch 4
+      "C6","R1","C8", // Branch 5
+      "E2",           // Node
+      "C7","L3"       // Branch 6
+    };
   **/
 
   // Branch 1
@@ -175,10 +197,5 @@ ElectricAssembly powerPropagation {
   // Branch 7
   linkPortI("B1.EP_O", "C3.EP_I");
   linkPortI("C3.EP_O", "E2.EP_I2");
-
-  solverSequence = {
-      "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", // power transmission
-      "E1", "E2",                                     // nodes
-      "R1", "S1", "S2", "B1", "L1", "L2", "L3"        // power components
-  };
+  
 }

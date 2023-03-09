@@ -37,7 +37,12 @@ string ports[] = list("ElectricPort", TRUE);
 
 cout << "Before power propagation: \n";
 printPortPowerTypes();
-findSourcesAndPropagate();
+
+powerPropagation {
+    string var[] = propagateEpsSolverListAndPowerTypes();
+    solverSequence = var;
+}
+
 cout << "\nAfter power propagation: \n";
 printPortPowerTypes();
 cout << endl;
@@ -46,6 +51,8 @@ setOption("switchDes", "DESIGN");
 autoSolverSetup();
 printDesignBanner("on");
 
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run(); CASE++;
 page.display();
 printCaseStats("solver");

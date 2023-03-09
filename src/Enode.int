@@ -179,13 +179,14 @@ approach taken in fluid networks within NPSS rocket models.";
       Iname = ElectricOutputPorts[i] + ".I";
       Inet.minus(Iname);
     }
+    updatePortQuantities();
   }
   
   //-------------------------------
   // ****** PREPASS FUNCTION ******
   //-------------------------------
 
-  void prePass() {
+  void updatePortQuantities() {
     
     int i;
     
