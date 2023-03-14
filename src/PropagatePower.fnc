@@ -94,33 +94,16 @@ string getOtherPort(string port) {
 
 // Updates the defaultElectricalSolverSequence array and checks if what is trying to be inputted is already in the array
 void updateDefaultElectricalSolverSequence(string port) {
-  string current = port->parent.getPathName();
-  Tokenizer next;
-  next.sourceStr = current;
-  while (1==1) {
-    string temp = next.getToken(".");
-    if (temp != "") {
-      current = next.getToken(".");
-    }
-    else {
-      break;
-    }
-  }
-  if (!(defaultElectricalSolverSequence.contains(current))) {
-  defaultElectricalSolverSequence.append(current);
+  port = port->parent.getName();
+  if (!(defaultElectricalSolverSequence.contains(port))) {
+  defaultElectricalSolverSequence.append(port);
   }
 }
 
 // Extracts the name of the port from the passed string
 string trimName(string port) {
-  Tokenizer next;
-  next.sourceStr = port;
-  string current;
-  int i;
-  for (i = 0; i < grabNameIndex; i++) {
-    current = next.getToken(".");
-  }
-  return current;
+  port = port->parent.getName();
+  return port;
 }
 
 // Peeks into the next port's relative name
@@ -129,7 +112,7 @@ string nextPort() {
   return port;
 }
 
-// Crawls through the design with a depth-first search and populates EnodesInDesign with all the realtive inputs for each Enode in the design
+// Crawls through the design with a depth-first search and populates EnodesInDesign with all the inputs for the Enodes
 void scanDesign() {
   string port = refport->getPathName();
   string portComponent = port->parent.isA();
@@ -145,9 +128,10 @@ void scanDesign() {
         string trimmedPort = trimName(port);
         string trimmedEnode = trimName(check);
 
+        // This loop scans the EnodesInDesign 2d string for the 
         int i;
-        // This function scans the EnodesInDesign array's strings f
-        for (i = 0; i < EnodesInDesign.entries(); i++) {
+        int sizeEnodes = EnodesInDesign.entries();
+        for (i = 0; i < sizeEnodes; i++) {
           string current[] = EnodesInDesign[i];
           if(current.contains(trimmedEnode)){
             if(!(current.contains(trimmedPort))) {
@@ -163,13 +147,14 @@ void scanDesign() {
   else {
     string nodeOutputPorts[] = port->parent.list("ElectricOutputPort");
     int i;
-    for (i = 0; i < nodeOutputPorts.entries(); i++) {
+    int currOutputPorts = nodeOutputPorts.entries();
+    for (i = 0; i < currOutputPorts; i++) {
       nodeOutputPorts[i]->scanDesign();
     }
   }
 }
 
-// Crawls through the design with a depth-first search, adding components when needed to the defaultElectricalSolverSequence
+// Crawls through the design with a depth first search, adding components when needed to the defaultElectricalSolverSequence
 void crawlThroughDesign() {
   string port = refport->getPathName();
   string portComponent = port->parent.isA();
@@ -191,20 +176,23 @@ void crawlThroughDesign() {
     if (nodeInputPorts.entries() == 1) {
       updateDefaultElectricalSolverSequence(port);
       int i;
-      for (i = 0; i < nodeOutputPorts.entries(); i++) {
+      int currOutputs = nodeOutputPorts.entries();
+      for (i = 0; i < currOutputs; i++) {
         nodeOutputPorts[i]->crawlThroughDesign();
       }
     }
     else if (nodeInputPorts.entries() > 1) {
       string trimmedEnode = trimName(port);
       int i;
-      for (i = 0; i < EnodesInDesign.entries(); i++) {
+      int currNodes = EnodesInDesign.entries();
+      for (i = 0; i < currNodes; i++) {
           string current[] = EnodesInDesign[i];
           if(current.contains(trimmedEnode)) {
             string tempComp;
             int j;
             int boolian = 1;
-            for(j = 1; j < current.entries(); j++) {
+            int currEntries = current.entries();
+            for(j = 1; j < currEntries; j++) {
               tempComp = current[j];
               if(!(defaultElectricalSolverSequence.contains(tempComp))) {
                 boolian = 0;
@@ -213,7 +201,8 @@ void crawlThroughDesign() {
             if (boolian == 1) {
               updateDefaultElectricalSolverSequence(port);
               int c;
-              for (c = 0; c < nodeOutputPorts.entries(); c++) {
+              int currNodeOut = nodeOutputPorts.entries();
+              for (c = 0; c < currNodeOut; c++) {
               nodeOutputPorts[c]->crawlThroughDesign();
               }
             }

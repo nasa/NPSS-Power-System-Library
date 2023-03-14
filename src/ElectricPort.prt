@@ -228,25 +228,13 @@ string powerComponentListSourceToLoad[];
 string defaultElectricalSolverSequence[];
 // EnodesInDesign contains all the Enodes in the design and their relative input components
 string EnodesInDesign[][];
-// grabNameIndex is the location of the component name in the string
-int grabNameIndex = 0;
 
 // trimList extracts the names of each component in the provided string array, and returns a string array with the trimmed strings for each index
 string[] trimList(string list[]) {
   int i;
-  for (i = 0;i < list.entries();i++) {
-    Tokenizer next;
-    next.sourceStr = list[i];
-    while (1==1) {
-      string temp = next.getToken(".");
-      if (temp != "") {
-        list[i] = next.getToken(".");
-        grabNameIndex++;
-      }
-      else {
-        break;
-      }
-    }
+  int size = list.entries();
+  for (i = 0; i < size; i++) {
+    list[i] = list[i]->getName();
   }
   return list;
 }
@@ -264,7 +252,8 @@ string[] propagateEpsSolverListAndPowerTypes() {
   // | Enode1 | Enode2 | Enode3 |
   // | Comp I | Comp I | Comp I |
   int i;
-  for (i = 0; i < Enodes.entries(); i++) {
+  int enodesCount = Enodes.entries();
+  for (i = 0; i < enodesCount; i++) {
     string clone = Enodes[i];
     string cloneArray[];
     if(cloneArray.entries() == 0){cloneArray.append(clone);}
@@ -295,17 +284,7 @@ string[] propagateEpsSolverListAndPowerTypes() {
         // temp variable gets the source name and appends it to the defaultElectricalSolverSequence array
         string current = ports[i]->parent.getPathName();
         // The following code trims the current source instance of ports[i]
-        Tokenizer next;
-        next.sourceStr = current;
-        while (1==1) {
-          string temp = next.getToken(".");
-          if (temp != "") {
-            current = next.getToken(".");
-          }
-          else {
-            break;
-          }
-        }
+        current = current->getName();
         defaultElectricalSolverSequence.append(current);
         // Calls recursive function crawlThroughDesign that appends all components (except Enodes with more than 1 input) to the defaultElectricalSolverSequence array
         ports[i]->crawlThroughDesign();
@@ -315,18 +294,13 @@ string[] propagateEpsSolverListAndPowerTypes() {
 
   // The following code checks if all componenets passed into propagateEpsSolverListAndPowerTypes() are in the return string array
   for (i = 0; i < designEntries; i++) {
-    Tokenizer next2;
-    next2.sourceStr = ports[i];
-    string current2;
-    int j;
-    for (j = 0; j < grabNameIndex; j++) {
-    current2 = next2.getToken(".");
-    }
-    ports[i] = current2;
-
+    ports[i] = ports[i]->parent.getName();
+    
     //If the defaultElectricalSolverSequence string array doesn't contain every ports component then the function could not reach all components
     if (!(defaultElectricalSolverSequence.contains(ports[i]))) {
       cerr << "\n[WARNING]: propagateEpsSolverListAndPowerTypes() could not find all components in design, solverSequence was not set up. Navigate to power_propagation.mdl for an example on how to manually set up solverSequence.\n";
+      cerr << "Port order created by propagateEpsSolverListAndPowerTypes(): " << defaultElectricalSolverSequence << endl;
+      cerr << "Ports passed into propagateEpsSolverListAndPowerTypes(): " << ports << endl;
       string voidArr[];
       return voidArr;
     }
