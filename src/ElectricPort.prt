@@ -260,7 +260,7 @@ string[] propagateEpsSolverListAndPowerTypes() {
     cloneArray[0] = clone;
     EnodesInDesign.append(cloneArray);
   }
-
+  
   for (i = 0; i < designEntries; i++) {
     portComponent = ports[i]->parent.isA();
     //search for undefined power source ports and propagate their subgraph
@@ -299,8 +299,8 @@ string[] propagateEpsSolverListAndPowerTypes() {
     //If the defaultElectricalSolverSequence string array doesn't contain every ports component then the function could not reach all components
     if (!(defaultElectricalSolverSequence.contains(ports[i]))) {
       cerr << "\n[WARNING]: propagateEpsSolverListAndPowerTypes() could not find all components in design, solverSequence was not set up. Navigate to power_propagation.mdl for an example on how to manually set up solverSequence.\n";
-      cerr << "Port order created by propagateEpsSolverListAndPowerTypes(): " << defaultElectricalSolverSequence << endl;
-      cerr << "Ports passed into propagateEpsSolverListAndPowerTypes(): " << ports << endl;
+      cerr << "Port order created by propagateEpsSolverListAndPowerTypes(): " << endl << defaultElectricalSolverSequence << endl;
+      cerr << "Ports passed into propagateEpsSolverListAndPowerTypes(): " << endl << ports << endl;
       string voidArr[];
       return voidArr;
     }

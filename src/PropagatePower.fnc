@@ -17,7 +17,6 @@
 
 // depth-first traversal of circuit graph to populate component port power type
 void propagatePower() {
-
   string powerType = ElectricPowerType;
   string port = refport->getPathName();
   string portComponent = port->parent.isA();

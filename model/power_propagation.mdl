@@ -33,25 +33,25 @@ ElectricAssembly powerPropagation {
   }
   Element Source S1 { // AC source 1
     setOption("ElectricPowerType", "AC3");
-    Vrms     = 100;  // [volts]
+    Vrms     = 1000;  // [volts]
     Vphase     = 0;    // [volts]
-    effDes    = 0.99; // [99 %]
+    effDes    = 1; // [100 %]
     frequency = 400;  // [Hz]
   }
 
   Element Source S2 { // AC source 2
     setOption("ElectricPowerType", "AC3");
-    Vrms     = 100;  // [volts]
+    Vrms     = 1000;  // [volts]
     Vphase     = 0;    // [volts]
-    effDes    = 0.99; // [99 %]
+    effDes    = 1; // [100 %]
     frequency = 400;  // [Hz]
   }
 
   Element Source B1 { // battery 1
     setOption("ElectricPowerType", "DC");
-    Vrms  = 134;  // [volts]
+    Vrms  = 1000;  // [volts]
     Vphase  = 0;    // [volts]
-    effDes = 0.99; // [99 %]
+    effDes = 1; // [100 %]
   }
 
   Element AeroCable C1 { // cable 1
@@ -103,28 +103,28 @@ ElectricAssembly powerPropagation {
   }
 
   Element Rectifier R1 {
-    Vreal     = 100;  // [volts]
+    Vreal     = 1000;  // [volts]
     Vimag     = 0;    // [volts]
-    effDes    = 0.95; // [95 %]
+    effDes    = 1; // [100 %]
     frequency = 400;  // [Hz]
   }
 
   Element ConstantPowerLoad L1 { // load 1
-    Vreal    = 100; // [volts]
+    Vreal    = 1000; // [volts]
     Vimag    = 0;   // [volts]
     Pdemand  = 5;   // [kilowatts]
     pfDemand = 1;
   }
 
   Element ConstantPowerLoad L2 { // load 2
-    Vreal    = 100; // [volts]
+    Vreal    = 1000; // [volts]
     Vimag    = 0;   // [volts]
     Pdemand  = 8;   // [kilowatts]
     pfDemand = 1;
   }
 
   Element ConstantPowerLoad L3 { // load 3
-    Vreal    =  100; // [volts]
+    Vreal    =  1000; // [volts]
     Vimag    =  0;   // [volts]
     Pdemand  =  1;   // [kilowatts]
     pfDemand =  1;

@@ -46,11 +46,10 @@ powerPropagation {
 cout << "\nAfter power propagation: \n";
 printPortPowerTypes();
 cout << endl;
-
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 printDesignBanner("on");
-
+//solver.solutionMode = "ONE_PASS";
 cout << solverSequence << endl;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run(); CASE++;
