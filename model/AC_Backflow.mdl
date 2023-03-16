@@ -140,7 +140,7 @@ linkPortI( "Busbar.EP_O2", "B_Motor.EP_I" );
 linkPortI( "B_Motor.EP_O", "E_Motor.EP_I" );
 linkPorts( "Motor_Shaft.Sh1_I", "E_Motor.Sh_O",  "Motor_Shaft_Connection");
 
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 cout << " This is the solver sequence " << solverSequence;
 
 void AC_BFPrintOutput() 

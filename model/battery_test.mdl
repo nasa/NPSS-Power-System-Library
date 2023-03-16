@@ -88,7 +88,7 @@ linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
 // linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
 // linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
 
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 //solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
 

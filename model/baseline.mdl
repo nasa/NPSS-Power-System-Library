@@ -116,7 +116,7 @@ Element Shaft Turbine_Shaft {
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
 linkPortI( "Cable1.EP_O", "EM1.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");

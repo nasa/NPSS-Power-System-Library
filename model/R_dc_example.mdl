@@ -15,19 +15,23 @@
  -------------------------------------------------------------------------------
 ***/
 
-class DCSource extends Element{
-  ElectricOutputPort EP_O;
-  ElectricInputPort EP_I1, EP_I2;
-}
+// class DCSource extends Element{
+//   ElectricOutputPort EP_O;
+// }
 
-real defaultFrequency = 0.;
+// real defaultFrequency = 0.;
 
-DCSource DCS{
-  void postexecute(){
-    EP_O.setIVRMS( 0, 0., 10., 0.);
-    EP_I1.setIVRMS( 0, 0., 0, 0. );
-    EP_I2.setIVRMS( 0, 0., 0, 0. );
-  }
+// DCSource DCS{
+//   void calculate(){
+//     EP_O.setIVRMS( 0, 0., 10., 0.);
+//   }
+// }
+
+Source DCS {
+  EP_O.setOption("ElectricPowerType", "DC");
+  ind_Iimag.autoSetup = FALSE;
+  Vrms  = 10; // [volts]
+  effDes = 1; // [100 %]
 }
 
 
@@ -48,17 +52,42 @@ Element Resistor R3{
 // link it up
 //--------------------------------------------------------
 
-
-linkEports( "DCS.EP_O", "R1.EP_I", "PORT" );
-linkEports("R1.EP_O", "n1" ,"NODE");
-linkEports("R2.EP_I", "n1" ,"NODE");
-linkEports("R2.EP_O", "DCS.EP_I1" ,"PORT");
-linkEports("R3.EP_I", "n1" ,"NODE");
-linkEports("R3.EP_O", "DCS.EP_I2" ,"PORT");
-
-n1{
-  VrealRMS = 10;  //guess value
-  VimagRMS = 0.;  //guess value		
+Element Enode n1{
+  ElectricInputPort EP_I;
+  ElectricOutputPort EP_O1, EP_O2;
+  // VrealRMS = 10;  //guess value
+  // VimagRMS = 0.;  //guess value		
 }
+
+Element Enode n2 {
+  ElectricInputPort EP_I1, EP_I2;
+}
+
+linkPortI("DCS.EP_O", "R1.EP_I");
+linkPortI("R1.EP_O", "n1.EP_I");
+linkPortI("n1.EP_O1","R2.EP_I");
+linkPortI("R2.EP_O", "n2.EP_I1");
+linkPortI("n1.EP_O2","R3.EP_I");
+linkPortI("R3.EP_O", "n2.EP_I2");
+
+
+// linkEports( "DCS.EP_O", "R1.EP_I", "PORT" );
+// linkEports("R1.EP_O", "n1" ,"NODE");
+// linkEports("R2.EP_I", "n1" ,"NODE");
+// linkEports("R2.EP_O", "DCS.EP_I1" ,"PORT");
+// linkEports("R3.EP_I", "n1" ,"NODE");
+// linkEports("R3.EP_O", "DCS.EP_I2" ,"PORT");
+
+// n1{
+//   VrealRMS = 10;  //guess value
+//   VimagRMS = 0.;  //guess value		
+// }
+
+// linkEports( "DCS.EP_O", "R1.EP_I","PORT");
+// linkEports("R1.EP_O", "n1.EP_I1","NODE");
+// linkEports("n1.EP_O1", "R2.EP_I","NODE");
+// linkEports("R2.EP_O", "DCS.EP_I1","PORT");
+// linkEports("n1.EP_O2", "R3.EP_I","NODE");
+// linkEports("R3.EP_O", "DCS.EP_I2","PORT");
 
 setOption( "ElectricPowerType", "DC" );

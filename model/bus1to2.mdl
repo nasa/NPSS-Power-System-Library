@@ -162,7 +162,7 @@ linkPortI( "E1.EP_O1", "Cable2a.EP_I" );
 linkPortI( "E1.EP_O2", "Cable2b.EP_I" );
 linkPortI( "Cable2a.EP_O", "EM1.EP_I" );
 linkPortI( "Cable2b.EP_O", "EM2.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 

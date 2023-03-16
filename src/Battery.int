@@ -49,7 +49,7 @@ from the ONDESIGN run.
 
 - This component, being a source component, must have its electricPowerType specified, and 
 will propagate this power type information to components downstream of it when 
-findSourcesAndPropagate() is called. This component supports DC, single phase, and 3 phase AC. 
+propagateEpsSolverListAndPowerTypes() is called. This component supports DC, single phase, and 3 phase AC. 
 
 - This component produces power and includes a node. Being a component including a node, a 
 voltage must be specified at this component. However, being a source component, its voltage is 

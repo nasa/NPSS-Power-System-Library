@@ -135,7 +135,7 @@ linkPortI( "Cable2a.EP_O", "E2.EP_I1" );
 linkPortI( "Cable2b.EP_O", "E2.EP_I2" );
 linkPortI( "E2.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");

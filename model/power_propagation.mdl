@@ -20,22 +20,20 @@ ElectricAssembly powerPropagation {
   Element Enode E1 { // This will be an AC port once power types are propagated through the system.
   ElectricInputPort EP_I1, EP_I2;
   ElectricOutputPort EP_O1, EP_O2, EP_O3;
-  //VrealRMS  = 100;  // [volts]
-  //VimagRMS  = 0;    // [volts]
   frequency = 400;  // [Hz]
   }
 
   Element Enode E2 { // This will be a DC port once power types are propagated through the system.
     ElectricInputPort EP_I1, EP_I2;
     ElectricOutputPort EP_O;
-    //VrealRMS = 100;  // [volts]
-    //VimagRMS = 0;    // [volts]
+    Vreal = 1350;  // [volts]
+    Vimag = 0;    // [volts]
   }
   Element Source S1 { // AC source 1
     setOption("ElectricPowerType", "AC3");
     Vrms     = 1000;  // [volts]
     Vphase     = 0;    // [volts]
-    effDes    = 1; // [100 %]
+    effDes    = .99; // [99 %]
     frequency = 400;  // [Hz]
   }
 
@@ -43,15 +41,15 @@ ElectricAssembly powerPropagation {
     setOption("ElectricPowerType", "AC3");
     Vrms     = 1000;  // [volts]
     Vphase     = 0;    // [volts]
-    effDes    = 1; // [100 %]
+    effDes    = .99; // [99 %]
     frequency = 400;  // [Hz]
   }
 
   Element Source B1 { // battery 1
     setOption("ElectricPowerType", "DC");
-    Vrms  = 1000;  // [volts]
+    Vrms  = 1350;  // [volts]
     Vphase  = 0;    // [volts]
-    effDes = 1; // [100 %]
+    effDes = .99; // [99 %]
   }
 
   Element AeroCable C1 { // cable 1

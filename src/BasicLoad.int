@@ -34,7 +34,7 @@ of this " + isA() + " component is the complex impedance, Z, in Ohms (complex).
 - This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
 At instantiation, this component's power type is unspecified. NPSS Power System Components 
 need to have a power type in order to correctly run power calculations. For this component, 
-the power type is typically set by calling the findSourcesAndPropagate() method at the top 
+the power type is typically set by calling the propagateEpsSolverListAndPowerTypes() method at the top 
 level assembly. This method is defined in ElectricPort.prt.
 
 - This component does not contain a node, and so starts each iteration with its port voltages 

@@ -71,7 +71,7 @@ linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
 linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
 linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
 
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 //solverSequence = { "CableLeft", "CableRight", "DCSupply", "DeltaDC", "CLoad" }; 
 

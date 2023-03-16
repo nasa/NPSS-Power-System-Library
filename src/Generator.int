@@ -45,7 +45,7 @@ efficiency at the current operating point. It will then run with that efficiency
 
 - This component, being a source component, must have its electricPowerType specified, and 
 will propagate this power type information to components downstream of it when 
-findSourcesAndPropagate() is called. Further, being a generator, it is expected that the 
+propagateEpsSolverListAndPowerTypes() is called. Further, being a generator, it is expected that the 
 output power type is 3-phase AC, so this is the default value. Typically, this value does not 
 need to be set manually. For more information, see ElectricPort.prt.
 
