@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "*.view": "cpp",
-        "*.int": "cpp",
-        "*.fnc": "cpp",
-        "*.run": "cpp",
-        "*.mdl": "cpp"
-    }
-}
