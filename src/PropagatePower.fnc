@@ -6,8 +6,8 @@
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     PropagatePower.fnc											                     |
- | Author(s):     Jonathan Fuzaro Alencar                                      |
- | Date(s):       February 2020                                                |
+ | Author(s):     Jonathan Fuzaro Alencar, Michael Stich                       |
+ | Date(s):       February 2020, March 2023                                    |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -17,11 +17,9 @@
 
 // depth-first traversal of circuit graph to populate component port power type
 void propagatePower() {
-
   string powerType = ElectricPowerType;
   string port = refport->getPathName();
   string portComponent = port->parent.isA();
-
   // Start off by putting this first component in the list.
   if (!powerComponentListSourceToLoad.contains(parent.parent.getPathName())) {
       powerComponentListSourceToLoad.append(parent.parent.getPathName());
@@ -90,6 +88,126 @@ string getOtherPort(string port) {
     return port->parent.EP_O.getPathName();
   } else {
     return port->parent.EP_I.getPathName();
+  }
+}
+
+// Updates the defaultElectricalSolverSequence array and checks if what is trying to be inputted is already in the array
+void updateDefaultElectricalSolverSequence(string port) {
+  port = port->parent.getName();
+  if (!(defaultElectricalSolverSequence.contains(port))) {
+  defaultElectricalSolverSequence.append(port);
+  }
+}
+
+// Extracts the name of the port from the passed string
+string trimName(string port) {
+  port = port->parent.getName();
+  return port;
+}
+
+// Peeks into the next port's relative name
+string nextPort() {
+  string port = refport->getPathName();
+  return port;
+}
+
+// Crawls through the design with a depth-first search and populates EnodesInDesign with all the inputs for the Enodes
+void scanDesign() {
+  string port = refport->getPathName();
+  string portComponent = port->parent.isA();
+  //cout << "Port: " << port << endl;
+
+  if (!(portComponent == "Enode")) {
+    // Runs a check if this is the last component in the branch
+    string nodeOutputPorts[] = port->parent.list("ElectricOutputPort");
+    if (nodeOutputPorts.entries() >= 1) {
+      string next = getOtherPort(port);
+      string check = next->nextPort();
+      if (check->parent.isA() == "Enode") {
+        string trimmedPort = trimName(port);
+        string trimmedEnode = trimName(check);
+
+        // This loop scans the EnodesInDesign 2d string for the 
+        int i;
+        int sizeEnodes = EnodesInDesign.entries();
+        for (i = 0; i < sizeEnodes; i++) {
+          string current[] = EnodesInDesign[i];
+          if(current.contains(trimmedEnode)){
+            if(!(current.contains(trimmedPort))) {
+              current.append(trimmedPort);
+              EnodesInDesign[i] = current;
+            }
+          }
+        }
+      }
+      next->scanDesign();
+    }
+  }
+  else {
+    string nodeOutputPorts[] = port->parent.list("ElectricOutputPort");
+    int i;
+    int currOutputPorts = nodeOutputPorts.entries();
+    for (i = 0; i < currOutputPorts; i++) {
+      nodeOutputPorts[i]->scanDesign();
+    }
+  }
+}
+
+// Crawls through the design with a depth first search, adding components when needed to the defaultElectricalSolverSequence
+void crawlThroughDesign() {
+  string port = refport->getPathName();
+  string portComponent = port->parent.isA();
+  //cout << "Port: " << port << endl;
+
+  if (!(portComponent == "Enode")) {
+    updateDefaultElectricalSolverSequence(port);
+    // Runs a check if this is the last component in the branch
+    string nodeOutputPorts[] = port->parent.list("ElectricOutputPort");
+    if (nodeOutputPorts.entries() >= 1) {
+      string next = getOtherPort(port);
+      next->crawlThroughDesign();
+    }
+  }
+  else {
+    string nodeInputPorts[] = port->parent.list("ElectricInputPort");
+    string nodeOutputPorts[] = port->parent.list("ElectricOutputPort");
+    
+    if (nodeInputPorts.entries() == 1) {
+      updateDefaultElectricalSolverSequence(port);
+      int i;
+      int currOutputs = nodeOutputPorts.entries();
+      for (i = 0; i < currOutputs; i++) {
+        nodeOutputPorts[i]->crawlThroughDesign();
+      }
+    }
+    else if (nodeInputPorts.entries() > 1) {
+      string trimmedEnode = trimName(port);
+      int i;
+      int currNodes = EnodesInDesign.entries();
+      for (i = 0; i < currNodes; i++) {
+          string current[] = EnodesInDesign[i];
+          if(current.contains(trimmedEnode)) {
+            string tempComp;
+            int j;
+            int boolian = 1;
+            int currEntries = current.entries();
+            for(j = 1; j < currEntries; j++) {
+              tempComp = current[j];
+              if(!(defaultElectricalSolverSequence.contains(tempComp))) {
+                boolian = 0;
+              }
+            }
+            if (boolian == 1) {
+              updateDefaultElectricalSolverSequence(port);
+              int c;
+              int currNodeOut = nodeOutputPorts.entries();
+              for (c = 0; c < currNodeOut; c++) {
+              nodeOutputPorts[c]->crawlThroughDesign();
+              }
+            }
+          }
+        }
+    }
   }
 }
 #endif

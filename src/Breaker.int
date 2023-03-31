@@ -41,7 +41,7 @@ dividing its ONDESIGN input power by its specific power.
 - This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
 At instantiation, this component's power type is unspecified. NPSS Power System Components 
 need to have a power type in order to correctly run power calculations. For this component, 
-the power type is typically set by calling the findSourcesAndPropagate() method at the top, 
+the power type is typically set by calling the propagateEpsSolverListAndPowerTypes() method at the top, 
 level assembly. This method is defined in ElectricPort.prt.
 
 - Note that for purposes of mass calculation, a DC breaker is assumed to consist of two 
@@ -159,11 +159,11 @@ current information is updated in the breaker's input and output ports.";
   }
   
   ComplexNumber dV;
-  ComplexNumber V;
+  ComplexNumber Vo;
   ComplexNumber Z;
   ComplexNumber I;
   ComplexNumber S;
-  ComplexNumber dS;
+  ComplexNumber Losses;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -205,36 +205,6 @@ current information is updated in the breaker's input and output ports.";
     socketType = "EThermalMass";
   }
   
-  //-----------------------------------------------------
-  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
-  //-----------------------------------------------------
-
-  Independent ind_Ireal {
-    varName = "Ireal"; 
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-    indepRef = "1000";
-    description = "Varies the real component of cable current.";
-  }
-
-  Independent ind_Iimag {
-    varName = "Iimag"; 
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-    indepRef = "1000";
-    description = "Varies the imaginary component of cable current.";
-  }
-
-  Dependent dep_Vreal_err {
-    eq_lhs = "EP_I.VLN.r";
-    eq_rhs = "EP_O.VLN.r + Vreal_drop";
-    autoSetup = TRUE;   // only set up for on-design to help size breaker
-  }
-
-  Dependent dep_Vimag_err {
-    eq_lhs = "EP_I.VLN.j";
-    eq_rhs = "EP_O.VLN.j + Vimag_drop";
-    autoSetup = TRUE;   // only set up for on-design to help size cable
-  }
-  
   //-------------------------------------------
   // ****** VARIABLE CHANGED METHODOLOGY ******
   //-------------------------------------------
@@ -246,21 +216,9 @@ current information is updated in the breaker's input and output ports.";
       }
     } else if (name =="switchDes") {
       if (switchDes == "DESIGN") {
-        ind_Ireal.autoSetup = TRUE;
-        dep_Vreal_err.autoSetup = TRUE;
-        ind_Iimag.autoSetup = TRUE;
-        dep_Vimag_err.autoSetup = TRUE;
-        if ((EP_I.ElectricPowerType == "DC") || (EP_O.ElectricPowerType == "DC")) {
-          ind_Iimag.autoSetup = FALSE;
-          dep_Vimag_err.autoSetup = FALSE;
-        }
         R.IOstatus = "input";
         L.IOstatus = "input";
       } else if (switchDes == "OFFDESIGN") {
-        ind_Ireal.autoSetup = FALSE;
-        dep_Vreal_err.autoSetup = FALSE;
-        ind_Iimag.autoSetup = FALSE;
-        dep_Vimag_err.autoSetup = FALSE;
         R.IOstatus = "output";
         L.IOstatus = "output";
       }
@@ -272,13 +230,12 @@ current information is updated in the breaker's input and output ports.";
   //-----------------------------------------------
 
   void calculate() {
-    if (switchDes == "DESIGN") {
-      // in on-design, guess current and calculate the mass and impedance of breaker
-      I.setrj(Ireal, Iimag);
-      EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
-      EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
-      S.copy("EP_I.S");	
-     
+    
+    // get frequency from input port
+    frequency = EP_I.frequency;
+    
+    if (switchDes == "DESIGN" ) {
+
       // do the component performance/design calculations.
       if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
 
@@ -292,76 +249,52 @@ current information is updated in the breaker's input and output ports.";
         S.setrj(EP_I.S.r * dc_efficiency**sign(EP_I.S.r),  0.);
         
         // calculate mass 
-        Mass = 2.*EP_I.S.mag / SpecificPower;
-        
-        // calculate this component load side voltage
-        V.setrj(1000.*S.r / EP_I.I.r,  0);
-        
-        // calculate voltage drop = dV = Vin(port) - Vout(calc).
-        dV.copy("EP_I.VLN");
-        dV.minus("V");
-        
-        // calculate this component impedance
-        R = (dV.r) / (EP_I.I.r);
-        L = 0;
-        Z.setrj(R,  0);
+        Mass = 2.*EP_I.S.r / SpecificPower;
 
-      } else if (((EP_I.ElectricPowerType == "AC")  && (EP_O.ElectricPowerType == "AC")) || 
-            ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3"))) {
-        
-        // calculate this component load power
-        S.setrj(EP_I.S.r * effDes**sign(EP_I.S.r),  EP_I.S.j * effDes**sign(EP_I.S.r));
+        // calculate losses
+        Losses.copy("EP_I.S");
+        Losses.minus("S");
 
+      } else if ((EP_I.ElectricPowerType != "DC") && (EP_O.ElectricPowerType != "DC")) {
         
-        // calculate this component mass
+        // calculate this component's total load power
+        S.setrj(EP_I.S.r * effDes**sign(EP_I.S.r),  EP_I.S.j);
+
+        // calculate this component mass using total power
         Mass = EP_I.S.mag / SpecificPower;
-        
-        // start calculating the denominator of the voltage drop (V = S/I*)
-        I.copy("EP_I.I");
-        I.conjugate();
-        if (EP_I.ElectricPowerType == "AC") {
-        }
-        else if (EP_I.ElectricPowerType == "AC3") {
-          I.scale(3.);
-        }
-        
-        // calculate this component load side voltage
-        V.copy("S");
-        V.scale(1000.);
-        V.div("I"); // after this calculation, V will store the line-to-neutral voltage at the output of the breaker
-        
-        // get calculated voltage drop based on design efficiency (grab input side voltage and subtract off the calculated output voltage).
-        dV.copy("EP_I.VLN");
-        dV.minus("V");
-        
-        // compute Z = dV / I (I = Iin / 3 if 3-phase)
-        Z.copy("dV");
-        Z.div("I");
-        
-        // calculate this component impedance
-        R = Z.r;
-        L = Z.j / (2*PI*EP_I.frequency);
-      }
-      
-    } else { // off-design
-      // calculate current from voltage drop
-      Z.setrj(R,  L * (2*PI*EP_I.frequency));
-      
-      dV.copy("EP_I.VLN");
-      dV.minus("EP_O.VLN");	
-      I.copy("dV");
-      I.div("Z");
-    }
-    
-    // calculate voltage drop that may be used in solver during on-design.
-    Vreal_drop = dV.r;
-    Vimag_drop = dV.j;
 
-    // set the conditions in the ports
+        // calculate losses
+        Losses.copy("EP_I.S");
+        Losses.minus("S");
+        
+        // convert Losses to represent per-phase losses
+        if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+          Losses.scale(1./3.);
+        }
+      }
+
+      // calculate this component impedance
+      R = 1000.*Losses.mag / EP_I.I.mag**2.;
+      L = 0;
+      Z.setrj(R,  0.);
+    }
+
+    // dV = I * Z
+    dV.copy("EP_I.I");
+    dV.times("Z");
+
+    // Vo_ln = Vi_ln - dV_ln
+    Vo.copy("EP_I.VLN");
+    Vo.minus("dV");
+
+    if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+      // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
+      Vo.ln2ll();
+    } // If not AC3, then we do not need to convert, because VLL = VLN
+
+    // set the conditions in the port
     EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS(I.rRMS, I.jRMS, EP_O.V.rRMS, EP_O.V.jRMS);
-    EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS);
-    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
+    EP_O.setIVRMS(EP_I.I.r, EP_I.I.j, Vo.r, Vo.j);
     
     Loss_r = EP_I.S.r - EP_O.S.r;
     Loss_j = EP_I.S.j - EP_O.S.j;
@@ -376,6 +309,8 @@ current information is updated in the breaker's input and output ports.";
         S_eThermMass.execute();
       }
     }
+    
+    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
   }
 }
 #endif

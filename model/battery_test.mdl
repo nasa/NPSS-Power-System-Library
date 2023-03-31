@@ -88,9 +88,9 @@ linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
 // linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
 // linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
 
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
-solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
+//solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
 
 void BFPrintOutput() 
 {
@@ -116,3 +116,4 @@ void BFPrintOutput()
 CLoad.Vreal = 519.9; //BPM was 3.59
 CLoad.Vimag = 0;
 
+Li_ion_battery.Iout_guess = ((CLoad.Pdemand*1000)/Li_ion_battery.Vout_guess); //p= v*i i=p/v

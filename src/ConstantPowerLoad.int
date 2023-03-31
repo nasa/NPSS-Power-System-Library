@@ -41,7 +41,7 @@ calculates its mass (Mass) by dividing its ONDESIGN input power by its specific 
 - This component supports DC and AC (single or multiphase) power (see ElectricPowerType). 
 At instantiation, this component's power type is unspecified. NPSS Power System Components 
 need to have a power type in order to correctly run power calculations. For this component, 
-the power type is typically set by calling the findSourcesAndPropagate() method at the top, 
+the power type is typically set by calling the propagateEpsSolverListAndPowerTypes() method at the top, 
 level assembly. This method is defined in ElectricPort.prt.
 
 - This component transforms power, from electrical power at its input port, to useful output 
@@ -109,11 +109,6 @@ described above.";
   eff {
     value = 0.95; IOstatus = "output"; units = "none";
     description = "Efficiency of load.";
-  }
-
-  real frequency {
-    value = 0; IOstatus = "input"; units = "deg";
-    description = "Input frequency.";
   }
 
   Loss_r {
@@ -185,23 +180,8 @@ described above.";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
-  Independent ind_Vreal { 
-    varName = "Vreal"; 
-    autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the real component of the load voltage.";
-  }
-
-  Independent ind_Vimag { 
-    varName = "Vimag"; 
-    autoSetup = TRUE;
-    indepRef = "1000";
-    description = "Varies the imaginary component of the load voltage.";
-  }
-
   Dependent dep_power {
     eq_lhs = "EP_I.S.rRMS * eff**sign(Pdemand)";
-    //eq_lhs = "EP_I.S.rRMS * eff";
     eq_rhs = "Pdemand";
     autoSetup = TRUE;
   }
@@ -209,8 +189,6 @@ described above.";
   Dependent dep_power_factor{    
     eq_lhs = "EP_I.S.j";
     eq_rhs = "EP_I.S.r * tan(acos(pfDemand))"; // reformulated constraint to avoid depending on angles or divisions.
-    // eq_rhs = "pf";
-    // eq_lhs = "pfDemand";
     autoSetup = TRUE;
   }
 
@@ -227,10 +205,8 @@ described above.";
     
     if (name == "switchDes") {
       if (EP_I.ElectricPowerType == "DC") {
-        ind_Vimag.autoSetup = FALSE;
         dep_power_factor.autoSetup = FALSE;
       } else {
-        ind_Vimag.autoSetup = TRUE;
         dep_power_factor.autoSetup = TRUE;
       }
     }
@@ -263,11 +239,6 @@ described above.";
         S_eThermMass.execute();
       }
     }
-  }
-
-  void prePass() {
-    EP_I.frequency = frequency;
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
   }
 }
 #endif

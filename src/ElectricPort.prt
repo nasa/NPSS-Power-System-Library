@@ -7,8 +7,8 @@
  |                                                                             |
  | File Name:     ElectricPort.prt											                       |
  | Author(s):     Jeffrey Csank, David Sadey, Tom Lavelle, George Thomas,      |
- |                Jonathan Fuzaro Alencar                                      |
- | Date(s):       December 2019                                                |
+ |                Jonathan Fuzaro Alencar, Michael Stich                       |
+ | Date(s):       December 2019, March 2023                                    |
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
@@ -196,9 +196,7 @@ class ElectricPort extends Subelement {
     } else if (ElectricPowerType == "AC3") {
       
       // calculate VLN
-      VLN.copy("V");
-      VLN.setMagPhase( V.mag, V.phase - (30. * PI/180.));
-      VLN.scale(sqrt(1. / 3.));
+      VLN.setMagPhase( V.mag * sqrt(1. / 3.), V.phase - (30. * PI/180.));
 
       // calculate power based off VLN (since VLN is already scaled)
       S.copy("I");
@@ -226,28 +224,89 @@ class ElectricOutputPort extends ElectricPort;
 // Component list produced by crawling over the circuit graph in propagatePower();
 // may be used by viewer files, etc.
 string powerComponentListSourceToLoad[];
+// defaultElectricalSolverSequence contains the strings that will be passed into solverSequence
+string defaultElectricalSolverSequence[];
+// EnodesInDesign contains all the Enodes in the design and their relative input components
+string EnodesInDesign[][];
 
-// finds valid defined sources and propagates their power type
-void findSourcesAndPropagate() {
+// trimList extracts the names of each component in the provided string array, and returns a string array with the trimmed strings for each index
+string[] trimList(string list[]) {
+  int i;
+  int size = list.entries();
+  for (i = 0; i < size; i++) {
+    list[i] = list[i]->getName();
+  }
+  return list;
+}
 
+// propagateEpsSolverListAndPowerTypes finds valid defined sources and propagates their power type
+// propagateEpsSolverListAndPowerTypes appends the defaultElectricalSolverSequence array with the right components to be passed into solverSequence
+string[] propagateEpsSolverListAndPowerTypes() {
   string portComponent;
   string ports[] = list("ElectricOutputPort", TRUE);
+  string Enodes[] = list("Enode", TRUE);
+  Enodes = trimList(Enodes);
+  int designEntries = ports.entries();
 
+  // The following loop appends each Enode to a different axis in the 2d array
+  // | Enode1 | Enode2 | Enode3 |
+  // | Comp I | Comp I | Comp I |
   int i;
-  for (i = 0; i < ports.entries(); i++) {
-
+  int enodesCount = Enodes.entries();
+  for (i = 0; i < enodesCount; i++) {
+    string clone = Enodes[i];
+    string cloneArray[];
+    if(cloneArray.entries() == 0){cloneArray.append(clone);}
+    cloneArray[0] = clone;
+    EnodesInDesign.append(cloneArray);
+  }
+  
+  for (i = 0; i < designEntries; i++) {
     portComponent = ports[i]->parent.isA();
-
-    // search for undefined power source ports and propagate their subgraph
+    //search for undefined power source ports and propagate their subgraph
     if (sourceComponents.contains(portComponent)) {
       if (ports[i]->ElectricPowerType != "UNDEF") {
+        //Calls recursive function scanDesign populates the EnodesInDesign 2d array with all the component inputs for the Enodes
+        ports[i]->scanDesign();
         ports[i]->propagatePower();
-      } else {
+      }
+      else {
         cerr << "\n[ERROR]: " << ports[i]->parent.getPathName()
              << " is a source with undefined power type!\n";
       }
     }
   }
+  //cout << EnodesInDesign << endl;
+  for (i = 0; i < designEntries; i++) {
+    portComponent = ports[i]->parent.isA();
+    if (sourceComponents.contains(portComponent)) {
+      if (ports[i]->ElectricPowerType != "UNDEF") {
+        // temp variable gets the source name and appends it to the defaultElectricalSolverSequence array
+        string current = ports[i]->parent.getPathName();
+        // The following code trims the current source instance of ports[i]
+        current = current->getName();
+        defaultElectricalSolverSequence.append(current);
+        // Calls recursive function crawlThroughDesign that appends all components (except Enodes with more than 1 input) to the defaultElectricalSolverSequence array
+        ports[i]->crawlThroughDesign();
+      }
+    }
+  }
+
+  // The following code checks if all componenets passed into propagateEpsSolverListAndPowerTypes() are in the return string array
+  for (i = 0; i < designEntries; i++) {
+    ports[i] = ports[i]->parent.getName();
+    
+    //If the defaultElectricalSolverSequence string array doesn't contain every ports component then the function could not reach all components
+    if (!(defaultElectricalSolverSequence.contains(ports[i]))) {
+      cerr << "\n[WARNING]: propagateEpsSolverListAndPowerTypes() could not find all components in design, solverSequence was not set up. Navigate to power_propagation.mdl for an example on how to manually set up solverSequence.\n";
+      cerr << "Port order created by propagateEpsSolverListAndPowerTypes(): " << endl << defaultElectricalSolverSequence << endl;
+      cerr << "Ports passed into propagateEpsSolverListAndPowerTypes(): " << endl << ports << endl;
+      string voidArr[];
+      return voidArr;
+    }
+  }
+  //cout << defaultElectricalSolverSequence << endl;
+  return defaultElectricalSolverSequence;
 }
 
 #endif

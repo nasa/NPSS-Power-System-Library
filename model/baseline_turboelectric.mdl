@@ -26,7 +26,7 @@ Electric Power System Components
 **************************/
 Element Generator Gen1 {
   #include <STARCABLmotorGenerator.map>
-  Vbus_LL=1000;	
+  Vrms=1000;	
   effDes=0.96;
   SpecificPower=13.;
   frequency=400; // Hz
@@ -35,12 +35,6 @@ Element Generator Gen1 {
 Element Breaker Breaker1 {
   effDes=0.995;
   SpecificPower=250.0; 
-}
-
-Element Enode E1{
-  ElectricInputPort EP_I;
-  ElectricOutputPort EP_O;
-  frequency = 400.;
 }
 
 Element AeroCable Cable1 {
@@ -58,11 +52,6 @@ Element Rectifier Rect1 {
 Element Breaker Breaker2 {
   effDes=0.995;
   SpecificPower=250.0; 
-}
-
-Element Enode E2{
-  ElectricInputPort EP_I;
-  ElectricOutputPort EP_O;
 }
 
 Element AeroCable Cable2 {
@@ -83,12 +72,6 @@ Element Breaker Breaker3 {
   SpecificPower=250.0; 
 }
 
-Element Enode E3{
-  ElectricInputPort EP_I;
-  ElectricOutputPort EP_O;
-  frequency = 400.;
-}
-
 Element AeroCable Cable3 {
   length=28.3464;
 }
@@ -96,7 +79,7 @@ Element AeroCable Cable3 {
 Element Motor EM1 {
    #include <STARCABLmotorGenerator.map>
    effDes=0.96;
-   powerfactor=1.0;
+   powerfactor=1.;
    SpecificPower=13.0; 
    trqDes=3500.0; 
    frequency = 400.;
@@ -175,18 +158,15 @@ Element Shaft Turbine_Shaft {
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
-linkPortI( "Breaker1.EP_O", "E1.EP_I");
-linkPortI( "E1.EP_O", "Cable1.EP_I");
+linkPortI( "Breaker1.EP_O", "Cable1.EP_I");
 linkPortI( "Cable1.EP_O", "Rect1.EP_I");
 linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
-linkPortI( "Breaker2.EP_O", "E2.EP_I");
-linkPortI( "E2.EP_O","Cable2.EP_I");
+linkPortI( "Breaker2.EP_O", "Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Breaker3.EP_O", "E3.EP_I");
 linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
-linkPortI( "E3.EP_O", "Cable3.EP_I" );
+linkPortI( "Breaker3.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
@@ -200,40 +180,6 @@ linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
 linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
-
-// Remove and re-append the elements containing nodes (or that are nodes) to make them execute last.
-solverSequence.remove( "Gen1" );
-solverSequence.remove( "E1" );
-solverSequence.remove( "Rect1" );
-solverSequence.remove( "E2" );
-solverSequence.remove( "Inv1" );
-solverSequence.remove( "E3" );
-solverSequence.remove( "EM1" );
-solverSequence.remove( "Turbine_Shaft" );
-solverSequence.remove( "Propulsor_Shaft" );
-
-solverSequence.append( "Gen1" );
-solverSequence.append( "E1" );
-solverSequence.append( "Rect1" );
-solverSequence.append( "E2" );
-solverSequence.append( "Inv1" );
-solverSequence.append( "E3" );
-solverSequence.append( "EM1" );
-solverSequence.append( "Turbine_Shaft" );
-solverSequence.append( "Propulsor_Shaft" );
-
-
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "soler.bad";
 
-
-Inv1{
-  Vreal = 950;  //guess value
-  Vimag = 0;  //guess value		
-}
-
-
-Rect1{
-  Vreal = 999.999999;  //guess value
-  Vimag = 0;  //guess value		
-}

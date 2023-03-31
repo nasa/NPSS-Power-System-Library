@@ -26,17 +26,15 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
-	Vbus_LL=1200;	
-	eff=0.96;
+	Vrms=1200;
+	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz	
 }
 
 Element Cable Cable1 {
-	length=28.3464; 	
 	R=4.3245e-6;
-	L=9.84e-5*length/4./60./2./PI;	
-	Loss_j = 165.;
+	L=9.84e-5*length/4./60./2./PI;
 }
 
 Element Enode E1{
@@ -47,30 +45,24 @@ Element Enode E1{
 
 Element Cable Cable2a {
 	R=4.3245e-6;
-	length=28.3464; 
 	L=9.84e-5*length/4./60./2./PI;
-	Loss_j = 41.;
 }
 
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
-	length=28.3464/3.; 
     L=9.84e-5*length/4./60./2./PI;
-	Loss_j = 14.;
 }
 
 Element Motor EM1 {
-	eff=0.96;
-	SpecificPower=13.0; 
+	effDes=0.96;
+	SpecificPower=13.0;
 	frequency = 400.;
-	Vreal = 1200.;
 }
 
 Element Motor EM2 {
-	eff=0.96;
-	SpecificPower=13.0; 
+	effDes=0.96;
+	SpecificPower=13.0;
 	frequency = 400.;
-	Vreal = 1200.;
 }
 
 /**************************
@@ -170,7 +162,7 @@ linkPortI( "E1.EP_O1", "Cable2a.EP_I" );
 linkPortI( "E1.EP_O2", "Cable2b.EP_I" );
 linkPortI( "Cable2a.EP_O", "EM1.EP_I" );
 linkPortI( "Cable2b.EP_O", "EM2.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
 
@@ -200,17 +192,17 @@ linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
 linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 
-solverSequence.remove( "E1" );
-solverSequence.remove( "Gen1" );
-solverSequence.remove( "EM1" );
-solverSequence.remove( "EM2" );
-solverSequence.remove( "Turbine_Shaft" );
-solverSequence.remove( "Propulsor_Shaft" );
-solverSequence.remove( "Propulsor_Shaft2" );
-solverSequence.append( "E1" );
-solverSequence.append( "Gen1" );
-solverSequence.append( "EM1" );
-solverSequence.append( "EM2" );
-solverSequence.append( "Turbine_Shaft" );
-solverSequence.append( "Propulsor_Shaft" );
-solverSequence.append( "Propulsor_Shaft2" );
+// solverSequence.remove( "E1" );
+// solverSequence.remove( "Gen1" );
+// solverSequence.remove( "EM1" );
+// solverSequence.remove( "EM2" );
+// solverSequence.remove( "Turbine_Shaft" );
+// solverSequence.remove( "Propulsor_Shaft" );
+// solverSequence.remove( "Propulsor_Shaft2" );
+// solverSequence.append( "E1" );
+// solverSequence.append( "Gen1" );
+// solverSequence.append( "EM1" );
+// solverSequence.append( "EM2" );
+// solverSequence.append( "Turbine_Shaft" );
+// solverSequence.append( "Propulsor_Shaft" );
+// solverSequence.append( "Propulsor_Shaft2" );

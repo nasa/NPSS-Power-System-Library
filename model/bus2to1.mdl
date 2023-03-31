@@ -27,14 +27,14 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
-	Vbus_LL=1200;	
+	Vrms=1200;	
 	eff=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz	
 }
 
 Element Generator Gen2 {
-	Vbus_LL=1200;	
+	Vrms=1200;	
 	eff=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz	
@@ -42,14 +42,12 @@ Element Generator Gen2 {
 
 Element Cable Cable2a {
 	R=4.3245e-6;
-	length=28.3464; 
 	L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
 
 Element Cable Cable2b {
 	R=4.3245e-6/2.;
-	length=28.3464/3.; 
     L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
@@ -57,12 +55,10 @@ Element Cable Cable2b {
 Element Enode E2{
 	ElectricInputPort EP_I1,EP_I2;
 	ElectricOutputPort EP_O;
-	frequency = 400.;
 }
 
 Element Cable Cable3 {
 	R=4.3245e-6;
-	length=28.3464/3.; 
     L=9.84e-5*length/4./60./2./PI;
 	SpecificAmperage=170.;
 }
@@ -70,7 +66,6 @@ Element Cable Cable3 {
 Element Motor EM1 {
 	eff=0.96;
 	SpecificPower=13.0; 
-	frequency = 400.;
 }
 
 /**************************
@@ -140,7 +135,7 @@ linkPortI( "Cable2a.EP_O", "E2.EP_I1" );
 linkPortI( "Cable2b.EP_O", "E2.EP_I2" );
 linkPortI( "E2.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
@@ -154,17 +149,4 @@ linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 linkPorts( "Turbine_Shaft.Sh2_I"    , "Gen2.Sh_O", "Gen1-to-Shaft2");
 
-Gen1.EP_O.propagatePower();
 
-solverSequence.remove( "E2" );
-solverSequence.remove( "Gen1" );
-solverSequence.remove( "Gen2" );
-solverSequence.remove( "EM1" );
-solverSequence.remove( "Turbine_Shaft" );
-solverSequence.remove( "Propulsor_Shaft" );
-solverSequence.append( "E2" );
-solverSequence.append( "Gen1" );
-solverSequence.append( "Gen2" );
-solverSequence.append( "EM1" );
-solverSequence.append( "Turbine_Shaft" );
-solverSequence.append( "Propulsor_Shaft" );

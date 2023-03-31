@@ -34,8 +34,15 @@ MODELNAME = "Resistive Circuit";
 // select model
 #include "R_dc_example.mdl"
 
-autoSolverSetup();
+//string var[] = propagateEpsSolverListAndPowerTypes();
+//solverSequence = var;
+    solverSequence = {
+        "DCS","R1","n1","R2","R3","n2"
+    };
 
+autoSolverSetup();
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 //---------------------------------------------------------
 // just like a rocket engine, volumes last
 //---------------------------------------------------------

@@ -37,18 +37,33 @@ string ports[] = list("ElectricPort", TRUE);
 
 cout << "Before power propagation: \n";
 printPortPowerTypes();
-findSourcesAndPropagate();
+
+powerPropagation {
+    string var[] = propagateEpsSolverListAndPowerTypes();
+    solverSequence = var;
+}
+// Setting initial guesses for currents
+powerPropagation {
+    E1.Ireal_EP_O1 = (L1.Pdemand/E1.Vreal);
+    E1.Ireal_EP_O2 = (L2.Pdemand/E1.Vreal);
+    E1.Ireal_EP_O3 = (L3.Pdemand/E1.Vreal);
+    E2.Ireal_EP_O = (L3.Pdemand/E2.Vreal);
+}
+
 cout << "\nAfter power propagation: \n";
 printPortPowerTypes();
 cout << endl;
-
 setOption("switchDes", "DESIGN");
 autoSolverSetup();
 printDesignBanner("on");
-
+//solver.solutionMode = "ONE_PASS";
+cout << solverSequence << endl;
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 run(); CASE++;
 page.display();
 printCaseStats("solver");
+
+//cout << powerPropagation.E2.Ireal_EP_O << endl;
 
 // TODO: once diagram drawing logic is done, call it here :)
 //cout << diagram << endl;

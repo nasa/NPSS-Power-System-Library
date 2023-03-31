@@ -6,7 +6,7 @@
  | Cleveland, OH 44135 	                                                       |
  |                                                                             |
  | File Name:     baseline_turboelectricMDP.mdl                                |
- | Author(s):	    Jeffrey Csank, David Sadey, Tom Lavelle       			         |
+ | Author(s):	  Jeffrey Csank, David Sadey, Tom Lavelle       			         |
  | Date(s):       March 2019                                                   |
  |                                                                             |
  | Description:   Baseline model (generator, cable, inverter, motor) using     |
@@ -25,7 +25,7 @@ setThermoPackage("GasTbl");
 Electric Power System Components
 **************************/
 Element Generator Gen1 {
-	Vbus_LL=1000;	
+	Vrms=1000;	
 	effDes=0.96;
 	SpecificPower=13.;
 	frequency=400; // Hz
@@ -37,19 +37,12 @@ Element Breaker Breaker1 {
 	SpecificPower=250.0; 
 }
 
-Element Enode E1{
-	ElectricInputPort EP_I;
-	ElectricOutputPort EP_O;
-	frequency = 400.;
-}
-
 Element AeroCable Cable1 {
 	length=28.3464;
 }
 
 Element Rectifier Rect1 {
 	effDes = .95;
-	pwrDes = 12000.;
 	#include <modelInverterRectifier.map>
 	frequency = 400.;
 }
@@ -57,11 +50,6 @@ Element Rectifier Rect1 {
 Element Breaker Breaker2 {
 	effDes=0.995;
 	SpecificPower=250.0; 
-}
-
-Element Enode E2{
-	ElectricInputPort EP_I;
-	ElectricOutputPort EP_O;
 }
 
 Element AeroCable Cable2 {
@@ -83,9 +71,6 @@ Element Motor EM1 {
 	 effDes=0.96;
 	 powerfactor=1.0;
 	 SpecificPower=13.0; 
-	 trqDes=55144.0; 
-	 frequency = 400.;
-	 //Vreal = 1000.;
 	 #include <STARCABLmotorGenerator.map>
 }
 
@@ -182,17 +167,15 @@ Element Shaft Turbine_Shaft {
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "Breaker1.EP_O", "E1.EP_I");
 linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
-linkPortI( "E1.EP_O", "Cable1.EP_I");
+linkPortI( "Breaker1.EP_O", "Cable1.EP_I");
 linkPortI( "Cable1.EP_O", "Rect1.EP_I");
 linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
-linkPortI( "Breaker2.EP_O", "E2.EP_I");
-linkPortI( "E2.EP_O","Cable2.EP_I");
+linkPortI( "Breaker2.EP_O", "Cable2.EP_I");
 linkPortI( "Cable2.EP_O", "Inv1.EP_I");
 linkPortI( "Inv1.EP_O", "Cable3.EP_I" );
 linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-findSourcesAndPropagate();
+propagateEpsSolverListAndPowerTypes();
 
 linkPorts( "Propulsor_Shaft.Sh1_I", "EM1.Sh_O", "Shaft_Motor1" );
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
@@ -200,37 +183,5 @@ linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
 linkPorts( "PropLoad.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
 linkPorts( "TurbLoad.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
 
-
-solverSequence.remove( "Gen1" );
-solverSequence.remove( "EM1" );
-solverSequence.remove( "E1" );
-solverSequence.remove( "E2" );
-solverSequence.remove( "Turbine_Shaft" );
-solverSequence.remove( "Propulsor_Shaft" );
-solverSequence.remove( "Rect1" );
-solverSequence.remove( "Inv1" );
-
-solverSequence.append( "Gen1" );
-solverSequence.append( "EM1" );
-solverSequence.append( "E1" );
-solverSequence.append( "E2" );
-solverSequence.append( "Turbine_Shaft" );
-solverSequence.append( "Propulsor_Shaft" );
-solverSequence.append( "Rect1" );
-solverSequence.append( "Inv1" );
-
-
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "soler.bad";
-
-
-Inv1{
-  Vreal = 950;  //guess value
-  Vimag = 0;  //guess value		
-}
-
-
-Rect1{
-  Vreal = 999.999999;  //guess value
-  Vimag = 0;  //guess value		
-}

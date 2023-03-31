@@ -34,7 +34,7 @@ class Generator extends ElectricElement {
 
 - The input design parameters that must be specified by the modeler when creating an instance 
 of this " + isA() + " component are mass specific power (SpecificPower), design efficiency 
-(effDes), frequency, and voltage (Vbus_LL). This component will produce electrical power at 
+(effDes), frequency, and voltage (Vreal). This component will produce electrical power at 
 the specified voltage and frequency, equal to the mechanical power at its shaft port. times 
 its operating efficiency.
 
@@ -45,7 +45,7 @@ efficiency at the current operating point. It will then run with that efficiency
 
 - This component, being a source component, must have its electricPowerType specified, and 
 will propagate this power type information to components downstream of it when 
-findSourcesAndPropagate() is called. Further, being a generator, it is expected that the 
+propagateEpsSolverListAndPowerTypes() is called. Further, being a generator, it is expected that the 
 output power type is 3-phase AC, so this is the default value. Typically, this value does not 
 need to be set manually. For more information, see ElectricPort.prt.
 
@@ -109,11 +109,6 @@ this component, see MotorGeneratorMap.int";
     value = 1.;  IOstatus = "input";  units = "none";
     description = "Mechanical-to-electrical power conversion efficiency at design point.";
   }
-  
-  real frequency {
-    value = 0; IOstatus = "input"; units = "deg";
-    description = "Generator frequency.";
-  }
 
   real genResistance {
     value = 1; IOstatus = "input"; units = "kW";
@@ -155,6 +150,9 @@ this component, see MotorGeneratorMap.int";
     description = "Power in to the generator.";
   }
 
+  // Set default frequency for the generator.
+  frequency = 400.;
+
   real SpecificPower {
     value = 13; IOstatus = "input"; units = "none"; // [kW / kg]
     description = "Power to weight ratio for the generator.";
@@ -179,11 +177,26 @@ this component, see MotorGeneratorMap.int";
     value = 1.;  IOstatus = "output";  units = "ft*lbf";
     description = "Temporary torque which the solver drives to match actual torque.";
   }
+  
+  real Vrms {
+    value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
+    description = "RMS value of output line-to-line voltage.";
+  }
+  
+  real Vphase {
+    value = 30.;  IOstatus = "output";  units = "deg"; // [volts]
+    description = "Phase angle of of output line-to-line voltage.";
+  }
+  
+  real Ireal {
+    value = 100; IOstatus = "input"; units = "A"; // [amps]
+    description = "Guess value for real component of output current.";
+  }
 
-  real Vbus_LL {
-    value = 0; IOstatus = "input"; units = "V";
-    description = "Bus voltage (off-design).";
-  } 
+  real Iimag {
+    value = 0; IOstatus = "input"; units = "A"; // [amps]
+    description = "Guess value for imaginary component of output current.";
+  }
   
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -234,6 +247,24 @@ this component, see MotorGeneratorMap.int";
     socketType = "EThermalMass";
   }
 
+  //-----------------------------------------------------
+  // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
+  //-----------------------------------------------------
+  
+  Independent ind_Ireal { 
+    varName = "Ireal"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the real component of this component's current.";
+  }
+  
+  Independent ind_Iimag { 
+    varName = "Iimag"; 
+    autoSetup = TRUE;
+    indepRef = "1000";
+    description = "Varies the imaginary component of this component's current.";
+  }
+
   //-------------------------------------------
   // ****** VARIABLE CHANGED METHODOLOGY ******
   //-------------------------------------------
@@ -253,9 +284,13 @@ this component, see MotorGeneratorMap.int";
   //-----------------------------------------------
 
   void calculate() {
-    real powerfactor = 1.0;
-    real Vbus = 0;
-    
+
+    // Start by populating electric port with power data.
+    EP_O.frequency = frequency;
+    ComplexNumber Vo; Vo.setMagPhase( Vrms, Vphase * PI/180. );
+    EP_O.setIVRMS(Ireal, Iimag, Vo.r, Vo.j);
+
+    real powerfactor = EP_O.PF;
     Speed = Sh_O.Nmech;
     Pout = EP_O.S.r;
     Current = EP_O.I.mag;
@@ -317,11 +352,6 @@ this component, see MotorGeneratorMap.int";
         S_eThermMass.execute();
       }
     }
-  }
-
-  void prePass() {
-    EP_O.frequency = frequency;
-    EP_O.setIVRMS(EP_O.I.r, EP_O.I.j, Vbus_LL, 0.);
   }
 }
 #endif

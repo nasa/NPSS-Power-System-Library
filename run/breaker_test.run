@@ -63,11 +63,11 @@ printOutput();
 cout << "--- Off Design ---" << endl;
 setOption("switchDes","OFFDESIGN");
 // For off design, stop varying the source.
-ACS.ind_Vimag.autoSetup = FALSE;
+ACS.ind_Iimag.autoSetup = FALSE;
 ACS.dep_PF.autoSetup    = FALSE;
-ACS.ind_Vreal.autoSetup = FALSE;
+ACS.ind_Ireal.autoSetup = FALSE;
 ACS.dep_Power.autoSetup = FALSE;
-DCS.ind_Vreal.autoSetup = FALSE;
+DCS.ind_Ireal.autoSetup = FALSE;
 DCS.dep_Power.autoSetup = FALSE;
 autoSolverSetup();
 // cout << solverSequence << endl;//BPM: this is order of execution of components.

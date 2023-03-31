@@ -203,9 +203,9 @@ class MotorGeneratorMap extends Subelement {
       trqMap = abs(trqTemp) / s_trqDes;
       effMap = TB_eff(trqMap, Nmap);
       
-      // set efficiency to send to parent element
-      effBase = effMap * s_effDes;
     }
+    // set efficiency to send to parent element
+    effBase = effMap * s_effDes;
   }
 }
 #endif
