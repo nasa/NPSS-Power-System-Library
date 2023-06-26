@@ -196,6 +196,7 @@ class MotorGeneratorMap extends Subelement {
       s_effDes = effDes / effMapDes; // effDes is from parent element, effMapDes was found on map
       s_Ndes = Ndes / NmapDes; // Ndes is from parent element, NmapDes is from map input value
       s_trqDes = abs(trqDes) / trqMapDes;// trqDes is from parent element, trqMapDes is from map input value
+	  effBase = effDes;
 
     } else {
       // calculate map values
