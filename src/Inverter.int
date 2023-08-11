@@ -147,6 +147,11 @@ component to the surrounding environment. For more information, see EThermalMass
     value = 0; IOstatus = "output"; units = "Btu/sec"; // [BTUs / sec]
     description = "Power dissipation at current time.";
   }
+
+  real Av {
+    value = 1.; IOstatus = "input"; units = "none"; // [BTUs / sec]
+    description = "Modulation index in the range [0, 1]. Essentially a scalar on output voltage.";
+  }
   
   ComplexNumber dV;
   ComplexNumber Z;
@@ -210,17 +215,33 @@ component to the surrounding environment. For more information, see EThermalMass
     indepRef = "10";
     description = "Varies the inverter output reactance (to get whatever output voltage phase needed).";
   }
+  Independent ind_Av { 
+    varName = "Av"; 
+    autoSetup = TRUE;
+    indepRef = "1";
+    description = "Varies the inverter modulation index to match voltage needed to run the motor at its given speed (off design).";
+  }
   
   //------------------------------------------------------------
   // ******* VARIABLE CHANGED METHODOLOGY *******
   //------------------------------------------------------------
 
   void variableChanged(string name, any oldVal) {
-    if (name == "switchThermPort") { 
+    if (name == "switchThermPort") {
       if (switchThermPort == "TRUE") {
-        create("", "ThermalInputPort", "Q_I" );
+        create("", "ThermalInputPort", "Q_I");
       }
     }
+    // For design mode, set modulation index to 1 and don't let the solver vary it.
+    // for offdesign mode, match the modulation index to the motor back EMF.
+    // if (name =="switchDes") {
+    //   if (switchDes == "DESIGN") {
+    //     Av = 1.;
+    //     ind_Av.autoSetup = FALSE;
+    //   } else if (switchDes == "OFFDESIGN") {
+    //     ind_Av.autoSetup = TRUE;
+    //   }
+    // }
   }
   
   //-----------------------------------------------
@@ -255,7 +276,7 @@ component to the surrounding environment. For more information, see EThermalMass
     real pwrOut = pwrIn * eff**sign(pwrIn);
 
     // Calculate ideal output voltage, VAC line-to-neutral
-    ComplexNumber VoIdeal; VoIdeal.setMagPhase( EP_I.V.r/sqrt(2)/sqrt(3), 0);
+    ComplexNumber VoIdeal; VoIdeal.setMagPhase( Av * EP_I.V.r/sqrt(2)/sqrt(3), 0);
     
     // Calculate current, AC line current = conj(S*1000/(numPhases*VoIdeal));
     ComplexNumber Io;

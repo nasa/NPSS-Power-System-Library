@@ -202,10 +202,14 @@ this component, see MotorGeneratorMap.int";
     value = 1000.;  IOstatus = "output";  units = "V"; // [volts]
     description = "Real portion of voltage.";
   }
-
   real Vimag {
-    value =0;  IOstatus = "output";  units = "V"; // [volts]
+    value =0.;  IOstatus = "output";  units = "V"; // [volts]
     description = "Imaginary portion of voltage.";
+  }
+  
+  real Ke {
+    value = 25.0;  IOstatus = "input";  units = "V/rpm/1000"; // [volts]
+    description = "Motor back EMF constant (AKA voltage constant).";
   }
   
   //------------------------------------
@@ -268,6 +272,13 @@ this component, see MotorGeneratorMap.int";
   // ******  ADD SOLVER INDEPENDENTS & DEPENDENTS  ******
   //-----------------------------------------------------
 
+  Dependent dep_backEMF {
+    eq_lhs = "EP_I.V.mag";
+    eq_rhs = "100. + Ke*(Sh_O.Nmech/1000.)"; // RMS voltage equals back EMF plus....something
+    autoSetup = TRUE;
+    description = "Makes sure the motor is seeing the voltage needed based on its speed.";
+  }
+
   Dependent dep_power_factor {
     eq_lhs = "EP_I.S.j";
     eq_rhs = "EP_I.S.r * tan(acos(powerfactor))"; // reformulated constraint to avoid depending on angles or divisions.
@@ -317,6 +328,16 @@ this component, see MotorGeneratorMap.int";
         dep_NdesSet.autoSetup = TRUE;
       }
     }
+    
+    // For design mode, the motor should see whatever voltage it sees.
+    // for offdesign mode, match the modulation index to the motor back EMF.
+    // if (name =="switchDes") {
+    //   if (switchDes == "DESIGN") {
+    //     dep_backEMF.autoSetup = FALSE;
+    //   } else if (switchDes == "OFFDESIGN") {
+    //     dep_backEMF.autoSetup = TRUE;
+    //   }
+    // }
   }
 
   //-----------------------------------------------
@@ -386,12 +407,6 @@ this component, see MotorGeneratorMap.int";
         S_eThermMass.execute();
       }
     }
-  }
-
-  // end calculation section
-  void prePass() {
-    EP_I.frequency = frequency;
-    EP_I.setIVRMS(EP_I.I.r, EP_I.I.j, Vreal, Vimag);
   }
 }
 #endif
