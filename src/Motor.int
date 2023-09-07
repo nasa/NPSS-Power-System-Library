@@ -211,6 +211,16 @@ this component, see MotorGeneratorMap.int";
     value = 25.0;  IOstatus = "input";  units = "V/rpm/1000"; // [volts]
     description = "Motor back EMF constant (AKA voltage constant).";
   }
+
+  real Rm {
+    value = 0.1014; IOstatus = "input"; units = "ohm"; 
+    description = "Motor resistance.";
+  }
+
+  real Lm {
+    value = 0.00045; IOstatus = "input"; units = "ohm"; 
+    description = "Motor inductance.";
+  }
   
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -274,7 +284,8 @@ this component, see MotorGeneratorMap.int";
 
   Dependent dep_backEMF {
     eq_lhs = "EP_I.V.mag";
-    eq_rhs = "100. + Ke*(Sh_O.Nmech/1000.)"; // RMS voltage equals back EMF plus....something
+    eq_rhs = "EP_I.I.mag * ((Rm **2 + ((Sh_O.Nmech *2 * 3.14159/60) * Lm) ** 2)) ** 0.5 + Ke * (Sh_O.Nmech/1000.)"; // RMS voltage equals back EMF plus Z*I
+    //eq_rhs = "Ke * (Sh_O.Nmech/1000.)";
     autoSetup = TRUE;
     description = "Makes sure the motor is seeing the voltage needed based on its speed.";
   }
