@@ -286,7 +286,7 @@ this component, see MotorGeneratorMap.int";
     eq_lhs = "EP_I.V.mag";
     eq_rhs = "EP_I.I.mag * ((Rm **2 + ((Sh_O.Nmech *2 * 3.14159/60) * Lm) ** 2)) ** 0.5 + Ke * (Sh_O.Nmech/1000.)"; // RMS voltage equals back EMF plus Z*I
     //eq_rhs = "Ke * (Sh_O.Nmech/1000.)";
-    autoSetup = TRUE;
+    autoSetup = FALSE;
     description = "Makes sure the motor is seeing the voltage needed based on its speed.";
   }
 

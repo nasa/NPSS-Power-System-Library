@@ -217,7 +217,7 @@ component to the surrounding environment. For more information, see EThermalMass
   }
   Independent ind_Av { 
     varName = "Av"; 
-    autoSetup = TRUE;
+    autoSetup = FALSE;
     indepRef = "1";
     description = "Varies the inverter modulation index to match voltage needed to run the motor at its given speed (off design).";
   }
