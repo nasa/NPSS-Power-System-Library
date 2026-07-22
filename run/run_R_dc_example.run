@@ -34,23 +34,20 @@ MODELNAME = "Resistive Circuit";
 // select model
 #include "R_dc_example.mdl"
 
-//string var[] = propagateEpsSolverListAndPowerTypes();
-//solverSequence = var;
     solverSequence = {
         "DCS","R1","n1","R2","R3","n2"
     };
+cout << solverSequence << endl;
 
 autoSolverSetup();
-cout << solverSequence << endl;
+
+solver.addIndependent( "ind_Iout" );
+solver.removeIndependent( "n2.ind_Vreal" );
+n2.Vreal = 0;
 cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
-//---------------------------------------------------------
-// just like a rocket engine, volumes last
-//---------------------------------------------------------
-//solverSequence = { "Bat", "R1", "C1", "L1", "C2","E1","E2" }
-//solverSequence = { "Bat", "R1", "C1", "L1", "C2" }
+
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/Solver.bad";
-
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;

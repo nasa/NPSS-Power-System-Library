@@ -170,6 +170,8 @@ approach taken in fluid networks within NPSS rocket models.";
 
     int i;
     string Iname;
+    updatePortQuantities();
+    
     for (i = 0; i < ElectricInputPorts.entries(); i++) {
       Iname = ElectricInputPorts[i] + ".I"; 
       Inet.plus(Iname);			    
@@ -179,7 +181,7 @@ approach taken in fluid networks within NPSS rocket models.";
       Iname = ElectricOutputPorts[i] + ".I";
       Inet.minus(Iname);
     }
-    updatePortQuantities();
+    
   }
   
   //-------------------------------

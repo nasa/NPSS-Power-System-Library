@@ -36,18 +36,30 @@ MODELNAME = "RLC Circuit";
 // select model
 #include "PandE2019_RLC_example.mdl"
 
+solverSequence = {
+    "ACS","C1","n1","L1","C2","R1","n2"
+};
+
+setOption( "ElectricPowerType", "AC1" );
 autoSolverSetup();
 
-//---------------------------------------------------------
-// just like a rocket engine, volumes last
-//---------------------------------------------------------
+solver.addIndependent( "ind_Iout_r" );
+solver.addIndependent( "ind_Iout_j" );
+
+solver.removeIndependent( "n2.ind_Vreal" );
+solver.removeIndependent( "n2.ind_Vimag" );
+n2.Vreal = 0;
+n2.Vimag = 0;
+
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/Solver.bad";
+// solver.solutionMode = "ONE_PASS";
 
 solver.maxIterations = 5000;
 solver.maxJacobians = 1000;
-setOption( "ElectricPowerType", "AC1" );
- 
+
+cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
 run();
 
 page.display();  // output data to out file
@@ -57,6 +69,7 @@ page_runtime.display(); // output data to cmd window
 // print out certain components to the command line
 //---------------------------------------------------------
 cerr << "\n Voltages \n";
+cerr << "ACS: " << ACS.EP_O.V.rRMS << " + " << ACS.EP_O.V.jRMS << "j"<< endl;
 cerr << "C1: " << C1.EP_O.V.rRMS << " + " << C1.EP_O.V.jRMS << "j"<< endl;
 cerr << "L1: " << L1.EP_O.V.rRMS << " + " << L1.EP_O.V.jRMS << "j"<< endl;
 
@@ -81,9 +94,5 @@ cerr << " C2(in): " << C2.EP_I.S.rRMS << " + " << C2.EP_I.S.jRMS << "j"<< endl;
 cerr << "C2(out): " << C2.EP_O.S.rRMS << " + " << C2.EP_O.S.jRMS << "j"<< endl;
 cerr << " R1(in): " << R1.EP_I.S.rRMS << " + " << R1.EP_I.S.jRMS << "j"<< endl;
 cerr << "R1(out): " << R1.EP_O.S.rRMS << " + " << R1.EP_O.S.jRMS << "j"<< endl;
-
-
-
-
 
 cerr << "\n" << endl;
