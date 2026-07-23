@@ -37,7 +37,7 @@ MODELNAME = "Baseline Turboelectric MDP";
 //----------------------------------------------------------------------------
 cout << "\nMDP Solver Setup\n"; 
 
-ElectricAssembly TKO { 
+Assembly TKO { 
     #include "baseline_turboelectricMDP.mdl"
 
     Solver solver { 
@@ -92,7 +92,7 @@ ElectricAssembly TKO {
     }
 }
 
-ElectricAssembly TOC { 
+Assembly TOC { 
     #include "baseline_turboelectricMDP.mdl"
     
     // Set propulsor shaft to a higher value than TKO

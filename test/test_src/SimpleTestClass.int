@@ -1,0 +1,60 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     SimpleTestClass.int                                          |
+ | Author(s):	  Michael Stich                                                |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#ifndef _SIMPLE_TEST_CLASS_
+#define _SIMPLE_TEST_CLASS_
+
+class SimpleTest extends Element {
+	ElectricOutputPort EP_O;
+	ElectricInputPort EP_I;
+	real Ireal = 500.;
+	real Iimag = 0.;
+	Complex Icomplex;
+	Complex Vcomplex;
+	Complex S;
+	real Phase;
+	real Pdes = 1000.; //kW
+	real PFdes = 0.95;
+	
+	Independent ind_Ireal { 
+		varName = "Ireal"; 
+		autoSetup = TRUE;
+		a = 10000.;
+	}
+	
+	Independent ind_Iimag { 
+		varName = "Iimag"; 
+		autoSetup = TRUE;
+		a = 10000.;
+	}
+	
+	Dependent dep_Power{
+		eq_rhs="S.getReal()";
+		eq_lhs="Pdes";
+		autoSetup=TRUE;
+	}
+	
+	Dependent dep_PF{
+		eq_rhs="cos(Phase)";
+		eq_lhs="PFdes";
+		autoSetup=TRUE;
+	}
+
+	void prePass() {
+		S = EP_I.S;
+		Phase = atan2(S.getReal(),S.getImag());
+	}
+}
+
+#endif

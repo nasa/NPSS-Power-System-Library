@@ -1,0 +1,41 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+MODELNAME = "Rectifier Test";
+
+// select model
+#include "test_model/Rectifier_test.mdl"
+#include "test_utils/TestingUtils.fnc"
+
+setOption("switchDes","DESIGN");
+autoSolverSetup();
+
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
+
+run();
+
+cout << "Rectifier Efficiency After Run: " << ( Rect.EP_O.S.r / Rect.EP_I.S.r) << endl;

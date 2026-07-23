@@ -74,11 +74,11 @@ component to the surrounding environment. For more information, see EThermalMass
   // ****** SETUP VARIABLES ******
   //------------------------------
   
-  ComplexNumber Sac;
-  ComplexNumber Idc;
-  ComplexNumber Iac;
-  ComplexNumber Vac;
-  ComplexNumber Vdc;
+  Complex Sac;
+  Complex Idc;
+  Complex Iac;
+  Complex Vac;
+  Complex Vdc;
   
   eff {
     value = 1.0; IOstatus = "input"; units = "none";
@@ -153,8 +153,8 @@ component to the surrounding environment. For more information, see EThermalMass
     description = "Modulation index in the range [0, 1]. Essentially a scalar on output voltage.";
   }
   
-  ComplexNumber dV;
-  ComplexNumber Z;
+  Complex dV;
+  Complex Z;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -181,14 +181,10 @@ component to the surrounding environment. For more information, see EThermalMass
 
   ElectricInputPort EP_I {
     description = "Electric input port.";
-    ElectricPowerType.allowedValues = { "DC" };
-    setOption("ElectricPowerType", "DC"); // only DC input allowed
   }
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
-    ElectricPowerType.allowedValues = { "AC1", "AC3" };
-    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
 
   /* SOCKETS */
@@ -244,14 +240,22 @@ component to the surrounding environment. For more information, see EThermalMass
     // }
   }
   
+    //-----------------------------------------------------
+  // ******  Initialization ******
+  //-----------------------------------------------------
+  void VCinit() {
+    EP_I.setOption("switchPowerType", "DC");
+    EP_O.setOption("switchPowerType", "AC3LL");
+  }
   //-----------------------------------------------
   // ****** PERFORM ENGINEERING CALCULATIONS ******
   //-----------------------------------------------
   
   void calculate() {
 
+    EP_O.frequency = frequency;
     // Run the map first with input power as the input param
-    pwrIn = EP_I.S.r;
+    pwrIn = EP_I.S.getReal();
     
     if (switchDes == "DESIGN" ) {
 
@@ -276,39 +280,41 @@ component to the surrounding environment. For more information, see EThermalMass
     real pwrOut = pwrIn * eff**sign(pwrIn);
 
     // Calculate ideal output voltage, VAC line-to-neutral
-    ComplexNumber VoIdeal; VoIdeal.setMagPhase( Av * EP_I.V.r/sqrt(2)/sqrt(3), 0);
+    Complex VoIdeal; 
+    VoIdeal.set( EP_I.V.getReal()/sqrt(2)/sqrt(3), 0);
     
     // Calculate current, AC line current = conj(S*1000/(numPhases*VoIdeal));
-    ComplexNumber Io;
-    if (EP_O.ElectricPowerType == "AC3") {
-      Io.setrj( pwrOut*1000./3., 0.);
+    Complex Io;
+    if (EP_O.switchPowerType == "AC3LL") {
+      Io.set( pwrOut*1000./3., 0.);
     }
     else {
-      Io.setrj( pwrOut*1000., 0. );
+      Io.set( pwrOut*1000., 0. );
     }
-    Io.div("VoIdeal"); Io.conjugate();
-  
+    Io = Io/VoIdeal; 
+    Io.set( Io.getReal(), -1. * Io.getImag() );
     
     // dV = I * Z
-    Z.setrj(0, Xo);
-    dV.setrj(Io.r, Io.j);
-    dV.times("Z");
+    Z.set(0, Xo);
+    dV = Io * Z;
     
     // Vo_ln = Vi_ln - dV_ln
-    ComplexNumber Vo; Vo.copy("VoIdeal");
-    Vo.minus("dV");
+    Complex Vo; 
+    Vo = VoIdeal - dV;
 
-    if (EP_O.ElectricPowerType == "AC3") {
+    if (EP_O.switchPowerType == "AC3LL") {
       // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
-      Vo.ln2ll();
+      Complex magicNumber;
+      magicNumber.set(1.5, 0.866025403784438);
+      Vo = Vo*magicNumber;
+      //Vo.ln2ll();
     } // If not AC3, then we do not need to convert, because VLL = VLN
     
     // Send output quantities to next downstream component
-    EP_O.frequency = frequency;
-    EP_O.setIVRMS(Io.r, Io.j, Vo.r, Vo.j);
+    EP_O.setIVRMS(Io, Vo);
     
-    Loss_r = EP_I.S.r - EP_O.S.r;
-    Loss_j = EP_I.S.j - EP_O.S.j;
+    Loss_r = EP_I.S.getReal() - EP_O.S.getReal();
+    Loss_j = EP_I.S.getImag() - EP_O.S.getImag();
 
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);

@@ -16,8 +16,6 @@
 #ifndef __MOTOR__
 #define __MOTOR__
 
-#include "PSL_math.fnc"
-
 class Motor extends ElectricElement {
   
   //----------------------------
@@ -69,7 +67,7 @@ systems including this motor block; each one of these assemblies represents the 
 but running at a different design point (e.g. cruise, climb, and takeoff for a fixed wing 
 concept). To enable the solver variables that this component uses for MDP, set Option multiDes 
 to true. Then select a mission segment that represents the most important segment of the 
-mission to the design and give it initial guess values for design speed and torque. You will 
+mission to the design and give it initial guess values for design speed and torque. You will s
 also need to disable autoSetup in ind_NDes and dep_NDesSet or otherwise remove them from all 
 assemblies other than the main MDP one. Finally, then set up logic that copies design speed 
 and torque from the main assembly to the other MDP assemblies before each of them run, and 
@@ -259,9 +257,7 @@ this component, see MotorGeneratorMap.int";
   /* ELECTRICAL PORTS */
 
   ElectricInputPort EP_I {
-    description = "Electric input port.";
-    ElectricPowerType.allowedValues = { "AC3" };
-    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
+    description = "Electric input port.";    
   }
 
   /* SOCKETS */
@@ -291,8 +287,8 @@ this component, see MotorGeneratorMap.int";
   }
 
   Dependent dep_power_factor {
-    eq_lhs = "EP_I.S.j";
-    eq_rhs = "EP_I.S.r * tan(acos(powerfactor))"; // reformulated constraint to avoid depending on angles or divisions.
+    eq_lhs = "EP_I.S.getImag()";
+    eq_rhs = "EP_I.S.getReal() * tan(acos(powerfactor))"; // reformulated constraint to avoid depending on angles or divisions.
     autoSetup = TRUE;
   }
 
@@ -351,14 +347,20 @@ this component, see MotorGeneratorMap.int";
     // }
   }
 
+  //-------------------------------------------
+  // ****** Initialziation ******
+  //-------------------------------------------
+  void VCinit() {
+    setOption("switchPowerType", "AC3LL");
+  }
   //-----------------------------------------------
   // ****** PERFORM ENGINEERING CALCULATIONS ******
   //-----------------------------------------------
   
   void calculate() {
     Speed = Sh_O.Nmech;
-    Pin = EP_I.S.r;
-    Current = EP_I.I.mag;
+    Pin = EP_I.S.getReal();
+    Current = abs_c(EP_I.I);
     
     if (switchDes == "DESIGN") {
       eff = effDes;
@@ -380,7 +382,7 @@ this component, see MotorGeneratorMap.int";
 
       // compute losses
       Loss_r = Pin - Pout;
-      Loss_j = EP_I.S.j;
+      Loss_j = EP_I.S.getImag();
     
       // determine resistance 
       motorResistance =  Loss_r / 3 / Current**2;
@@ -401,7 +403,7 @@ this component, see MotorGeneratorMap.int";
       
       // calculate loss
       Loss_r = Pin - Pout;
-      Loss_j = EP_I.S.j;
+      Loss_j = EP_I.S.getImag();
     }
     
     // motor and Propulsor shaft connection
@@ -418,6 +420,14 @@ this component, see MotorGeneratorMap.int";
         S_eThermMass.execute();
       }
     }
+  }
+
+  // end calculation section
+	Complex Vcomplex;
+  void prePass() {
+    EP_I.frequency = frequency;
+    Vcomplex.set(Vreal,Vimag);
+    EP_I.setIVRMS(EP_I.I, Vcomplex); 
   }
 }
 #endif

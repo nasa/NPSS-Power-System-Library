@@ -12,6 +12,8 @@
  -------------------------------------------------------------------------------
 ***/
 
+string powerComponentListSourceToLoad[];
+
 OutFileStream pageStream { filename = "output/powertrain.viewOut"; }
 
 // A couple of functions to do rounding
@@ -98,19 +100,22 @@ DataViewer PageViewer page {
          body = "                                        ELECTRICAL PORT DATA"; 
       } 
       
-      DColTBlock elecPortPowerData { 
+      LinkColTBlock elecPortPowerData { 
          titleBody = "                                   Complex Power Data                   |               Misc Data"; 
-         compType = "ElectricPort";
+         compType = "ElectricOutputPort";
          // An experiment for later:
-         //compAttr = {"strFmt(\"%-50s\",refport->refport+\" - \"+refport):??????????????????????????????????????????????????=Ports", "roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         //compAttr = {"strFmt(\"%-50s\",refport->refport+\" - \"+refport):??????????????????????????????????????????????????=Ports", "roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.getReal(),2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
          //compTypeFormat = "?"; 
-         compAttr = {"roundTo(S.mag,2):????.??=|S|, kVA","roundDeg(S.phaseDeg,3):????.???=/_S, deg","roundTo(S.r,2):????.??=P, kW","roundTo(S.j,2):????.??=Q, kVAR","roundTo(S.r/0.746,2):????.??=P, hp","ElectricPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         compAttr = {"roundTo(abs_c(S),2):????.??=|S|, kVA","roundDeg(arg_c(S)*180/PI,3):????.???=/_S, deg","roundTo(S.getReal(),2):????.??=P, kW","roundTo(S.getImag(),2):????.??=Q, kVAR","roundTo(S.getReal()/0.746,2):????.??=P, hp","switchPowerType:?????????????=Power Type","PF:??.????=Power Factor","frequency:???????.???=frequency, Hz"}; 
+         // compAttr = {"roundTo(abs_c(S),2):????.??=|S|, kVA"};
          defSNFormat = "?.?e???";
       }
-      DColTBlock elecPortVIData { 
+      LinkColTBlock elecPortVIData { 
          titleBody = "\n                                   Complex Voltage Data  (V_LL)   |     Complex Current Data  (I_Line)"; 
-         compType = "ElectricPort";
-         compAttr = {"roundTo(V.mag,2):???????.??=|V|, V","roundDeg(V.phaseDeg,3):????.???=/_V, deg","roundTo(V.r,2):????.??=V.r","roundTo(V.j,2):????.??=V.j","roundTo(I.mag,2):???????.??=|I|, A","roundDeg(I.phaseDeg,3):????.???=/_I, deg","roundTo(I.r,2):????.??=I.r","roundTo(I.j,2):????.??=I.j"}; 
+         compType = "ElectricOutputPort";
+         excludeCompTypes = { "ConstantPowerLoad", "Motor" }
+         compAttr = {"roundTo(abs_c(V),2):???????.??=|V|, V","roundDeg(arg_c(V)*180/PI,3):????.???=/_V, deg","roundTo(V.getReal(),2):????.??=V.getReal()","roundTo(V.getImag(),2):????.??=V.j","roundTo(abs_c(I),2):???????.??=|I|, A","roundDeg(arg_c(I)*180/PI,3):????.???=/_I, deg","roundTo(I.getReal(),2):????.??=IgetReal()","roundTo(I.getImag(),2):????.??=I.j"}; 
+         // compAttr = {"roundTo(abs_c(EP_O.V),2):???????.??=|V|, V"};
          defSNFormat = "?.?e???";
       }
 
@@ -176,17 +181,17 @@ DataViewer PageViewer page {
          DColTBlock aeroCableData { 
             //titleBody = "AeroCable Data";
             compType = "AeroCable"; 
-            compAttr = {"R=R, Ohms","L=L, Henries", "Z.j=X, Reactance", "cable_size", "paralleled=#parallel", "ampacity"}
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.getImag()=X, Reactance", "cable_size", "paralleled=#parallel", "ampacity"}
          }
          DColTBlock cableData { 
             //titleBody = "Cable Data";
             compType = "Cable"; 
-            compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.getReal()=Z.getReal(), Ohms", "Z.getImag()=Z.getImag(), Ohms (reactive)"}
          }
          DColTBlock breakerData { 
             //titleBody = "Breaker Data";
             compType = "Breaker"; 
-            compAttr = {"R=R, Ohms","L=L, Henries", "Z.r=Z.r, Ohms", "Z.j=Z.j, Ohms (reactive)"}
+            compAttr = {"R=R, Ohms","L=L, Henries", "Z.getReal()=Z.getReal(), Ohms", "Z.getImag()=Z.getImag(), Ohms (reactive)"}
          }
          anchor = "title"; 
          title.bottom = "motorData";

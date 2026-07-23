@@ -1,0 +1,43 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     Inverter_test.mdl                                            |
+ | Author(s):	    George Thomas, Michael Stich                                 |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#include "test_src/SimpleTestClass.int"
+
+SimpleTest PowerSource {
+	ind_Iimag.autoSetup = FALSE;
+  Pdes = 100;
+	void calculate(){
+      Icomplex.set(Ireal,Iimag);
+      Vcomplex.set(1000,cmplx_zero);
+      EP_O.setIVRMS(Icomplex, Vcomplex);
+    }
+}
+
+Element Inverter Inv {
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  pwrDes = 4000.;
+  frequency = 400;
+  S_map.pwrMapDes = 0.5;
+}
+
+PowerSource.EP_O.setOption("ElectricPowerType","DC");
+PowerSource.EP_I.setOption("ElectricPowerType","AC3");
+
+linkPorts("PowerSource.EP_O", "Inv.EP_I", "PORT1");
+// linkPortI( "PowerSource.EP_O", "Inv.EP_I" );
+linkPorts("Inv.EP_O", "PowerSource.EP_I", "PORT2");
+// linkPortI( "Inv.EP_O", "PowerSource.EP_I" );
+
+solverSequence = {"PowerSource", "Inv"};

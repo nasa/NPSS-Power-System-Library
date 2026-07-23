@@ -15,8 +15,6 @@
 #ifndef __AEROCABLE__
 #define __AEROCABLE__
 
-#include "PSL_math.fnc"
-
 class AeroCable extends ElectricElement {
 
   //----------------------------
@@ -135,9 +133,9 @@ current information is updated in the cable's input and output ports.";
     description = "Amps to weight/length ratio for the cable.";
   }
   
-  ComplexNumber dV, Vo;
-  ComplexNumber Z;
-  ComplexNumber I;
+  Complex dV, Vo;
+  Complex Z;
+  Complex I;
   
   int n_phases {
     value = 3; IOstatus = "input"; units = "none";
@@ -191,7 +189,6 @@ current information is updated in the cable's input and output ports.";
     rewritableValues = FALSE; // enables converter optimization
     trigger = TRUE;
   }
-  
   
   //----------------------------------------------------------
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
@@ -332,8 +329,8 @@ current information is updated in the cable's input and output ports.";
         if (frequency != 800) {
           cerr << "Incompatible frequency: "
                << frequency << endl
-               << "Voltage in: " << EP_I.V.mag << endl
-               << "Voltage out: " << EP_O.V.mag << endl;
+               << "Voltage in: " << abs_c(EP_I.V) << endl
+               << "Voltage out: " << abs_c(EP_O.V) << endl;
         }
       }
     }
@@ -364,11 +361,11 @@ current information is updated in the cable's input and output ports.";
     real percent;
     real resistance; // [ohms/m]
     real reactance; // [ohms/m]
-    ComplexNumber impedance; // [ohms]
-    ComplexNumber voltage_drop;
-    ComplexNumber voltage;
-    ComplexNumber current;
-    voltage.copy("EP_I.VLN");
+    Complex impedance; // [ohms]
+    Complex voltage_drop;
+    Complex voltage;
+    Complex current;
+    voltage = EP_I.VLN;
     
     if (frequency == 400) {
       row = 0;
@@ -377,7 +374,6 @@ current information is updated in the cable's input and output ports.";
     } else if (frequency == 800) {
       row = 2;
     }
-    
     while (search_stop == 0) {
       found = 0;
       while (found == 0) {
@@ -387,14 +383,14 @@ current information is updated in the cable's input and output ports.";
           if (optimal_wire < 0) {
             params_test = 1;
             Mass = 0;
-            impedance.setrj(0, 0);
-            voltage_drop.setrj(0, 0);
+            impedance.set(0, 0);
+            voltage_drop.set(0, 0);
             ampacity = 0;
             cable_size = "";
             cerr << "\n[ERROR]: No cables were found for these settings" 
                  << "\n         Component:              " << getPathName()
-                 << "\n         LL voltage:             " << voltage.mag
-                 << "\n         Current:                " << current.mag
+                 << "\n         LL voltage:             " << abs_c(voltage)
+                 << "\n         Current:                " << abs_c(current)
                  << "\n         Parallelled Conductors: " << n_parallel
                  << "\n         Voltage Drop Tolerance: " << drop_tolerance
                  << endl;
@@ -411,13 +407,13 @@ current information is updated in the cable's input and output ports.";
 
           resistance = cable_resistivities[row][index]; // [ohms/m]
           reactance = (frequency/60) * cable_reactances[index]; // [ohms/m]
-          impedance.setrj(resistance, reactance);
-          impedance.setMagPhase(impedance.mag * length / conductors, impedance.phase); // [ohms]
-          current.copy("EP_I.I");
+          impedance.set(resistance, reactance);
+          impedance = polar_c(abs_c(impedance) * length / conductors, arg_c(impedance)); // [ohms]
+          current = EP_I.I;
           
-          percent = 100. * voltage_drop.mag / voltage.mag;
+          percent = 100. * abs_c(voltage_drop) / abs_c(voltage);
             
-          if (temp_current > current.mag) {
+          if (temp_current > abs_c(current)) {
             // check to see if cable setup is optimal
             // this is an AC bus, so there may or may not be send & return
             // lines multiplied by the number of paralleled conductors
@@ -452,10 +448,9 @@ current information is updated in the cable's input and output ports.";
       reactance = (frequency/60) * cable_reactances[optimal_wire]; // [ohms/m]
       
       // Bundled impedance
-      impedance.setrj(resistance, reactance);
-      impedance.setMagPhase(impedance.mag * length / paralleled, impedance.phase); // [ohms]
-      voltage_drop.copy("current");
-      voltage_drop.times("impedance");
+      impedance.set(resistance, reactance);
+      impedance = polar_c(abs_c(impedance) * length / paralleled, arg_c(impedance)); // [ohms]
+      voltage_drop = current * impedance;
       Mass = lines * cable_mass[optimal_wire] * length * paralleled;
       ampacity = cable_ampacities[row][optimal_wire] * paralleled;
       
@@ -512,8 +507,8 @@ current information is updated in the cable's input and output ports.";
     int found;
     int index = 1;
     
-    real voltage = EP_I.V.r;
-    real current = EP_I.I.r;
+    real voltage = EP_I.V.getReal();
+    real current = EP_I.I.getReal();
     real percent;
           
     while (search_stop == 0) {
@@ -592,44 +587,42 @@ current information is updated in the cable's input and output ports.";
   
   void calculate() {
     
-    // get frequency from input port
+    // get frequency from input port, propagate through to output port.
     frequency = EP_I.frequency;
+    EP_O.frequency = EP_I.frequency;
     
-    // If on-design mode, must select the cable
     if (switchDes == "DESIGN") {
-      if ((EP_I.ElectricPowerType == "DC") && (EP_O.ElectricPowerType == "DC")) {
+      if ((EP_I.switchPowerType == "DC") && (EP_O.switchPowerType == "DC")) {
         dc_cable_metrics();
       } else {
         ac_cable_metrics();
       }
     }
     
-    // dV = I * Z
-    Z.setrj(R,  L * (2*PI*EP_I.frequency));
-    dV.copy("EP_I.I");
-    dV.times("Z");
-
-    // Vo_ln = Vi_ln - dV_ln
-    Vo.copy("EP_I.VLN");
-    Vo.minus("dV");
-
-    if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+    Z.set(R,  L * (2*PI*EP_I.frequency));
+    dV = EP_I.I * Z;
+    Vo = EP_I.VLN - dV;
+    
+    if ((EP_I.switchPowerType == "AC3LL") && (EP_O.switchPowerType == "AC3LL")) {
       // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
-      Vo.ln2ll();
+      Complex magicNumber;
+      magicNumber.set(1.5, 0.866025403784438);
+      Vo = Vo*magicNumber;
+      //Vo.ln2ll();
     } // If not AC3, then we do not need to convert, because VLL = VLN
-
+    
     // set the conditions in the port
     EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS(EP_I.I.r, EP_I.I.j, Vo.r, Vo.j);
-    
-    Loss_r = EP_I.S.r - EP_O.S.r;
-    Loss_j = EP_I.S.j - EP_O.S.j;
-    
-    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
+    EP_O.setIVRMS(EP_I.I, Vo);
 
-    real KW_PER_BTU_PER_SEC = 1.05505585;
-    Q_heat = sqrt(Loss_r**2 + Loss_j**2);
-    Q_heat /= KW_PER_BTU_PER_SEC;
+    Loss_r = EP_I.S.getReal() - EP_O.S.getReal();
+    Loss_j = EP_I.S.getImag() - EP_O.S.getImag();
+    
+    eff = (EP_O.S.getReal() / EP_I.S.getReal())**sign(EP_I.S.getReal());	
+
+      real KW_PER_BTU_PER_SEC = 1.05505585;
+      Q_heat = sqrt(Loss_r**2 + Loss_j**2);
+      Q_heat /= KW_PER_BTU_PER_SEC;
 
     if (switchThermPort == "TRUE") {
       // run the thermal mass model

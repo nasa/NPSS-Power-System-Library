@@ -24,13 +24,8 @@ fine, imprisonment, or both.
 #endif
 
 //include the power train components 
-//#include "PTE_Viewer.view"
 #include "npssel.view"
 #include "npssel_runtime.view"
-
-// add in electric port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
 
 MODELNAME = "Baseline";
 
@@ -58,7 +53,6 @@ solver.maxJacobians=300;
 run();
 
 page.display();  // output data to out file
-
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
@@ -77,8 +71,9 @@ solver.addIndependent( "ind_AtmW" );
 
 solver.removeIndependent( "Propulsor_Shaft.ind_Nmech" );
 
-cout << solverSequence << endl;
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 
 run();
 
@@ -92,8 +87,9 @@ cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.F
 
 Propulsor_Shaft.Nmech/=.9;
 
-cout << solverSequence << endl;
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 
 run();
 

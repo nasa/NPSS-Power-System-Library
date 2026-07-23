@@ -31,7 +31,7 @@ cout<<"======================================="<<endl;
 Electric Power System Components
 **************************/
 Element Source DCSupply { //Ametek SGA DC power supply M550129-01
-    setOption("ElectricPowerType", "DC");
+    setOption("switchPowerType", "DC");
     Vrms = 100; // [volts] 
     effDes = 0.95; 
 }
@@ -66,21 +66,30 @@ Element ConstantPowerLoad CLoad
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "DCSupply.EP_O", "CableLeft.EP_I" );
-linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
-linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
-linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
+linkPorts( "DCSupply.EP_O", "CableLeft.EP_I", "Port1" );
+linkPorts( "CableLeft.EP_O", "DeltaDC.EP_I", "Port2" );
+linkPorts( "DeltaDC.EP_O", "CableRight.EP_I", "Port3" );
+linkPorts( "CableRight.EP_O", "CLoad.EP_I", "Port4" );
 
-propagateEpsSolverListAndPowerTypes();
+#include "PSL_connection.fnc"
+propagatePower();
 
 //solverSequence = { "CableLeft", "CableRight", "DCSupply", "DeltaDC", "CLoad" }; 
 
 void BFPrintOutput() 
 {
+    Complex deltaOutput;
+    deltaOutput = DeltaDC.EP_O.S;
+    Complex deltaInput;
+    deltaInput = DeltaDC.EP_I.S;
     cout << " Case = " << CASE;
-    cout << " Calculated DC-DC eff = " << DeltaDC.EP_O.S.r/DeltaDC.EP_I.S.r << endl;
-    cout << " DC-DC eff = " <<  DeltaDC.eff << endl; 
-    cout << " Calculated load eff = "  << CLoad.P/CLoad.EP_I.S.r << endl;
+    cout << " Calculated DC-DC eff = " << deltaOutput.getReal()/deltaInput.getReal() << endl;
+    // cout << " Calculated DC-DC eff = " << DeltaDC.EP_O.S.r/DeltaDC.EP_I.S.r << endl;
+    cout << " DC-DC eff = " <<  DeltaDC.eff << endl;
+    Complex cloadInput;
+    cloadInput = CLoad.EP_I.S;
+    cout << " Calculated load eff = "  << CLoad.P/cloadInput.getReal() << endl; 
+    // cout << " Calculated load eff = "  << CLoad.P/CLoad.EP_I.S.r << endl;
     cout << " Load eff = " << CLoad.eff << endl;
 }
 

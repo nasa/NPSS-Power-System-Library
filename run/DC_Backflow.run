@@ -28,11 +28,7 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add in electric port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
-
-MODELNAME = "Backflow";
+MODELNAME = "DC_Backflow";
 
 //model file
 #include "model/DC_Backflow.mdl"
@@ -46,7 +42,9 @@ autoSolverSetup();
 
 solver.maxIterations=500;
 solver.maxJacobians=500;
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 
 run(); 
 CASE++;

@@ -258,7 +258,7 @@ this component, see MotorGeneratorMap.int";
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
-    ElectricPowerType.allowedValues = { "DC" };
+    //ElectricPowerType.allowedValues = { "DC" };
     setOption("ElectricPowerType", "DC"); // only DC output allowed as this is a battery pack
   }
 
@@ -353,7 +353,13 @@ this component, see MotorGeneratorMap.int";
   void calculate() {
     
     EP_O.frequency = frequency;
-    EP_O.setIVRMS(Iout_guess, 0, Vout_guess, 0);
+    
+    Complex Icomplex;
+	  Complex Vcomplex;
+
+    Icomplex.set(Iout_guess,0);
+    Vcomplex.set(Vout_guess,0);
+    EP_O.setIVRMS(Icomplex, Vcomplex);
 
     // Declare design point power. Energy is calculated in the map logic.
     powerDes = EP_O.S.r;

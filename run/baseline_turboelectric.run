@@ -28,10 +28,6 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add in electric port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
-
 MODELNAME = "Baseline Turboelectric";
 
 #include <map_plotting\mapplot_V27.fnc>
@@ -81,8 +77,9 @@ Turb.S_map {
 
 createMapDataFiles();
 
-//cout << solverSequence << endl;
-//cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 run();
 
 saveOpPoints("DES");
@@ -91,7 +88,7 @@ saveOpPoints("DONE");
 
 
 csvStream << "Turbine, Gen1, Rect1, Inv1, Propulsor" << endl;
-csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
+csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.getReal() <<", "<< Rect1.EP_O.S.getReal() <<", "<< Inv1.EP_O.S.getReal() <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
 cout << "Rect1.S_map.pwrMap = "  <<  Rect1.S_map.pwrMap  << endl;
 cout << "Inv1.S_map.pwrMap = "  <<  Inv1.S_map.pwrMap  << endl;
 cout << "Propulsor_Shaft.pwrIn = "  <<  Propulsor_Shaft.pwrIn*0.746 << endl;
@@ -105,7 +102,10 @@ cout << "Turbine PR " << Turb.PR << " Nozzle Thrust " << Noz.Fg << endl;
 cout << endl;
 
 
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
+
 page.display();  // output data to out file
 
 //page_runtime.display(); // output data to cmd window
@@ -144,7 +144,7 @@ for (CASE = 1 ; CASE < 12; CASE++)
 {
 	run();
 
-	csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.r <<", "<< Rect1.EP_O.S.r <<", "<< Inv1.EP_O.S.r <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
+	csvStream << Turbine_Shaft.pwrIn*0.746 <<", "<< Gen1.EP_O.S.getReal() <<", "<< Rect1.EP_O.S.getReal() <<", "<< Inv1.EP_O.S.getReal() <<", "<< Propulsor_Shaft.pwrIn*0.746 << endl;
 	cout << "Rect1.S_map.pwrMap = "  <<  Rect1.S_map.pwrMap  << endl;
 	cout << "Inv1.S_map.pwrMap = "   <<  Inv1.S_map.pwrMap  << endl;
 	cout << "Rect1.S_map.effMap = "  <<  Rect1.S_map.effMap  << endl;
@@ -163,4 +163,6 @@ for (CASE = 1 ; CASE < 12; CASE++)
 }
 
 //page_runtime.display(); // output data to cmd window
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;

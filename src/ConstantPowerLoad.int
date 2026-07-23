@@ -136,10 +136,6 @@ described above.";
     description = "Imaginary portion of voltage.";
   }
 
-  ComplexNumber V;
-  ComplexNumber S;
-  ComplexNumber I;
-
   //--------------------------------------
   // ******* OPTION VARIABLE SETUP *******
   //--------------------------------------
@@ -181,14 +177,14 @@ described above.";
   //-----------------------------------------------------
 
   Dependent dep_power {
-    eq_lhs = "EP_I.S.rRMS * eff**sign(Pdemand)";
+    eq_lhs = "EP_I.S.getReal() * eff**sign(Pdemand)";
     eq_rhs = "Pdemand";
     autoSetup = TRUE;
   }
 
-  Dependent dep_power_factor{    
-    eq_lhs = "EP_I.S.j";
-    eq_rhs = "EP_I.S.r * tan(acos(pfDemand))"; // reformulated constraint to avoid depending on angles or divisions.
+  Dependent dep_power_factor{
+    eq_lhs = "EP_I.S.getImag()";
+    eq_rhs = "EP_I.S.getReal() * tan(acos(pfDemand))"; // reformulated constraint to avoid depending on angles or divisions.
     autoSetup = TRUE;
   }
 
@@ -204,7 +200,7 @@ described above.";
     }
     
     if (name == "switchDes") {
-      if (EP_I.ElectricPowerType == "DC") {
+      if (EP_I.switchPowerType == "DC") {
         dep_power_factor.autoSetup = FALSE;
       } else {
         dep_power_factor.autoSetup = TRUE;
@@ -221,15 +217,15 @@ described above.";
     if (switchDes == "DESIGN" ) {
       // compute mass based on assumed specific power
       // both mass and loses are based on output power (power sent)
-      Mass = EP_I.S.mag / SpecificPower;
+      Mass = abs_c(EP_I.S) / SpecificPower;
     }
 
-    pf = cos(EP_I.S.phase);
-    P = EP_I.S.r * eff**sign(EP_I.S.r);
-    Loss_r = EP_I.S.r - P;
-    Loss_j = EP_I.S.j;
+    pf = cos(arg_c(EP_I.S));
+    P = EP_I.S.getReal() * eff**sign(EP_I.S.getReal());
+    Loss_r = EP_I.S.getReal() - P;
+    Loss_j = EP_I.S.getImag();
 
-    real KW_PER_BTU_PER_SEC = 1.05505585;
+      real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);
     Q_heat /= KW_PER_BTU_PER_SEC;
 

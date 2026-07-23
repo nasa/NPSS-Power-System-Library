@@ -223,8 +223,6 @@ this component, see MotorGeneratorMap.int";
 
   ElectricOutputPort EP_O {
     description = "Electric output port.";
-    ElectricPowerType.allowedValues = { "AC3" };
-    setOption("ElectricPowerType", "AC3"); // only AC3 output allowed
   }
   
   /* MECHANICAL PORTS */
@@ -279,6 +277,12 @@ this component, see MotorGeneratorMap.int";
     if (name == "switchDes") {} // do nothing
   }
 
+  //-------------------------------------------
+  // ****** Initialziation ******
+  //-------------------------------------------
+  void VCinit() {
+    setOption("switchPowerType", "AC3LL");
+  }
   //-----------------------------------------------
   // ****** PERFORM ENGINEERING CALCULATIONS ******
   //-----------------------------------------------
@@ -287,13 +291,17 @@ this component, see MotorGeneratorMap.int";
 
     // Start by populating electric port with power data.
     EP_O.frequency = frequency;
-    ComplexNumber Vo; Vo.setMagPhase( Vrms, Vphase * PI/180. );
-    EP_O.setIVRMS(Ireal, Iimag, Vo.r, Vo.j);
+    Complex Vo; 
+    Vo = polar_c( Vrms, Vphase * PI/180. );
+
+    Complex Io;
+    Io.set(Ireal,Iimag);
+    EP_O.setIVRMS(Io, Vo);     
 
     real powerfactor = EP_O.PF;
     Speed = Sh_O.Nmech;
-    Pout = EP_O.S.r;
-    Current = EP_O.I.mag;
+    Pout = EP_O.S.getReal();
+    Current = abs_c(EP_O.I);
 
     if (switchDes == "DESIGN") {
 

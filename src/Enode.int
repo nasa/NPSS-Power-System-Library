@@ -26,10 +26,10 @@ class Enode extends ElectricElement {
   // title = "";
 
   description = "The " + isA() + " is an abstract component representing a bus or electrical 
-  node that has an arbitrary number of electrical connections to it. It includes independents 
-  for the node voltage to be selected such that Kirchoff's current law (sum of all currents 
-  into node = 0) is satisfied using dependents that state Kirchoff's law. 
-  Supports DC, single-phase, and 3-phase AC.";
+node that has an arbitrary number of electrical connections to it. It includes independents 
+for the node voltage to be selected such that Kirchoff's current law (sum of all currents 
+into node = 0) is satisfied using dependents that state Kirchoff's law. 
+Supports DC, single-phase, and 3-phase AC.";
 
   usageNotes = isA() +
   "
@@ -51,7 +51,7 @@ approach taken in fluid networks within NPSS rocket models.";
   // ****** SETUP VARIABLES ******
   //------------------------------
 
-  ComplexNumber Inet;
+  Complex Inet;
   real Vmag;
   real Vangle;
   real Vreal {
@@ -117,7 +117,7 @@ approach taken in fluid networks within NPSS rocket models.";
     description = "Varies the real portion of node voltage.";
   }
   
-  Independent ind_Vimag {
+  Independent ind_Vimag { 
     varName = "Vimag";
     autoSetup = TRUE;
     indepRef = "1000";
@@ -125,13 +125,13 @@ approach taken in fluid networks within NPSS rocket models.";
   }
   
   Dependent dep_Ireal {
-    eq_lhs = "Inet.rRMS";
+    eq_lhs = "Inet.getReal()";
     eq_rhs = "0.";
     autoSetup = TRUE;
   }
   
   Dependent dep_Iimag {
-    eq_lhs = "Inet.jRMS";
+    eq_lhs = "Inet.getImag()";
     eq_rhs = "0.";
     autoSetup = TRUE;
   }
@@ -140,9 +140,9 @@ approach taken in fluid networks within NPSS rocket models.";
   // ****** OPTION VARIABLE SETUP ******
   //------------------------------------
   
-  Option ElectricPowerType {
-    allowedValues = { "AC1", "DC", "AC3" };
-    description = "Electric Power Type (DC, AC1, AC3)";
+  Option switchPowerType {
+    allowedValues = { "AC", "DC", "AC3LL" };
+    description = "Electric Power Type (DC, AC, AC3LL)";
     trigger = TRUE;
     rewritableValues = FALSE;
   }
@@ -153,7 +153,7 @@ approach taken in fluid networks within NPSS rocket models.";
 
   void variableChanged(string name, any oldVal) {
     // change solver setup depending on power type
-    if (name =="ElectricPowerType") {
+    if (name =="switchPowerType") {
       setupPortSolverVars();
     } 
   } 
@@ -166,7 +166,7 @@ approach taken in fluid networks within NPSS rocket models.";
         
     // sum up the current components at node
     // solver will drive to zero
-    Inet.setrj( 0., 0. );
+    Inet.set( 0., 0. );
 
     int i;
     string Iname;
@@ -174,12 +174,12 @@ approach taken in fluid networks within NPSS rocket models.";
     
     for (i = 0; i < ElectricInputPorts.entries(); i++) {
       Iname = ElectricInputPorts[i] + ".I"; 
-      Inet.plus(Iname);			    
-    }
+      Inet = Inet + Iname->value;	    
+      }
 
     for (i = 0; i < ElectricOutputPorts.entries(); i++) {
       Iname = ElectricOutputPorts[i] + ".I";
-      Inet.minus(Iname);
+      Inet = Inet - Iname->value;
     }
     
   }
@@ -211,14 +211,25 @@ approach taken in fluid networks within NPSS rocket models.";
     for (i = 0; i < ElectricOutputPorts.entries(); i++) {
       ElectricOutputPorts[i]->frequency = frequency;
       
-      if (ElectricPowerType == "DC") {
+      if (switchPowerType == "DC") {
         real Ireal = PortIndepCurrents[i]->value;
-        ElectricOutputPorts[i]->setIVRMS(Ireal, 0., Vreal, Vimag);
+        Complex Icomplex;
+        Complex Vcomplex;
+        Icomplex.set(Ireal,0);
+        Vcomplex.set(Vreal,Vimag);
+
+        ElectricOutputPorts[i]->setIVRMS(Icomplex, Vcomplex);
       }
       else {
         real Ireal = PortIndepCurrents[i*2]->value;
         real Iimag = PortIndepCurrents[i*2 + 1]->value;
-        ElectricOutputPorts[i]->setIVRMS(Ireal, Iimag, Vreal, Vimag);
+        
+        Complex Icomplex;
+        Complex Vcomplex;
+        Icomplex.set(Ireal,Iimag);
+        Vcomplex.set(Vreal,Vimag);
+
+        ElectricOutputPorts[i]->setIVRMS(Icomplex, Vcomplex);
       }
     }
   }
@@ -245,14 +256,13 @@ approach taken in fluid networks within NPSS rocket models.";
 
   // This function sets up solver variables needed per each input/output port.
   void setupPortSolverVars(){
-
     // Do any setup needed on indeps/deps associated with the node itself (and not its ports).
-    if (ElectricPowerType == "DC") {
+    if (switchPowerType == "DC") {
       ind_Vreal.autoSetup = TRUE;
       ind_Vimag.autoSetup = FALSE;
       dep_Ireal.autoSetup = TRUE;
       dep_Iimag.autoSetup = FALSE;
-    } else if ( (ElectricPowerType == "AC1") || (ElectricPowerType == "AC3") ) {
+    } else if ( (switchPowerType == "AC") || (switchPowerType == "AC3LL") ) {
       ind_Vreal.autoSetup = TRUE;
       ind_Vimag.autoSetup = TRUE;
       dep_Ireal.autoSetup = TRUE;
@@ -282,16 +292,16 @@ approach taken in fluid networks within NPSS rocket models.";
       solverVarName = "dep_Vreal_" + ElectricInputPorts[i];
       create("", "Dependent", solverVarName);
       PortDeps.append(solverVarName);
-      solverVarName->eq_lhs = ElectricInputPorts[i]+".V.r";
+      solverVarName->eq_lhs = ElectricInputPorts[i]+".V.getReal()";
       solverVarName->eq_rhs = "Vreal";
       solverVarName->autoSetup = TRUE;
 
       // If this is an AC component, set up imaginary parts as well.
-      if (ElectricPowerType != "DC") {
+      if (switchPowerType != "DC") {
         solverVarName = "dep_Vimag_" + ElectricInputPorts[i];
         create("", "Dependent", solverVarName);
         PortDeps.append(solverVarName);
-        solverVarName->eq_lhs = ElectricInputPorts[i]+".V.j";
+        solverVarName->eq_lhs = ElectricInputPorts[i]+".V.getImag()";
         solverVarName->eq_rhs = "Vimag";
         solverVarName->autoSetup = TRUE;
       }
@@ -315,7 +325,7 @@ approach taken in fluid networks within NPSS rocket models.";
       solverVarName->indepRef = "1000";
 
       // If this is an AC component, set up imaginary parts as well.
-      if (ElectricPowerType != "DC") {
+      if (switchPowerType != "DC") {
         indepCurrentName = "Iimag_" + ElectricOutputPorts[i];
         create("", "real", indepCurrentName);
         PortIndepCurrents.append(indepCurrentName);

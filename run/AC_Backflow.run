@@ -16,10 +16,6 @@
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add in electric port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
-
 MODELNAME = "ACBackflow";
 
 //model file
@@ -46,9 +42,10 @@ setOption("switchDes","OFFDESIGN");
 autoSolverSetup();
 solver.removeIndependent( "Generator_Shaft.ind_Nmech" );
 solver.removeIndependent( "Motor_Shaft.ind_Nmech" );
-// cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
 
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 
 CLoad.Pdemand = 10; // Case 1: Both loads positive
 Motor_Shaft.HPX = 10/0.746;

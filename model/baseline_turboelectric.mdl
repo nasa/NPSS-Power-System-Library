@@ -15,6 +15,7 @@
  -------------------------------------------------------------------------------
 ***/
 
+
 cout<<"======================================="<<endl;
 cout<<" Example Turbo-electric Model "<<endl;
 cout<<"======================================="<<endl;
@@ -157,28 +158,30 @@ Element Shaft Turbine_Shaft {
 //------------------------------------------------t------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
-linkPortI( "Breaker1.EP_O", "Cable1.EP_I");
-linkPortI( "Cable1.EP_O", "Rect1.EP_I");
-linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
-linkPortI( "Breaker2.EP_O", "Cable2.EP_I");
-linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Breaker3.EP_I");
-linkPortI( "Breaker3.EP_O", "Cable3.EP_I" );
-linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-propagateEpsSolverListAndPowerTypes();
+linkPorts( "Gen1.EP_O", "Breaker1.EP_I","Port1");
+linkPorts( "Breaker1.EP_O", "Cable1.EP_I","Port2");
+linkPorts( "Cable1.EP_O", "Rect1.EP_I","Port3");
+linkPorts( "Rect1.EP_O", "Breaker2.EP_I","Port4");
+linkPorts( "Breaker2.EP_O", "Cable2.EP_I","Port5");
+linkPorts( "Cable2.EP_O", "Inv1.EP_I","Port6");
+linkPorts( "Inv1.EP_O", "Breaker3.EP_I","Port7");
+linkPorts( "Breaker3.EP_O", "Cable3.EP_I","Port8");
+linkPorts( "Cable3.EP_O", "EM1.EP_I","Port9");
+
+#include "PSL_connection.fnc"
+propagatePower();
 
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
-linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
-linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
+linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0toSt1");
+linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1toSt2");
+linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2toEnd");
 
 //
-linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
-linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
-linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
-linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
-linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
+linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "PropToShaft");
+linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00toSt10");
+linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10toEnd0");
+linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "TurbToShaft");
+linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1ToShaft");
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "soler.bad";

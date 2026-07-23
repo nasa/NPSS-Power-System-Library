@@ -126,22 +126,23 @@ Element Shaft Motor_Shaft
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Generator_Shaft.Sh1_I", "G.Sh_O", "Generator_Shaft_Connection" );
-linkPortI( "G.EP_O", "Cable1.EP_I" );
-linkPortI( "Cable1.EP_O", "Busbar.EP_I" );
 
-linkPortI( "Busbar.EP_O1", "B_CPL.EP_I" );
-linkPortI( "B_CPL.EP_O", "AC_DC.EP_I" );
-linkPortI( "AC_DC.EP_O", "Cable1_CPL.EP_I" );
-linkPortI( "Cable1_CPL.EP_O", "Inv1.EP_I" );
-linkPortI( "Inv1.EP_O", "Cable2_CPL.EP_I" );
-linkPortI( "Cable2_CPL.EP_O", "CLoad.EP_I" );
+linkPorts( "G.EP_O", "Cable1.EP_I", "Port1" );
+linkPorts( "Cable1.EP_O", "Busbar.EP_I", "Port2" );
 
-linkPortI( "Busbar.EP_O2", "B_Motor.EP_I" );
-linkPortI( "B_Motor.EP_O", "E_Motor.EP_I" );
+linkPorts( "Busbar.EP_O1", "B_CPL.EP_I", "Port3" );
+linkPorts( "B_CPL.EP_O", "AC_DC.EP_I", "Port4" );
+linkPorts( "AC_DC.EP_O", "Cable1_CPL.EP_I", "Port5" );
+linkPorts( "Cable1_CPL.EP_O", "Inv1.EP_I", "Port6" );
+linkPorts( "Inv1.EP_O", "Cable2_CPL.EP_I", "Port7" );
+linkPorts( "Cable2_CPL.EP_O", "CLoad.EP_I", "Port8" );
+
+linkPorts( "Busbar.EP_O2", "B_Motor.EP_I", "Port9" );
+linkPorts( "B_Motor.EP_O", "E_Motor.EP_I", "Port10" );
 linkPorts( "Motor_Shaft.Sh1_I", "E_Motor.Sh_O",  "Motor_Shaft_Connection");
 
-propagateEpsSolverListAndPowerTypes();
-cout << " This is the solver sequence " << solverSequence;
+#include "PSL_connection.fnc"
+propagatePower();
 
 void AC_BFPrintOutput() 
 {

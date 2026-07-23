@@ -1,0 +1,181 @@
+/*******************************************************************************
+© Copyright 2003. The U.S. Government, as Represented by the Administrator of
+the National Aeronautics and Space Administration (NASA). All rights reserved.
+Includes content licensed from the U.S. Government, National Aeronautics and
+Space Administration under United States Copyright Registration Numbers
+V3503D364 and V3482D344.
+© 2008-2015 NPSS® Consortium, www.NPSSConsortium.org/AllRightsReserved
+*******************************************************************************/
+
+/*******************************************************************************
+NPSS® software and related documentation is export controlled with an Export
+Control Classification Number(ECCN) of 9D991, controlled for Anti-Terrorism
+reasons, under U.S. Export Administration Regulations 15 CFR 730-774. It may
+not be transferred to a country checked under anti-terrorism on the Commerce
+Country Chart structure or to foreign nationals of those countries in the U.S.
+or abroad without first obtaining a license from the Bureau of Industry and
+Security, United States Department of Commerce. Violations are punishable by
+fine, imprisonment, or both.
+*******************************************************************************/
+
+/*******************************************************************************
+This example is intended to test the aero cable sizing code. It has 2 subsystems,
+an AC one and a DC one. Both subsystems include a cable, with some voltage across
+them. The input side of the cables see a constant voltage, and the output side
+voltages are independents intended to be varied to achieve a constant power
+through the cable and desired power factor as well. The system is run to design
+the cables, and then run off design at the same point, as well as a point with
+increased power to see how variables change
+*******************************************************************************/
+
+// add in electric port
+// #include "ElectricPort.prt"
+// #include "InterpretedPort.int"
+
+//include viewers
+#include "npssel.view"
+#include "npssel_runtime.view"
+
+MODELNAME = "Breaker Test";
+
+// select model
+#include "test_model/breaker_test.mdl"
+#include "test_utils/TestingUtils.fnc"
+solver.maxIterations = 5000;
+solver.maxJacobians = 1000;
+solverSequence = {  "ACS", "ACBreaker","DCS", "DCBreaker" };
+setOption("switchDes","DESIGN");
+					
+autoSolverSetup();
+solver.removeDependent( "ACS.dep_Power" );
+solver.removeDependent( "ACS.dep_PF" );
+solver.removeIndependent( "ACS.ind_Ireal" );
+solver.removeIndependent( "ACS.ind_Iimag" );
+
+cout << "--- On Design ---" << endl;
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
+
+// Initial guesses
+ACS.Ireal = 1100.;
+ACS.Iimag = 0.;
+DCS.Ireal = 1100.;
+DCS.Iimag = 0.;
+
+real errTol = 0.000001;
+solver.solutionMode = "ONE_PASS";
+run();
+printOutput();
+page.display();
+
+// Set up complex numbers and mag calculations
+Complex ACBreaker_EP_I_S;
+ACBreaker_EP_I_S = ACBreaker.EP_I.S;
+
+Complex ACBreaker_EP_I_I;
+ACBreaker_EP_I_I = ACBreaker.EP_I.I;
+real ACBreaker_EP_I_I_mag = sqrt((ACBreaker_EP_I_I.getReal()**2) + (ACBreaker_EP_I_I.getImag()**2));
+
+Complex ACBreaker_EP_O_I;
+ACBreaker_EP_O_I = ACBreaker.EP_O.I;
+
+Complex ACBreaker_Z;
+ACBreaker_Z = ACBreaker.Z;
+real ACBreaker_Z_mag = sqrt((ACBreaker_Z.getReal()**2) + (ACBreaker_Z.getImag()**2));
+
+Complex ACBreaker_dV;
+ACBreaker_dV = ACBreaker.dV;
+
+Complex ACBreaker_EP_I_VLN;
+ACBreaker_EP_I_VLN = ACBreaker.EP_I.VLN;
+
+Complex ACBreaker_EP_O_VLN;
+ACBreaker_EP_O_VLN = ACBreaker.EP_O.VLN;
+
+// ACBreaker Tests
+real effCalc = ((ACBreaker_EP_I_S.getReal() - ACBreaker_EP_I_I_mag**2* ACBreaker_Z_mag)/ ACBreaker_EP_I_S.getReal());
+testParameterDifference("ACBreaker","Efficiency",errTol,ACBreaker.eff,effCalc);
+
+real measCalc = (ACBreaker_EP_I_VLN.getReal() - (ACBreaker_EP_O_VLN.getReal()));
+testParameterDifference("ACBreaker","dV_meas",errTol,ACBreaker_dV.getReal(),measCalc);
+
+real realCurrentDifference = (ACBreaker_EP_I_I.getReal() - ACBreaker_EP_O_I.getReal());
+real imagCurrentDifference = (ACBreaker_EP_I_I.getImag() - ACBreaker_EP_O_I.getImag());
+testCurrentDifference("ACBreaker",errTol,realCurrentDifference,imagCurrentDifference);
+
+// Set up complex numbers and mag calculations
+Complex DCBreaker_EP_I_S;
+DCBreaker_EP_I_S = DCBreaker.EP_I.S;
+
+Complex DCBreaker_EP_I_I;
+DCBreaker_EP_I_I = DCBreaker.EP_I.I;
+real DCBreaker_EP_I_I_mag = sqrt((DCBreaker_EP_I_I.getReal()**2) + (DCBreaker_EP_I_I.getImag()**2));
+
+Complex DCBreaker_EP_O_I;
+DCBreaker_EP_O_I = DCBreaker.EP_O.I;
+
+Complex DCBreaker_Z;
+DCBreaker_Z = DCBreaker.Z;
+real DCBreaker_Z_mag = sqrt((DCBreaker_Z.getReal()**2) + (DCBreaker_Z.getImag()**2));
+
+Complex DCBreaker_dV;
+DCBreaker_dV = DCBreaker.dV;
+
+Complex DCBreaker_EP_I_VLN;
+DCBreaker_EP_I_VLN = DCBreaker.EP_I.VLN;
+
+Complex DCBreaker_EP_O_VLN;
+DCBreaker_EP_O_VLN = DCBreaker.EP_O.VLN;
+
+// DCBreaker Tests
+effCalc = ((DCBreaker_EP_I_S.getReal() - DCBreaker_EP_I_I_mag**2* DCBreaker_Z_mag)/ DCBreaker_EP_I_S.getReal());
+testParameterDifference("DCBreaker","Efficiency",errTol,DCBreaker.eff,effCalc);
+
+measCalc = (DCBreaker_EP_I_VLN.getReal() - (DCBreaker_EP_O_VLN.getReal()));
+testParameterDifference("DCBreaker","dV_meas",errTol,DCBreaker_dV.getReal(),measCalc);
+
+realCurrentDifference = (DCBreaker_EP_I_I.getReal() - DCBreaker_EP_O_I.getReal());
+imagCurrentDifference = (DCBreaker_EP_I_I.getImag() - DCBreaker_EP_O_I.getImag());
+testCurrentDifference("DCBreaker",errTol,realCurrentDifference,imagCurrentDifference);
+
+
+cout << "--- Off Design ---" << endl;
+setOption("switchDes","OFFDESIGN");
+// For off design, stop varying the source.
+ACS.ind_Iimag.autoSetup = FALSE;
+ACS.dep_PF.autoSetup    = FALSE;
+ACS.ind_Ireal.autoSetup = FALSE;
+ACS.dep_Power.autoSetup = FALSE;
+DCS.ind_Ireal.autoSetup = FALSE;
+DCS.dep_Power.autoSetup = FALSE;
+autoSolverSetup();
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
+
+// Run off-design, same inputs
+run();
+printOutput();
+//page.display();
+// ACBreaker Tests
+effCalc = ((ACBreaker_EP_I_S.getReal() - ACBreaker_EP_I_I_mag**2* ACBreaker_Z_mag)/ ACBreaker_EP_I_S.getReal());
+testParameterDifference("ACBreaker","Efficiency",errTol,ACBreaker.eff,effCalc);
+
+measCalc = (ACBreaker_EP_I_VLN.getReal() - (ACBreaker_EP_O_VLN.getReal()));
+testParameterDifference("ACBreaker","dV_meas",errTol,ACBreaker_dV.getReal(),measCalc);
+
+realCurrentDifference = (ACBreaker_EP_I_I.getReal() - ACBreaker_EP_O_I.getReal());
+imagCurrentDifference = (ACBreaker_EP_I_I.getImag() - ACBreaker_EP_O_I.getImag());
+testCurrentDifference("ACBreaker",errTol,realCurrentDifference,imagCurrentDifference);
+
+// DCBreaker Tests
+effCalc = ((DCBreaker_EP_I_S.getReal() - DCBreaker_EP_I_I_mag**2* DCBreaker_Z_mag)/ DCBreaker_EP_I_S.getReal());
+testParameterDifference("DCBreaker","Efficiency",errTol,DCBreaker.eff,effCalc);
+
+measCalc = (DCBreaker_EP_I_VLN.getReal() - (DCBreaker_EP_O_VLN.getReal()));
+testParameterDifference("DCBreaker","dV_meas",errTol,DCBreaker_dV.getReal(),measCalc);
+
+realCurrentDifference = (DCBreaker_EP_I_I.getReal() - DCBreaker_EP_O_I.getReal());
+imagCurrentDifference = (DCBreaker_EP_I_I.getImag() - DCBreaker_EP_O_I.getImag());
+testCurrentDifference("DCBreaker",errTol,realCurrentDifference,imagCurrentDifference);

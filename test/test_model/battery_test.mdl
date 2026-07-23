@@ -82,15 +82,15 @@ linkPorts("TMS.Q_O","Li_ion_battery.Q_I","Q1");
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "Li_ion_battery.EP_O", "Cable_Single.EP_I" );
-linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
+//linkPortI( "Li_ion_battery.EP_O", "Cable_Single.EP_I" );
+linkPorts("Li_ion_battery.EP_O", "Cable_Single.EP_I", "PORT1");
+//linkPortI( "Cable_Single.EP_O", "CLoad.EP_I" );
+linkPorts("Cable_Single.EP_O", "CLoad.EP_I", "PORT2");
 // linkPortI( "CableLeft.EP_O", "DeltaDC.EP_I" );
-// linkPortI( "DeltaDC.EP_O", "CableRight.EP_I" );
-// linkPortI( "CableRight.EP_O", "CLoad.EP_I" );
 
-propagateEpsSolverListAndPowerTypes();
+//propagateEpsSolverListAndPowerTypes();
 
-//solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
+solverSequence = { "Cable_Single", "Li_ion_battery", "CLoad", "TMS" }; 
 
 void BFPrintOutput() 
 {
