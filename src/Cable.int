@@ -110,8 +110,8 @@ no sizing logic included in this component, other than the mass calculations des
     description = "Amps to weight/length ratio for the cable.";
   }
 
-  ComplexNumber dV, Vo;
-  ComplexNumber Z;
+  Complex dV, Vo;
+  Complex Z;
 
   //------------------------------------
   // ****** OPTION VARIABLE SETUP ******
@@ -189,26 +189,24 @@ no sizing logic included in this component, other than the mass calculations des
     // get frequency from input port
     frequency = EP_I.frequency;
     
-    // dV = I * Z
-    Z.setrj(R,  L * (2*PI*frequency));
-    dV.copy("EP_I.I");
-    dV.times("Z");
+    Z.set(R,L*(2*PI*frequency));
+    dV = EP_I.I * Z;
+    Vo = EP_I.VLN - dV;
 
-    // Vo_ln = Vi_ln - dV_ln
-    Vo.copy("EP_I.VLN");
-    Vo.minus("dV");
-
-    if ((EP_I.ElectricPowerType == "AC3") && (EP_O.ElectricPowerType == "AC3")) {
+    if ((EP_I.switchPowerType == "AC3LL") && (EP_O.switchPowerType == "AC3LL")) {
       // Convert this VLN we have calculated into a VLL (port expects VLL inputs)
-      Vo.ln2ll();
+      Complex magicNumber;
+      magicNumber.set(1.5, 0.866025403784438);
+      Vo = Vo*magicNumber;
+      //Vo.ln2ll();
     } // If not AC3, then we do not need to convert, because VLL = VLN
 
     // set the conditions in the port
     EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS(EP_I.I.r, EP_I.I.j, Vo.r, Vo.j);
-    
-    Loss_r = EP_I.S.r - EP_O.S.r;
-    Loss_j = EP_I.S.j - EP_O.S.j;
+    EP_O.setIVRMS(EP_I.I, Vo);
+
+    Loss_r = EP_I.S.getReal() - EP_O.S.getReal();
+    Loss_j = EP_I.S.getImag() - EP_O.S.getImag();
 
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r*Loss_r + Loss_j*Loss_j);
@@ -220,12 +218,12 @@ no sizing logic included in this component, other than the mass calculations des
         S_eThermMass.execute();
       }
     }
-    
-    eff = (EP_O.S.r / EP_I.S.r)**sign(EP_I.S.r);	
+
+    eff = (EP_O.S.getReal() / EP_I.S.getReal())**sign(EP_I.S.getReal());	
 
     if (switchDes == "DESIGN") {
-      Mass = EP_I.I.mag / SpecificAmperage * length * 3; // calculate the mass of the cable
-    }		
+      Mass = abs_c(EP_I.I) / SpecificAmperage * length * 3; // calculate the mass of the cable
+    }
   }
 }
 #endif

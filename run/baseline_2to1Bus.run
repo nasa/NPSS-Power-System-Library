@@ -23,14 +23,8 @@ fine, imprisonment, or both.
 #define THERMO GasTbl
 #endif
 
-//include the power train components 
-//#include "PTE_Viewer.view"
 #include "npssel.view"
 #include "npssel_runtime.view"
-
-// add in port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
 
 //model file
 #include "bus2to1.mdl"
@@ -45,17 +39,14 @@ autoSolverSetup();
 
 solver.debugLevel = "ITERATION_DETAILS";
 solver.diagnosticFile = "output/solver.bad";
-
+// solver.solutionMode = "ONE_PASS";
 solver.maxIterations = 500;
-//solver.clear();
 
 run();
-
 page.display();  // output data to out file
 page_runtime.display(); // output data to cmd window
 
 cout << "Turbine PR " << Turb.Fl_I.Pt/Turb.Fl_O.Pt << " Nozzle Thrust " << Noz.Fg << endl;
-
 
 /************************
 Off design

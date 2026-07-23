@@ -13,45 +13,51 @@
  |                                                                             |
  -------------------------------------------------------------------------------
 ***/
-
+#include "PSL_connection.fnc"
 #define THERMO GasTbl
 setThermoPackage("$THERMO");
 
-ElectricAssembly allElectric {
-  Source Source {
-    setOption("ElectricPowerType", "DC");
-    Vrms  = 1000; // [volts]
-    effDes = 0.99; // [99 %]
-  }
+// allElectric {
 
-  Cable A1 {
-    length = 1; // [meter]
-  }
-
-  DC_DC_Converter Converter {
-    // #include <InverterRectifierMap.int>
-    Voltage       = 1000; // [volts]
-    K             = 2.0;  // voltage ratio (V_in * K = V_out)
-    effDes        = 0.93; // [93 %]
-    SpecificPower = 9;    // [kW / kg]
-  }
-
-  Cable A2 {
-    length = 1; // [meter]
-  }
-
-  ConstantPowerLoad Load {
-    Vreal    = 2000; // [volts]
-    Vimag    = 0;    // [volts]
-    Pdemand  = 16.5; // [kilowatts] (22 hp)
-    pfDemand = 1;
-  }
-
-  // Source -> A1 (cable) -> Converter -> A2 (cable) -> Load
-  linkPortI("Source.EP_O", "A1.EP_I");        // Source -> A1 (cable)
-  linkPortI("A1.EP_O", "Converter.EP_I"); // A1 (cable) -> Converter
-  linkPortI("Converter.EP_O", "A2.EP_I");  // Converter -> A2 (cable)
-  linkPortI("A2.EP_O", "Load.EP_I");      // A2 (cable) -> Load
-  propagateEpsSolverListAndPowerTypes();
-
+Source Source {
+  EP_O.switchPowerType = "DC";
+  Vrms  = 1000; // [volts]
+  effDes = 0.99; // [99 %]
 }
+
+Cable A1 {
+  length = 1; // [meter]
+}
+
+DC_DC_Converter Converter {
+  // #include <InverterRectifierMap.int>
+  Voltage       = 1000; // [volts]
+  K             = 2.0;  // voltage ratio (V_in * K = V_out)
+  effDes        = 0.93; // [93 %]
+  SpecificPower = 9;    // [kW / kg]
+}
+
+Cable A2 {
+  length = 1; // [meter]
+}
+
+ConstantPowerLoad Load {
+  Vreal    = 2000; // [volts]
+  Vimag    = 0;    // [volts]
+  Pdemand  = 16.5; // [kilowatts] (22 hp)
+  pfDemand = 1;
+}
+
+// Source -> A1 (cable) -> Converter -> A2 (cable) -> Load
+linkPorts("Source.EP_O", "A1.EP_I", "PORT1");          //     Source -> A1 (cable)
+linkPorts("A1.EP_O", "Converter.EP_I", "PORT2"); // A1 (cable) -> Converter
+linkPorts("Converter.EP_O", "A2.EP_I", "PORT3"); //  Converter -> A2 (cable)
+linkPorts("A2.EP_O", "Load.EP_I", "PORT4");            // A2 (cable) -> Load
+
+propagatePower();
+
+// solverSequence = {
+//     "A1", "A2",                         // Power transmission components
+//     "DC_DC_Converter", "Source", "Load" // Power components
+// };
+// }

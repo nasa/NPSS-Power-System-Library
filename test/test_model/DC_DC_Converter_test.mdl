@@ -1,0 +1,52 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                   |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     DC_DC_Converter_test.mdl                                     |
+ | Author(s):	  George Thomas, Michael Stich                                 |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#include "test/test_src/SimpleTestClass.int"
+
+SimpleTest DCS {
+	// No imaginary stuff for a DC source
+	ind_Iimag.autoSetup = FALSE;
+	dep_PF.autoSetup = FALSE;
+    Pdes = 100;
+	void calculate(){
+		Icomplex.set(Ireal,Iimag);
+		Vcomplex.set(1000,cmplx_zero);
+		EP_O.setIVRMS(Icomplex, Vcomplex);
+	}
+}
+
+DC_DC_Converter Converter {
+    // #include <InverterRectifierMap.int>
+    V       = 1000; // [volts]
+    K             = 5.0;  // voltage ratio (V_in * K = V_out)
+    effDes        = 0.93; // [93 %]
+    SpecificPower = 9;    // [kW / kg]
+}
+DCS.EP_O.setOption("ElectricPowerType","DC");
+DCS.EP_I.setOption("ElectricPowerType","DC");
+
+linkPorts("DCS.EP_O", "Converter.EP_I", "PORT1");
+// linkPortI( "DCS.EP_O", "Converter.EP_I" );
+linkPorts("Converter.EP_O", "DCS.EP_I", "PORT2");
+// linkPortI( "Converter.EP_O", "DCS.EP_I" );
+
+void printOutput() {
+	cout << "DCIout = " << DCS.EP_O.I.r << endl;
+    cout << "DCIin = " << DCS.EP_I.I.r << endl;
+    cout << "DCVout = " << DCS.EP_O.V.r << endl;
+    cout << "DCVin = " << DCS.EP_I.V.r << endl;
+	cout << "DCPin = " << DCS.EP_O.S.r << endl;
+	cout << "DCPout = " << DCS.EP_I.S.r << endl;
+}
+

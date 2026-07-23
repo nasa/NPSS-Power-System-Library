@@ -28,20 +28,18 @@ fine, imprisonment, or both.
 #include "npssel.view"
 #include "npssel_runtime.view"
 
-// add in electric port
-#include "ElectricPort.prt"
-#include "InterpretedPort.int"
-
 MODELNAME = "battery_test";
 
 //model file
-#include "model/battery_test.mdl"
+#include "test_model/battery_test.mdl"
+#include "test_utils/TestingUtils.fnc"
 
 /************************
 On design
 ************************/
 setOption("switchDes","DESIGN"); 
 autoSolverSetup();
+//solver.removeIndependent( "CLoad.ind_Vimag" );
 //solver.solutionMode = "ONE_PASS";
 //solver.switchUBC = "ON";
 
@@ -49,12 +47,20 @@ solver.maxIterations=5000;
 solver.maxJacobians=5000;
 solver.defaultPerturbation = 0.0001; // tell the solver not to perturb so far when calcing jacobian. default: 0.001
 //solver.defaultDxLimit = 0.03;
-cout << endl << solver.dependentNames << endl << solver.independentNames << endl;
+
+cout << endl << "Solver Sequence:" << endl << solverSequence << endl;
+cout << "Dependents:" << endl << solver.dependentNames << endl;
+cout << "Independents:" << endl << solver.independentNames << endl;
 
 // Constant power load 14 W for Case 0 and 1
 run();
 BFPrintOutput();
 page.display();  // output data to out file
+
+// Li_ion_battery Test
+real errTol = 0.000001;
+real VoutCalc = (Li_ion_battery.Voc - (Li_ion_battery.EP_O.I.r*Li_ion_battery.RTotal));
+testParameterDifference("Li_ion_battery","Volatage Out",errTol,Li_ion_battery.Vout,VoutCalc);
 
 /************************
 Off design
@@ -67,6 +73,10 @@ CASE++; run();
 BFPrintOutput();
 page.display(); 
 
+// Li_ion_battery Test
+VoutCalc = (Li_ion_battery.Voc - (Li_ion_battery.EP_O.I.r*Li_ion_battery.RTotal));
+testParameterDifference("Li_ion_battery","Volatage Out",errTol,Li_ion_battery.Vout,VoutCalc);
+
 CLoad.Pdemand = -120.; // kw Charge the battery roughly at 1 C (14 W) 
 
 // Constant power load -14 W for Case 2
@@ -74,9 +84,17 @@ CASE++; run();
 BFPrintOutput();
 page.display();
 
+// Li_ion_battery Test
+VoutCalc = (Li_ion_battery.Voc - (Li_ion_battery.EP_O.I.r*Li_ion_battery.RTotal));
+testParameterDifference("Li_ion_battery","Volatage Out",errTol,Li_ion_battery.Vout,VoutCalc);
+
 // Setup a transient run to match JCC's Simulink data
 CLoad.Pdemand = 10.; // initial power point in profile
 run(); // do another steady-state run just to initialize us.
+
+// Li_ion_battery Test
+VoutCalc = (Li_ion_battery.Voc - (Li_ion_battery.EP_O.I.r*Li_ion_battery.RTotal));
+testParameterDifference("Li_ion_battery","Volatage Out",errTol,Li_ion_battery.Vout,VoutCalc);
 
 // BTW the Simulink model has NO cooling, so to represent that, just zero out the heat transfer resistance
 TMS.R_cool = 0;
@@ -175,3 +193,7 @@ void transient_profile() {
 
 postsolverSequence = { "csvTransientPrint", "transient_profile" };
 run();
+
+// Li_ion_battery Test
+VoutCalc = (Li_ion_battery.Voc - (Li_ion_battery.EP_O.I.r*Li_ion_battery.RTotal));
+testParameterDifference("Li_ion_battery","Volatage Out",errTol,Li_ion_battery.Vout,VoutCalc);

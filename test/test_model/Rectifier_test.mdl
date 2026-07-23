@@ -1,0 +1,43 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     Rectifier_test.mdl                                           |
+ | Author(s):	    George Thomas, Michael Stich                                 |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+#include "test_src/SimpleTestClass.int"
+
+SimpleTest PowerSource {
+	dep_PF.autoSetup = FALSE;
+    Pdes = 100;
+	void calculate(){
+      Icomplex.set(Ireal,Iimag);
+      Vcomplex.set(1000,cmplx_zero);
+      EP_O.setIVRMS(Icomplex, Vcomplex);
+    }
+}
+
+Element Rectifier Rect {
+  #include <modelInverterRectifier.map>
+  effDes = .95;
+  pwrDes = 4000.;
+  frequency = 400.;
+  S_map.pwrMapDes = 0.5;
+}
+
+PowerSource.EP_O.setOption("ElectricPowerType","AC3");
+PowerSource.EP_I.setOption("ElectricPowerType","DC");
+
+linkPorts("PowerSource.EP_O", "Rect.EP_I", "PORT1");
+// linkPortI( "PowerSource.EP_O", "Rect.EP_I" );
+linkPorts("Rect.EP_O", "PowerSource.EP_I", "PORT2");
+// linkPortI( "Rect.EP_O", "PowerSource.EP_I" );
+
+solverSequence = {"PowerSource", "Rect"};

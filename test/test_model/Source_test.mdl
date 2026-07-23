@@ -1,0 +1,33 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     Source_test.mdl                                              |
+ | Author(s):	    George Thomas, Michael Stich                                 |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+Source Src { 
+    setOption("ElectricPowerType", "DC");
+    Vrms  = 1000; // [volts]
+    effDes = 0.99; // [99 %]
+}
+
+Element Enode E1 {
+  ElectricInputPort EP_I;
+  //ElectricOutputPort EP_O1, EP_O2, EP_O3;
+  frequency = 400;  // [Hz]
+  dep_Ireal.eq_rhs = "1";
+}
+
+linkPorts("Src.EP_O", "E1.EP_I", "PORT1");
+//linkPortI( "Src.EP_O", "E1.EP_I" );
+
+solverSequence = {"Src","E1"};
+// string var[] = propagateEpsSolverListAndPowerTypes();
+// solverSequence = var;

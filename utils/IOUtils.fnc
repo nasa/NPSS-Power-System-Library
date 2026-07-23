@@ -115,7 +115,7 @@ void printPortPowerTypes() {
 
   int i;
   for (i = 0; i < ports.entries(); i++) {
-    cout << i+1 << ".) " << ports[i] << ": " << ports[i]->ElectricPowerType << endl;
+    cout << i+1 << ".) " << ports[i] << ": " << ports[i]->switchPowerType << endl;
   }
 }
 

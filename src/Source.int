@@ -14,7 +14,6 @@
 
 #ifndef __SOURCE__
 #define __SOURCE__
-#include "PSL_math.fnc" 
 
 int ESO_Id_ExceededEnergyDes = (10000 * 145) + (100 * 22) + 1;
 ESOregCreate(ESO_Id_ExceededEnergyDes, 1, "Energy Constraint Exceeded");
@@ -311,7 +310,7 @@ this component, see MotorGeneratorMap.int";
       if (switchDes == "DESIGN") {
         ind_Ireal.autoSetup = TRUE;
         ind_Iimag.autoSetup = TRUE;
-        if (EP_O.ElectricPowerType == "DC") {
+        if (EP_O.switchPowerType == "DC") {
           ind_Iimag.autoSetup = FALSE;
         }
       }
@@ -334,17 +333,22 @@ this component, see MotorGeneratorMap.int";
   void calculate() {
     
     // Compute the output voltage value
-    ComplexNumber Vo;
-    if (EP_O.ElectricPowerType == "DC") {
-      Vo.setMagPhase( Vrms, 0 );
+    Complex Vo;
+    Complex Loss;
+    if (EP_O.switchPowerType == "DC") {
+      Vo.set( Vrms, 0 );
     }
     else {
-      Vo.setMagPhase( Vrms, Vphase * PI/180. );
+      Vo.set( Vrms, Vphase * PI/180. );
     }
     
     // Set output port power variables
     EP_O.frequency = frequency;
-    EP_O.setIVRMS(Ireal, Iimag, Vo.r, Vo.j);
+
+    Complex Io;
+    Io.set(Ireal, Iimag);
+    // Populate data in output port
+    EP_O.setIVRMS(Io, Vo);
     
     /** 
      * If we're on-design, we need to figure out the output impedance based
@@ -352,21 +356,22 @@ this component, see MotorGeneratorMap.int";
      * efficiency based on the impedance (which is held constant).
      */
 
-    pf = cos(EP_O.S.phase);
-
+    pf = cos(arg_c(EP_O.S));
+    
     if (switchDes == "DESIGN") {
       pfDes = pf;
       eff = effDes;
       
       // internal power, before flowing through this component's output impedance
-      real PInternal = EP_O.S.r / eff**sign(EP_O.S.r);
-      Loss_r = PInternal - EP_O.S.r;
+      real PInternal = EP_O.S.getReal() / eff**sign(EP_O.S.getReal());
+      Loss.set(PInternal - EP_O.S.getReal(), 0);
+      Loss_r = Loss.getReal();
       Loss_j = 0;
-      R = Loss_r / EP_O.I.mag**2;
+      R = Loss.getReal() / norm_c(EP_O.I);
       L = 0;
 
       // Declare design point power.
-      powerDes = EP_O.S.r;
+      powerDes = EP_O.S.getReal();
 
       // Energy consumed at this operating point.
       energy = PInternal * segmentTime;
@@ -376,8 +381,8 @@ this component, see MotorGeneratorMap.int";
         energyDes = energy;
       }
 
-      real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h/1000) / (W-h/kg) = kg
-      real powerBasedMass = EP_O.S.r / SpecificPower;
+      real energyBasedMass = (energyDes*1000) / SpecificEnergy; // (kW-h*1000) / (W-h/kg) = kg
+      real powerBasedMass = EP_O.S.getReal() / SpecificPower;
 
       if (energyBasedMass > powerBasedMass) {
         Mass = energyBasedMass; // compute mass based on assumed specific energy
@@ -389,17 +394,18 @@ this component, see MotorGeneratorMap.int";
       actualSpecificPower = powerDes/Mass; // [kW/kg]
 
 
-      C_rate = EP_O.S.r / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
+      C_rate = EP_O.S.getReal() / energyDes; // (design power kW * 1 hour) / (design energy in kW-h) 
 
     } else {
-      Loss_r = EP_O.I.mag**2 * R;
+      Loss_r = abs_c(EP_O.I)**2 * R;
       Loss_j = 0;
-      eff = (EP_O.S.r / (EP_O.S.r + Loss_r))**sign(EP_O.S.r);
-
+      eff = (EP_O.S.getReal() / (EP_O.S.getReal() + Loss_r))**sign(EP_O.S.getReal());
+      
       // energy consumed at this operating point.
-      energy = (EP_O.S.r + Loss_r) * segmentTime;
+      Loss.set(Loss_r,Loss_j);
+      energy = (EP_O.S.getReal() + Loss.getReal()) * segmentTime;
     }
-
+    
     real KW_PER_BTU_PER_SEC = 1.05505585;
     Q_heat = sqrt(Loss_r**2 + Loss_j**2);
     Q_heat /= KW_PER_BTU_PER_SEC;

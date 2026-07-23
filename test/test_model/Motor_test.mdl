@@ -1,0 +1,40 @@
+/***
+ -------------------------------------------------------------------------------
+ |                                                                             |
+ | NASA Glenn Research Center                                                  |
+ | 21000 Brookpark Rd 		                                                     |
+ | Cleveland, OH 44135 	                                                       |
+ |                                                                             |
+ | File Name:     Motor_test.mdl                                               |
+ | Author(s):	    George Thomas, Michael Stich                                 |
+ | Date(s):       April 2023                                                   |
+ |                                                                             |
+ -------------------------------------------------------------------------------
+***/
+
+Element Enode E1 {
+  ElectricOutputPort EP_O;
+  frequency = 400;  // [Hz]
+}
+
+Element Motor EM {
+   #include <STARCABLmotorGenerator.map>
+   effDes=0.96;
+   powerfactor=1.;
+   SpecificPower=13.0; 
+   trqDes=3500.0; 
+   frequency = 400.;
+   //Vreal = 1000.;
+}
+
+Element Shaft Test_Shaft {
+	Nmech=4000;   // rpm
+	ShaftInputPort Sh_I;
+  //integrate_Nmech.autoSetup = FALSE;	
+}
+
+linkPorts( "E1.EP_O" ,"EM.EP_I","PORT1" );
+//linkPortI( "E1.EP_O", "EM.EP_I" );
+linkPorts( "Test_Shaft.Sh_I" ,"EM.Sh_O","Test_Shaft_Example" );
+
+solverSequence = {"E1","EM"};

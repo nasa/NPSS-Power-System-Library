@@ -34,7 +34,7 @@ Element Generator Gen1 {
 
 Element Cable Cable1 {
 	R=4.3245e-6;
-	L=9.84e-5*length/4./60./2./PI;
+	L=9.84e-5*length/4./60./2./PI;	
 }
 
 Element Enode E1{
@@ -55,13 +55,13 @@ Element Cable Cable2b {
 
 Element Motor EM1 {
 	effDes=0.96;
-	SpecificPower=13.0;
+	SpecificPower=13.0; 
 	frequency = 400.;
 }
 
 Element Motor EM2 {
 	effDes=0.96;
-	SpecificPower=13.0;
+	SpecificPower=13.0; 
 	frequency = 400.;
 }
 
@@ -156,53 +156,43 @@ Element Shaft Turbine_Shaft {
 //-------------------------------------------------------------------------------------------------
 linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
 linkPorts( "Propulsor_Shaft2.Sh1_I"  , "EM2.Sh_O"          	, "Shaft_Motor2" );
-linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
-linkPortI( "Cable1.EP_O", "E1.EP_I" );
-linkPortI( "E1.EP_O1", "Cable2a.EP_I" );
-linkPortI( "E1.EP_O2", "Cable2b.EP_I" );
-linkPortI( "Cable2a.EP_O", "EM1.EP_I" );
-linkPortI( "Cable2b.EP_O", "EM2.EP_I" );
-propagateEpsSolverListAndPowerTypes();
+linkPorts("Gen1.EP_O","Cable1.EP_I","Port1");
+linkPorts("Cable1.EP_O","E1.EP_I","Port2");
+linkPorts("E1.EP_O1","Cable2a.EP_I","Port3");
+linkPorts("E1.EP_O2","Cable2b.EP_I","Port4");
+linkPorts("Cable2a.EP_O","EM1.EP_I","Port5");
+linkPorts("Cable2b.EP_O","EM2.EP_I","Port6");
 
-linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
+#include "PSL_connection.fnc"
+propagatePower();
 
-// if not using nozzle
-//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1-End");
+// propagateEpsSolverListAndPowerTypes();
 
-// using nozzle
-linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
-linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
-
-
-linkPorts( "Atm2.Fl_O"               , "Prop2.Fl_I"           , "St0-St12");
+linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0toSt1");
 
 // if not using nozzle
-//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1-End");
+//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1toEnd");
 
 // using nozzle
-linkPorts( "Prop2.Fl_O"              , "Noz2.Fl_I"           ,  "St1-St22");
-linkPorts( "Noz2.Fl_O"              ,  "dump2.Fl_I"           , "St2-End2");
+linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1toSt2");
+linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2toEnd");
+
+
+linkPorts( "Atm2.Fl_O"               , "Prop2.Fl_I"           , "St0toSt12");
+
+// if not using nozzle
+//linkPorts( "Prop.Fl_O"              , "dump.Fl_I"           , "St1toEnd");
+
+// using nozzle
+linkPorts( "Prop2.Fl_O"              , "Noz2.Fl_I"           ,  "St1toSt22");
+linkPorts( "Noz2.Fl_O"              ,  "dump2.Fl_I"           , "St2toEnd2");
 
 
 //
-linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
-linkPorts( "Prop2.Sh_O"              , "Propulsor_Shaft2.Sh_Prop" , "Prop-to-Shaft2");
-linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
-linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
-linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
-linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
+linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "PropToShaft");
+linkPorts( "Prop2.Sh_O"              , "Propulsor_Shaft2.Sh_Prop" , "PropToShaft2");
+linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00toSt10");
+linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10toEnd0");
+linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "TurbToShaft");
+linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1ToShaft");
 
-// solverSequence.remove( "E1" );
-// solverSequence.remove( "Gen1" );
-// solverSequence.remove( "EM1" );
-// solverSequence.remove( "EM2" );
-// solverSequence.remove( "Turbine_Shaft" );
-// solverSequence.remove( "Propulsor_Shaft" );
-// solverSequence.remove( "Propulsor_Shaft2" );
-// solverSequence.append( "E1" );
-// solverSequence.append( "Gen1" );
-// solverSequence.append( "EM1" );
-// solverSequence.append( "EM2" );
-// solverSequence.append( "Turbine_Shaft" );
-// solverSequence.append( "Propulsor_Shaft" );
-// solverSequence.append( "Propulsor_Shaft2" );

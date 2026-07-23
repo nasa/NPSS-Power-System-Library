@@ -33,7 +33,9 @@ solver.maxIterations = 10000;
 
 // this assembly represents the powertrain running at a hover power setting
 Assembly HOV { 
-  #include "baseline_all_elec.mdl"
+  Assembly allElectric {
+    #include "baseline_all_elec.mdl"
+  }
 
   allElectric {
 
@@ -50,7 +52,9 @@ Assembly HOV {
 
 // this assembly represents the powertrain running at a lower, cruise power setting
 Assembly CRZ { 
-  #include "baseline_all_elec.mdl"
+  Assembly allElectric {
+    #include "baseline_all_elec.mdl"
+  }
 
   allElectric {
     Solver solver { 

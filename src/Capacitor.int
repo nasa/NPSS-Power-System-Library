@@ -64,9 +64,9 @@ no sizing logic included in this component.";
   //------------------------------
   
   real C;
-  ComplexNumber dV;
-  ComplexNumber Vo;
-  ComplexNumber Z;
+  Complex dV;
+  Complex Z;
+  Complex I;
   
   //----------------------------------------------------------
   // ****** SETUP PORTS, FLOW STATIONS, SOCKETS, TABLES ******
@@ -83,18 +83,15 @@ no sizing logic included in this component.";
   void calculate() {
 	Z.setrj(0., -1. / (2*PI*EP_I.frequency*C));
 
-    // calculate the current	
-    dV.copy( "EP_I.I" );
-    dV.times( "Z" );
-    Vo.copy( "EP_I.V" );
-    Vo.minus( "dV" );
-    
+    // calculate the current
+    dV = EP_I.V - EP_O.V;
+    Z.set(0., -1. / (2*PI * EP_I.frequency * C));
+    I = dV / Z;
     
     // set the conditions in the ports
-	EP_O.frequency = EP_I.frequency;
-    EP_O.setIVRMS( EP_I.I.rRMS, EP_I.I.jRMS, Vo.rRMS, Vo.jRMS ); 	
-    // EP_I.setIVRMS(I.rRMS, I.jRMS, EP_I.V.rRMS, EP_I.V.jRMS); 	
-    
+    EP_O.setIVRMS(I, EP_O.V); 	
+    EP_I.setIVRMS(I, EP_I.V); 	
+    EP_O.frequency = EP_I.frequency;
   }
 }
 #endif

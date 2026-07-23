@@ -20,6 +20,7 @@ cout<<" Example Turbo-electric Model "<<endl;
 cout<<"======================================="<<endl;
 
 setThermoPackage("GasTbl");
+#include "PSL_connection.fnc"
 
 /**************************
 Electric Power System Components
@@ -167,15 +168,16 @@ Element Shaft Turbine_Shaft {
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPortI( "Gen1.EP_O", "Breaker1.EP_I");
-linkPortI( "Breaker1.EP_O", "Cable1.EP_I");
-linkPortI( "Cable1.EP_O", "Rect1.EP_I");
-linkPortI( "Rect1.EP_O",  "Breaker2.EP_I");
-linkPortI( "Breaker2.EP_O", "Cable2.EP_I");
-linkPortI( "Cable2.EP_O", "Inv1.EP_I");
-linkPortI( "Inv1.EP_O", "Cable3.EP_I" );
-linkPortI( "Cable3.EP_O", "EM1.EP_I" );
-propagateEpsSolverListAndPowerTypes();
+linkPorts("Gen1.EP_O","Breaker1.EP_I","Port1");
+linkPorts("Breaker1.EP_O","Cable1.EP_I","Port2");
+linkPorts("Cable1.EP_O","Rect1.EP_I","Port3");
+linkPorts("Rect1.EP_O","Breaker2.EP_I","Port4");
+linkPorts("Breaker2.EP_O","Cable2.EP_I","Port5");
+linkPorts("Cable2.EP_O","Inv1.EP_I","Port6");
+linkPorts("Inv1.EP_O","Cable3.EP_I","Port7");
+linkPorts("Cable3.EP_O","EM1.EP_I","Port8");
+propagatePower();
+
 
 linkPorts( "Propulsor_Shaft.Sh1_I", "EM1.Sh_O", "Shaft_Motor1" );
 linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");

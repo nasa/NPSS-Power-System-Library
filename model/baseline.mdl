@@ -113,19 +113,21 @@ Element Shaft Turbine_Shaft {
 //-------------------------------------------------------------------------------------------------
 // Component Linkages
 //-------------------------------------------------------------------------------------------------
-linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"          	, "Shaft_Motor1" );
-linkPortI( "Gen1.EP_O", "Cable1.EP_I" );
-linkPortI( "Cable1.EP_O", "EM1.EP_I" );
-propagateEpsSolverListAndPowerTypes();
+linkPorts( "Propulsor_Shaft.Sh1_I"  , "EM1.Sh_O"	, "Shaft_Motor1" );
+linkPorts( "Gen1.EP_O"				, "Cable1.EP_I"	, "Port1");
+linkPorts( "Cable1.EP_O"			, "EM1.EP_I"	, "Port2");
 
-linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"           , "St0-St1");
-linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"           ,  "St1-St2");
-linkPorts( "Noz.Fl_O"              ,  "dump.Fl_I"           , "St2-End");
+
+linkPorts( "Atm.Fl_O"               , "Prop.Fl_I"            , "St0toSt1" );
+linkPorts( "Prop.Fl_O"              , "Noz.Fl_I"             ,  "St1toSt2");
+linkPorts( "Noz.Fl_O"               ,  "dump.Fl_I"           , "St2toEnd" );
 
 //
-linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "Prop-to-Shaft");
-linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"           , "St00-St10");
-linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    , "St10-End0");
-linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine" , "Turb-to-Shaft");
-linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O", "Gen1-to-Shaft");
+linkPorts( "Prop.Sh_O"              , "Propulsor_Shaft.Sh_Prop" , "PropToShaft");
+linkPorts( "TurbineAtm.Fl_O"        , "Turb.Fl_I"               , "St00toSt10" );
+linkPorts( "Turb.Fl_O"              , "Turbinedump.Fl_I"    	, "St10toEnd0" );
+linkPorts( "Turb.Sh_O"        		, "Turbine_Shaft.Sh_Turbine", "TurbToShaft");
+linkPorts( "Turbine_Shaft.Sh1_I"    , "Gen1.Sh_O"				, "Gen1ToShaft");
 
+#include "PSL_connection.fnc"
+propagatePower();

@@ -25,14 +25,14 @@ GroupBlock Electrical {
 		titleBody = "\n Motor Data"; 
 		compType = "Motor"; 
 		compTypeFormat = "????????"; 
-		compAttr = {"EP_I.S.r","EP_I.V.mag","EP_I.V.phase","EP_I.I.mag","EP_I.I.phase","Mass","Loss_r","Loss_j"};
+		compAttr = {"EP_I.S.getReal()","abs_c(EP_I.V)","arg_c(EP_I.V)","abs_c(EP_I.I)","arg_c(EP_I.I)","Mass","Loss_r","Loss_j"};
    }
       
    DColTBlock cable { 
 		titleBody = "\n Single Phase Cable"; 
 		compType = "Cable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.r","EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_I.S.getReal()","EP_O.S.getReal()","abs_c(EP_O.V)","arg_c(EP_O.V)","abs_c(EP_O.I)","arg_c(EP_O.I)","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 
    } 
 
@@ -40,7 +40,7 @@ GroupBlock Electrical {
 		titleBody = "\n 3 Phase Cable"; 
 		compType = "ThreePhaseCable"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
+		compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_I.V)","arg_c(EP_I.V)*180/PI","abs_c(EP_I.I)","arg_c(EP_I.I)*180/PI"}; 
 		//showColHeader=FALSE; 	
 	}
 	
@@ -48,7 +48,7 @@ GroupBlock Electrical {
 		titleBody = "\n Generators"; 
 		compType = "Generator"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_O.S.getReal()","abs_c(EP_O.V)","arg_c(EP_O.V)","abs_c(EP_O.I)","arg_c(EP_O.I)","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 	
    }
    
@@ -56,7 +56,7 @@ GroupBlock Electrical {
 		titleBody = "\n Rectifiers"; 
 		compType = "Rectifier"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_O.S.getReal()","abs_c(EP_O.V)","arg_c(EP_O.V)","abs_c(EP_O.I)","arg_c(EP_O.I)","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 	
    }
    
@@ -64,7 +64,7 @@ GroupBlock Electrical {
 		titleBody = "\n Inverters"; 
 		compType = "Inverter"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_O.S.r","EP_O.V.mag","EP_O.V.phase","EP_O.I.mag","EP_O.I.phase","Mass","Loss_r","Loss_j"}; 
+		compAttr = {"EP_O.S.getReal()","abs_c(EP_O.V)","arg_c(EP_O.V)","abs_c(EP_O.I)","arg_c(EP_O.I)","Mass","Loss_r","Loss_j"}; 
 		//showColHeader=FALSE; 	
    }
    
@@ -72,7 +72,7 @@ GroupBlock Electrical {
 		titleBody = "\n 3 Phase Y Load"; 
 		compType = "ThreePhaseYLoad"; 
 		compTypeFormat = "????????????"; 
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_I.I.mag","EP_I.I.phaseDeg"}; 
+		compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_I.V)","arg_c(EP_I.V)*180/PI","abs_c(EP_I.I)","arg_c(EP_I.I)*180/PI"}; 
 		//showColHeader=FALSE; 	
 	}
       
@@ -94,7 +94,7 @@ GroupBlock CircuitsGroup {
 		compTypeFormat = "????????"; 
 		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
 		//compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
+		compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_O.S)","arg_c(EP_O.S)*180/PI","abs_c(EP_O.I)","arg_c(EP_O.I)*180/PI"};
    }
    
    DColTBlock inductor { 
@@ -102,8 +102,8 @@ GroupBlock CircuitsGroup {
 		compType = "Inductor"; 
 		compTypeFormat = "????????????"; 
 		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-		//compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
+		//compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_I.V)","arg_c(EP_I.V)*180/PI","abs_c(EP_O.S)","arg_c(EP_O.S)*180/PI","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
+		compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_O.S)","arg_c(EP_O.S)*180/PI","abs_c(EP_O.I)","arg_c(EP_O.I)*180/PI"};
    } 
    
    DColTBlock capacitor { 
@@ -111,8 +111,8 @@ GroupBlock CircuitsGroup {
 		compType = "Capacitor"; 
 		compTypeFormat = "????????????"; 
 		//compAttr = {"EP_I.S.rRMS","EP_I.S.jRMS","EP_I.V.rRMS","EP_I.V.jRMS","EP_O.S.rRMS","EP_O.S.jRMS","EP_O.V.rRMS","EP_O.V.jRMS","EP_O.I.rRMS","EP_O.I.jRMS"};
-		//compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_I.V.mag","EP_I.V.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
-		compAttr = {"EP_I.S.mag","EP_I.S.phaseDeg","EP_O.S.mag","EP_O.S.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
+		//compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_I.V)","arg_c(EP_I.V)*180/PI","abs_c(EP_O.S)","arg_c(EP_O.S)*180/PI","EP_O.V.mag","EP_O.V.phaseDeg","EP_O.I.mag","EP_O.I.phaseDeg"};
+		compAttr = {"abs_c(EP_I.S)","arg_c(EP_I.S)*180/PI","abs_c(EP_O.S)","arg_c(EP_O.S)*180/PI","abs_c(EP_O.I)","arg_c(EP_O.I)*180/PI"};
    }
    anchor = "resistor"; 
    resistor.bottom = "inductor"; 
